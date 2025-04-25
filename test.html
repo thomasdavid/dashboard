@@ -12,27 +12,21 @@
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
 
-<script>
-Highcharts.setOptions({plotOptions:{series:{animation:{duration:500}}}});
-</script>
+<script>Highcharts.setOptions({plotOptions:{series:{animation:{duration:500}}}});</script>
 
-<!-- palette & logo helpers -->
+<!-- palette & logo -->
 <script>
-const barPalette={
-  1:['#355582'],
-  2:['#355582','#005F2F'],
-  3:['#355582','#9ca2a9','#005F2F'],
-  4:['#355582','#9ca2a9','#4d853d','#005F2F'],
-  5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
-  6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
-};
-function barColor(i,n){return barPalette[Math.min(n,6)][i];}
-
-var logoURL='https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
+const barPalette={1:['#355582'],2:['#355582','#005F2F'],
+ 3:['#355582','#9ca2a9','#005F2F'],
+ 4:['#355582','#9ca2a9','#4d853d','#005F2F'],
+ 5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
+ 6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']};
+const barColor=(i,n)=>barPalette[Math.min(n,6)][i];
+const logoURL='https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
 function addLogo(ch){
-  var w=90,h=28,x=ch.chartWidth-w-10,y=ch.chartHeight-h-10;
-  if(ch.customLogo) ch.customLogo.destroy();
-  ch.customLogo=ch.renderer.image(logoURL,x,y,w,h).css({opacity:0.8}).add();
+  const w=90,h=28,x=ch.chartWidth-w-10,y=ch.chartHeight-h-10;
+  ch.customLogo?.destroy();
+  ch.customLogo=ch.renderer.image(logoURL,x,y,w,h).css({opacity:.8}).add();
 }
 </script>
 
@@ -45,7 +39,8 @@ body{font-family:'Inter',Arial,sans-serif;margin:1.5rem;max-width:960px}
 h1{margin:0 0 .75rem;font-size:1.1rem;font-weight:600}
 label{display:block;margin:0 0 1rem;font-weight:600}
 select{width:100%;padding:.4rem;border:1px solid var(--border);border-radius:4px;font:inherit}
-button{font:inherit;padding:.45rem .9rem;border:1px solid var(--border);border-radius:4px;background:#eee;margin-right:.6rem;cursor:pointer}
+button{font:inherit;padding:.45rem .9rem;border:1px solid var(--border);
+       border-radius:4px;background:#eee;margin-right:.6rem;cursor:pointer}
 button:disabled{opacity:.4;cursor:not-allowed}
 .hidden{display:none!important}
 #tabs{display:flex;gap:1.5rem;margin:0 0 1rem;font-weight:600}
@@ -89,216 +84,186 @@ footer{margin-top:.75rem}footer img{height:36px}
 <footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound"></footer>
 
 <script>
-/* ---------- utilities ---------- */
-function tidy(r){var o={}; for(var k in r) o[k.trim()]=r[k]; return o;}
-function layout(n){
-  if(n>20) return{h:700,p:.03,g:.05,pt:16,labels:false};
-  if(n>8)  return{h:520,p:.05,g:.1 ,pt:null,labels:false};
-  return     {h:520,p:.1 ,g:.2 ,pt:null,labels:true};
-}
-function enableExports(ch){
-  dlData.disabled=dlImg.disabled=!ch;
-  if(ch){
-    dlData.onclick=function(){ch.downloadCSV();};
-    dlImg.onclick =function(){ch.exportChartLocal({type:'image/png',filename:'survey-'+Date.now()});};
+const CSV='https://coral-johna-20.tiiny.site/Dashboard_data.csv';
+const tidy=r=>{const o={};for(const k in r)o[k.trim()]=r[k];return o;};
+
+const qSel=document.getElementById('qSel'),cSel=document.getElementById('cSel'),
+      rSel=document.getElementById('rSel'),fSelMain=document.getElementById('fSelMain'),
+      fSelFilt=document.getElementById('fSelFilt'),
+      cBlock=document.getElementById('cBlock'),fBlockMain=document.getElementById('fBlockMain'),
+      fBlockFilt=document.getElementById('fBlockFilt'),rBlock=document.getElementById('rBlock');
+
+function enableExports(chart){
+  dlData.disabled=dlImg.disabled=!chart;
+  if(chart){
+    dlData.onclick=()=>chart.downloadCSV();
+    dlImg.onclick =()=>chart.exportChartLocal({type:'image/png',filename:'survey-'+Date.now()});
   }
 }
 
-/* ---------- load CSV ---------- */
-var CSV='https://coral-johna-20.tiiny.site/Dashboard_data.csv';
-Papa.parse(CSV,{
-  download:true,header:true,dynamicTyping:true,
-  complete:function(res){
-    var rows=res.data.map(tidy).filter(function(r){return r.Question&&r.Country&&r.Filters&&r.Responses&&r.Result;});
-    var qList=[].filter.call(rows,function(r,i,a){return a.findIndex(function(x){return x.Question.trim()===r.Question.trim();})===i}).map(function(r){return r.Question.trim();});
-    var cList=[].filter.call(rows,function(r,i,a){return a.findIndex(function(x){return x.Country.trim()===r.Country.trim();})===i}).map(function(r){return r.Country.trim();}).sort();
-    var filtList=[].filter.call(rows,function(r,i,a){return a.findIndex(function(x){return x.Filters.trim()===r.Filters.trim();})===i}).map(function(r){return r.Filters.trim();}).sort();
-    function respFor(q){return [].filter.call(rows,function(r,i,a){return r.Question.trim()===q && a.findIndex(function(x){return x.Question.trim()===q && x.Responses.trim()===r.Responses.trim();})===i;}).map(function(r){return r.Responses.trim();}).sort();}
+Papa.parse(CSV,{download:true,header:true,dynamicTyping:true,complete:({data})=>{
+  const rows=data.map(tidy).filter(r=>r.Question&&r.Country&&r.Filters&&r.Responses&&r.Result);
+  const qList=[...new Set(rows.map(r=>r.Question.trim()))];
+  const cList=[...new Set(rows.map(r=>r.Country.trim()))].sort();
+  const filtList=[...new Set(rows.map(r=>r.Filters.trim()))].sort();
+  const respFor=q=>[...new Set(rows.filter(r=>r.Question.trim()===q).map(r=>r.Responses.trim()))].sort();
 
-    /* build selectors */
-    qSel.innerHTML=qList.map(function(q){return'<option>'+q+'</option>';}).join('');
-    cSel.innerHTML=['<option value="__all__">Select all</option>'].concat(cList.map(function(c){return'<option>'+c+'</option>';}).join('')).join('');
-    fSelMain.innerHTML=['<option value="__all__">All filters</option>'].concat(filtList.map(function(f){return'<option>'+f+'</option>';}).join('')).join('');
-    fSelFilt.innerHTML=filtList.map(function(f){return'<option>'+f+'</option>';}).join('');
-    rSel.innerHTML=respFor(qSel.value).map(function(r){return'<option>'+r+'</option>';}).join('');
+  /* selectors */
+  qSel.innerHTML=qList.map(q=>`<option>${q}</option>`).join('');
+  cSel.innerHTML=['<option value="__all__">Select all</option>',...cList.map(c=>`<option>${c}</option>`)].join('');
+  fSelMain.innerHTML=['<option value="__all__">All filters</option>',...filtList.map(f=>`<option>${f}</option>`)].join('');
+  fSelFilt.innerHTML=filtList.map(f=>`<option>${f}</option>`).join('');
+  rSel.innerHTML=respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
 
-    /* defaults */
-    cSel.options[0].selected=true;
-    [].forEach.call(fSelFilt.options,function(o){o.selected=true;});
-    rSel.options[0].selected=true;
-    var selResponsesMap=new Set([rSel.value]);
+  /* defaults */
+  cSel.options[0].selected=true;
+  [...fSelFilt.options].forEach(o=>o.selected=true);
+  rSel.options[0].selected=true;
+  let selResponsesMap=new Set([rSel.value]);
 
-    /* state */
-    var view='bar',chart;
-    var selCountries=new Set(), selFilterMain='__all__', selFilterFilt=new Set(filtList);
+  /* state */
+  let view='bar',chart;
+  let selCountries=new Set(), selFilterMain='__all__', selFilterFilt=new Set(filtList);
 
-    /* helper toggler */
-    function toggle(sel,cb){
-      sel.addEventListener('mousedown',function(e){
-        if(e.target.tagName!=='OPTION')return;
-        e.preventDefault(); e.target.selected=!e.target.selected; cb();});
-    }
+  /* helpers */
+  const toggle=(sel,cb)=>sel.addEventListener('mousedown',e=>{if(e.target.tagName!=='OPTION')return;
+    e.preventDefault();e.target.selected=!e.target.selected;cb();});
+  const barLayout=n=>{
+     if(n>20) return{h:700,p:.03,g:.05,pt:12,labels:false};
+     if(n>8)  return{h:520,p:.05,g:.1 ,pt:null,labels:false};
+     return   {h:520,p:.1 ,g:.2 ,pt:null,labels:true};
+  };
+  const filterOKMain=r=>selFilterMain==='__all__'||r.Filters.trim()===selFilterMain;
+  const filterOKTab =r=>!selFilterFilt.size||selFilterFilt.has(r.Filters.trim());
 
-    /* update fns */
-    function updateCountries(){
-      if(cSel.multiple){
-        if(cSel.options[0].selected){[].forEach.call(cSel.options,function(o){o.selected=true;}); selCountries.clear();}
-        else selCountries=new Set([].filter.call(cSel.selectedOptions,function(o){return o.value!=='__all__';}).map(function(o){return o.value;}));
-      }else selCountries=new Set([cSel.value]);
-      draw();
-    }
-    toggle(cSel,updateCountries); cSel.addEventListener('change',updateCountries);
+  /* country */
+  function updateCountries(){
+    if(cSel.multiple){
+      if(cSel.options[0].selected){[...cSel.options].forEach(o=>o.selected=true); selCountries.clear();}
+      else selCountries=new Set([...cSel.selectedOptions].filter(o=>o.value!=='__all__').map(o=>o.value));
+    }else selCountries=new Set([cSel.value]);
+    draw();
+  }
+  toggle(cSel,updateCountries); cSel.addEventListener('change',updateCountries);
 
-    fSelMain.onchange=function(){selFilterMain=fSelMain.value; if(view!=='filter')draw();};
-    function updateFilterTab(){selFilterFilt=new Set([].map.call(fSelFilt.selectedOptions,function(o){return o.value;})); draw();}
-    toggle(fSelFilt,updateFilterTab); fSelFilt.addEventListener('change',updateFilterTab);
+  /* filters */
+  fSelMain.addEventListener('change',()=>{selFilterMain=fSelMain.value; if(view!=='filter')draw();});
+  function updateFilterTab(){selFilterFilt=new Set([...fSelFilt.selectedOptions].map(o=>o.value)); draw();}
+  toggle(fSelFilt,updateFilterTab); fSelFilt.addEventListener('change',updateFilterTab);
 
-    function updateResp(){
-      selResponsesMap=new Set([].map.call(rSel.selectedOptions,function(o){return o.value;}));
-      if(selResponsesMap.size===0) selResponsesMap.add(rSel.options[0].value);
-      if(view==='map')draw();
-    }
-    toggle(rSel,updateResp); rSel.addEventListener('change',updateResp);
+  /* map responses */
+  function updateResp(){
+    selResponsesMap=new Set([...rSel.selectedOptions].map(o=>o.value));
+    if(!selResponsesMap.size)selResponsesMap.add(rSel.options[0].value);
+    if(view==='map')draw();
+  }
+  toggle(rSel,updateResp); rSel.addEventListener('change',updateResp);
 
-    qSel.onchange=function(){
-      rSel.innerHTML=respFor(qSel.value).map(function(r){return'<option>'+r+'</option>';}).join('');
-      rSel.options[0].selected=true; selResponsesMap=new Set([rSel.options[0].value]); draw();
-    };
+  /* question change */
+  qSel.onchange=()=>{
+    rSel.innerHTML=respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
+    rSel.options[0].selected=true; selResponsesMap=new Set([rSel.options[0].value]); draw();
+  };
 
-    /* tab switching */
-    [].forEach.call(document.querySelectorAll('.tab'),function(t){
-      t.onclick=function(){
-        view=t.getAttribute('data-view');
-        [].forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.toggle('active',x===t);});
-        if(view==='bar'){
-          cBlock.classList.remove('hidden'); fBlockMain.classList.remove('hidden'); rBlock.classList.add('hidden'); fBlockFilt.classList.add('hidden');
-          cSel.multiple=true; cSel.size=5;
-        }else if(view==='filter'){
-          cBlock.classList.remove('hidden'); fBlockMain.classList.add('hidden'); rBlock.classList.add('hidden'); fBlockFilt.classList.remove('hidden');
-          cSel.multiple=false; cSel.size=1;
-        }else{
-          cBlock.classList.add('hidden'); fBlockMain.classList.remove('hidden'); rBlock.classList.remove('hidden'); fBlockFilt.classList.add('hidden');
-        }
-        draw();
-      };
+  /* tabs switch */
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    view=t.dataset.view; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+    if(view==='bar'){
+      cBlock.classList.remove('hidden'); fBlockMain.classList.remove('hidden'); rBlock.classList.add('hidden'); fBlockFilt.classList.add('hidden');
+      cSel.multiple=true;cSel.size=5; if(!cSel.options[0])cSel.insertAdjacentHTML('afterbegin','<option value="__all__">Select all</option>');
+    }else if(view==='filter'){
+      cBlock.classList.remove('hidden'); fBlockMain.classList.add('hidden'); rBlock.classList.add('hidden'); fBlockFilt.classList.remove('hidden');
+      cSel.multiple=false;cSel.size=1; if(cSel.options[0]?.value==='__all__')cSel.removeChild(cSel.options[0]); if(!cSel.value)cSel.selectedIndex=0; updateCountries();
+    }else{
+      cBlock.classList.add('hidden'); fBlockMain.classList.remove('hidden'); rBlock.classList.remove('hidden'); fBlockFilt.classList.add('hidden');}
+    draw();
+  });
+
+  /* titles */
+  const barTitle =()=>`${qSel.value} (${selFilterMain==='__all__'?'All filters':selFilterMain})`;
+  const filtTitle=()=>`${qSel.value} (${cSel.value})`;
+  const mapTitle =()=>`${qSel.value} (${selFilterMain==='__all__'?'All filters':selFilterMain}) – ${[...selResponsesMap].join(', ')}`;
+
+  /* drawing helpers */
+  function buildSeries(q,cats,reps,catMapFn){
+    return reps.map((resp,i)=>({
+      name:resp,color:barColor(i,reps.length),
+      data:cats.map(ct=>catMapFn(resp,ct))
+    }));
+  }
+  function addTotalLabels(series,show){
+    if(!show)return series;
+    const top=series[series.length-1];
+    top.dataLabels={enabled:true,inside:true,align:'right',color:'#fff',formatter(){return Highcharts.numberFormat(this.point.stackTotal,0)+'%';},
+                    style:{textOutline:'none',fontWeight:600},x:-4};
+    return series;
+  }
+
+  /* draw Country bar */
+  function drawCountryBar(){
+    const q=qSel.value, cats=[...selCountries.size?selCountries:cList], reps=respFor(q);
+    let series=buildSeries(q,cats,reps,(resp,ct)=>rows.filter(r=>r.Question.trim()===q&&r.Country.trim()===ct&&r.Responses.trim()===resp).filter(filterOKMain)[0]?.Result||0);
+    const totals=cats.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
+    const visCats=cats.filter((_,i)=>totals[i]>0); series=series.map(s=>({...s,data:s.data.filter((_,i)=>totals[i]>0)}));
+    const lay=barLayout(visCats.length); series=addTotalLabels(series,lay.labels);
+    chart=Highcharts.chart('container',{chart:{type:'bar',height:lay.h},
+      title:{text:barTitle()},xAxis:{categories:visCats},yAxis:{min:0,title:{text:'%'}},
+      tooltip:{pointFormat:'{series.name}: <b>{point.y:.1f}%</b>'},
+      plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},series,
+      events:{load(){addLogo(this);},redraw(){addLogo(this);}}});
+  }
+
+  /* draw Filter bar */
+  function drawFilterBar(){
+    const q=qSel.value,c=cSel.value,reps=respFor(q),filters=[...selFilterFilt];
+    if(!filters.length){chart=Highcharts.chart('container',{title:{text:'Select filters'},series:[]});return;}
+    let series=buildSeries(q,filters,reps,(resp,fl)=>rows.filter(r=>r.Question.trim()===q&&r.Country.trim()===c&&r.Filters.trim()===fl&&r.Responses.trim()===resp)[0]?.Result||0);
+    const totals=filters.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
+    const vis=filters.filter((_,i)=>totals[i]>0); series=series.map(s=>({...s,data:s.data.filter((_,i)=>totals[i]>0)}));
+    const lay=barLayout(vis.length); series=addTotalLabels(series,lay.labels);
+    chart=Highcharts.chart('container',{chart:{type:'bar',height:lay.h},
+      title:{text:filtTitle()},xAxis:{categories:vis},yAxis:{min:0,title:{text:'%'}},
+      tooltip:{pointFormat:'{series.name}: <b>{point.y:.1f}%</b>'},
+      plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},series,
+      events:{load(){addLogo(this);},redraw(){addLogo(this);}}});
+  }
+
+  /* draw Map */
+  function drawMap(){
+    const q=qSel.value,reps=respFor(q),byC={};
+    rows.filter(r=>r.Question.trim()===q&&filterOKMain(r)).forEach(r=>{
+      const c=r.Country.trim(),resp=r.Responses.trim();
+      if(!byC[c])byC[c]={tot:0,all:{}};
+      if(selResponsesMap.has(resp))byC[c].tot+=r.Result;
+      byC[c].all[resp]=r.Result;
     });
+    const keys={};Highcharts.maps['custom/europe'].features.forEach(f=>keys[f.properties.name]=f.properties['hc-key']);
+    const data=Object.entries(byC).map(([ct,o])=>({'hc-key':keys[ct]||ct.slice(0,2).toLowerCase(),value:o.tot,name:ct,all:o.all}));
+    const max=Math.max(...data.map(d=>d.value))||1;
+    chart=Highcharts.mapChart('container',{title:{text:mapTitle()},
+      chart:{map:'custom/europe',animation:false},
+      colorAxis:{min:0,max,tickAmount:6,stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]},
+      legend:{title:{text:'%'},layout:'vertical',align:'left',verticalAlign:'bottom',floating:true,background:'#fff',borderWidth:1},
+      tooltip:{useHTML:true,pointFormatter:function(){
+        const vals=this.all||{},maxR=Math.max(...Object.values(vals))||1;
+        return `<div style="width:220px"><strong>${this.name}</strong><br>`+
+          reps.map((r,i)=>{
+            const v=vals[r]||0,w=100*(v/maxR);
+            return `<div style="margin-bottom:4px;font-size:0.95em">
+                      ${r}<br>
+                      <span style="display:inline-block;background:${barColor(i,reps.length)};width:${w}%;height:10px"></span>
+                      <span style="font-size:.85em"> ${v.toFixed(0)}%</span>
+                    </div>`;}).join('')+'</div>';}},
+      series:[{showInLegend:false,data,joinBy:['hc-key',0],animation:false}],
+      mapNavigation:{enabled:true},
+      events:{load(){addLogo(this);},redraw(){addLogo(this);}}});
+  }
 
-    /* titles */
-    function barTitle(){return qSel.value+' ('+(selFilterMain==='__all__'?'All filters':selFilterMain)+')';}
-    function filtTitle(){return qSel.value+' ('+cSel.value+')';}
-    function mapTitle(){return qSel.value+' ('+(selFilterMain==='__all__'?'All filters':selFilterMain)+') – '+Array.from(selResponsesMap).join(', ');}
-
-    /* series builder */
-    function buildSeries(catArr,reps,getVal){
-      var lay=layout(catArr.length);
-      var series=reps.map(function(resp,i){
-        return{
-          name:resp,
-          color:barColor(i,reps.length),
-          data:catArr.map(function(ct){return getVal(resp,ct);}),
-          dataLabels:lay.labels?{
-            enabled:true,inside:true,align:'right',crop:false,overflow:'allow',
-            formatter:function(){return this.y?this.y.toFixed(0)+'%':'';},
-            style:{fontSize:'13px',fontWeight:'700',color:'#fff',textOutline:'none'},x:-3
-          }:{enabled:false}
-        };
-      });
-      return{series:series,lay:lay};
-    }
-
-    /* Country bar */
-    function drawCountryBar(){
-      var q=qSel.value;
-      var reps=respFor(q);
-      var cats=selCountries.size?Array.from(selCountries):cList.slice();
-      function val(r,ct){var o=rows.filter(function(x){return x.Question.trim()===q && x.Country.trim()===ct && x.Responses.trim()===r && (selFilterMain==='__all__' || x.Filters.trim()===selFilterMain);})[0]; return o?o.Result:0;}
-      var totals=cats.map(function(ct){return reps.reduce(function(s,r){return s+val(r,ct);},0);});
-      var visCats=cats.filter(function(_,i){return totals[i]>0;});
-      var obj=buildSeries(visCats,reps,val); var series=obj.series,lay=obj.lay;
-
-      chart=Highcharts.chart('container',{
-        chart:{type:'bar',height:lay.h},
-        title:{text:barTitle()},
-        xAxis:{categories:visCats},
-        yAxis:{min:0,title:{text:'%'}},
-        tooltip:{useHTML:true,width:250,style:{fontSize:'15px'},
-            headerFormat:'<span style="font-size:15px">{point.key}</span><br>',
-            pointFormat:'<span style="color:{series.color}">■</span> {series.name}: <b>{point.y:.0f}%</b><br>'},
-        plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
-        series:series,
-        events:{load:function(){addLogo(this);},redraw:function(){addLogo(this);}}
-      });
-    }
-
-    /* Filter bar */
-    function drawFilterBar(){
-      var q=qSel.value,c=cSel.value,reps=respFor(q),filts=Array.from(selFilterFilt);
-      function val(r,fl){var o=rows.filter(function(x){return x.Question.trim()===q&&x.Country.trim()===c&&x.Filters.trim()===fl&&x.Responses.trim()===r;})[0];return o?o.Result:0;}
-      var totals=filts.map(function(fl){return reps.reduce(function(s,r){return s+val(r,fl);},0);});
-      var vis=filts.filter(function(_,i){return totals[i]>0;});
-      if(!vis.length){chart=Highcharts.chart('container',{title:{text:'Select filters'},series:[]});return;}
-      var obj=buildSeries(vis,reps,val); var series=obj.series,lay=obj.lay;
-
-      chart=Highcharts.chart('container',{
-        chart:{type:'bar',height:lay.h},
-        title:{text:filtTitle()},
-        xAxis:{categories:vis},
-        yAxis:{min:0,title:{text:'%'}},
-        tooltip:{useHTML:true,width:250,style:{fontSize:'15px'},
-          headerFormat:'<span style="font-size:15px">{point.key}</span><br>',
-          pointFormat:'<span style="color:{series.color}">■</span> {series.name}: <b>{point.y:.0f}%</b><br>'},
-        plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
-        series:series,
-        events:{load:function(){addLogo(this);},redraw:function(){addLogo(this);}}
-      });
-    }
-
-    /* Map */
-    function drawMap(){
-      var q=qSel.value,reps=respFor(q),byC={};
-      rows.forEach(function(r){
-        if(r.Question.trim()!==q) return;
-        if(!(selFilterMain==='__all__' || r.Filters.trim()===selFilterMain)) return;
-        var c=r.Country.trim(),resp=r.Responses.trim();
-        if(!byC[c])byC[c]={tot:0,all:{}};
-        if(selResponsesMap.has(resp))byC[c].tot+=r.Result;
-        byC[c].all[resp]=r.Result;
-      });
-      var keys={}; Highcharts.maps['custom/europe'].features.forEach(function(f){keys[f.properties.name]=f.properties['hc-key'];});
-      var data=Object.keys(byC).map(function(ct){return{'hc-key':keys[ct]||ct.slice(0,2).toLowerCase(),value:byC[ct].tot,name:ct,all:byC[ct].all};});
-      var max=data.reduce(function(m,d){return Math.max(m,d.value);},0)||1;
-
-      chart=Highcharts.mapChart('container',{
-        title:{text:mapTitle()},
-        chart:{map:'custom/europe',animation:false},
-        colorAxis:{min:0,max:max,tickAmount:6,stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]},
-        legend:{title:{text:'%'},layout:'vertical',align:'left',verticalAlign:'bottom',floating:true,background:'#fff',borderWidth:1},
-        tooltip:{useHTML:true,width:260,
-          formatter:function(){
-            var vals=this.point.all||{},maxR=Math.max.apply(null,Object.values(vals))||1,html='<div style="width:260px;font-size:14px"><strong style="font-size:1.05em">'+this.point.name+'</strong><br>';
-            reps.forEach(function(r,i){
-              var v=vals[r]||0,w=maxR?100*v/maxR:0;
-              html+='<div style="margin-bottom:4px">'+r+'<br><span style="display:inline-block;background:'+barColor(i,reps.length)+';width:'+w+'%;height:10px"></span> <span style="font-size:.85em">'+v.toFixed(0)+'%</span></div>';
-            });
-            return html+'</div>';
-          }},
-        series:[{showInLegend:false,data:data,joinBy:['hc-key',0],animation:false}],
-        mapNavigation:{enabled:true},
-        events:{load:function(){addLogo(this);},redraw:function(){addLogo(this);}}
-      });
-    }
-
-    /* top-level draw */
-    function draw(){
-      if(chart) chart.destroy();
-      if(view==='bar')      drawCountryBar();
-      else if(view==='filter') drawFilterBar();
-      else                    drawMap();
-      enableExports(chart);
-    }
-
-    draw(); /* initial render */
-  }});
+  function draw(){chart?.destroy();
+    if(view==='bar')drawCountryBar(); else if(view==='filter')drawFilterBar(); else drawMap();
+    enableExports(chart);}
+  draw();
+}});
 </script>
 </body>
 </html>

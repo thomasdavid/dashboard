@@ -1,372 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Survey Dashboard</title>
+  <meta charset="utf-8">
+  <title>Survey Dashboard</title>
 
-<!-- Highcharts -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/maps/modules/map.js"></script>
-<script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+  <!-- Highcharts -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/maps/modules/map.js"></script>
+  <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+  <script>
+    Highcharts.setOptions({
+      plotOptions: { series: { animation: { duration: 500 } } }
+    });
+  </script>
 
-<script>
-  Highcharts.setOptions({
-    plotOptions:{ series:{ animation:{ duration:500 } } }
-  });
-</script>
+  <!-- palette & logo helper -->
+  <script>
+    const barPalette = {
+      1:['#355582'],2:['#355582','#005F2F'],
+      3:['#355582','#9ca2a9','#005F2F'],
+      4:['#355582','#9ca2a9','#4d853d','#005F2F'],
+      5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
+      6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
+    };
+    const barColor = (i,n) => barPalette[Math.min(n,6)][i];
+    const logoURL = 'https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
+    function addLogo(chart){
+      const w=90,h=28,
+            x=chart.chartWidth - w - 10,
+            y=chart.chartHeight - h - 10;
+      if(chart.customLogo) chart.customLogo.destroy();
+      chart.customLogo = chart.renderer
+        .image(logoURL, x, y, w, h)
+        .css({ opacity: 0.8 })
+        .add();
+    }
+  </script>
 
-<!-- palette & logo -->
-<script>
-  const barPalette = {
-    1:['#355582'],2:['#355582','#005F2F'],3:['#355582','#9ca2a9','#005F2F'],
-    4:['#355582','#9ca2a9','#4d853d','#005F2F'],5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
-    6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
-  };
-  const barColor=(i,n)=>barPalette[Math.min(n,6)][i];
-  const logoURL='https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
-  function addLogo(ch){
-    const w=90,h=28,x=ch.chartWidth-w-10,y=ch.chartHeight-h-10;
-    if(ch.customLogo) ch.customLogo.destroy();
-    ch.customLogo = ch.renderer.image(logoURL,x,y,w,h)
-                        .css({opacity:.8})
-                        .add();
-  }
-</script>
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-<!-- PapaParse -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root{--blue:#355582;--grey:#9ca2a9;--border:#d8d8d8;font-size:14px}
-  body{font-family:'Inter',Arial,sans-serif;margin:1.5rem;max-width:960px}
-  h1{margin:0 0 .75rem;font-size:1.1rem;font-weight:600}
-  label{display:block;margin:0 0 1rem;font-weight:600}
-  select{width:100%;padding:.4rem;border:1px solid var(--border);border-radius:4px;font:inherit}
-  button{font:inherit;padding:.45rem .9rem;border:1px solid var(--border);
-         border-radius:4px;background:#eee;margin-right:.6rem;cursor:pointer}
-  button:disabled{opacity:.4;cursor:not-allowed}
-  .hidden{display:none!important}
-  #tabs{display:flex;gap:1.5rem;margin:0 0 1rem;font-weight:600}
-  .tab{display:flex;align-items:center;gap:.4rem;color:var(--grey);cursor:pointer}
-  .tab.active{color:var(--blue);border-bottom:3px solid var(--blue)}
-  .tab svg{width:18px;height:18px;fill:currentColor}
-  #container{width:100%;height:520px;margin-bottom:1rem}
-  footer{margin-top:.75rem}footer img{height:36px}
-</style>
+  <!-- styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue:#355582; --grey:#9ca2a9; --border:#d8d8d8; font-size:14px }
+    body { font-family:'Inter',Arial,sans-serif; margin:1.5rem; max-width:960px }
+    h1 { margin:0 0 .75rem; font-size:1.1rem; font-weight:600 }
+    label { display:block; margin:0 0 1rem; font-weight:600 }
+    select { width:100%; padding:.4rem; border:1px solid var(--border); border-radius:4px; font:inherit }
+    button { font:inherit; padding:.45rem .9rem; border:1px solid var(--border);
+             border-radius:4px; background:#eee; margin-right:.6rem; cursor:pointer }
+    button:disabled { opacity:.4; cursor:not-allowed }
+    .hidden { display:none!important }
+    #tabs { display:flex; gap:1.5rem; margin:0 0 1rem; font-weight:600 }
+    .tab { cursor:pointer; color:var(--grey) }
+    .tab.active { color:var(--blue); border-bottom:3px solid var(--blue) }
+    #container { width:100%; height:520px; margin-bottom:1rem }
+    footer { margin-top:.75rem; text-align:right }
+    footer img { height:36px }
+  </style>
 </head>
+
 <body>
+  <h1>Living and working e-Survey</h1>
 
-<h1>European Public-Opinion Snapshot</h1>
+  <label>Select question
+    <select id="qSel"></select>
+  </label>
 
-<label>Select question <select id="qSel"></select></label>
-<label id="cBlock">Select country <select id="cSel" multiple size="5"></select></label>
+  <label id="cBlock">Select country
+    <select id="cSel" multiple size="5"></select>
+  </label>
 
-<label id="fBlockMain">Filter by <select id="fSelMain"></select></label>
+  <label id="fBlockMain">Filter by
+    <select id="fSelMain"></select>
+  </label>
 
-<label id="fBlockFilt" class="hidden">Filter by
-  <select id="fSelFilt" multiple size="5"></select>
-</label>
+  <label id="fBlockFilt" class="hidden">Filter by
+    <select id="fSelFilt" multiple size="5"></select>
+  </label>
 
-<label id="rBlock" class="hidden">Select response
-  <select id="rSel" multiple size="5"></select>
-</label>
+  <label id="rBlock" class="hidden">Select response
+    <select id="rSel" multiple size="5"></select>
+  </label>
 
-<div id="tabs">
-  <span class="tab active" data-view="bar"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="6" height="12"/><rect x="10" y="3" width="6" height="18"/><rect x="17" y="13" width="6" height="8"/></svg>Country bar</span>
-  <span class="tab" data-view="filter"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6"/><rect x="3" y="10" width="6" height="6"/><rect x="3" y="17" width="6" height="6"/></svg>Filter bar</span>
-  <span class="tab" data-view="map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>Map</span>
-</div>
+  <div id="tabs">
+    <span class="tab active"   data-view="bar">Country bar</span>
+    <span class="tab"          data-view="filter">Filter bar</span>
+    <span class="tab"          data-view="map">Map</span>
+  </div>
 
-<div id="container"></div>
+  <div id="container"></div>
 
-<div style="margin-bottom:1rem">
-  <button id="dlData" disabled>Download data (CSV)</button>
-  <button id="dlImg"  disabled>Download image (PNG)</button>
-</div>
+  <div style="margin-bottom:1rem">
+    <button id="dlData" disabled>Download data (CSV)</button>
+    <button id="dlImg"  disabled>Download image (PNG)</button>
+  </div>
 
-<footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound"></footer>
+  <footer>
+    <img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound">
+  </footer>
 
-<script>
-const CSV='https://emerald-kelcey-87.tiiny.site/data2.csv';
-const tidy=r=>{const o={};for(const k in r)o[k.trim()]=r[k];return o;};
-
-const qSel=document.getElementById('qSel'),
-      cSel=document.getElementById('cSel'),
-      fSelMain=document.getElementById('fSelMain'),
-      fSelFilt=document.getElementById('fSelFilt'),
-      rSel=document.getElementById('rSel'),
-      cBlock=document.getElementById('cBlock'),
-      fBlockMain=document.getElementById('fBlockMain'),
-      fBlockFilt=document.getElementById('fBlockFilt'),
-      rBlock=document.getElementById('rBlock');
-
-function enableExports(chart){
-  dlData.disabled=dlImg.disabled=!chart;
-  if(chart){
-    dlData.onclick=()=>chart.downloadCSV();
-    dlImg.onclick=()=>chart.exportChartLocal({type:'image/png',filename:'survey-'+Date.now()});
+  <script>
+  // --- CSV loader & helpers ---
+  const CSV_URL = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/data1.csv';
+  function tidy(r){ const o={}; for(const k in r) o[k.trim()] = r[k]; return o; }
+  function enableExports(ch){
+    dlData.disabled = dlImg.disabled = !ch;
+    if(ch){
+      dlData.onclick = ()=>ch.downloadCSV();
+      dlImg.onclick  = ()=>ch.exportChartLocal({ type:'image/png', filename:'survey-'+Date.now() });
+    }
   }
-}
 
-Papa.parse(CSV,{download:true,header:true,dynamicTyping:true,complete:({data})=>{
-  const rows=data.map(tidy).filter(r=>r.Question&&r.Country&&r.Filters&&r.Responses&&r.Result);
-  const qList=[...new Set(rows.map(r=>r.Question.trim()))];
-  const cList=[...new Set(rows.map(r=>r.Country.trim()))].sort();
-  const filtList=[...new Set(rows.map(r=>r.Filters.trim()))].sort();
-  const respFor=q=>[...new Set(rows.filter(r=>r.Question.trim()===q).map(r=>r.Responses.trim()))].sort();
+  // --- state ---
+  let rows, cList, respFor;
+  let selCountriesBar = new Set(),
+      selCountryFilter = null,
+      selFilterMain  = '__all__',
+      selFilterTab   = new Set(),
+      selResponses   = new Set();
 
-  /* selectors */
-  qSel.innerHTML=qList.map(q=>`<option>${q}</option>`).join('');
-  cSel.innerHTML=['<option value="__all__">Select all</option>',...cList.map(c=>`<option>${c}</option>`)].join('');
-  fSelMain.innerHTML=['<option value="__all__">All filters</option>',...filtList.map(f=>`<option>${f}</option>`)].join('');
-  fSelFilt.innerHTML=filtList.map(f=>`<option>${f}</option>`).join('');
-  rSel.innerHTML=respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
+  Papa.parse(CSV_URL, {
+    download:true, header:true, dynamicTyping:true,
+    complete:({ data })=>{
+      rows = data.map(tidy).filter(r=>r.Question && r.Country && r.Filters && r.Responses && r.Result);
 
-  /* defaults */
-  cSel.options[0].selected=true;
-  [...fSelFilt.options].forEach(o=>o.selected=true);
-  rSel.options[0].selected=true;
+      const qList    = [...new Set(rows.map(r=>r.Question.trim()))];
+      cList    = [...new Set(rows.map(r=>r.Country.trim()))].sort();
+      const filtList = [...new Set(rows.map(r=>r.Filters.trim()))].sort();
+      respFor = q => [...new Set(rows.filter(r=>r.Question.trim()===q).map(r=>r.Responses.trim()))].sort();
 
-  let view='bar', chart;
-  let selCountries=new Set(),
-      selFilterMain='__all__',
-      selFilterFilt=new Set(filtList),
-      selResponsesMap=new Set([rSel.value]);
+      // populate selectors
+      qSel.innerHTML     = qList.map(q=>`<option>${q}</option>`).join('');
+      cSel.innerHTML     = ['<option value="__all__">All</option>', ...cList.map(c=>`<option>${c}</option>`)].join('');
+      fSelMain.innerHTML = ['<option value="__all__">All</option>', ...filtList.map(f=>`<option>${f}</option>`)].join('');
+      fSelFilt.innerHTML = filtList.map(f=>`<option>${f}</option>`).join('');
+      rSel.innerHTML     = respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
 
-  /* helpers */
-  const toggle=(sel,cb)=>sel.addEventListener('mousedown',e=>{
-    if(e.target.tagName!=='OPTION')return;
-    e.preventDefault();
-    e.target.selected=!e.target.selected;
-    cb();
-  });
-  const barLayout=n=>{
-     if(n>20) return{h:700,p:.03,g:.05,pt:12,labels:false};
-     if(n>8)  return{h:520,p:.05,g:.1 ,pt:null,labels:false};
-     return   {h:520,p:.1 ,g:.2 ,pt:null,labels:true};
-  };
-  const filterOKMain=r=>selFilterMain==='__all__'||r.Filters.trim()===selFilterMain;
-  const filterOKTab=r=>!selFilterFilt.size||selFilterFilt.has(r.Filters.trim());
+      // defaults
+      cSel.options[0].selected = true;
+      selCountryFilter = cList[0];
+      selFilterMain = '__all__';
+      [...filtList].forEach((_,i)=>fSelFilt.options[i].selected=true);
+      selFilterTab = new Set(filtList);
+      rSel.selectedIndex = 0;
+      selResponses = new Set([rSel.value]);
 
-  /* country */
-  function updateCountries(){
-    if(cSel.multiple){
-      if(cSel.options[0].selected){
-        [...cSel.options].forEach(o=>o.selected=true);
-        selCountries.clear();
-      } else {
-        selCountries=new Set([...cSel.selectedOptions].filter(o=>o.value!=='__all__').map(o=>o.value));
+      // draw state
+      let view = 'bar', chart;
+
+      // toggle helper (multi-select)
+      const toggle = (sel, cb) => sel.addEventListener('mousedown', e => {
+        if (e.target.tagName!=='OPTION') return;
+        e.preventDefault();
+        if (view==='bar'){
+          const opt = e.target;
+          opt.selected = !opt.selected;
+          const vals = [...cSel.selectedOptions].map(o=>o.value).filter(v=>'__all__'!==v);
+          selCountriesBar = new Set(vals);
+          if (cSel.options[0].selected) selCountriesBar.clear();
+        }
+        cb();  
+      });
+
+      // question change
+      qSel.onchange = () => {
+        rSel.innerHTML = respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
+        rSel.selectedIndex = 0;
+        selResponses = new Set([rSel.value]);
+        draw();
+      };
+
+      // Filter-by on bar & map
+      fSelMain.onchange = () => {
+        selFilterMain = fSelMain.value;
+        if (view!=='filter') draw();
+      };
+
+      // Filter-by on filter tab
+      toggle(fSelFilt, () => {
+        selFilterTab = new Set([...fSelFilt.selectedOptions].map(o=>o.value));
+        draw();
+      });
+
+      // country change (single-select on filter tab)
+      cSel.addEventListener('change', () => {
+        if (view==='filter'){
+          selCountryFilter = cSel.value;
+          draw();
+        }
+      });
+
+      // response toggle
+      toggle(rSel, () => {
+        selResponses = new Set([...rSel.selectedOptions].map(o=>o.value));
+        if (!selResponses.size){
+          rSel.selectedIndex = 0;
+          selResponses = new Set([rSel.value]);
+        }
+        if (view==='map') draw();
+      });
+
+      // tab clicks
+      [...document.querySelectorAll('.tab')].forEach(tab => tab.onclick = () => {
+        view = tab.dataset.view;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t===tab));
+
+        // country block visible on bar & filter, hidden on map
+        cBlock.classList.toggle('hidden', view==='map');
+
+        if (view==='bar'){
+          // multi-select
+          cSel.multiple = true;
+          cSel.size     = 5;
+          cSel.options[0].hidden = false;
+          cSel.options[0].selected = true;
+          selCountriesBar.clear();
+          fBlockMain.classList.remove('hidden');
+          fBlockFilt.classList.add('hidden');
+          rBlock.classList.add('hidden');
+          fSelMain.selectedIndex = 0;
+          selFilterMain = '__all__';
+        }
+        else if (view==='filter'){
+          // single-select
+          cSel.multiple = false;
+          cSel.size     = 1;
+          cSel.options[0].hidden = true;
+          // keep last selCountryFilter or default to first
+          const idx = cList.indexOf(selCountryFilter);
+          cSel.selectedIndex = idx>=0 ? idx+1 : 1;
+          selCountryFilter = cSel.value;
+          fBlockMain.classList.add('hidden');
+          fBlockFilt.classList.remove('hidden');
+          rBlock.classList.add('hidden');
+        }
+        else {
+          // map
+          fBlockMain.classList.remove('hidden');
+          fBlockFilt.classList.add('hidden');
+          rBlock.classList.remove('hidden');
+        }
+
+        draw();
+      });
+
+      // title helpers
+      const barTitle  = () => `${qSel.value} (${ selFilterMain==='__all__'? 'All' : selFilterMain })`;
+      const filtTitle = () => `${qSel.value} (${ selCountryFilter })`;
+      const mapTitle  = () => `${qSel.value} (${ selFilterMain==='__all__'? 'All' : selFilterMain }) – ${[...selResponses].join(', ')}`;
+
+      // draw functions
+      function drawCountryBar(){
+        const q = qSel.value, reps = respFor(q),
+              cats = [...selCountriesBar.size? selCountriesBar : cList];
+        let series = reps.map((resp,i) => ({
+          name:resp,
+          color:barColor(i,reps.length),
+          data: cats.map(ct => {
+            const hit = rows.find(r=>
+              r.Question.trim()===q &&
+              r.Country.trim()===ct &&
+              r.Responses.trim()===resp &&
+              (selFilterMain==='__all__' || r.Filters.trim()===selFilterMain)
+            );
+            return hit? hit.Result : 0;
+          })
+        }));
+        const totals = cats.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
+        const visCats = cats.filter((_,i)=>totals[i]>0);
+        series.forEach(ser => ser.data = ser.data.filter((_,i)=>totals[i]>0));
+        const lay = (n=>{
+          if(n>20) return {h:700,p:.03,g:.05,pt:12};
+          if(n>8)  return {h:520,p:.05,g:.1 ,pt:null};
+          return   {h:520,p:.1 ,g:.2 ,pt:null};
+        })(visCats.length);
+
+        chart = Highcharts.chart('container', {
+          chart:{type:'bar',height:lay.h},
+          title:{text:barTitle()},
+          xAxis:{categories:visCats},
+          yAxis:{min:0,title:{text:'%'}},
+          plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
+          series, events:{load(){addLogo(this);},redraw(){addLogo(this);}}
+        });
       }
-    } else {
-      selCountries=new Set([cSel.value]);
-    }
-    draw();
-  }
-  toggle(cSel,updateCountries);
-  cSel.addEventListener('change',updateCountries);
 
-  /* filter main */
-  fSelMain.addEventListener('change',()=>{
-    selFilterMain=fSelMain.value;
-    if(view!=='filter') draw();
+      function drawFilterBar(){
+        const q=qSel.value, reps=respFor(q), c=selCountryFilter,
+              filters=[...selFilterTab];
+        if(!filters.length){
+          chart = Highcharts.chart('container', {title:{text:'Select filters'},series:[]});
+          return;
+        }
+        let series = reps.map((resp,i)=>({
+          name:resp,
+          color:barColor(i,reps.length),
+          data: filters.map(fl => {
+            const hit = rows.find(r=>
+              r.Question.trim()===q &&
+              r.Country.trim()===c &&
+              r.Filters.trim()===fl &&
+              r.Responses.trim()===resp
+            );
+            return hit? hit.Result : 0;
+          })
+        }));
+        const totals = filters.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
+        const vis = filters.filter((_,i)=>totals[i]>0);
+        series.forEach(ser=>ser.data=ser.data.filter((_,i)=>totals[i]>0));
+        const lay = (n=>{
+          if(n>20) return {h:700,p:.03,g:.05,pt:12};
+          if(n>8)  return {h:520,p:.05,g:.1 ,pt:null};
+          return   {h:520,p:.1 ,g:.2 ,pt:null};
+        })(vis.length);
+
+        chart = Highcharts.chart('container', {
+          chart:{type:'bar',height:lay.h},
+          title:{text:filtTitle()},
+          xAxis:{categories:vis},
+          yAxis:{min:0,title:{text:'%'}},
+          plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
+          series, events:{load(){addLogo(this);},redraw(){addLogo(this);}}
+        });
+      }
+
+      function drawMap(){
+        const q=qSel.value, reps=respFor(q), byC={};
+        rows.forEach(r=>{
+          if(r.Question.trim()!==q) return;
+          if(!(selFilterMain==='__all__'||r.Filters.trim()===selFilterMain)) return;
+          const ct=r.Country.trim(), resp=r.Responses.trim();
+          byC[ct] ??= { tot:0, all:{} };
+          if(selResponses.has(resp)) byC[ct].tot += r.Result;
+          byC[ct].all[resp] = r.Result;
+        });
+        const keys={}; Highcharts.maps['custom/europe'].features.forEach(f=>keys[f.properties.name]=f.properties['hc-key']);
+        const data = Object.entries(byC).map(([ct,o])=>({
+          'hc-key': keys[ct]||ct.slice(0,2).toLowerCase(),
+          value: o.tot, name: ct, allVals: o.all
+        }));
+        const max = Math.max(...data.map(d=>d.value))||1;
+
+        chart = Highcharts.mapChart('container', {
+          chart:{map:'custom/europe',animation:false},
+          title:{text:mapTitle()},
+          colorAxis:{min:0,max,stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]},
+          legend:{title:{text:'%'},layout:'vertical',align:'left',verticalAlign:'bottom',floating:true,background:'#fff',borderWidth:1},
+          tooltip:{useHTML:true,width:260,pointFormatter:function(){
+            const vals=this.point.allVals||{}, maxR=Math.max(...Object.values(vals))||1;
+            let s=`<div style="width:260px;font-size:14px"><strong>${this.point.name}</strong><br>`;
+            reps.forEach((r,i)=>{
+              const v=vals[r]||0, w=100*(v/maxR);
+              s+=`<div style="margin:4px 0;font-size:.9em">
+                    ${r}<br>
+                    <span style="display:inline-block;background:${barColor(i,reps.length)};width:${w}%;height:10px"></span>
+                    <span style="font-size:.85em"> ${v.toFixed(1)}%</span>
+                  </div>`;
+            });
+            return s+'</div>';
+          }},
+          series:[{showInLegend:false,data,joinBy:['hc-key',0],animation:false}],
+          mapNavigation:{enabled:true},
+          events:{load(){addLogo(this);},redraw(){addLogo(this);}}
+        });
+      }
+
+      function draw(){
+        if(chart) chart.destroy();
+        if(view==='bar')       drawCountryBar();
+        else if(view==='filter') drawFilterBar();
+        else                    drawMap();
+        enableExports(chart);
+      }
+
+      // initial render
+      draw();
+    }
   });
-
-  /* filter tab */
-  function updateFilterTab(){
-    selFilterFilt=new Set([...fSelFilt.selectedOptions].map(o=>o.value));
-    draw();
-  }
-  toggle(fSelFilt,updateFilterTab);
-  fSelFilt.addEventListener('change',updateFilterTab);
-
-  /* map responses */
-  function updateResp(){
-    selResponsesMap=new Set([...rSel.selectedOptions].map(o=>o.value));
-    if(!selResponsesMap.size){
-      rSel.selectedIndex=0;
-      selResponsesMap=new Set([rSel.value]);
-    }
-    if(view==='map') draw();
-  }
-  toggle(rSel,updateResp);
-  rSel.addEventListener('change',updateResp);
-
-  /* question change */
-  qSel.onchange=()=>{
-    rSel.innerHTML=respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
-    rSel.selectedIndex=0;
-    selResponsesMap=new Set([rSel.value]);
-    draw();
-  };
-
-  /* tabs */
-  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-    view=t.dataset.view;
-    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
-    if(view==='bar'){
-      cBlock.classList.remove('hidden');
-      fBlockMain.classList.remove('hidden');
-      rBlock.classList.add('hidden');
-      fBlockFilt.classList.add('hidden');
-      cSel.multiple=true;
-      cSel.size=5;
-      if(!cSel.options[0]) cSel.insertAdjacentHTML('afterbegin','<option value="__all__">Select all</option>');
-    }
-    else if(view==='filter'){
-      cBlock.classList.remove('hidden');
-      fBlockMain.classList.add('hidden');
-      rBlock.classList.add('hidden');
-      fBlockFilt.classList.remove('hidden');
-      cSel.multiple=false;
-      cSel.size=1;
-      if(cSel.options[0]?.value==='__all__')
-        cSel.removeChild(cSel.options[0]);
-      if(!cSel.value) cSel.selectedIndex=0;
-      updateCountries();
-    }
-    else {
-      cBlock.classList.add('hidden');
-      fBlockMain.classList.remove('hidden');
-      rBlock.classList.remove('hidden');
-      fBlockFilt.classList.add('hidden');
-    }
-    draw();
-  });
-
-  /* titles */
-  const barTitle   =()=>`${qSel.value} (${selFilterMain==='__all__'?'All filters':selFilterMain})`;
-  const filtTitle  =()=>`${qSel.value} (${cSel.value})`;
-  const mapTitle   =()=>`${qSel.value} (${selFilterMain==='__all__'?'All filters':selFilterMain}) – ${[...selResponsesMap].join(', ')}`;
-
-  /* draw Country bar */
-  function drawCountryBar(){
-    const q=qSel.value;
-    const cats=[...selCountries.size?selCountries:cList];
-    const reps=respFor(q);
-    const series=reps.map((resp,i)=>({
-      name:resp,
-      color:barColor(i,reps.length),
-      data:cats.map(ct=>
-        rows.find(r=>
-          r.Question.trim()===q &&
-          r.Country.trim()===ct &&
-          r.Responses.trim()===resp
-        )?.Result
-        ||0
-      )
-    }));
-    const totals=cats.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
-    const visCats=cats.filter((_,i)=>totals[i]>0);
-    series.forEach(ser=>ser.data=ser.data.filter((_,i)=>totals[i]>0));
-    const lay=barLayout(visCats.length);
-
-    chart=Highcharts.chart('container',{
-      chart:{type:'bar',height:lay.h},
-      title:{text:barTitle()},
-      xAxis:{categories:visCats},
-      yAxis:{min:0,title:{text:'%'}},
-      plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
-      series,
-      events:{load(){addLogo(this);},redraw(){addLogo(this);}}
-    });
-    enableExports(chart);
-  }
-
-  /* draw Filter bar */
-  function drawFilterBar(){
-    const q=qSel.value;
-    const c=cSel.value;
-    const reps=respFor(q);
-    const filters=[...selFilterFilt];
-    if(!filters.length){
-      chart=Highcharts.chart('container',{title:{text:'Select filters'},series:[]});
-      return;
-    }
-    const series=reps.map((resp,i)=>({
-      name:resp,
-      color:barColor(i,reps.length),
-      data:filters.map(fl=>
-        rows.find(r=>
-          r.Question.trim()===q &&
-          r.Country.trim()===c &&
-          r.Filters.trim()===fl &&
-          r.Responses.trim()===resp
-        )?.Result
-        ||0
-      )
-    }));
-    const totals=filters.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
-    const vis=filters.filter((_,i)=>totals[i]>0);
-    series.forEach(ser=>ser.data=ser.data.filter((_,i)=>totals[i]>0));
-    const lay=barLayout(vis.length);
-
-    chart=Highcharts.chart('container',{
-      chart:{type:'bar',height:lay.h},
-      title:{text:filtTitle()},
-      xAxis:{categories:vis},
-      yAxis:{min:0,title:{text:'%'}},
-      plotOptions:{series:{stacking:'normal',pointPadding:lay.p,groupPadding:lay.g,pointWidth:lay.pt}},
-      series,
-      events:{load(){addLogo(this);},redraw(){addLogo(this);}}
-    });
-    enableExports(chart);
-  }
-
-  /* draw Map */
-  function drawMap(){
-    const q=qSel.value,reps=respFor(q),byC={};
-    rows.filter(r=>r.Question.trim()===q).forEach(r=>{
-      const c=r.Country.trim(),resp=r.Responses.trim();
-      byC[c]??={tot:0,all:{}};
-      if(selResponsesMap.has(resp)) byC[c].tot+=r.Result;
-      byC[c].all[resp]=r.Result;
-    });
-    const keys={};
-    Highcharts.maps['custom/europe'].features.forEach(f=>keys[f.properties.name]=f.properties['hc-key']);
-    const data=Object.entries(byC).map(([ct,o])=>({
-      'hc-key':keys[ct]||ct.slice(0,2).toLowerCase(),
-      value:o.tot,name:ct,all:o.all
-    }));
-    const max=Math.max(...data.map(d=>d.value))||1;
-
-    chart=Highcharts.mapChart('container',{
-      title:{text:mapTitle()},
-      chart:{map:'custom/europe',animation:false},
-      colorAxis:{min:0,max,tickAmount:6,stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]},
-      legend:{title:{text:'%'},layout:'vertical',align:'left',verticalAlign:'bottom',floating:true,background:'#fff',borderWidth:1},
-      tooltip:{useHTML:true,pointFormatter:function(){
-        const vals=this.all||{},maxR=Math.max(...Object.values(vals))||1;
-        return `<div style="width:220px"><strong>${this.name}</strong><br>`+
-          reps.map((r,i)=>{
-            const v=vals[r]||0,w=100*v/maxR;
-            return `<div style="margin-bottom:4px;font-size:0.95em">
-                      ${r}<br>
-                      <span style="display:inline-block;background:${barColor(i,reps.length)};width:${w}%;height:10px"></span>
-                      <span style="font-size:.85em"> ${v.toFixed(0)}%</span>
-                    </div>`;
-          }).join('')+'</div>';
-      }},
-      series:[{showInLegend:false,data,joinBy:['hc-key',0],animation:false}],
-      mapNavigation:{enabled:true},
-      events:{load(){addLogo(this);},redraw(){addLogo(this);}}
-    });
-    enableExports(chart);
-  }
-
-  /* top-level draw */
-  function draw(){
-    if(chart) chart.destroy();
-    if(view==='bar') drawCountryBar();
-    else if(view==='filter') drawFilterBar();
-    else drawMap();
-  }
-
-  draw();  // initial
-}});
-</script>
+  </script>
 </body>
 </html>

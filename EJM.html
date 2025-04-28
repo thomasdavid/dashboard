@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>European Jobs Monitor – Dashboard</title>
+
+  <!-- Highcharts & modules -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<!-- then your other modules… -->
+
+  <script src="https://code.highcharts.com/maps/modules/map.js"></script>
+  <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+  <script>
+    Highcharts.setOptions({
+      plotOptions:{ series:{ animation:{ duration:500 } } }
+    });
+  </script>
+
+  <!-- bar palette & logo helper -->
+  <script>
+    const barPalette = {
+      1:['#355582'],2:['#355582','#005F2F'],
+      3:['#355582','#9ca2a9','#005F2F'],4:['#355582','#9ca2a9','#4d853d','#005F2F'],
+      5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
+      6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
+    };
+    const barColor = (i,n)=> barPalette[Math.min(n,6)][i];
+    const logoURL  = 'https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
+    function addLogo(chart){
+      const w=90,h=28,
+            x=chart.chartWidth - w - 10,
+            y=chart.chartHeight - h - 10;
+      if(chart.customLogo) chart.customLogo.destroy();
+      chart.customLogo = chart.renderer
+        .image(logoURL, x, y, w, h)
+        .css({opacity:.8})
+        .add();
+    }
+  </script>
+
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--pad:1rem;font-size:14px}
+    body{font-family:'Inter',Arial,sans-serif;margin:var(--pad);max-width:1100px}
+    h1{margin:0 0 .75rem;font-size:1.2rem;font-weight:600}
+    label{display:block;margin:.85rem 0 .35rem;font-weight:600}
+    select,button{font:inherit}
+    select{width:100%;padding:.4rem;border:1px solid #ccc;border-radius:4px}
+    button.pill{display:block;width:auto;margin:.35rem .5rem .35rem 0;padding:.35rem .75rem;
+      border:1px solid #444;border-radius:20px;background:#fff;cursor:pointer}
+    button.pill.active{background:#c8d4e7;font-weight:600}
+    fieldset{border:none;padding:0;margin:0 0 1rem}
+    fieldset legend{font-weight:600;padding:0 .4rem;margin-bottom:.5rem;display:block}
+    .radio-block{display:flex;flex-wrap:wrap;gap:.5rem}
+    #controls{display:grid;grid-template-columns:260px 1fr;gap:1.5rem}
+    #container{width:100%;height:520px;margin-top:1rem}
+    footer{margin-top:.75rem;text-align:right}footer img{height:36px}
+  </style>
+</head>
+<body>
+
+<h1>Employment change and job-wage quintiles</h1>
+
+<div id="controls">
+  <!-- LEFT COLUMN -->
+  <div>
+    <label>Select country
+      <select id="countrySel"></select>
+    </label>
+
+    <fieldset><legend>Calc type</legend>
+      <div id="critPills" class="radio-block"></div>
+    </fieldset>
+
+    <fieldset><legend>Year</legend>
+      <div id="periodPills" class="radio-block"></div>
+    </fieldset>
+
+    <fieldset><legend>Filter by</legend>
+      <div id="filterRadio" class="radio-block"></div>
+    </fieldset>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+    <fieldset><legend>Metric</legend>
+      <div id="metricPills" class="radio-block"></div>
+    </fieldset>
+
+    <fieldset><legend>Chart type</legend>
+      <div id="chartType" class="radio-block">
+        <button id="btnBar"   class="pill active" data-type="bar">Bar chart</button>
+        <button id="btnRadar" class="pill"       data-type="radar">Radar chart</button>
+      </div>
+    </fieldset>
+
+    <div id="container"></div>
+
+    <div style="margin-top:.6rem">
+      <button id="dlCSV" disabled>Download CSV</button>
+      <button id="dlPNG" disabled>Download PNG</button>
+    </div>
+  </div>
+</div>
+
+<footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound"></footer>
+
+<script>
+/* ─── CONSTANTS ────────────────────────────────────────────────────────── */
+const CSV_URL        = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/EJM2022update_FINAL_EDIT.csv";
+const FIELD_COUNTRY   = 'Country';
+const FIELD_METRIC    = 'Metric';
+const FIELD_PERIOD    = 'Year';
+const FIELD_FILTER_G  = 'Level 1 ';
+const FIELD_FILTER_L  = 'Category';
+const FIELD_CRITERION = 'Calc Type';
+const FIELD_QUINTILE  = 'Quintile';
+const FIELD_VALUE     = 'Value';
+const QUINTILE_ORDER  = ['Low','Mid-low','Mid','Mid-high','High'];
+
+/* ─── DOM SHORTCUTS ────────────────────────────────────────────────────── */
+const cSel      = document.getElementById('countrySel');
+const critDiv   = document.getElementById('critPills');
+const periodDiv = document.getElementById('periodPills');
+const filterDiv = document.getElementById('filterRadio');
+const metricDiv = document.getElementById('metricPills');
+const barBtn    = document.getElementById('btnBar');
+const radarBtn  = document.getElementById('btnRadar');
+const btnCSV    = document.getElementById('dlCSV');
+const btnPNG    = document.getElementById('dlPNG');
+
+/* ─── STATE ───────────────────────────────────────────────────────────── */
+let rows = [],
+    selCountry, selCriterion, selPeriod, selFilterGroup, selMetric, selChart='bar',
+    chart;
+
+/* ─── LOAD & PARSE DATA ───────────────────────────────────────────────── */
+Papa.parse(CSV_URL, {
+  download:true, header:true, dynamicTyping:false,
+  complete:({data})=>{
+    rows = data.filter(r=>r[FIELD_COUNTRY]);
+    initUI();
+    draw();
+  }
+});
+
+/* ─── HELPERS ─────────────────────────────────────────────────────────── */
+function uniq(a){ return [...new Set(a)].sort(); }
+function enableExports(ch){
+  btnCSV.disabled = btnPNG.disabled = !ch;
+  if(ch){
+    btnCSV.onclick = ()=>ch.downloadCSV();
+    btnPNG.onclick = ()=>ch.exportChartLocal({
+      type:'image/png', filename:`EJM-${Date.now()}`
+    });
+  }
+}
+
+/* ─── INITIALIZE UI ───────────────────────────────────────────────────── */
+function initUI(){
+  // COUNTRY
+  const countries = uniq(rows.map(r=>r[FIELD_COUNTRY]));
+  cSel.innerHTML = countries.map(c=>`<option>${c}</option>`).join('');
+  selCountry = countries[0];
+  cSel.onchange = () => { selCountry=cSel.value; buildPeriods(); draw(); };
+
+  // CALC-TYPE
+  const crits = uniq(rows.map(r=>r[FIELD_CRITERION]));
+  critDiv.innerHTML = crits.map((c,i)=>
+    `<button class="pill${i===0?' active':''}" data-v="${c}">${c}</button>`
+  ).join('');
+  selCriterion = crits[0];
+  critDiv.onclick = e => {
+    if(!e.target.dataset.v) return;
+    selCriterion = e.target.dataset.v;
+    critDiv.querySelectorAll('button').forEach(b=>
+      b.classList.toggle('active', b.dataset.v===selCriterion)
+    );
+    buildPeriods(); draw();
+  };
+
+  // METRIC
+  const metrics = uniq(rows.map(r=>r[FIELD_METRIC]));
+  metricDiv.innerHTML = metrics.map((m,i)=>
+    `<button class="pill${i===0?' active':''}" data-v="${m}">${m}</button>`
+  ).join('');
+  selMetric = metrics[0];
+  metricDiv.onclick = e => {
+    if(!e.target.dataset.v) return;
+    selMetric = e.target.dataset.v;
+    metricDiv.querySelectorAll('button').forEach(b=>
+      b.classList.toggle('active', b.dataset.v===selMetric)
+    );
+    buildPeriods(); draw();
+  };
+
+  // CHART TYPE
+  barBtn.onclick   = () => { selChart='bar';   barBtn.classList.add('active');   radarBtn.classList.remove('active'); draw(); };
+  radarBtn.onclick = () => { selChart='radar'; radarBtn.classList.add('active'); barBtn.classList.remove('active');   draw(); };
+
+  // FILTER-BY
+  const groups = uniq(rows.map(r=>r[FIELD_FILTER_G]));
+  filterDiv.innerHTML = [
+    `<label><input type="radio" name="f" value="All" checked>All</label>`,
+    ...groups.map(g=>`<label><input type="radio" name="f" value="${g}">${g}</label>`)
+  ].join('');
+  selFilterGroup = 'All';
+  filterDiv.onchange = e => { selFilterGroup=e.target.value; draw(); };
+
+  // YEAR
+  buildPeriods();
+}
+
+/* ─── BUILD YEAR PILLs ─────────────────────────────────────────────────── */
+function buildPeriods(){
+  const yrs = uniq(
+    rows.filter(r=>
+      r[FIELD_COUNTRY]   === selCountry &&
+      r[FIELD_METRIC]    === selMetric &&
+      r[FIELD_CRITERION] === selCriterion
+    ).map(r=>r[FIELD_PERIOD])
+  );
+  periodDiv.innerHTML = yrs.map((y,i)=>
+    `<button class="pill${i===0?' active':''}" data-v="${y}">${y}</button>`
+  ).join('');
+  selPeriod = yrs[0];
+  periodDiv.onclick = e => {
+    if(!e.target.dataset.v) return;
+    selPeriod=e.target.dataset.v;
+    periodDiv.querySelectorAll('button').forEach(b=>
+      b.classList.toggle('active', b.dataset.v===selPeriod)
+    );
+    draw();
+  };
+}
+
+/* ─── DRAW (delegates by selChart) ─────────────────────────────────────── */
+function draw(){
+  if(selChart==='bar')   drawBar();
+  else                    drawRadar();
+}
+
+/* ─── DRAW BAR CHART ──────────────────────────────────────────────────── */
+function drawBar(){
+  const data = rows.filter(r=>
+    r[FIELD_COUNTRY]   === selCountry &&
+    r[FIELD_METRIC]    === selMetric &&
+    r[FIELD_PERIOD]    === selPeriod &&
+    r[FIELD_CRITERION] === selCriterion
+  );
+  const isAll = selFilterGroup==='All';
+  const labels = isAll
+    ? ['All']
+    : uniq(data.filter(r=>r[FIELD_FILTER_G]===selFilterGroup)
+               .map(r=>r[FIELD_FILTER_L]));
+  const series = labels.map((lab,i)=>{
+    const values = isAll
+      ? QUINTILE_ORDER.map(q=>
+          data.filter(r=>r[FIELD_QUINTILE]===q)
+              .reduce((s,r)=>s + (+r[FIELD_VALUE]||0),0)
+        )
+      : QUINTILE_ORDER.map(q=>{
+          const row = data.find(r=>
+            r[FIELD_FILTER_L]===lab && r[FIELD_QUINTILE]===q
+          );
+          return row? +row[FIELD_VALUE] : 0;
+        });
+    return { name:lab, color:isAll? '#666':barColor(i,labels.length), data:values };
+  });
+
+  if(chart) chart.destroy();
+  chart = Highcharts.chart('container',{
+    chart:{ type:'column' },
+    title:{ text:`${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})` },
+    xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
+    yAxis:{ title:{ text:selMetric } },
+    tooltip:{ shared:true,useHTML:true },
+    plotOptions:{
+      series:{
+        pointPadding:0.1, groupPadding:0.15,
+        dataLabels:{
+          enabled:true,
+          formatter:function(){
+            const v=this.y;
+            if(Math.abs(v)>=1e6) return (v/1e6).toFixed(2)+'M';
+            if(Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
+            return v;
+          },
+          style:{ textOutline:'none', fontWeight:'600', color:'#000' }
+        }
+      }
+    },
+    series
+  });
+  
+  
+function drawRadar(){
+  const data = rows.filter(r=>
+    r[FIELD_COUNTRY]   === selCountry &&
+    r[FIELD_METRIC]    === selMetric &&
+    r[FIELD_PERIOD]    === selPeriod &&
+    r[FIELD_CRITERION] === selCriterion
+  );
+
+  const isAll = selFilterGroup === 'All';
+  const labels = isAll
+    ? ['All']
+    : uniq(
+        data
+          .filter(r => r[FIELD_FILTER_G] === selFilterGroup)
+          .map(r => r[FIELD_FILTER_L])
+      );
+
+  const series = labels.map((lab,i)=>{
+    const vals = isAll
+      ? QUINTILE_ORDER.map(q=>
+          data
+            .filter(r=>r[FIELD_QUINTILE]===q)
+            .reduce((sum,r)=>sum + (+r[FIELD_VALUE]||0), 0)
+        )
+      : QUINTILE_ORDER.map(q=>{
+          const row = data.find(r=>
+            r[FIELD_FILTER_L]===lab && r[FIELD_QUINTILE]===q
+          );
+          return row? +row[FIELD_VALUE] : 0;
+        });
+
+    return {
+      name: lab,
+      color: isAll ? '#666' : barColor(i, labels.length),
+      data: vals,
+      pointPlacement: 'on'
+    };
+  });
+
+  if(chart) chart.destroy();
+  chart = Highcharts.chart('container', {
+    chart: {
+      polar: true,
+      type:  'line',
+      events: {
+        load:   function(){ addLogo(this); },
+        redraw:function(){ addLogo(this); }
+      }
+    },
+    title: {
+      text: `${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})`
+    },
+    pane: {
+      size: '80%'
+    },
+    xAxis: {
+      categories: QUINTILE_ORDER,
+      tickmarkPlacement: 'on',
+      lineWidth: 0
+    },
+    yAxis: {
+      gridLineInterpolation: 'polygon',
+      lineWidth: 0,
+      min: 0
+    },
+    legend: {
+      align: 'center',
+      verticalAlign: 'bottom'
+    },
+    tooltip: {
+      shared: true,
+      useHTML: true
+    },
+    plotOptions: {
+      series: {
+        marker: { enabled: true, radius: 4 },
+        dataLabels: {
+          enabled: true,
+          formatter: function(){
+            const v = this.y;
+            if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(2)+'M';
+            if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(0)+'K';
+            return v;
+          },
+          style: { textOutline: 'none', fontWeight: '600', color: '#000' }
+        }
+      }
+    },
+    series: series
+  });
+  enableExports(chart);
+}}
+
+
+
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
   <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
   <script>
     Highcharts.setOptions({
-      plotOptions: { series: { animation: { duration: 200 } } }
+      plotOptions: { series: { animation: { duration: 500 } } }
     });
   </script>
 
@@ -103,7 +103,7 @@
 
   <script>
   /* --- CSV loader + tidy --- */
-  const CSV='https://coral-johna-20.tiiny.site/Dashboard_data.csv';
+  const CSV='https://emerald-kelcey-87.tiiny.site/data2.csv';
   const tidy = r=>{ const o={}; for(const k in r) o[k.trim()]=r[k]; return o; };
   function enableExports(ch){
     dlData.disabled = dlImg.disabled = !ch;

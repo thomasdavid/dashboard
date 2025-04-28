@@ -107,7 +107,7 @@
 
   <script>
   /* --- CSV + helpers --- */
-  const CSV = 'https://moccasin-jobye-77.tiiny.site/data.csv';
+  const CSV = 'https://emerald-kelcey-87.tiiny.site/data2.csv';
   const tidy = r=> { const o={}; for(const k in r) o[k.trim()]=r[k]; return o; };
   function enableExports(chart){
     dlData.disabled = dlImg.disabled = !chart;
@@ -121,29 +121,33 @@
   }
 
   /* --- main loader --- */
-  Papa.parse(CSV,{
+  Papa.parse(CSV, {
     download:true, header:true, dynamicTyping:true,
     complete:({data})=>{
-      const rows = data.map(tidy).filter(r=>r.Question&&r.Country&&r.Filters&&r.Responses&&r.Result);
+      const rows = data.map(tidy).filter(r=>
+        r.Question && r.Country && r.Filters && r.Responses && r.Result);
       const qList = [...new Set(rows.map(r=>r.Question.trim()))];
       const cList = [...new Set(rows.map(r=>r.Country.trim()))].sort();
       const filtList = [...new Set(rows.map(r=>r.Filters.trim()))].sort();
       const respFor = q=>[...new Set(
-        rows.filter(r=>r.Question.trim()===q).map(r=>r.Responses.trim())
+        rows.filter(r=>r.Question.trim()===q)
+            .map(r=>r.Responses.trim())
       )].sort();
 
       /* --- populate selectors --- */
-      qSel.innerHTML      = qList.map(q=>`<option>${q}</option>`).join('');
-      cSel.innerHTML      = ['<option value="__all__">All</option>',...cList.map(c=>`<option>${c}</option>`)].join('');
-      fSelMain.innerHTML  = ['<option value="__all__">All</option>',...filtList.map(f=>`<option>${f}</option>`)].join('');
-      fSelFilt.innerHTML  = filtList.map(f=>`<option>${f}</option>`).join('');
-      rSel.innerHTML      = respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
+      qSel.innerHTML     = qList.map(q=>`<option>${q}</option>`).join('');
+      cSel.innerHTML     = ['<option value="__all__">All</option>',
+                             ...cList.map(c=>`<option>${c}</option>`)].join('');
+      fSelMain.innerHTML = ['<option value="__all__">All</option>',
+                             ...filtList.map(f=>`<option>${f}</option>`)].join('');
+      fSelFilt.innerHTML = filtList.map(f=>`<option>${f}</option>`).join('');
+      rSel.innerHTML     = respFor(qSel.value).map(r=>`<option>${r}</option>`).join('');
 
       /* --- defaults --- */
-      cSel.options[0].selected = true;  // All countries
-      fSelMain.selectedIndex   = 0;     // All
+      cSel.options[0].selected = true;        // All countries
+      fSelMain.selectedIndex   = 0;           // All filters
       [...fSelFilt.options].forEach(o=>o.selected=true);
-      rSel.selectedIndex       = 0;     // first response
+      rSel.selectedIndex       = 0;           // first response
 
       /* --- state --- */
       let view='bar', chart;
@@ -171,7 +175,10 @@
         draw();
       };
       fSelMain.onchange = ()=>{ selFilterMain = fSelMain.value; if(view!=='filter') draw(); };
-      toggle(fSelFilt, ()=>{ selFilterFilt = new Set([...fSelFilt.selectedOptions].map(o=>o.value)); draw(); });
+      toggle(fSelFilt, ()=>{ 
+        selFilterFilt = new Set([...fSelFilt.selectedOptions].map(o=>o.value)); 
+        draw(); 
+      });
       toggle(cSel, ()=>{
         if(cSel.options[0].selected){
           [...cSel.options].forEach(o=>o.selected=true);
@@ -192,20 +199,31 @@
         if(view==='map') draw();
       });
 
-      /* tabs */
+      /* --- tabs --- */
       const tabs = [...document.querySelectorAll('.tab')];
       tabs.forEach(t=>t.onclick=()=>{
-        view=t.dataset.view;
+        view = t.dataset.view;
         tabs.forEach(x=>x.classList.toggle('active',x===t));
+
         if(view==='bar'){
+          // multi-select country
           cBlock.classList.remove('hidden');
+          cSel.multiple = true;
+          cSel.size     = 5;
           fBlockMain.classList.remove('hidden');
           fBlockFilt.classList.add('hidden');
           rBlock.classList.add('hidden');
-          fSelMain.selectedIndex=0;   // reset to All on bar tab
+          fSelMain.selectedIndex = 0;  // reset Filter-by to “All”
         }
         else if(view==='filter'){
+          // SINGLE-select country on Filter tab
           cBlock.classList.remove('hidden');
+          cSel.multiple = false;
+          cSel.size     = 1;
+          // ensure one country is selected
+          if(!cSel.value) cSel.selectedIndex = 0;
+          selCountries = new Set([cSel.value]);
+
           fBlockMain.classList.add('hidden');
           fBlockFilt.classList.remove('hidden');
           rBlock.classList.add('hidden');
@@ -219,16 +237,16 @@
         draw();
       });
 
-      /* titles */
-      const barTitle = ()=> `${qSel.value} (${ selFilterMain==='__all__' ? 'All' : selFilterMain })`;
-      const filtTitle= ()=> `${qSel.value} (${ cSel.value })`;
-      const mapTitle = ()=> `${qSel.value} (${ selFilterMain==='__all__' ? 'All' : selFilterMain }) – ${[...selResponses].join(', ')}`;
+      /* --- titles --- */
+      const barTitle  = ()=> `${qSel.value} (${ selFilterMain==='__all__' ? 'All' : selFilterMain })`;
+      const filtTitle = ()=> `${qSel.value} (${ cSel.value })`;
+      const mapTitle  = ()=> `${qSel.value} (${ selFilterMain==='__all__' ? 'All' : selFilterMain }) – ${[...selResponses].join(', ')}`;
 
-      /* --- drawing functions --- */
+      /* --- draw fns --- */
       function drawCountryBar(){
         const q=qSel.value, reps=respFor(q),
               cats=[...selCountries.size?selCountries:cList];
-        const series = reps.map((resp,i)=>({
+        let series = reps.map((resp,i)=>({
           name:resp, color:barColor(i,reps.length),
           data: cats.map(ct =>
             rows.filter(r=>
@@ -239,12 +257,9 @@
             .filter(r=>selFilterMain==='__all__'||r.Filters.trim()===selFilterMain)[0]?.Result||0
           )
         }));
-        /* remove zero columns */
-        const totals=cats.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
-        const visCats=cats.filter((_,i)=>totals[i]>0);
-        series.forEach(ser=>{
-          ser.data = ser.data.filter((_,i)=>totals[i]>0);
-        });
+        const totals = cats.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
+        const visCats = cats.filter((_,i)=>totals[i]>0);
+        series.forEach(ser=>ser.data=ser.data.filter((_,i)=>totals[i]>0));
         const lay=barLayout(visCats.length);
         chart=Highcharts.chart('container',{
           chart:{type:'bar',height:lay.h},
@@ -264,7 +279,7 @@
           chart=Highcharts.chart('container',{title:{text:'Select filters'},series:[]});
           return;
         }
-        const series = reps.map((resp,i)=>({
+        let series = reps.map((resp,i)=>({
           name:resp, color:barColor(i,reps.length),
           data: filters.map(fl=>
             rows.filter(r=>
@@ -277,9 +292,7 @@
         }));
         const totals=filters.map((_,i)=>series.reduce((s,ser)=>s+ser.data[i],0));
         const vis=filters.filter((_,i)=>totals[i]>0);
-        series.forEach(ser=>{
-          ser.data=ser.data.filter((_,i)=>totals[i]>0);
-        });
+        series.forEach(ser=>ser.data=ser.data.filter((_,i)=>totals[i]>0));
         const lay=barLayout(vis.length);
         chart=Highcharts.chart('container',{
           chart:{type:'bar',height:lay.h},
@@ -314,14 +327,14 @@
           tooltip:{useHTML:true,width:260,pointFormatter:function(){
             const vals=this.point.allVals||{}, maxR=Math.max(...Object.values(vals))||1;
             return `<div style="width:260px;font-size:14px"><strong>${this.point.name}</strong><br>`+
-              reps.map((r,i)=>{
-                const v=vals[r]||0, w=100*(v/maxR);
+              reps.map((r,i)=>{ 
+                const v=vals[r]||0, w=100*(v/maxR); 
                 return `<div style="margin:4px 0;font-size:.9em">
                           ${r}<br>
                           <span style="display:inline-block;background:${barColor(i,reps.length)};width:${w}%;height:10px"></span>
                           <span style="font-size:.85em"> ${v.toFixed(1)}%</span>
                         </div>`;
-              }).join('')+'</div>';
+              }).join('') + '</div>';
           }},
           series:[{showInLegend:false,data,joinBy:['hc-key',0],animation:false}],
           mapNavigation:{enabled:true},
@@ -336,16 +349,6 @@
         else                    drawMap();
         enableExports(chart);
       }
-
-      /* --- DEFAULT QUESTION SNIPPET --- */
-      (function(){
-        const defaultQ = "Making ends meet";
-        const opt = Array.from(qSel.options).find(o=>o.textContent===defaultQ);
-        if(opt){
-          qSel.value = defaultQ;
-          qSel.dispatchEvent(new Event('change'));
-        }
-      })();
 
       /* initial draw */
       draw();

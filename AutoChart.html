@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Excel → Automatic Highcharts Dashboard</title>
+
+  <!-- SheetJS for Excel parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <!-- Highcharts core + map + export -->
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/maps/modules/map.js"></script>
+  <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+  <!-- PapaParse (not strictly needed but kept for CSV export) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    body { font-family: sans-serif; margin: 1rem; }
+    input, button, select { font: inherit; margin: .3rem 0; }
+    #sheetNav { margin: 1rem 0; }
+    #sheetNav button { padding: .3rem .6rem; }
+    #sheetNav select { padding: .3rem .6rem; }
+    .viewBtn { padding:.4rem .8rem; border:1px solid #ccc; background:#fff; cursor:pointer; border-radius:4px; user-select:none; margin-right:.3rem;}
+    .viewBtn.active { background:#355582; color:#fff; border-color:#355582; }
+    #detected { margin-top: .5rem; color:#444; font-size:.9rem; }
+    #container { width:100%; height:450px; margin-top:1rem; }
+    .exports { margin-top: .5rem; }
+    .exports button { margin-right:.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Upload an Excel file</h1>
+  <input type="file" id="fileInput" accept=".xlsx,.xls"/>
+  <label><input type="checkbox" id="transpose"/> Transpose sheet</label>
+
+  <div id="sheetNav">
+    <button id="prevSheet">&larr;</button>
+    <select id="sheetSelect"></select>
+    <button id="nextSheet">&rarr;</button>
+  </div>
+
+  <div>
+    <strong>View:</strong>
+    <span class="viewBtn active" data-view="column">Column</span>
+    <span class="viewBtn" data-view="line">Line</span>
+    <span class="viewBtn" data-view="map">Map</span>
+  </div>
+
+  <div id="detected"></div>
+
+  <div id="container"></div>
+
+  <div class="exports">
+    <button id="expCSV" disabled>Download CSV</button>
+    <button id="expPNG" disabled>Download PNG</button>
+  </div>
+
+  <script>
+  // ─── Helpers ─────────────────────────────────────────────────────────
+  function transpose(table){
+    const R=table.length, C=table[0].length, out=[];
+    for(let c=0;c<C;c++){
+      out[c]=[];
+      for(let r=0;r<R;r++){
+        out[c][r]=table[r][c];
+      }
+    }
+    return out;
+  }
+  function toObjects(table){
+    const [hdr, ...rows] = table;
+    return rows.map(r=>{
+      const o = {};
+      hdr.forEach((h,i)=>o[h]=r[i]);
+      return o;
+    });
+  }
+  function uniq(a){ return [...new Set(a)]; }
+
+  // ─── State & DOM refs ────────────────────────────────────────────────
+  let workbook, sheetNames=[], currentSheet=0;
+  let rawTable=[], dataObjs=[], categoryCol='', numericCols=[], defaultView='column';
+  let currentView='column', chart;
+
+  const fileInput   = document.getElementById('fileInput');
+  const transposeEl= document.getElementById('transpose');
+  const prevBtn     = document.getElementById('prevSheet');
+  const nextBtn     = document.getElementById('nextSheet');
+  const sheetSelect = document.getElementById('sheetSelect');
+  const viewBtns    = document.querySelectorAll('.viewBtn');
+  const detected    = document.getElementById('detected');
+  const container   = document.getElementById('container');
+  const expCSV      = document.getElementById('expCSV');
+  const expPNG      = document.getElementById('expPNG');
+
+  // ─── Load Excel & build sheet navigator ───────────────────────────────
+  fileInput.onchange = e => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const data = new Uint8Array(ev.target.result);
+      workbook = XLSX.read(data, { type:'array' });
+      sheetNames = workbook.SheetNames;
+      // populate sheetSelect
+      sheetSelect.innerHTML = sheetNames.map((n,i)=>
+        `<option value="${i}">${n}</option>`
+      ).join('');
+      currentSheet = 0;
+      loadSheet(0);
+    };
+    reader.readAsArrayBuffer(f);
+  };
+
+  // ─── Sheet navigation ─────────────────────────────────────────────────
+  function loadSheet(idx){
+    currentSheet = idx;
+    sheetSelect.selectedIndex = idx;
+    prevBtn.disabled = idx===0;
+    nextBtn.disabled = idx===sheetNames.length-1;
+
+    // extract rawTable
+    let tbl = XLSX.utils.sheet_to_json(
+      workbook.Sheets[sheetNames[idx]],
+      { header:1 }
+    );
+    rawTable = transposeEl.checked ? transpose(tbl) : tbl;
+    dataObjs = toObjects(rawTable);
+
+    detectColumns();
+    selectView(defaultView);
+  }
+  prevBtn.onclick = ()=> loadSheet(currentSheet-1);
+  nextBtn.onclick = ()=> loadSheet(currentSheet+1);
+  sheetSelect.onchange = ()=> loadSheet(sheetSelect.selectedIndex);
+
+  // ─── View switching ───────────────────────────────────────────────────
+  function selectView(v){
+    currentView = v;
+    viewBtns.forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+    draw();
+  }
+  viewBtns.forEach(b=>b.onclick = ()=> selectView(b.dataset.view));
+
+  // ─── Column detection (category vs numeric) ──────────────────────────
+  function detectColumns(){
+    const headers = rawTable[0] || [];
+    // numeric columns
+    numericCols = headers.filter(h=>{
+      return dataObjs.every(o=>{
+        const v=o[h];
+        return v!=='' && !isNaN(parseFloat(v));
+      });
+    });
+    // year-like detection
+    const currentYear = new Date().getFullYear();
+    const yearCols = numericCols.filter(h=>{
+      return dataObjs.every(o=>{
+        const v = +o[h];
+        return Number.isInteger(v) && v>=1900 && v<=currentYear+5;
+      });
+    });
+    const nonNum = headers.filter(h=>!numericCols.includes(h));
+
+    if(yearCols.length){
+      categoryCol = yearCols[0];
+      defaultView = 'line';
+      numericCols = numericCols.filter(h=>h!==categoryCol);
+    }
+    else {
+      // sample first 10 for country-codes
+      const sample = dataObjs.slice(0,10).map(o=>String(o[nonNum[0]]).trim());
+      const isCountry = sample.every(v=>/^[A-Za-z]{2,3}$/.test(v));
+      if(isCountry){
+        categoryCol = nonNum[0];
+        defaultView = 'map';
+      } else {
+        categoryCol = nonNum[0]||headers[0]||'';
+        defaultView = 'column';
+      }
+    }
+
+    detected.innerHTML = `
+      <strong>Sheet:</strong> ${sheetNames[currentSheet]}<br>
+      <strong>Category:</strong> ${categoryCol}<br>
+      <strong>Numeric series:</strong> ${numericCols.join(', ')||'(none)'}
+    `;
+  }
+
+  // ─── Draw chart based on currentView ─────────────────────────────────
+  function draw(){
+    if(chart) chart.destroy();
+    if(currentView==='map')      drawMap();
+    else if(currentView==='line')drawLine();
+    else                         drawBar();
+    enableExports(chart);
+  }
+
+  function drawBar(){
+    const cats = rawTable.slice(1).map(r=>r[ rawTable[0].indexOf(categoryCol) ]);
+    const series = numericCols.map(col=>({
+      name: col,
+      data: cats.map(c=>{
+        const row = dataObjs.find(o=>String(o[categoryCol])==c);
+        return row? +row[col]: 0;
+      })
+    }));
+    chart = Highcharts.chart(container,{
+      chart:{ type:'column' },
+      title:{ text:`${numericCols.join(' / ')} vs ${categoryCol}` },
+      xAxis:{ categories:cats, title:{ text:categoryCol } },
+      yAxis:{ title:{ text:'Value' } },
+      series
+    });
+  }
+
+  function drawLine(){
+    const cats = rawTable.slice(1).map(r=>r[ rawTable[0].indexOf(categoryCol) ]);
+    const series = numericCols.map(col=>({
+      name: col,
+      data: cats.map(c=>{
+        const row = dataObjs.find(o=>String(o[categoryCol])==c);
+        return row? +row[col]: 0;
+      })
+    }));
+    chart = Highcharts.chart(container,{
+      chart:{ type:'line' },
+      title:{ text:`${numericCols.join(' / ')} vs ${categoryCol}` },
+      xAxis:{ categories:cats, title:{ text:categoryCol } },
+      yAxis:{ title:{ text:'Value' } },
+      series
+    });
+  }
+
+  function drawMap(){
+    if(!numericCols.length){
+      container.innerHTML = '<p>No numeric column available to map.</p>';
+      return;
+    }
+    const col = numericCols[0];
+    const data = rawTable.slice(1).map(r=>{
+      const code = String(r[ rawTable[0].indexOf(categoryCol) ]).toLowerCase().slice(0,2);
+      const o = dataObjs.find(o=>String(o[categoryCol]).toLowerCase().slice(0,2)===code);
+      return [code, o? +o[col]: 0];
+    });
+    const max = Math.max(...data.map(d=>d[1]));
+    chart = Highcharts.mapChart(container,{
+      chart:{ map:'custom/europe', animation:false },
+      title:{ text:`${col} by ${categoryCol}` },
+      colorAxis:{ min:0, max },
+      series:[{
+        data,
+        joinBy:['hc-key',0],
+        name: col,
+        states:{ hover:{ color:'#a4edba' } }
+      }],
+      mapNavigation:{ enabled:true }
+    });
+  }
+
+  // ─── Exports ─────────────────────────────────────────────────────────
+  function enableExports(ch){
+    expCSV.disabled = expPNG.disabled = !ch;
+    if(ch){
+      expCSV.onclick = ()=> ch.downloadCSV();
+      expPNG.onclick  = ()=> ch.exportChartLocal({ type:'image/png', filename:`chart-${Date.now()}` });
+    }
+  }
+  </script>
+
+</body>
+</html>

@@ -3,69 +3,100 @@
 <head>
   <meta charset="utf-8">
   <title>European Jobs Monitor – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Highcharts & modules -->
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/highcharts-more.js"></script>
-  <script src="https://code.highcharts.com/maps/modules/map.js"></script>
-  <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script src="https://code.highcharts.com/modules/export-data.js"></script>
   <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
-  <script>
-    Highcharts.setOptions({
-      plotOptions:{ series:{ animation:{ duration:500 } } }
-    });
-  </script>
-
-  <!-- bar palette & logo helper -->
-  <script>
-    const barPalette = {
-      1:['#355582'],2:['#355582','#005F2F'],
-      3:['#355582','#9ca2a9','#005F2F'],4:['#355582','#9ca2a9','#4d853d','#005F2F'],
-      5:['#355582','#9ca2a9','#5479b3','#4d853d','#005F2F'],
-      6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
-    };
-    const barColor = (i,n)=> barPalette[Math.min(n,6)][i];
-
-    // Use a LOCAL copy of the logo to avoid tainting canvas in offline export
-    // Place 'logo.svg' beside this HTML file (or change to your path)
-    const logoURL  = './logo.svg';
-
-    function addLogo(chart){
-      const w=90,h=28,
-            x=chart.chartWidth - w - 10,
-            y=chart.chartHeight - h - 10;
-      if(chart.customLogo) chart.customLogo.destroy();
-      chart.customLogo = chart.renderer
-        .image(logoURL, x, y, w, h)
-        .css({opacity:.8})
-        .add();
-    }
-  </script>
 
   <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- styles -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{--pad:1rem;font-size:14px}
-    body{font-family:'Inter',Arial,sans-serif;margin:var(--pad);max-width:1100px}
-    h1{margin:0 0 .75rem;font-size:1.2rem;font-weight:600}
+    body{font-family:'Inter',Arial,sans-serif;margin:var(--pad);max-width:1180px}
+    h1{margin:0 0 1rem;font-size:22px;font-weight:700;color:#222}
     label{display:block;margin:.85rem 0 .35rem;font-weight:600}
     select,button{font:inherit}
-    select{width:100%;padding:.4rem;border:1px solid #ccc;border-radius:4px}
-    button.pill{display:block;width:auto;margin:.35rem .5rem .35rem 0;padding:.35rem .75rem;
-      border:1px solid #444;border-radius:20px;background:#fff;cursor:pointer}
-    button.pill.active{background:#c8d4e7;font-weight:600}
-    fieldset{border:none;padding:0;margin:0 0 1rem}
-    fieldset legend{font-weight:600;padding:0 .4rem;margin-bottom:.5rem;display:block}
-    .radio-block{display:flex;flex-wrap:wrap;gap:.5rem}
-    #controls{display:grid;grid-template-columns:260px 1fr;gap:1.5rem}
-    #container{width:100%;height:520px;margin-top:1rem}
-    footer{margin-top:.75rem;text-align:right}footer img{height:36px}
+    select{width:100%;padding:.5rem;border:1px solid #cfd8e3;border-radius:6px;background:#fff}
+
+    fieldset{border:1px solid #e5e7eb;border-radius:10px;padding:.75rem;margin:0 0 1rem;background:#fafafa}
+    fieldset legend{font-weight:700;padding:0 .4rem;color:#374151}
+    .radio-list{display:block}
+    .radio-list label{display:block;margin:.25rem 0;cursor:pointer}
+    .radio-list input{margin-right:.5rem}
+
+    #controls{display:grid;grid-template-columns:280px 1fr;gap:1.5rem}
+    #container{width:100%;height:560px;margin-top:.5rem}
+    .dl-row{margin-top:.6rem}
+    .dl-row button{padding:.45rem .8rem;border:1px solid #cfd8e3;border-radius:8px;background:#fff;cursor:pointer}
   </style>
+
+  <script>
+    /* ====== Colors (legend/series order) =============================== */
+    const EJM_COLORS = {
+      blue:   '#0A6AA6', // 1
+      orange: '#A55E00', // 2
+      red:    '#B01E34', // 3
+      green:  '#3C6F3C', // 4
+      purple: '#59419A'  // 5
+    };
+    const EJM_PALETTE = [
+      EJM_COLORS.blue, EJM_COLORS.orange, EJM_COLORS.red, EJM_COLORS.green, EJM_COLORS.purple
+    ];
+    const ejmColor = i => EJM_PALETTE[i % EJM_PALETTE.length];
+
+    Highcharts.setOptions({
+      colors: EJM_PALETTE.slice(),
+      chart:  { style: { fontFamily: 'Inter, Arial, sans-serif' } },
+      title:  { style: { fontSize: '18px', fontWeight: '700', color:'#111827' } },
+      xAxis: {
+        lineWidth: 0.8, lineColor:'#111', tickLength: 0,
+        labels: { style:{ color:'#374151', fontSize:'12px' } }
+      },
+      yAxis: {
+        gridLineColor:'#e5e7eb', gridLineWidth:1,
+        labels: {
+          style:{ color:'#6b7280', fontSize:'12px' },
+          formatter(){
+            const v = this.value;
+            if (Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
+            if (Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
+            return v;
+          }
+        }
+      },
+      plotOptions:{
+        series:{ animation:{ duration:500 } },
+        column:{
+          borderRadius:3,
+          dataLabels:{
+            enabled:true,
+            style:{ textOutline:'none', fontWeight:600, color:'#111', fontSize:'12px' },
+            formatter(){
+              const v=this.y;
+              if (Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
+              if (Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
+              return v;
+            }
+          }
+        }
+      },
+      legend: {
+        align: 'center', verticalAlign: 'top', layout: 'horizontal',
+        symbolRadius: 2,
+        itemStyle: { fontSize: '12px', color: '#1f2937' },
+        itemHoverStyle: { color: '#111827' }
+      },
+      credits:{ enabled:false }
+    });
+  </script>
 </head>
 <body>
 
@@ -78,42 +109,33 @@
       <select id="countrySel"></select>
     </label>
 
-    <fieldset><legend>Calc type</legend>
-      <div id="critPills" class="radio-block"></div>
-    </fieldset>
-
     <fieldset><legend>Year</legend>
-      <div id="periodPills" class="radio-block"></div>
+      <div id="periodList" class="radio-list"></div>
     </fieldset>
 
     <fieldset><legend>Filter by</legend>
-      <div id="filterRadio" class="radio-block"></div>
+      <div id="filterList" class="radio-list"></div>
+    </fieldset>
+
+    <fieldset><legend>Job quality criterion</legend>
+      <div id="critList" class="radio-list"></div>
     </fieldset>
   </div>
 
   <!-- RIGHT COLUMN -->
   <div>
     <fieldset><legend>Metric</legend>
-      <div id="metricPills" class="radio-block"></div>
-    </fieldset>
-
-    <fieldset><legend>Chart type</legend>
-      <div id="chartType" class="radio-block">
-        <button id="btnBar"   class="pill active" data-type="bar">Bar chart</button>
-        <button id="btnRadar" class="pill"       data-type="radar">Radar chart</button>
-      </div>
+      <div id="metricList" class="radio-list"></div>
     </fieldset>
 
     <div id="container"></div>
 
-    <div style="margin-top:.6rem">
+    <div class="dl-row">
       <button id="dlCSV" disabled>Download CSV</button>
       <button id="dlPNG" disabled>Download PNG</button>
     </div>
   </div>
 </div>
-
-<footer><img src="logo.svg" alt="Eurofound"></footer>
 
 <script>
 /* ─── CONSTANTS ────────────────────────────────────────────────────────── */
@@ -121,259 +143,234 @@ const CSV_URL         = "https://raw.githubusercontent.com/thomasdavid/dashboard
 const FIELD_COUNTRY   = 'Country';
 const FIELD_METRIC    = 'Metric';
 const FIELD_PERIOD    = 'Year';
-const FIELD_FILTER_G  = 'Level 1 ';   // (note space matches your CSV header)
-const FIELD_FILTER_L  = 'Category';
+const FIELD_LEVEL1_A  = 'Level 1';
+const FIELD_LEVEL1_B  = 'Level 1 '; // tolerate trailing space
+const FIELD_CATEGORY  = 'Category';
 const FIELD_CRITERION = 'Calc Type';
 const FIELD_QUINTILE  = 'Quintile';
 const FIELD_VALUE     = 'Value';
 const QUINTILE_ORDER  = ['Low','Mid-low','Mid','Mid-high','High'];
 
-/* ─── DOM SHORTCUTS ────────────────────────────────────────────────────── */
-const cSel      = document.getElementById('countrySel');
-const critDiv   = document.getElementById('critPills');
-const periodDiv = document.getElementById('periodPills');
-const filterDiv = document.getElementById('filterRadio');
-const metricDiv = document.getElementById('metricPills');
-const barBtn    = document.getElementById('btnBar');
-const radarBtn  = document.getElementById('btnRadar');
-const btnCSV    = document.getElementById('dlCSV');
-const btnPNG    = document.getElementById('dlPNG');
+/* ISO2 -> name map (used only if dataset stores codes) */
+const ISO2_TO_NAME = {
+  "AT":"Austria","BE":"Belgium","BG":"Bulgaria","HR":"Croatia","CY":"Cyprus","CZ":"Czechia",
+  "DK":"Denmark","EE":"Estonia","FI":"Finland","FR":"France","DE":"Germany","EL":"Greece","GR":"Greece",
+  "HU":"Hungary","IE":"Ireland","IT":"Italy","LV":"Latvia","LT":"Lithuania","LU":"Luxembourg",
+  "MT":"Malta","NL":"Netherlands","PL":"Poland","PT":"Portugal","RO":"Romania","SK":"Slovakia",
+  "SI":"Slovenia","ES":"Spain","SE":"Sweden","IS":"Iceland","NO":"Norway","CH":"Switzerland",
+  "AL":"Albania","ME":"Montenegro","MK":"North Macedonia","RS":"Serbia","TR":"Türkiye","XK":"Kosovo",
+  "GB":"United Kingdom","UK":"United Kingdom"
+};
+const NAME_TO_ISO2 = Object.fromEntries(Object.entries(ISO2_TO_NAME).map(([k,v])=>[v,k]));
 
-/* ─── STATE ───────────────────────────────────────────────────────────── */
-let rows = [],
-    selCountry, selCriterion, selPeriod, selFilterGroup, selMetric, selChart='bar',
-    chart;
+/* EU aliases present in various datasets */
+const EU_ALIASES = new Set(["EU","EU27","EU-27","EU28","EU-28","European Union","European union","EU 27","EU 28"]);
 
-/* ─── LOAD & PARSE DATA ───────────────────────────────────────────────── */
+/* ─── DOM ──────────────────────────────────────────────────────────────── */
+const cSel       = document.getElementById('countrySel');
+const periodWrap = document.getElementById('periodList');
+const filterWrap = document.getElementById('filterList');
+const critWrap   = document.getElementById('critList');
+const metricWrap = document.getElementById('metricList');
+const btnCSV     = document.getElementById('dlCSV');
+const btnPNG     = document.getElementById('dlPNG');
+
+/* ─── STATE ────────────────────────────────────────────────────────────── */
+let rows = [];
+let selCountryName = 'European Union';
+let selPeriod = null, selFilterGroup = 'All', selCriterion, selMetric;
+let chart;
+
+/* ─── LOGO ─────────────────────────────────────────────────────────────── */
+const logoURL = './logo.svg'; // local to avoid tainted canvas
+function placeLogo(chart){
+  const w = 110, h = 34;
+  const x = chart.chartWidth  - w - 12;
+  const y = chart.chartHeight - h - 8;
+  if (chart.customLogo) chart.customLogo.destroy();
+  chart.customLogo = chart.renderer.image(logoURL, x, y, w, h).css({opacity:.95}).add();
+}
+
+/* ─── LOAD CSV ─────────────────────────────────────────────────────────── */
 Papa.parse(CSV_URL, {
   download:true, header:true, dynamicTyping:false,
   complete:({data})=>{
-    rows = data.filter(r=>r[FIELD_COUNTRY]);
+    rows = data.filter(r=>r && r[FIELD_COUNTRY]);
     initUI();
     draw();
   }
 });
 
-/* ─── HELPERS ─────────────────────────────────────────────────────────── */
-function uniq(a){ return [...new Set(a)].sort(); }
-function enableExports(ch){
-  btnCSV.disabled = btnPNG.disabled = !ch;
-  if(ch){
-    btnCSV.onclick = ()=> ch.downloadCSV(); // exports series currently shown
-    btnPNG.onclick = ()=> ch.exportChartLocal({
-      type:'image/png', filename:`EJM-${Date.now()}`
-    });
-  }
+/* ─── HELPERS ──────────────────────────────────────────────────────────── */
+const getLevel1 = r => r[FIELD_LEVEL1_A] ?? r[FIELD_LEVEL1_B] ?? '';
+const uniq = a => [...new Set(a)];
+const sortAlpha = a => a.slice().sort((x,y)=>x.localeCompare(y));
+
+function periodEndYear(p){
+  // Accept "2008–2010", "2011-2019", etc.
+  const m = (p || '').match(/(\d{4})\D+(\d{4})/);
+  if (m) return parseInt(m[2],10);
+  const m2 = (p || '').match(/(\d{4})/);
+  return m2 ? parseInt(m2[1],10) : -Infinity;
+}
+function sortYearsDesc(list){
+  return list.slice().sort((a,b)=>{
+    const ea = periodEndYear(a), eb = periodEndYear(b);
+    if (eb !== ea) return eb - ea;
+    // tie-breaker: compare start years if present
+    const sa = ((a||'').match(/(\d{4})/)||[])[1]||0;
+    const sb = ((b||'').match(/(\d{4})/)||[])[1]||0;
+    return parseInt(eb,10) - parseInt(ea,10) || parseInt(sb,10) - parseInt(sa,10);
+  });
 }
 
-/* ─── INITIALIZE UI ───────────────────────────────────────────────────── */
+function datasetUsesCodes(){
+  const sample = rows[0]?.[FIELD_COUNTRY] || '';
+  return sample.length <= 3 || ISO2_TO_NAME[sample];
+}
+function toDisplayName(countryValue){
+  if (!countryValue) return countryValue;
+  if (EU_ALIASES.has(countryValue)) return 'European Union';
+  if (countryValue.length > 2 && !ISO2_TO_NAME[countryValue]) return countryValue;
+  return ISO2_TO_NAME[countryValue] || countryValue;
+}
+function toDatasetKey(displayName){
+  if (displayName === 'European Union') return 'EU_ANY';
+  if (datasetUsesCodes()) return NAME_TO_ISO2[displayName] || displayName;
+  return displayName;
+}
+
+/* ─── UI INIT ──────────────────────────────────────────────────────────── */
 function initUI(){
-  // COUNTRY
-  const countries = uniq(rows.map(r=>r[FIELD_COUNTRY]));
-  cSel.innerHTML = countries.map(c=>`<option>${c}</option>`).join('');
-  selCountry = countries[0];
-  cSel.onchange = () => { selCountry=cSel.value; buildPeriods(); draw(); };
+  // Countries: EU first (default), remove UK, rest alphabetical
+  const allNames = uniq(rows.map(r => toDisplayName(r[FIELD_COUNTRY])))
+    .filter(n => n && n !== 'United Kingdom');
+  const eu = allNames.includes('European Union') ? ['European Union'] : [];
+  const others = sortAlpha(allNames.filter(n => n !== 'European Union'));
+  const countries = [...eu, ...others];
+  cSel.innerHTML = countries.map(n=>`<option>${n}</option>`).join('');
+  selCountryName = countries[0] || 'European Union';
+  cSel.value = selCountryName;
+  cSel.onchange = () => { selCountryName = cSel.value; buildPeriods(true); draw(); };
 
-  // CALC-TYPE
-  const crits = uniq(rows.map(r=>r[FIELD_CRITERION]));
-  critDiv.innerHTML = crits.map((c,i)=>
-    `<button class="pill${i===0?' active':''}" data-v="${c}">${c}</button>`
-  ).join('');
-  selCriterion = crits[0];
-  critDiv.onclick = e => {
-    if(!e.target.dataset.v) return;
-    selCriterion = e.target.dataset.v;
-    critDiv.querySelectorAll('button').forEach(b=>
-      b.classList.toggle('active', b.dataset.v===selCriterion)
-    );
-    buildPeriods(); draw();
-  };
-
-  // METRIC
-  const metrics = uniq(rows.map(r=>r[FIELD_METRIC]));
-  metricDiv.innerHTML = metrics.map((m,i)=>
-    `<button class="pill${i===0?' active':''}" data-v="${m}">${m}</button>`
+  // Metric (radio, one per row)
+  const metrics = sortAlpha(uniq(rows.map(r=>r[FIELD_METRIC]))).filter(Boolean);
+  metricWrap.innerHTML = metrics.map((m,i)=>
+    `<label><input type="radio" name="metric" value="${m}" ${i===0?'checked':''}>${m}</label>`
   ).join('');
   selMetric = metrics[0];
-  metricDiv.onclick = e => {
-    if(!e.target.dataset.v) return;
-    selMetric = e.target.dataset.v;
-    metricDiv.querySelectorAll('button').forEach(b=>
-      b.classList.toggle('active', b.dataset.v===selMetric)
-    );
-    buildPeriods(); draw();
-  };
+  metricWrap.onchange = e => { selMetric = e.target.value; buildPeriods(true); draw(); };
 
-  // CHART TYPE
-  barBtn.onclick   = () => { selChart='bar';   barBtn.classList.add('active');   radarBtn.classList.remove('active'); draw(); };
-  radarBtn.onclick = () => { selChart='radar'; radarBtn.classList.add('active'); barBtn.classList.remove('active');   draw(); };
-
-  // FILTER-BY
-  const groups = uniq(rows.map(r=>r[FIELD_FILTER_G]));
-  filterDiv.innerHTML = [
-    `<label><input type="radio" name="f" value="All" checked>All</label>`,
-    ...groups.map(g=>`<label><input type="radio" name="f" value="${g}">${g}</label>`)
-  ].join('');
-  selFilterGroup = 'All';
-  filterDiv.onchange = e => { selFilterGroup=e.target.value; draw(); };
-
-  // YEAR
-  buildPeriods();
-}
-
-/* ─── BUILD YEAR PILLs ─────────────────────────────────────────────────── */
-function buildPeriods(){
-  const yrs = uniq(
-    rows.filter(r=>
-      r[FIELD_COUNTRY]   === selCountry &&
-      r[FIELD_METRIC]    === selMetric &&
-      r[FIELD_CRITERION] === selCriterion
-    ).map(r=>r[FIELD_PERIOD])
-  );
-  periodDiv.innerHTML = yrs.map((y,i)=>
-    `<button class="pill${i===0?' active':''}" data-v="${y}">${y}</button>`
+  // Criterion (ordered)
+  const critOrder = ['Job-wage','Education','Broad job quality'];
+  const critsAvail = uniq(rows.map(r=>r[FIELD_CRITERION])).filter(Boolean);
+  const crits = critOrder.filter(c => critsAvail.includes(c));
+  critWrap.innerHTML = crits.map((c,i)=>
+    `<label><input type="radio" name="crit" value="${c}" ${i===0?'checked':''}>${c}</label>`
   ).join('');
-  selPeriod = yrs[0];
-  periodDiv.onclick = e => {
-    if(!e.target.dataset.v) return;
-    selPeriod=e.target.dataset.v;
-    periodDiv.querySelectorAll('button').forEach(b=>
-      b.classList.toggle('active', b.dataset.v===selPeriod)
-    );
-    draw();
-  };
+  selCriterion = crits[0];
+  critWrap.onchange = e => { selCriterion = e.target.value; buildPeriods(true); draw(); };
+
+  // Filter-by (ordered, single 'All')
+  const filterOrder = ['All','Age','Sector','Gender','Contractual status','Employment status','Working hours','Core/non-core'];
+  const groupsAvail = uniq(rows.map(r=>getLevel1(r))).filter(Boolean);
+  const groups = filterOrder.filter(f => f==='All' || groupsAvail.includes(f));
+  filterWrap.innerHTML = groups.map((g,i)=>
+    `<label><input type="radio" name="f" value="${g}" ${i===0?'checked':''}>${g}</label>`
+  ).join('');
+  selFilterGroup = groups[0] || 'All';
+  filterWrap.onchange = e => { selFilterGroup = e.target.value; draw(); };
+
+  // Years (initial build; default most recent)
+  buildPeriods(false);
 }
 
-/* ─── DRAW (delegates by selChart) ─────────────────────────────────────── */
-function draw(){
-  if(selChart==='bar')   drawBar();
-  else                   drawRadar();
-}
-
-/* ─── DRAW BAR CHART ──────────────────────────────────────────────────── */
-function drawBar(){
-  const data = rows.filter(r=>
-    r[FIELD_COUNTRY]   === selCountry &&
-    r[FIELD_METRIC]    === selMetric &&
-    r[FIELD_PERIOD]    === selPeriod &&
-    r[FIELD_CRITERION] === selCriterion
+/* If preserve=true, keep current selPeriod when possible; else pick newest */
+function buildPeriods(preserve){
+  const key = toDatasetKey(selCountryName);
+  const yearsRaw = uniq(
+    rows.filter(r=>{
+      const okCountry = key==='EU_ANY'
+        ? EU_ALIASES.has(r[FIELD_COUNTRY])
+        : r[FIELD_COUNTRY] === key;
+      return okCountry && r[FIELD_METRIC]===selMetric && r[FIELD_CRITERION]===selCriterion;
+    }).map(r=>r[FIELD_PERIOD])
   );
-  const isAll = selFilterGroup==='All';
-  const labels = isAll
+  const years = sortYearsDesc(yearsRaw);
+
+  // Choose default or preserve current
+  if (preserve && selPeriod && years.includes(selPeriod)){
+    // keep existing
+  } else {
+    selPeriod = years[0] || null;
+  }
+
+  // Render without changing selPeriod if it's still valid
+  periodWrap.innerHTML = years.map(y=>{
+    const id = `yr_${y.replace(/\W/g,'_')}`;
+    return `<label for="${id}"><input id="${id}" type="radio" name="period" value="${y}" ${y===selPeriod?'checked':''}>${y}</label>`;
+  }).join('');
+  periodWrap.onchange = e => { selPeriod = e.target.value; draw(); };
+}
+
+/* ─── DRAW ─────────────────────────────────────────────────────────────── */
+function draw(){
+  if (!selPeriod) return;
+
+  const key = toDatasetKey(selCountryName);
+  const data = rows.filter(r=>{
+    const okCountry = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY] === key;
+    return okCountry &&
+           r[FIELD_METRIC]    === selMetric &&
+           r[FIELD_CRITERION] === selCriterion &&
+           r[FIELD_PERIOD]    === selPeriod;
+  });
+
+  const isAll = selFilterGroup === 'All';
+  const legendCats = isAll
     ? ['All']
-    : uniq(data.filter(r=>r[FIELD_FILTER_G]===selFilterGroup)
-               .map(r=>r[FIELD_FILTER_L]));
-  const series = labels.map((lab,i)=>{
-    const values = isAll
-      ? QUINTILE_ORDER.map(q=>
-          data.filter(r=>r[FIELD_QUINTILE]===q)
-              .reduce((s,r)=>s + (+r[FIELD_VALUE]||0),0)
+    : sortAlpha(uniq(
+        data.filter(r => (getLevel1(r) === selFilterGroup))
+            .map(r => r[FIELD_CATEGORY])
+      ));
+
+  const series = legendCats.map((cat, i) => {
+    const vals = isAll
+      ? QUINTILE_ORDER.map(q =>
+          data.filter(r => r[FIELD_QUINTILE]===q)
+              .reduce((s, r) => s + (+r[FIELD_VALUE]||0), 0)
         )
-      : QUINTILE_ORDER.map(q=>{
-          const row = data.find(r=>
-            r[FIELD_FILTER_L]===lab && r[FIELD_QUINTILE]===q
+      : QUINTILE_ORDER.map(q => {
+          const row = data.find(r =>
+            getLevel1(r)===selFilterGroup &&
+            r[FIELD_CATEGORY]===cat &&
+            r[FIELD_QUINTILE]===q
           );
-          return row? +row[FIELD_VALUE] : 0;
+          return row ? +row[FIELD_VALUE] : 0;
         });
-    return { name:lab, color:isAll? '#666':barColor(i,labels.length), data:values };
+    return { name: cat, data: vals, color: ejmColor(i) };
   });
 
   if(chart) chart.destroy();
   chart = Highcharts.chart('container',{
-    chart:{ type:'column',
-      events:{ load(){addLogo(this)}, redraw(){addLogo(this)} }
+    chart:{
+      type:'column',
+      spacingBottom: 50,
+      events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} }
     },
-    title:{ text:`${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})` },
+    title:{ text:`${selMetric} by job-wage quintile in ${selCountryName} (${selPeriod})` },
     xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
     yAxis:{ title:{ text:selMetric } },
-    tooltip:{ shared:true,useHTML:true },
-    plotOptions:{
-      series:{
-        pointPadding:0.1, groupPadding:0.15,
-        dataLabels:{
-          enabled:true,
-          formatter:function(){
-            const v=this.y;
-            if(Math.abs(v)>=1e6) return (v/1e6).toFixed(2)+'M';
-            if(Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
-            return v;
-          },
-          style:{ textOutline:'none', fontWeight:'600', color:'#000' }
-        }
-      }
-    },
+    tooltip:{ shared:true, useHTML:true },
+    legend:{ align:'center', verticalAlign:'top', layout:'horizontal' },
+    exporting:{ enabled:true, fallbackToExportServer:false },
     series
   });
-  enableExports(chart);     // <-- enable PNG/CSV buttons
-}                           // <-- IMPORTANT: properly close drawBar()
 
-/* ─── DRAW RADAR CHART ─────────────────────────────────────────────────── */
-function drawRadar(){
-  const data = rows.filter(r=>
-    r[FIELD_COUNTRY]   === selCountry &&
-    r[FIELD_METRIC]    === selMetric &&
-    r[FIELD_PERIOD]    === selPeriod &&
-    r[FIELD_CRITERION] === selCriterion
-  );
-
-  const isAll = selFilterGroup === 'All';
-  const labels = isAll
-    ? ['All']
-    : uniq(data.filter(r => r[FIELD_FILTER_G] === selFilterGroup)
-              .map(r => r[FIELD_FILTER_L]));
-
-  const series = labels.map((lab,i)=>{
-    const vals = isAll
-      ? QUINTILE_ORDER.map(q=>
-          data.filter(r=>r[FIELD_QUINTILE]===q)
-              .reduce((sum,r)=>sum + (+r[FIELD_VALUE]||0), 0)
-        )
-      : QUINTILE_ORDER.map(q=>{
-          const row = data.find(r=>
-            r[FIELD_FILTER_L]===lab && r[FIELD_QUINTILE]===q
-          );
-          return row? +row[FIELD_VALUE] : 0;
-        });
-
-    return {
-      name: lab,
-      color: isAll ? '#666' : barColor(i, labels.length),
-      data: vals,
-      pointPlacement: 'on'
-    };
-  });
-
-  if(chart) chart.destroy();
-  chart = Highcharts.chart('container', {
-    chart: {
-      polar: true,
-      type:  'line',
-      events:{ load(){addLogo(this)}, redraw(){addLogo(this)} }
-    },
-    title: { text: `${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})` },
-    pane: { size: '80%' },
-    xAxis: { categories: QUINTILE_ORDER, tickmarkPlacement: 'on', lineWidth: 0 },
-    yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0 },
-    legend: { align: 'center', verticalAlign: 'bottom' },
-    tooltip: { shared: true, useHTML: true },
-    plotOptions: {
-      series: {
-        marker: { enabled: true, radius: 4 },
-        dataLabels: {
-          enabled: true,
-          formatter: function(){
-            const v = this.y;
-            if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(2)+'M';
-            if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(0)+'K';
-            return v;
-          },
-          style: { textOutline: 'none', fontWeight: '600', color: '#000' }
-        }
-      }
-    },
-    series
-  });
-  enableExports(chart);
+  // Export buttons
+  btnCSV.disabled = btnPNG.disabled = false;
+  btnCSV.onclick = ()=> chart.downloadCSV();
+  btnPNG.onclick = ()=> chart.exportChart({ type:'image/png', filename:`EJM-${Date.now()}` });
 }
 </script>
 </body>

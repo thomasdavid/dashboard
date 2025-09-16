@@ -426,6 +426,19 @@ function buildYears(preserve){
     draw();
   };
 }
+function formatTooltip3(v){
+  const sign = v < 0 ? '-' : '';
+  const abs  = Math.abs(v);
+  if (abs >= 1_000_000) {
+    // e.g. 3.423M (three decimals), trim trailing zeros if any
+    return sign + (abs / 1e6).toFixed(3).replace(/\.?0+$/,'') + 'M';
+  }
+  if (abs >= 1_000) {
+    // e.g. 224.2K (one decimal), trim trailing .0
+    return sign + (abs / 1e3).toFixed(1).replace(/\.0$/,'') + 'K';
+  }
+  return sign + Math.round(abs).toString();
+}
 
 /* DRAW */
 function draw(){
@@ -487,7 +500,8 @@ function draw(){
       formatter(){
         const lines=[];
         lines.push(`<div style="text-align:center"><b>${selCountryName}</b></div>`);
-        lines.push(`${selMetric}: <b>${formatExact(this.y)}</b> jobs`);
+        const col = this.y >= 0 ? '#14532d' : '#7f1d1d'; // dark green / dark red
+        lines.push(`${selMetric}: <b style="color:${col}">${formatTooltip3(this.y)}</b> jobs`);
         if (selFilterGroup!=='All') lines.push(`${selFilterGroup}: <b>${this.series.name}</b>`);
         lines.push(`${this.key} quintile`);
         return `<div style="padding:6px 8px">${lines.join('<br>')}</div>`;

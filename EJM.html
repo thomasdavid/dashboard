@@ -11,27 +11,29 @@
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script src="https://code.highcharts.com/modules/export-data.js"></script>
   <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
-<script>
-  Highcharts.setOptions({
-    chart: { animation: { duration: 300 } },        // resize/redraw
-    plotOptions: {
-      series: { animation: { duration: 300 } }       // series transitions
-    }
-  });
-</script>
-<script>
-// …
-function criterionPhrase () {
-  // "Job-wage" -> "job-wage quintile", "Education" -> "education quintile", etc.
-  return `${selCriterion.toLowerCase()} quintile`;
-}
-</script>
+
+  <script>
+    Highcharts.setOptions({
+      chart: { animation: { duration: 300 } },
+      plotOptions: { series: { animation: { duration: 300 } } }
+    });
+  </script>
+
+  <script>
+  // …
+  function criterionPhrase () {
+    return `${selCriterion.toLowerCase()} quintile`;
+  }
+  </script>
 
   <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <!-- Inter font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Flag icons (SVG) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 
   <style>
     :root { --pad: 1rem; font-size: 14px; }
@@ -41,7 +43,6 @@ function criterionPhrase () {
     select, button { font: inherit; }
     select { width: 100%; padding: .5rem; border: 1px solid #cfd8e3; border-radius: 6px; background: #fff; }
 
-    /* Remove grey frames from filters/sections */
     fieldset { border: none; background: transparent; padding: .25rem 0; margin: 0 0 .9rem; }
     fieldset legend { font-weight: 700; padding: 0 .4rem; color: #374151; }
 
@@ -65,6 +66,26 @@ function criterionPhrase () {
     /* Note under chart */
     .note { margin: .5rem 0 .5rem; font-size: 12px; color: #374151; }
     .hidden { display: none; }
+
+    /* SVG-flag dropdown */
+    .flag-select{ position:relative; }
+    .flag-select .btn{
+      display:flex; align-items:center; gap:.6rem;
+      width:100%; padding:.5rem .6rem; background:#fff;
+      border:1px solid #cfd8e3; border-radius:6px; cursor:pointer;
+    }
+    .flag-select .list{
+      position:absolute; left:0; right:0; z-index:20; margin-top:.3rem;
+      max-height:300px; overflow:auto; background:#fff;
+      border:1px solid #e5e7eb; border-radius:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+    }
+    .flag-select .item{
+      display:flex; align-items:center; gap:.6rem;
+      padding:.5rem .6rem; cursor:pointer;
+    }
+    .flag-select .item:hover{ background:#f3f4f6; }
+    .flag-select .fi{ font-size:18px; line-height:1; border-radius:2px; box-shadow:0 0 0 1px rgba(0,0,0,.06) inset; }
   </style>
 
   <script>
@@ -111,7 +132,9 @@ function criterionPhrase () {
   <!-- LEFT -->
   <div>
     <label>Select country
-      <select id="countrySel"></select>
+      <!-- custom SVG-flag dropdown + hidden native select -->
+      <div id="countryUI" class="flag-select"></div>
+      <select id="countrySel" style="display:none"></select>
     </label>
 
     <fieldset>
@@ -130,7 +153,7 @@ function criterionPhrase () {
     </fieldset>
   </div>
 
-    <!-- RIGHT -->
+  <!-- RIGHT -->
   <div>
     <div class="pill-row" id="metricPills"></div>
     <div id="container"></div>
@@ -172,6 +195,7 @@ const NAME_TO_ISO2 = Object.fromEntries(Object.entries(ISO2_TO_NAME).map(([k,v])
 
 /* DOM */
 const cSel       = document.getElementById('countrySel');
+const countryUI  = document.getElementById('countryUI');
 const yearPills  = document.getElementById('yearPills');
 const filterWrap = document.getElementById('filterList');
 const critWrap   = document.getElementById('critList');
@@ -186,20 +210,39 @@ let selCountryName = 'European Union';
 let selPeriod = null, selFilterGroup = 'All', selCriterion, selMetric;
 let chart;
 
-/* LOGO (auto aspect) */
-const logoURL = './logo.svg';
-let logoAspect = 0.33; // fallback
-const _img = new Image();
-_img.onload = () => { if (_img.naturalWidth) logoAspect = _img.naturalHeight / _img.naturalWidth; };
-_img.src = logoURL;
+/* Logos */
+const logoURL  = './logo.svg';   // small branding, bottom-right
+const wmURL    = './logo1.svg';  // watermark (B/W), faint in plot background
+let logoAspect = 0.33;
+let wmAspect   = 0.33;
+
+const _img = new Image(); _img.onload = () => { if (_img.naturalWidth) logoAspect = _img.naturalHeight / _img.naturalWidth; }; _img.src = logoURL;
+const _wm  = new Image(); _wm.onload  = () => { if (_wm.naturalWidth)   wmAspect   = _wm.naturalHeight   / _wm.naturalWidth;   }; _wm.src  = wmURL;
 
 function placeLogo(chart){
-  const w = 78;                             // smaller width
-  const h = Math.max(1, Math.round(w*logoAspect));
+  const w = 78, h = Math.max(1, Math.round(w*logoAspect));
   const x = chart.chartWidth  - w - 10;
   const y = chart.chartHeight - h - 8;
   if (chart.customLogo) chart.customLogo.destroy();
-  chart.customLogo = chart.renderer.image(logoURL, x, y, w, h).css({opacity:.95}).add();
+  chart.customLogo = chart.renderer.image(logoURL, x, y, w, h)
+    .css({opacity:.95, pointerEvents:'none'}).add();
+}
+function placeWatermark(chart){
+  const pad = 0.85; // cover ~85% of plot area
+  let w = Math.round(chart.plotWidth * pad);
+  let h = Math.round(w * wmAspect);
+  if (h > chart.plotHeight * pad){
+    h = Math.round(chart.plotHeight * pad);
+    w = Math.round(h / wmAspect);
+  }
+  const x = chart.plotLeft + Math.round((chart.plotWidth  - w)/2);
+  const y = chart.plotTop  + Math.round((chart.plotHeight - h)/2);
+
+  if (chart.watermark) chart.watermark.destroy();
+  chart.watermark = chart.renderer.image(wmURL, x, y, w, h)
+    .attr({ zIndex: 0 })
+    .css({ opacity: .06, pointerEvents:'none' })
+    .add();
 }
 
 /* LOAD */
@@ -222,9 +265,7 @@ function displayPeriod(p){
 }
 function startYear(p){ const m=(p||'').match(/(\d{4})/); return m?+m[1]:-Infinity; }
 function endYear(p){ const m=(p||'').match(/(\d{4})\D+(\d{4})/); return m?+m[2]:startYear(p); }
-function sortYearsDesc(list){
-  return list.slice().sort((a,b)=> (endYear(b)-endYear(a)) || (startYear(b)-startYear(a)));
-}
+function sortYearsDesc(list){ return list.slice().sort((a,b)=> (endYear(b)-endYear(a)) || (startYear(b)-startYear(a))); }
 function datasetUsesCodes(){
   const sample = rows[0]?.[FIELD_COUNTRY] || '';
   return sample.length <= 3 || ISO2_TO_NAME[sample];
@@ -241,9 +282,55 @@ function toDatasetKey(name){
 }
 function fmtVal(v){
   const abs=Math.abs(v);
-  if (abs>=1e5) return (v/1e6).toFixed(abs<1e6?1:1)+'M'; // 0.5M, 1.2M
+  if (abs>=1e5) return (v/1e6).toFixed(abs<1e6?1:1)+'M'; // keep your threshold
   if (abs>=1e3) return (v/1e3).toFixed(abs<1e1?1:0)+'K';
   return String(Math.round(v));
+}
+
+/* SVG-flag dropdown */
+const ISO_FIX_FOR_FLAGS = { 'EL':'GR' }; // library expects 'gr' for Greece
+function nameToFlagCode(name){
+  if (name==='European Union') return 'eu';
+  let code = NAME_TO_ISO2[name] || '';
+  code = ISO_FIX_FOR_FLAGS[code] || code;
+  return (code || '').toLowerCase();
+}
+function buildFlagCountryDropdown(countries){
+  countryUI.innerHTML = `
+    <button type="button" class="btn" id="flagBtn">
+      <span class="fi" id="flagCurr"></span><span id="labelCurr"></span>
+    </button>
+    <div class="list" id="flagList" hidden></div>
+  `;
+  const list = countryUI.querySelector('#flagList');
+  list.innerHTML = countries.map(name=>{
+    const code = nameToFlagCode(name);
+    return `<div class="item" data-name="${name}">
+              <span class="fi fi-${code}"></span><span>${name}</span>
+            </div>`;
+  }).join('');
+
+  const btn = countryUI.querySelector('#flagBtn');
+  const flagCurr = countryUI.querySelector('#flagCurr');
+  const labelCurr = countryUI.querySelector('#labelCurr');
+
+  function setSelected(name){
+    const code = nameToFlagCode(name);
+    flagCurr.className = `fi fi-${code}`;
+    labelCurr.textContent = name;
+  }
+  setSelected(selCountryName);
+
+  btn.onclick = ()=>{ list.hidden = !list.hidden; };
+  list.onclick = e=>{
+    const item = e.target.closest('.item'); if(!item) return;
+    const name = item.dataset.name;
+    setSelected(name);
+    list.hidden = true;
+    cSel.value = name;   // mirror to hidden select
+    cSel.onchange();     // trigger existing handler
+  };
+  document.addEventListener('click', (e)=>{ if(!countryUI.contains(e.target)) list.hidden = true; });
 }
 
 /* UI */
@@ -254,10 +341,13 @@ function initUI(){
     ...(allNames.includes('European Union') ? ['European Union'] : []),
     ...sortAlpha(allNames.filter(n=>n!=='European Union'))
   ];
+  // hidden <select> (kept for logic)
   cSel.innerHTML = countries.map(n=>`<option>${n}</option>`).join('');
   selCountryName = countries[0] || 'European Union';
   cSel.value = selCountryName;
   cSel.onchange = ()=>{ selCountryName=cSel.value; buildYears(true); draw(); };
+  // SVG-flag UI
+  buildFlagCountryDropdown(countries);
 
   // Metric buttons
   const metrics = sortAlpha(uniq(rows.map(r=>r[FIELD_METRIC]))).filter(Boolean);
@@ -337,39 +427,31 @@ function draw(){
     return { name:cat, data:vals, color:ejmColor(i) };
   });
 
-  // Data labels (inside for ≤2 series, outside for >2 or thin bars)
+  // Data labels
   const fewSeries = series.length <= 2, insideMinH=16, insideMinW=26;
   const dl = [
-    { // inside top (positive)
-      enabled:true, inside:true, verticalAlign:'top', align:'center', y:4, padding:0,
-      crop:true, overflow:'none', allowOverlap:false,
+    { enabled:true, inside:true, verticalAlign:'top',    align:'center', y:4,  padding:0, crop:true,  overflow:'none', allowOverlap:false,
       style:{ color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
-      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y<=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); }
-    },
-    { // inside bottom (negative)
-      enabled:true, inside:true, verticalAlign:'bottom', align:'center', y:-4, padding:0,
-      crop:true, overflow:'none', allowOverlap:false,
+      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y<=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); } },
+    { enabled:true, inside:true, verticalAlign:'bottom', align:'center', y:-4, padding:0, crop:true,  overflow:'none', allowOverlap:false,
       style:{ color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
-      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y>=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); }
-    },
-    { // above (positive, outside)
-      enabled:true, inside:false, align:'center', verticalAlign:'bottom', y:-2,
-      crop:false, overflow:'none', allowOverlap:false,
+      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y>=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); } },
+    { enabled:true, inside:false, align:'center', verticalAlign:'bottom', y:-2, crop:false, overflow:'none', allowOverlap:false,
       style:{ color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
-      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y<=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); }
-    },
-    { // below (negative, outside)
-      enabled:true, inside:false, align:'center', verticalAlign:'top', y:12,
-      crop:false, overflow:'none', allowOverlap:false,
+      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y<=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); } },
+    { enabled:true, inside:false, align:'center', verticalAlign:'top',    y:12,  crop:false, overflow:'none', allowOverlap:false,
       style:{ color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
-      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y>=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); }
-    }
+      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y>=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); } }
   ];
   series.forEach(s=>s.dataLabels = dl);
 
   if (chart) chart.destroy();
   chart = Highcharts.chart('container',{
-    chart:{ type:'column', spacingBottom:50, events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
+    chart:{
+      type:'column',
+      spacingBottom:50,
+      events:{ load(){ placeWatermark(this); placeLogo(this); }, redraw(){ placeWatermark(this); placeLogo(this); } }
+    },
     title:{ text:`${selMetric} by ${criterionPhrase()} in ${selCountryName} (${displayPeriod(selPeriod)})` },
     xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
     yAxis:{ title:{ text:selMetric } },
@@ -389,9 +471,8 @@ function draw(){
     series
   });
 
-  // Core/non-core explanatory note
   coreNote.classList.toggle('hidden', selFilterGroup !== 'Core/non-core');
-  // Export buttons
+
   btnCSV.disabled = btnPNG.disabled = false;
   btnCSV.onclick = ()=> chart.downloadCSV();
   btnPNG.onclick = ()=> chart.exportChartLocal({ type:'image/png', filename:`EJM-${Date.now()}` });

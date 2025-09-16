@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>European Jobs Monitor – Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Highcharts & modules -->
   <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -11,6 +11,21 @@
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script src="https://code.highcharts.com/modules/export-data.js"></script>
   <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+<script>
+  Highcharts.setOptions({
+    chart: { animation: { duration: 300 } },        // resize/redraw
+    plotOptions: {
+      series: { animation: { duration: 300 } }       // series transitions
+    }
+  });
+</script>
+<script>
+// …
+function criterionPhrase () {
+  // "Job-wage" -> "job-wage quintile", "Education" -> "education quintile", etc.
+  return `${selCriterion.toLowerCase()} quintile`;
+}
+</script>
 
   <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -19,45 +34,43 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    :root{--pad:1rem;font-size:14px}
-    body{font-family:'Inter',Arial,sans-serif;margin:var(--pad);max-width:1180px}
-    h1{margin:0 0 1rem;font-size:22px;font-weight:700;color:#222}
-    label{display:block;margin:.85rem 0 .35rem;font-weight:600}
-    select,button{font:inherit}
-    select{width:100%;padding:.5rem;border:1px solid #cfd8e3;border-radius:6px;background:#fff}
+    :root { --pad: 1rem; font-size: 14px; }
+    body { font-family: 'Inter', Arial, sans-serif; margin: var(--pad); max-width: 1180px; }
+    h1 { margin: 0 0 1rem; font-size: 22px; font-weight: 700; color: #222; }
+    label { display: block; margin: .85rem 0 .35rem; font-weight: 600; }
+    select, button { font: inherit; }
+    select { width: 100%; padding: .5rem; border: 1px solid #cfd8e3; border-radius: 6px; background: #fff; }
 
-    fieldset{border:1px solid #e5e7eb;border-radius:10px;padding:.75rem;margin:0 0 1rem;background:#fafafa}
-    fieldset legend{font-weight:700;padding:0 .4rem;color:#374151}
-    .radio-list{display:block}
-    .radio-list label{display:block;margin:.25rem 0;cursor:pointer}
-    .radio-list input{margin-right:.5rem}
+    /* Remove grey frames from filters/sections */
+    fieldset { border: none; background: transparent; padding: .25rem 0; margin: 0 0 .9rem; }
+    fieldset legend { font-weight: 700; padding: 0 .4rem; color: #374151; }
 
-    #controls{display:grid;grid-template-columns:280px 1fr;gap:1.5rem}
-    #container{width:100%;height:560px;margin-top:.5rem}
-    .dl-row{margin-top:.6rem}
-    .dl-row button{padding:.45rem .8rem;border:1px solid #cfd8e3;border-radius:8px;background:#fff;cursor:pointer}
+    .radio-list { display: block; }
+    .radio-list label { display: block; margin: .25rem 0; cursor: pointer; }
+    .radio-list input { margin-right: .5rem; }
 
-    /* Metric buttons (no frame) */
-    .metric-row{margin:0 0 .75rem}
-    .pill{
-      display:inline-block;margin:.35rem .5rem .35rem 0;padding:.38rem .8rem;
-      border:1px solid #cbd5e1;border-radius:999px;background:#fff;cursor:pointer
+    #controls { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; }
+    #container { width: 100%; height: 560px; margin-top: .5rem; }
+    .dl-row { margin-top: .6rem; }
+    .dl-row button { padding: .45rem .8rem; border: 1px solid #cfd8e3; border-radius: 8px; background: #fff; cursor: pointer; }
+
+    /* Pills (metric + year) */
+    .pill-row { margin: 0 0 .75rem; }
+    .pill {
+      display: inline-block; margin: .35rem .5rem .35rem 0; padding: .38rem .8rem;
+      border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; cursor: pointer;
     }
-    .pill.active{background:#e7effa;border-color:#b6c3d7;font-weight:600}
+    .pill.active { background: #e7effa; border-color: #b6c3d7; font-weight: 600; }
+
+    /* Note under chart */
+    .note { margin: .5rem 0 .5rem; font-size: 12px; color: #374151; }
+    .hidden { display: none; }
   </style>
 
   <script>
-    /* ====== Colors (legend/series order) =============================== */
-    const EJM_COLORS = {
-      blue:   '#0A6AA6', // 1
-      orange: '#A55E00', // 2
-      red:    '#B01E34', // 3
-      green:  '#3C6F3C', // 4
-      purple: '#59419A'  // 5
-    };
-    const EJM_PALETTE = [
-      EJM_COLORS.blue, EJM_COLORS.orange, EJM_COLORS.red, EJM_COLORS.green, EJM_COLORS.purple
-    ];
+    /* Colors (legend/series order) */
+    const EJM_COLORS = { blue: '#0A6AA6', orange: '#A55E00', red: '#B01E34', green: '#3C6F3C', purple: '#59419A' };
+    const EJM_PALETTE = [EJM_COLORS.blue, EJM_COLORS.orange, EJM_COLORS.red, EJM_COLORS.green, EJM_COLORS.purple];
     const ejmColor = i => EJM_PALETTE[i % EJM_PALETTE.length];
 
     Highcharts.setOptions({
@@ -65,7 +78,7 @@
       chart:  { style: { fontFamily: 'Inter, Arial, sans-serif' } },
       title:  { style: { fontSize: '18px', fontWeight: '700', color:'#111827' } },
       xAxis: {
-        lineWidth: 0.8, lineColor:'#111', tickLength: 0,
+        lineWidth: .8, lineColor:'#111', tickLength: 0,
         labels: { style:{ color:'#374151', fontSize:'12px', fontWeight:400 } }
       },
       yAxis: {
@@ -73,7 +86,7 @@
         labels: {
           style:{ color:'#6b7280', fontSize:'12px', fontWeight:400 },
           formatter(){
-            const v = this.value;
+            const v=this.value;
             if (Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
             if (Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
             return v;
@@ -86,7 +99,7 @@
         itemStyle: { fontSize: '12px', color: '#1f2937', fontWeight:400 },
         itemHoverStyle: { color: '#111827' }
       },
-      credits:{ enabled:false }
+      credits: { enabled:false }
     });
   </script>
 </head>
@@ -95,32 +108,35 @@
 <h1>Employment change and job-wage quintiles</h1>
 
 <div id="controls">
-  <!-- LEFT COLUMN -->
+  <!-- LEFT -->
   <div>
     <label>Select country
       <select id="countrySel"></select>
     </label>
 
-    <fieldset><legend>Year</legend>
-      <div id="periodList" class="radio-list"></div>
+    <fieldset>
+      <legend>Year</legend>
+      <div id="yearPills" class="pill-row"></div>
     </fieldset>
 
-    <fieldset><legend>Filter by</legend>
+    <fieldset>
+      <legend>Filter by</legend>
       <div id="filterList" class="radio-list"></div>
     </fieldset>
 
-    <fieldset><legend>Job quality criterion</legend>
+    <fieldset>
+      <legend>Job quality criterion</legend>
       <div id="critList" class="radio-list"></div>
     </fieldset>
   </div>
 
-  <!-- RIGHT COLUMN -->
+    <!-- RIGHT -->
   <div>
-    <!-- Metric buttons (no frame) -->
-    <div class="metric-row" id="metricPills"></div>
-
+    <div class="pill-row" id="metricPills"></div>
     <div id="container"></div>
-
+    <div id="coreNote" class="note hidden">
+      NOTE: “core” workers are full time dependent employees with a permanent contract whilst non-core are any combination of part-time, self-employed or temporary workers.
+    </div>
     <div class="dl-row">
       <button id="dlCSV" disabled>Download CSV</button>
       <button id="dlPNG" disabled>Download PNG</button>
@@ -129,23 +145,20 @@
 </div>
 
 <script>
-/* ─── CONSTANTS ────────────────────────────────────────────────────────── */
+/* CONSTANTS */
 const CSV_URL         = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/EJM2022update_FINAL_EDIT.csv";
 const FIELD_COUNTRY   = 'Country';
 const FIELD_METRIC    = 'Metric';
 const FIELD_PERIOD    = 'Year';
 const FIELD_LEVEL1_A  = 'Level 1';
-const FIELD_LEVEL1_B  = 'Level 1 '; // tolerate trailing space
+const FIELD_LEVEL1_B  = 'Level 1 ';
 const FIELD_CATEGORY  = 'Category';
 const FIELD_CRITERION = 'Calc Type';
 const FIELD_QUINTILE  = 'Quintile';
 const FIELD_VALUE     = 'Value';
 const QUINTILE_ORDER  = ['Low','Mid-low','Mid','Mid-high','High'];
 
-/* EU aliases potentially used in source */
 const EU_ALIASES = new Set(["EU","EU27","EU-27","EU28","EU-28","European Union","European union","EU 27","EU 28"]);
-
-/* ISO2 -> name map (only if dataset stores codes) */
 const ISO2_TO_NAME = {
   "AT":"Austria","BE":"Belgium","BG":"Bulgaria","HR":"Croatia","CY":"Cyprus","CZ":"Czechia",
   "DK":"Denmark","EE":"Estonia","FI":"Finland","FR":"France","DE":"Germany","EL":"Greece","GR":"Greece",
@@ -157,257 +170,227 @@ const ISO2_TO_NAME = {
 };
 const NAME_TO_ISO2 = Object.fromEntries(Object.entries(ISO2_TO_NAME).map(([k,v])=>[v,k]));
 
-/* ─── DOM ──────────────────────────────────────────────────────────────── */
+/* DOM */
 const cSel       = document.getElementById('countrySel');
-const periodWrap = document.getElementById('periodList');
+const yearPills  = document.getElementById('yearPills');
 const filterWrap = document.getElementById('filterList');
 const critWrap   = document.getElementById('critList');
 const metricPills= document.getElementById('metricPills');
 const btnCSV     = document.getElementById('dlCSV');
 const btnPNG     = document.getElementById('dlPNG');
+const coreNote   = document.getElementById('coreNote');
 
-/* ─── STATE ────────────────────────────────────────────────────────────── */
+/* STATE */
 let rows = [];
 let selCountryName = 'European Union';
 let selPeriod = null, selFilterGroup = 'All', selCriterion, selMetric;
 let chart;
 
-/* ─── LOGO (local, so PNG export works) ───────────────────────────────── */
+/* LOGO (auto aspect) */
 const logoURL = './logo.svg';
+let logoAspect = 0.33; // fallback
+const _img = new Image();
+_img.onload = () => { if (_img.naturalWidth) logoAspect = _img.naturalHeight / _img.naturalWidth; };
+_img.src = logoURL;
+
 function placeLogo(chart){
-  const w = 110, h = 34;
-  const x = chart.chartWidth  - w - 12;
+  const w = 78;                             // smaller width
+  const h = Math.max(1, Math.round(w*logoAspect));
+  const x = chart.chartWidth  - w - 10;
   const y = chart.chartHeight - h - 8;
   if (chart.customLogo) chart.customLogo.destroy();
   chart.customLogo = chart.renderer.image(logoURL, x, y, w, h).css({opacity:.95}).add();
 }
 
-/* ─── LOAD CSV ─────────────────────────────────────────────────────────── */
+/* LOAD */
 Papa.parse(CSV_URL, {
   download:true, header:true, dynamicTyping:false,
   complete:({data})=>{
     rows = data.filter(r=>r && r[FIELD_COUNTRY]);
-    initUI();
-    draw();
+    initUI(); draw();
   }
 });
 
-/* ─── HELPERS ──────────────────────────────────────────────────────────── */
+/* HELPERS */
 const lvl1 = r => (r[FIELD_LEVEL1_A] ?? r[FIELD_LEVEL1_B] ?? '').trim();
 const uniq = a => [...new Set(a)];
 const sortAlpha = a => a.slice().sort((x,y)=>x.localeCompare(y));
 
-/* Normalize year display -> "YYYY – YYYY" with spaced en dash */
 function displayPeriod(p){
-  if(!p) return p;
-  const m = p.match(/(\d{4})\D+(\d{4})/);
-  if (m) return `${m[1]} \u2013 ${m[2]}`;
-  return p; // fallback
+  const m = (p||'').match(/(\d{4})\D+(\d{4})/);
+  return m ? `${m[1]} \u2013 ${m[2]}` : p;
 }
-function periodEndYear(p){
-  const m = (p || '').match(/(\d{4})\D+(\d{4})/);
-  if (m) return parseInt(m[2],10);
-  const m2 = (p || '').match(/(\d{4})/);
-  return m2 ? parseInt(m2[1],10) : -Infinity;
+function startYear(p){ const m=(p||'').match(/(\d{4})/); return m?+m[1]:-Infinity; }
+function endYear(p){ const m=(p||'').match(/(\d{4})\D+(\d{4})/); return m?+m[2]:startYear(p); }
+function sortYearsDesc(list){
+  return list.slice().sort((a,b)=> (endYear(b)-endYear(a)) || (startYear(b)-startYear(a)));
 }
-const sortYearsDesc = list => list.slice().sort((a,b)=>periodEndYear(b)-periodEndYear(a));
-
 function datasetUsesCodes(){
   const sample = rows[0]?.[FIELD_COUNTRY] || '';
   return sample.length <= 3 || ISO2_TO_NAME[sample];
 }
-function toDisplayName(countryValue){
-  if (!countryValue) return countryValue;
-  if (EU_ALIASES.has(countryValue)) return 'European Union';
-  if (countryValue.length > 2 && !ISO2_TO_NAME[countryValue]) return countryValue;
-  return ISO2_TO_NAME[countryValue] || countryValue;
+function toDisplayName(v){
+  if (!v) return v;
+  if (EU_ALIASES.has(v)) return 'European Union';
+  if (v.length>2 && !ISO2_TO_NAME[v]) return v;
+  return ISO2_TO_NAME[v] || v;
 }
-function toDatasetKey(displayName){
-  if (displayName === 'European Union') return 'EU_ANY';
-  if (datasetUsesCodes()) return NAME_TO_ISO2[displayName] || displayName;
-  return displayName;
+function toDatasetKey(name){
+  if (name==='European Union') return 'EU_ANY';
+  return datasetUsesCodes() ? (NAME_TO_ISO2[name] || name) : name;
+}
+function fmtVal(v){
+  const abs=Math.abs(v);
+  if (abs>=1e5) return (v/1e6).toFixed(abs<1e6?1:1)+'M'; // 0.5M, 1.2M
+  if (abs>=1e3) return (v/1e3).toFixed(abs<1e1?1:0)+'K';
+  return String(Math.round(v));
 }
 
-/* ─── UI INIT ──────────────────────────────────────────────────────────── */
+/* UI */
 function initUI(){
-  // Countries: EU first (default), remove UK, others alphabetical
-  const allNames = uniq(rows.map(r => toDisplayName(r[FIELD_COUNTRY])))
-    .filter(n => n && n !== 'United Kingdom');
+  // Countries (EU first, UK removed)
+  const allNames = uniq(rows.map(r => toDisplayName(r[FIELD_COUNTRY]))).filter(n=>n && n!=='United Kingdom');
   const countries = [
     ...(allNames.includes('European Union') ? ['European Union'] : []),
-    ...sortAlpha(allNames.filter(n => n !== 'European Union'))
+    ...sortAlpha(allNames.filter(n=>n!=='European Union'))
   ];
   cSel.innerHTML = countries.map(n=>`<option>${n}</option>`).join('');
   selCountryName = countries[0] || 'European Union';
   cSel.value = selCountryName;
-  cSel.onchange = () => { selCountryName = cSel.value; buildPeriods(true); draw(); };
+  cSel.onchange = ()=>{ selCountryName=cSel.value; buildYears(true); draw(); };
 
-  // Metric → buttons (no frame)
+  // Metric buttons
   const metrics = sortAlpha(uniq(rows.map(r=>r[FIELD_METRIC]))).filter(Boolean);
-  metricPills.innerHTML = metrics.map((m,i)=>
-    `<button class="pill ${i===0?'active':''}" data-v="${m}">${m}</button>`
-  ).join('');
+  metricPills.innerHTML = metrics.map((m,i)=>`<button class="pill ${i===0?'active':''}" data-v="${m}">${m}</button>`).join('');
   selMetric = metrics[0];
   metricPills.onclick = e=>{
-    const v = e.target?.dataset?.v; if(!v) return;
-    selMetric = v;
-    [...metricPills.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b.dataset.v===selMetric));
-    buildPeriods(true); draw();
+    const v=e.target?.dataset?.v; if(!v) return;
+    selMetric=v;
+    metricPills.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v===selMetric));
+    buildYears(true); draw();
   };
 
   // Criterion (ordered)
-  const critOrder = ['Job-wage','Education','Broad job quality'];
-  const critsAvail = uniq(rows.map(r=>r[FIELD_CRITERION])).filter(Boolean);
-  const crits = critOrder.filter(c => critsAvail.includes(c));
-  critWrap.innerHTML = crits.map((c,i)=>
-    `<label><input type="radio" name="crit" value="${c}" ${i===0?'checked':''}>${c}</label>`
-  ).join('');
-  selCriterion = crits[0];
-  critWrap.onchange = e => { selCriterion = e.target.value; buildPeriods(true); draw(); };
+  const critOrder=['Job-wage','Education','Broad job quality'];
+  const critsAvail=uniq(rows.map(r=>r[FIELD_CRITERION])).filter(Boolean);
+  const crits=critOrder.filter(c=>critsAvail.includes(c));
+  critWrap.innerHTML = crits.map((c,i)=>`<label><input type="radio" name="crit" value="${c}" ${i===0?'checked':''}>${c}</label>`).join('');
+  selCriterion=crits[0];
+  critWrap.onchange = e=>{ selCriterion=e.target.value; buildYears(true); draw(); };
 
-  // Filter-by (ordered, single 'All')
-  const filterOrder = ['All','Age','Sector','Gender','Contractual status','Employment status','Working hours','Core/non-core'];
-  const groupsAvail = uniq(rows.map(r=>lvl1(r))).filter(Boolean);
-  const groups = filterOrder.filter(f => f==='All' || groupsAvail.includes(f));
-  filterWrap.innerHTML = groups.map((g,i)=>
-    `<label><input type="radio" name="f" value="${g}" ${i===0?'checked':''}>${g}</label>`
-  ).join('');
-  selFilterGroup = groups[0] || 'All';
-  filterWrap.onchange = e => { selFilterGroup = e.target.value; draw(); };
+  // Filter-by (ordered, single All)
+  const order=['All','Age','Sector','Gender','Contractual status','Employment status','Working hours','Core/non-core'];
+  const avail=uniq(rows.map(r=>lvl1(r))).filter(Boolean);
+  const groups=order.filter(f=>f==='All'||avail.includes(f));
+  filterWrap.innerHTML = groups.map((g,i)=>`<label><input type="radio" name="f" value="${g}" ${i===0?'checked':''}>${g}</label>`).join('');
+  selFilterGroup=groups[0]||'All';
+  filterWrap.onchange = e=>{ selFilterGroup=e.target.value; draw(); };
 
   // Years
-  buildPeriods(false);
+  buildYears(false);
 }
 
-/* preserve=true keeps current year if still available; otherwise pick newest */
-function buildPeriods(preserve){
+function buildYears(preserve){
   const key = toDatasetKey(selCountryName);
   const yearsRaw = uniq(
     rows.filter(r=>{
-      const okCountry = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY] === key;
-      return okCountry && r[FIELD_METRIC]===selMetric && r[FIELD_CRITERION]===selCriterion;
+      const ok = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY]===key;
+      return ok && r[FIELD_METRIC]===selMetric && r[FIELD_CRITERION]===selCriterion;
     }).map(r=>r[FIELD_PERIOD])
   );
   const years = sortYearsDesc(yearsRaw);
+  if (!(preserve && selPeriod && years.includes(selPeriod))) selPeriod = years[0] || null;
 
-  if (!(preserve && selPeriod && years.includes(selPeriod))){
-    selPeriod = years[0] || null; // most recent default
-  }
-
-  periodWrap.innerHTML = years.map(y=>{
-    const id = `yr_${y.replace(/\W/g,'_')}`;
-    return `<label for="${id}"><input id="${id}" type="radio" name="period" value="${y}" ${y===selPeriod?'checked':''}>${displayPeriod(y)}</label>`;
-  }).join('');
-  periodWrap.onchange = e => { selPeriod = e.target.value; draw(); };
+  yearPills.innerHTML = years.map(y=>`<button class="pill ${y===selPeriod?'active':''}" data-v="${y}">${displayPeriod(y)}</button>`).join('');
+  yearPills.onclick = e=>{
+    const v=e.target?.dataset?.v; if(!v) return;
+    selPeriod=v;
+    yearPills.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v===selPeriod));
+    draw();
+  };
 }
 
-/* Value formatter for labels */
-function fmtVal(v){
-  const abs = Math.abs(v);
-  if (abs>=1e6) return (v/1e6).toFixed(abs<10e6?1:0)+'M';
-  if (abs>=1e3) return (v/1e3).toFixed(abs<10000?1:0)+'K';
-  return String(Math.round(v));
-}
-
-/* ─── DRAW ─────────────────────────────────────────────────────────────── */
+/* DRAW */
 function draw(){
-  if (!selPeriod) return;
+  if(!selPeriod) return;
 
   const key = toDatasetKey(selCountryName);
   const data = rows.filter(r=>{
-    const okCountry = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY] === key;
-    return okCountry &&
-           r[FIELD_METRIC]    === selMetric &&
-           r[FIELD_CRITERION] === selCriterion &&
-           r[FIELD_PERIOD]    === selPeriod;
+    const ok = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY]===key;
+    return ok && r[FIELD_METRIC]===selMetric && r[FIELD_CRITERION]===selCriterion && r[FIELD_PERIOD]===selPeriod;
   });
 
-  const isAll = selFilterGroup === 'All';
+  const isAll = selFilterGroup==='All';
+  const legendCats = isAll ? ['All'] :
+    sortAlpha(uniq(data.filter(r=>lvl1(r)===selFilterGroup).map(r=>r[FIELD_CATEGORY])));
 
-  // For "All": use ONLY explicit rows Level 1 = "All" AND Category = "All"
-  const legendCats = isAll
-    ? ['All']
-    : sortAlpha(uniq(
-        data.filter(r => lvl1(r) === selFilterGroup).map(r => r[FIELD_CATEGORY])
-      ));
-
-  const series = legendCats.map((cat, i) => {
+  const series = legendCats.map((cat,i)=>{
     const vals = isAll
-      ? QUINTILE_ORDER.map(q => {
-          const row = data.find(r =>
-            lvl1(r).toLowerCase()==='all' &&
-            (r[FIELD_CATEGORY]||'').trim().toLowerCase()==='all' &&
-            r[FIELD_QUINTILE]===q
-          );
-          return row ? +row[FIELD_VALUE] : 0;
+      ? QUINTILE_ORDER.map(q=>{
+          const row = data.find(r=>lvl1(r).toLowerCase()==='all' && (r[FIELD_CATEGORY]||'').trim().toLowerCase()==='all' && r[FIELD_QUINTILE]===q);
+          return row? +row[FIELD_VALUE] : 0;
         })
-      : QUINTILE_ORDER.map(q => {
-          const row = data.find(r =>
-            lvl1(r)===selFilterGroup &&
-            r[FIELD_CATEGORY]===cat &&
-            r[FIELD_QUINTILE]===q
-          );
-          return row ? +row[FIELD_VALUE] : 0;
+      : QUINTILE_ORDER.map(q=>{
+          const row = data.find(r=>lvl1(r)===selFilterGroup && r[FIELD_CATEGORY]===cat && r[FIELD_QUINTILE]===q);
+          return row? +row[FIELD_VALUE] : 0;
         });
-    return { name: cat, data: vals, color: ejmColor(i) };
+    return { name:cat, data:vals, color:ejmColor(i) };
   });
 
-  // Configure data labels dynamically based on series count
-  const fewSeries = series.length <= 2;
-  const dlCommon = fewSeries
-    ? { // inside, white, only if column wide enough
-        enabled: true,
-        inside: true,
-        verticalAlign: 'top',
-        align: 'center',
-        padding: 0,
-        y: 4,
-        crop: true,
-        overflow: 'none',
-        allowOverlap: false,
-        style: { color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
-        formatter(){ // hide if bar too thin
-          const sh = this.point && this.point.shapeArgs;
-          if (!sh || sh.width < 26 || Math.abs(sh.height) < 16) return '';
-          return fmtVal(this.y);
-        }
-      }
-    : { // above, black, avoid clipping
-        enabled: true,
-        inside: false,
-        align: 'center',
-        verticalAlign: 'bottom',
-        y: -2,
-        crop: false,
-        overflow: 'none',
-        allowOverlap: false,
-        style: { color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
-        formatter(){ return fmtVal(this.y); }
-      };
-
-  // Apply dataLabels to each series
-  series.forEach(s => { s.dataLabels = dlCommon; });
-
-  if(chart) chart.destroy();
-  chart = Highcharts.chart('container',{
-    chart:{
-      type:'column',
-      spacingBottom: 50,
-      events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} }
+  // Data labels (inside for ≤2 series, outside for >2 or thin bars)
+  const fewSeries = series.length <= 2, insideMinH=16, insideMinW=26;
+  const dl = [
+    { // inside top (positive)
+      enabled:true, inside:true, verticalAlign:'top', align:'center', y:4, padding:0,
+      crop:true, overflow:'none', allowOverlap:false,
+      style:{ color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
+      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y<=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); }
     },
-    title:{ text:`${selMetric} by job-wage quintile in ${selCountryName} (${displayPeriod(selPeriod)})` },
+    { // inside bottom (negative)
+      enabled:true, inside:true, verticalAlign:'bottom', align:'center', y:-4, padding:0,
+      crop:true, overflow:'none', allowOverlap:false,
+      style:{ color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
+      formatter(){ if(!fewSeries) return ''; const sh=this.point?.shapeArgs; if(!sh||this.y>=0||sh.width<insideMinW||Math.abs(sh.height)<insideMinH) return ''; return fmtVal(this.y); }
+    },
+    { // above (positive, outside)
+      enabled:true, inside:false, align:'center', verticalAlign:'bottom', y:-2,
+      crop:false, overflow:'none', allowOverlap:false,
+      style:{ color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
+      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y<=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); }
+    },
+    { // below (negative, outside)
+      enabled:true, inside:false, align:'center', verticalAlign:'top', y:12,
+      crop:false, overflow:'none', allowOverlap:false,
+      style:{ color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
+      formatter(){ const sh=this.point?.shapeArgs; if(!sh||this.y>=0) return ''; const thin=sh.width<insideMinW||Math.abs(sh.height)<insideMinH; if(fewSeries&&!thin) return ''; return fmtVal(this.y); }
+    }
+  ];
+  series.forEach(s=>s.dataLabels = dl);
+
+  if (chart) chart.destroy();
+  chart = Highcharts.chart('container',{
+    chart:{ type:'column', spacingBottom:50, events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
+    title:{ text:`${selMetric} by ${criterionPhrase()} in ${selCountryName} (${displayPeriod(selPeriod)})` },
     xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
     yAxis:{ title:{ text:selMetric } },
-    tooltip:{ shared:true, useHTML:true },
-    legend:{ align:'center', verticalAlign:'top', layout:'horizontal' },
-    exporting:{
-      enabled:true,
-      fallbackToExportServer:false,
-      libURL: 'https://code.highcharts.com/11.4.0/lib/'  /* required for offline PNG */
+    tooltip:{
+      useHTML:true,
+      formatter(){
+        const lines=[];
+        lines.push(`<div style="text-align:center"><b>${selCountryName}</b></div>`);
+        lines.push(`${selMetric}: <b>${fmtVal(this.y)}</b> jobs`);
+        if (selFilterGroup!=='All') lines.push(`${selFilterGroup}: <b>${this.series.name}</b>`);
+        lines.push(`${this.key} quintile`);
+        return `<div style="padding:6px 8px">${lines.join('<br>')}</div>`;
+      }
     },
+    legend:{ align:'center', verticalAlign:'top', layout:'horizontal' },
+    exporting:{ enabled:true, fallbackToExportServer:false, libURL:'https://code.highcharts.com/11.4.0/lib/' },
     series
   });
 
+  // Core/non-core explanatory note
+  coreNote.classList.toggle('hidden', selFilterGroup !== 'Core/non-core');
   // Export buttons
   btnCSV.disabled = btnPNG.disabled = false;
   btnCSV.onclick = ()=> chart.downloadCSV();

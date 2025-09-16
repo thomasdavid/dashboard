@@ -220,7 +220,7 @@ const _img = new Image(); _img.onload = () => { if (_img.naturalWidth) logoAspec
 const _wm  = new Image(); _wm.onload  = () => { if (_wm.naturalWidth)   wmAspect   = _wm.naturalHeight   / _wm.naturalWidth;   }; _wm.src  = wmURL;
 
 function placeLogo(chart){
-  const w = 78, h = Math.max(1, Math.round(w*logoAspect));
+  const w = 48, h = Math.max(1, Math.round(w*logoAspect));
   const x = chart.chartWidth  - w - 10;
   const y = chart.chartHeight - h - 8;
   if (chart.customLogo) chart.customLogo.destroy();

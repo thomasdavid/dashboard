@@ -487,7 +487,7 @@ function draw(){
       formatter(){
         const lines=[];
         lines.push(`<div style="text-align:center"><b>${selCountryName}</b></div>`);
-        lines.push(`${selMetric}: <b>${fmtVal(this.y)}</b> jobs`);
+        lines.push(`${selMetric}: <b>${formatExact(this.y)}</b> jobs`);
         if (selFilterGroup!=='All') lines.push(`${selFilterGroup}: <b>${this.series.name}</b>`);
         lines.push(`${this.key} quintile`);
         return `<div style="padding:6px 8px">${lines.join('<br>')}</div>`;

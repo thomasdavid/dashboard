@@ -228,7 +228,7 @@ function placeLogo(chart){
     .css({opacity:.95, pointerEvents:'none'}).add();
 }
 function placeWatermark(chart){
-  const pad = 1.25; // cover ~85% of plot area
+  const pad = 1.55; // cover ~85% of plot area
   let w = Math.round(chart.plotWidth * pad);
   let h = Math.round(w * wmAspect);
   if (h > chart.plotHeight * pad){
@@ -241,7 +241,7 @@ function placeWatermark(chart){
   if (chart.watermark) chart.watermark.destroy();
   chart.watermark = chart.renderer.image(wmURL, x, y, w, h)
     .attr({ zIndex: 0 })
-    .css({ opacity: .06, pointerEvents:'none' })
+    .css({ opacity: .04, pointerEvents:'none' })
     .add();
 }
 

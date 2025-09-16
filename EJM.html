@@ -36,6 +36,14 @@
     #container{width:100%;height:560px;margin-top:.5rem}
     .dl-row{margin-top:.6rem}
     .dl-row button{padding:.45rem .8rem;border:1px solid #cfd8e3;border-radius:8px;background:#fff;cursor:pointer}
+
+    /* Metric buttons (no frame) */
+    .metric-row{margin:0 0 .75rem}
+    .pill{
+      display:inline-block;margin:.35rem .5rem .35rem 0;padding:.38rem .8rem;
+      border:1px solid #cbd5e1;border-radius:999px;background:#fff;cursor:pointer
+    }
+    .pill.active{background:#e7effa;border-color:#b6c3d7;font-weight:600}
   </style>
 
   <script>
@@ -58,12 +66,12 @@
       title:  { style: { fontSize: '18px', fontWeight: '700', color:'#111827' } },
       xAxis: {
         lineWidth: 0.8, lineColor:'#111', tickLength: 0,
-        labels: { style:{ color:'#374151', fontSize:'12px' } }
+        labels: { style:{ color:'#374151', fontSize:'12px', fontWeight:400 } }
       },
       yAxis: {
         gridLineColor:'#e5e7eb', gridLineWidth:1,
         labels: {
-          style:{ color:'#6b7280', fontSize:'12px' },
+          style:{ color:'#6b7280', fontSize:'12px', fontWeight:400 },
           formatter(){
             const v = this.value;
             if (Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
@@ -72,26 +80,10 @@
           }
         }
       },
-      plotOptions:{
-        series:{ animation:{ duration:500 } },
-        column:{
-          borderRadius:3,
-          dataLabels:{
-            enabled:true,
-            style:{ textOutline:'none', fontWeight:600, color:'#111', fontSize:'12px' },
-            formatter(){
-              const v=this.y;
-              if (Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
-              if (Math.abs(v)>=1e3) return (v/1e3).toFixed(0)+'K';
-              return v;
-            }
-          }
-        }
-      },
       legend: {
         align: 'center', verticalAlign: 'top', layout: 'horizontal',
         symbolRadius: 2,
-        itemStyle: { fontSize: '12px', color: '#1f2937' },
+        itemStyle: { fontSize: '12px', color: '#1f2937', fontWeight:400 },
         itemHoverStyle: { color: '#111827' }
       },
       credits:{ enabled:false }
@@ -124,9 +116,8 @@
 
   <!-- RIGHT COLUMN -->
   <div>
-    <fieldset><legend>Metric</legend>
-      <div id="metricList" class="radio-list"></div>
-    </fieldset>
+    <!-- Metric buttons (no frame) -->
+    <div class="metric-row" id="metricPills"></div>
 
     <div id="container"></div>
 
@@ -151,7 +142,10 @@ const FIELD_QUINTILE  = 'Quintile';
 const FIELD_VALUE     = 'Value';
 const QUINTILE_ORDER  = ['Low','Mid-low','Mid','Mid-high','High'];
 
-/* ISO2 -> name map (used only if dataset stores codes) */
+/* EU aliases potentially used in source */
+const EU_ALIASES = new Set(["EU","EU27","EU-27","EU28","EU-28","European Union","European union","EU 27","EU 28"]);
+
+/* ISO2 -> name map (only if dataset stores codes) */
 const ISO2_TO_NAME = {
   "AT":"Austria","BE":"Belgium","BG":"Bulgaria","HR":"Croatia","CY":"Cyprus","CZ":"Czechia",
   "DK":"Denmark","EE":"Estonia","FI":"Finland","FR":"France","DE":"Germany","EL":"Greece","GR":"Greece",
@@ -163,15 +157,12 @@ const ISO2_TO_NAME = {
 };
 const NAME_TO_ISO2 = Object.fromEntries(Object.entries(ISO2_TO_NAME).map(([k,v])=>[v,k]));
 
-/* EU aliases present in various datasets */
-const EU_ALIASES = new Set(["EU","EU27","EU-27","EU28","EU-28","European Union","European union","EU 27","EU 28"]);
-
 /* ─── DOM ──────────────────────────────────────────────────────────────── */
 const cSel       = document.getElementById('countrySel');
 const periodWrap = document.getElementById('periodList');
 const filterWrap = document.getElementById('filterList');
 const critWrap   = document.getElementById('critList');
-const metricWrap = document.getElementById('metricList');
+const metricPills= document.getElementById('metricPills');
 const btnCSV     = document.getElementById('dlCSV');
 const btnPNG     = document.getElementById('dlPNG');
 
@@ -181,8 +172,8 @@ let selCountryName = 'European Union';
 let selPeriod = null, selFilterGroup = 'All', selCriterion, selMetric;
 let chart;
 
-/* ─── LOGO ─────────────────────────────────────────────────────────────── */
-const logoURL = './logo.svg'; // local to avoid tainted canvas
+/* ─── LOGO (local, so PNG export works) ───────────────────────────────── */
+const logoURL = './logo.svg';
 function placeLogo(chart){
   const w = 110, h = 34;
   const x = chart.chartWidth  - w - 12;
@@ -202,27 +193,24 @@ Papa.parse(CSV_URL, {
 });
 
 /* ─── HELPERS ──────────────────────────────────────────────────────────── */
-const getLevel1 = r => r[FIELD_LEVEL1_A] ?? r[FIELD_LEVEL1_B] ?? '';
+const lvl1 = r => (r[FIELD_LEVEL1_A] ?? r[FIELD_LEVEL1_B] ?? '').trim();
 const uniq = a => [...new Set(a)];
 const sortAlpha = a => a.slice().sort((x,y)=>x.localeCompare(y));
 
+/* Normalize year display -> "YYYY – YYYY" with spaced en dash */
+function displayPeriod(p){
+  if(!p) return p;
+  const m = p.match(/(\d{4})\D+(\d{4})/);
+  if (m) return `${m[1]} \u2013 ${m[2]}`;
+  return p; // fallback
+}
 function periodEndYear(p){
-  // Accept "2008–2010", "2011-2019", etc.
   const m = (p || '').match(/(\d{4})\D+(\d{4})/);
   if (m) return parseInt(m[2],10);
   const m2 = (p || '').match(/(\d{4})/);
   return m2 ? parseInt(m2[1],10) : -Infinity;
 }
-function sortYearsDesc(list){
-  return list.slice().sort((a,b)=>{
-    const ea = periodEndYear(a), eb = periodEndYear(b);
-    if (eb !== ea) return eb - ea;
-    // tie-breaker: compare start years if present
-    const sa = ((a||'').match(/(\d{4})/)||[])[1]||0;
-    const sb = ((b||'').match(/(\d{4})/)||[])[1]||0;
-    return parseInt(eb,10) - parseInt(ea,10) || parseInt(sb,10) - parseInt(sa,10);
-  });
-}
+const sortYearsDesc = list => list.slice().sort((a,b)=>periodEndYear(b)-periodEndYear(a));
 
 function datasetUsesCodes(){
   const sample = rows[0]?.[FIELD_COUNTRY] || '';
@@ -242,24 +230,30 @@ function toDatasetKey(displayName){
 
 /* ─── UI INIT ──────────────────────────────────────────────────────────── */
 function initUI(){
-  // Countries: EU first (default), remove UK, rest alphabetical
+  // Countries: EU first (default), remove UK, others alphabetical
   const allNames = uniq(rows.map(r => toDisplayName(r[FIELD_COUNTRY])))
     .filter(n => n && n !== 'United Kingdom');
-  const eu = allNames.includes('European Union') ? ['European Union'] : [];
-  const others = sortAlpha(allNames.filter(n => n !== 'European Union'));
-  const countries = [...eu, ...others];
+  const countries = [
+    ...(allNames.includes('European Union') ? ['European Union'] : []),
+    ...sortAlpha(allNames.filter(n => n !== 'European Union'))
+  ];
   cSel.innerHTML = countries.map(n=>`<option>${n}</option>`).join('');
   selCountryName = countries[0] || 'European Union';
   cSel.value = selCountryName;
   cSel.onchange = () => { selCountryName = cSel.value; buildPeriods(true); draw(); };
 
-  // Metric (radio, one per row)
+  // Metric → buttons (no frame)
   const metrics = sortAlpha(uniq(rows.map(r=>r[FIELD_METRIC]))).filter(Boolean);
-  metricWrap.innerHTML = metrics.map((m,i)=>
-    `<label><input type="radio" name="metric" value="${m}" ${i===0?'checked':''}>${m}</label>`
+  metricPills.innerHTML = metrics.map((m,i)=>
+    `<button class="pill ${i===0?'active':''}" data-v="${m}">${m}</button>`
   ).join('');
   selMetric = metrics[0];
-  metricWrap.onchange = e => { selMetric = e.target.value; buildPeriods(true); draw(); };
+  metricPills.onclick = e=>{
+    const v = e.target?.dataset?.v; if(!v) return;
+    selMetric = v;
+    [...metricPills.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b.dataset.v===selMetric));
+    buildPeriods(true); draw();
+  };
 
   // Criterion (ordered)
   const critOrder = ['Job-wage','Education','Broad job quality'];
@@ -273,7 +267,7 @@ function initUI(){
 
   // Filter-by (ordered, single 'All')
   const filterOrder = ['All','Age','Sector','Gender','Contractual status','Employment status','Working hours','Core/non-core'];
-  const groupsAvail = uniq(rows.map(r=>getLevel1(r))).filter(Boolean);
+  const groupsAvail = uniq(rows.map(r=>lvl1(r))).filter(Boolean);
   const groups = filterOrder.filter(f => f==='All' || groupsAvail.includes(f));
   filterWrap.innerHTML = groups.map((g,i)=>
     `<label><input type="radio" name="f" value="${g}" ${i===0?'checked':''}>${g}</label>`
@@ -281,36 +275,38 @@ function initUI(){
   selFilterGroup = groups[0] || 'All';
   filterWrap.onchange = e => { selFilterGroup = e.target.value; draw(); };
 
-  // Years (initial build; default most recent)
+  // Years
   buildPeriods(false);
 }
 
-/* If preserve=true, keep current selPeriod when possible; else pick newest */
+/* preserve=true keeps current year if still available; otherwise pick newest */
 function buildPeriods(preserve){
   const key = toDatasetKey(selCountryName);
   const yearsRaw = uniq(
     rows.filter(r=>{
-      const okCountry = key==='EU_ANY'
-        ? EU_ALIASES.has(r[FIELD_COUNTRY])
-        : r[FIELD_COUNTRY] === key;
+      const okCountry = key==='EU_ANY' ? EU_ALIASES.has(r[FIELD_COUNTRY]) : r[FIELD_COUNTRY] === key;
       return okCountry && r[FIELD_METRIC]===selMetric && r[FIELD_CRITERION]===selCriterion;
     }).map(r=>r[FIELD_PERIOD])
   );
   const years = sortYearsDesc(yearsRaw);
 
-  // Choose default or preserve current
-  if (preserve && selPeriod && years.includes(selPeriod)){
-    // keep existing
-  } else {
-    selPeriod = years[0] || null;
+  if (!(preserve && selPeriod && years.includes(selPeriod))){
+    selPeriod = years[0] || null; // most recent default
   }
 
-  // Render without changing selPeriod if it's still valid
   periodWrap.innerHTML = years.map(y=>{
     const id = `yr_${y.replace(/\W/g,'_')}`;
-    return `<label for="${id}"><input id="${id}" type="radio" name="period" value="${y}" ${y===selPeriod?'checked':''}>${y}</label>`;
+    return `<label for="${id}"><input id="${id}" type="radio" name="period" value="${y}" ${y===selPeriod?'checked':''}>${displayPeriod(y)}</label>`;
   }).join('');
   periodWrap.onchange = e => { selPeriod = e.target.value; draw(); };
+}
+
+/* Value formatter for labels */
+function fmtVal(v){
+  const abs = Math.abs(v);
+  if (abs>=1e6) return (v/1e6).toFixed(abs<10e6?1:0)+'M';
+  if (abs>=1e3) return (v/1e3).toFixed(abs<10000?1:0)+'K';
+  return String(Math.round(v));
 }
 
 /* ─── DRAW ─────────────────────────────────────────────────────────────── */
@@ -327,22 +323,27 @@ function draw(){
   });
 
   const isAll = selFilterGroup === 'All';
+
+  // For "All": use ONLY explicit rows Level 1 = "All" AND Category = "All"
   const legendCats = isAll
     ? ['All']
     : sortAlpha(uniq(
-        data.filter(r => (getLevel1(r) === selFilterGroup))
-            .map(r => r[FIELD_CATEGORY])
+        data.filter(r => lvl1(r) === selFilterGroup).map(r => r[FIELD_CATEGORY])
       ));
 
   const series = legendCats.map((cat, i) => {
     const vals = isAll
-      ? QUINTILE_ORDER.map(q =>
-          data.filter(r => r[FIELD_QUINTILE]===q)
-              .reduce((s, r) => s + (+r[FIELD_VALUE]||0), 0)
-        )
+      ? QUINTILE_ORDER.map(q => {
+          const row = data.find(r =>
+            lvl1(r).toLowerCase()==='all' &&
+            (r[FIELD_CATEGORY]||'').trim().toLowerCase()==='all' &&
+            r[FIELD_QUINTILE]===q
+          );
+          return row ? +row[FIELD_VALUE] : 0;
+        })
       : QUINTILE_ORDER.map(q => {
           const row = data.find(r =>
-            getLevel1(r)===selFilterGroup &&
+            lvl1(r)===selFilterGroup &&
             r[FIELD_CATEGORY]===cat &&
             r[FIELD_QUINTILE]===q
           );
@@ -351,6 +352,42 @@ function draw(){
     return { name: cat, data: vals, color: ejmColor(i) };
   });
 
+  // Configure data labels dynamically based on series count
+  const fewSeries = series.length <= 2;
+  const dlCommon = fewSeries
+    ? { // inside, white, only if column wide enough
+        enabled: true,
+        inside: true,
+        verticalAlign: 'top',
+        align: 'center',
+        padding: 0,
+        y: 4,
+        crop: true,
+        overflow: 'none',
+        allowOverlap: false,
+        style: { color:'#fff', fontSize:'10px', fontWeight:400, textOutline:'none' },
+        formatter(){ // hide if bar too thin
+          const sh = this.point && this.point.shapeArgs;
+          if (!sh || sh.width < 26 || Math.abs(sh.height) < 16) return '';
+          return fmtVal(this.y);
+        }
+      }
+    : { // above, black, avoid clipping
+        enabled: true,
+        inside: false,
+        align: 'center',
+        verticalAlign: 'bottom',
+        y: -2,
+        crop: false,
+        overflow: 'none',
+        allowOverlap: false,
+        style: { color:'#111', fontSize:'10px', fontWeight:400, textOutline:'none' },
+        formatter(){ return fmtVal(this.y); }
+      };
+
+  // Apply dataLabels to each series
+  series.forEach(s => { s.dataLabels = dlCommon; });
+
   if(chart) chart.destroy();
   chart = Highcharts.chart('container',{
     chart:{
@@ -358,19 +395,23 @@ function draw(){
       spacingBottom: 50,
       events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} }
     },
-    title:{ text:`${selMetric} by job-wage quintile in ${selCountryName} (${selPeriod})` },
+    title:{ text:`${selMetric} by job-wage quintile in ${selCountryName} (${displayPeriod(selPeriod)})` },
     xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
     yAxis:{ title:{ text:selMetric } },
     tooltip:{ shared:true, useHTML:true },
     legend:{ align:'center', verticalAlign:'top', layout:'horizontal' },
-    exporting:{ enabled:true, fallbackToExportServer:false },
+    exporting:{
+      enabled:true,
+      fallbackToExportServer:false,
+      libURL: 'https://code.highcharts.com/11.4.0/lib/'  /* required for offline PNG */
+    },
     series
   });
 
   // Export buttons
   btnCSV.disabled = btnPNG.disabled = false;
   btnCSV.onclick = ()=> chart.downloadCSV();
-  btnPNG.onclick = ()=> chart.exportChart({ type:'image/png', filename:`EJM-${Date.now()}` });
+  btnPNG.onclick = ()=> chart.exportChartLocal({ type:'image/png', filename:`EJM-${Date.now()}` });
 }
 </script>
 </body>

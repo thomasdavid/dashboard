@@ -6,10 +6,7 @@
 
   <!-- Highcharts & modules -->
   <script src="https://code.highcharts.com/highcharts.js"></script>
-
-<script src="https://code.highcharts.com/highcharts-more.js"></script>
-<!-- then your other modules… -->
-
+  <script src="https://code.highcharts.com/highcharts-more.js"></script>
   <script src="https://code.highcharts.com/maps/modules/map.js"></script>
   <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -30,7 +27,11 @@
       6:['#003c8f','#416ea8','#6f90c0','#66bb6a','#4d853d','#005F2F']
     };
     const barColor = (i,n)=> barPalette[Math.min(n,6)][i];
-    const logoURL  = 'https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg';
+
+    // Use a LOCAL copy of the logo to avoid tainting canvas in offline export
+    // Place 'logo.svg' beside this HTML file (or change to your path)
+    const logoURL  = './logo.svg';
+
     function addLogo(chart){
       const w=90,h=28,
             x=chart.chartWidth - w - 10,
@@ -112,15 +113,15 @@
   </div>
 </div>
 
-<footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound"></footer>
+<footer><img src="logo.svg" alt="Eurofound"></footer>
 
 <script>
 /* ─── CONSTANTS ────────────────────────────────────────────────────────── */
-const CSV_URL        = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/EJM2022update_FINAL_EDIT.csv";
+const CSV_URL         = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/EJM2022update_FINAL_EDIT.csv";
 const FIELD_COUNTRY   = 'Country';
 const FIELD_METRIC    = 'Metric';
 const FIELD_PERIOD    = 'Year';
-const FIELD_FILTER_G  = 'Level 1 ';
+const FIELD_FILTER_G  = 'Level 1 ';   // (note space matches your CSV header)
 const FIELD_FILTER_L  = 'Category';
 const FIELD_CRITERION = 'Calc Type';
 const FIELD_QUINTILE  = 'Quintile';
@@ -158,8 +159,8 @@ function uniq(a){ return [...new Set(a)].sort(); }
 function enableExports(ch){
   btnCSV.disabled = btnPNG.disabled = !ch;
   if(ch){
-    btnCSV.onclick = ()=>ch.downloadCSV();
-    btnPNG.onclick = ()=>ch.exportChartLocal({
+    btnCSV.onclick = ()=> ch.downloadCSV(); // exports series currently shown
+    btnPNG.onclick = ()=> ch.exportChartLocal({
       type:'image/png', filename:`EJM-${Date.now()}`
     });
   }
@@ -246,7 +247,7 @@ function buildPeriods(){
 /* ─── DRAW (delegates by selChart) ─────────────────────────────────────── */
 function draw(){
   if(selChart==='bar')   drawBar();
-  else                    drawRadar();
+  else                   drawRadar();
 }
 
 /* ─── DRAW BAR CHART ──────────────────────────────────────────────────── */
@@ -279,7 +280,9 @@ function drawBar(){
 
   if(chart) chart.destroy();
   chart = Highcharts.chart('container',{
-    chart:{ type:'column' },
+    chart:{ type:'column',
+      events:{ load(){addLogo(this)}, redraw(){addLogo(this)} }
+    },
     title:{ text:`${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})` },
     xAxis:{ categories:QUINTILE_ORDER, title:{ text:'Quintile' } },
     yAxis:{ title:{ text:selMetric } },
@@ -301,8 +304,10 @@ function drawBar(){
     },
     series
   });
-  
-  
+  enableExports(chart);     // <-- enable PNG/CSV buttons
+}                           // <-- IMPORTANT: properly close drawBar()
+
+/* ─── DRAW RADAR CHART ─────────────────────────────────────────────────── */
 function drawRadar(){
   const data = rows.filter(r=>
     r[FIELD_COUNTRY]   === selCountry &&
@@ -314,18 +319,14 @@ function drawRadar(){
   const isAll = selFilterGroup === 'All';
   const labels = isAll
     ? ['All']
-    : uniq(
-        data
-          .filter(r => r[FIELD_FILTER_G] === selFilterGroup)
-          .map(r => r[FIELD_FILTER_L])
-      );
+    : uniq(data.filter(r => r[FIELD_FILTER_G] === selFilterGroup)
+              .map(r => r[FIELD_FILTER_L]));
 
   const series = labels.map((lab,i)=>{
     const vals = isAll
       ? QUINTILE_ORDER.map(q=>
-          data
-            .filter(r=>r[FIELD_QUINTILE]===q)
-            .reduce((sum,r)=>sum + (+r[FIELD_VALUE]||0), 0)
+          data.filter(r=>r[FIELD_QUINTILE]===q)
+              .reduce((sum,r)=>sum + (+r[FIELD_VALUE]||0), 0)
         )
       : QUINTILE_ORDER.map(q=>{
           const row = data.find(r=>
@@ -347,35 +348,14 @@ function drawRadar(){
     chart: {
       polar: true,
       type:  'line',
-      events: {
-        load:   function(){ addLogo(this); },
-        redraw:function(){ addLogo(this); }
-      }
+      events:{ load(){addLogo(this)}, redraw(){addLogo(this)} }
     },
-    title: {
-      text: `${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})`
-    },
-    pane: {
-      size: '80%'
-    },
-    xAxis: {
-      categories: QUINTILE_ORDER,
-      tickmarkPlacement: 'on',
-      lineWidth: 0
-    },
-    yAxis: {
-      gridLineInterpolation: 'polygon',
-      lineWidth: 0,
-      min: 0
-    },
-    legend: {
-      align: 'center',
-      verticalAlign: 'bottom'
-    },
-    tooltip: {
-      shared: true,
-      useHTML: true
-    },
+    title: { text: `${selMetric} by job-wage quintile in ${selCountry} (${selPeriod})` },
+    pane: { size: '80%' },
+    xAxis: { categories: QUINTILE_ORDER, tickmarkPlacement: 'on', lineWidth: 0 },
+    yAxis: { gridLineInterpolation: 'polygon', lineWidth: 0, min: 0 },
+    legend: { align: 'center', verticalAlign: 'bottom' },
+    tooltip: { shared: true, useHTML: true },
     plotOptions: {
       series: {
         marker: { enabled: true, radius: 4 },
@@ -391,13 +371,10 @@ function drawRadar(){
         }
       }
     },
-    series: series
+    series
   });
   enableExports(chart);
-}}
-
-
-
+}
 </script>
 </body>
 </html>

@@ -228,7 +228,7 @@ function placeLogo(chart){
     .css({opacity:.95, pointerEvents:'none'}).add();
 }
 function placeWatermark(chart){
-  const pad = 0.85; // cover ~85% of plot area
+  const pad = 1.25; // cover ~85% of plot area
   let w = Math.round(chart.plotWidth * pad);
   let h = Math.round(w * wmAspect);
   if (h > chart.plotHeight * pad){
@@ -281,9 +281,21 @@ function toDatasetKey(name){
   return datasetUsesCodes() ? (NAME_TO_ISO2[name] || name) : name;
 }
 function fmtVal(v){
-  const abs=Math.abs(v);
-  if (abs>=1e5) return (v/1e6).toFixed(abs<1e6?1:1)+'M'; // keep your threshold
-  if (abs>=1e3) return (v/1e3).toFixed(abs<1e1?1:0)+'K';
+  const abs = Math.abs(v);
+
+  if (abs >= 1e6) {
+    // 1,000,000+  → M   (1.1M … 9.9M with 1 decimal; ≥10M no decimal)
+    return (abs < 10e6 ? (v/1e6).toFixed(1) : Math.round(v/1e6)) + 'M';
+  }
+
+  if (abs >= 1e3) {
+    // 1,000–9,999 → 1 decimal K (1.2K)
+    if (abs < 1e4) return (v/1e3).toFixed(1) + 'K';
+    // 10,000–999,999 → integer K (12K, 999K)
+    return Math.round(v/1e3) + 'K';
+  }
+
+  // < 1,000 → integer
   return String(Math.round(v));
 }
 

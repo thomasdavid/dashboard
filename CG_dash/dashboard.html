@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Children’s outcomes dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Children’s outcomes dashboard</title>
 
-<!-- Highcharts (core + maps + exporting) -->
+<!-- Highcharts core + maps + exporting -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/maps/modules/map.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -17,348 +17,387 @@
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-  :root{--gap:12px;--pill:999px;--b:#e5e7eb;--ink:#111827;--muted:#6b7280}
-  body{font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;color:var(--ink);margin:18px;background:#fff}
-  .grid{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
-  .panel{border:none;border-radius:12px;padding:12px;background:#fff}
-  select,button{font:inherit}
-  select{width:100%;padding:.5rem .6rem;border:1px solid #cfd8e3;border-radius:8px;background:#fff}
+  :root{
+    --ink:#111827; --muted:#6b7280; --tintTop:#eef3f9; --tintSub:#f6f8fc;
+    --ring:#cfd8e3; --ring2:#b6c3d7; --pill:#fff; --btn:#fff; --gap:14px;
+  }
+  html,body{margin:0; padding:16px; font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial; color:var(--ink);}
 
-  .row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
-  /* Top row (Section) highlighted slightly */
-  .section-row{background:#f7fafc;border-radius:12px;padding:8px}
-  /* pills */
-  .pill{display:inline-block;padding:.48rem .9rem;border:1px solid #cbd5e1;border-radius:var(--pill);background:#fff;cursor:pointer}
-  .pill.active{background:#e7effa;border-color:#b6c3d7;font-weight:600}
+  /* layout */
+  .filters{margin-bottom:12px}
+  .pills-top,.pills-sub{display:flex; flex-wrap:wrap; gap:10px; padding:12px 10px; border-radius:12px}
+  .pills-top{background:var(--tintTop)}
+  .pills-sub{background:var(--tintSub); margin-top:10px}
+  .pill{
+    display:inline-block; padding:.46rem .9rem; border:1px solid var(--ring);
+    border-radius:999px; background:#f5f7fb; color:#1f2937; cursor:pointer; font-size:0.85em;
+  }
+  .pills-top .pill{ background:#eaf0f8; }
+  .pill.active{ background:#e7effa; border-color:var(--ring2); font-weight:600; }
 
-  .chart-wrap{position:relative}
-  #chart{height:560px;width:100%}
+  .grid{display:grid; grid-template-columns:280px 1fr; gap:18px; align-items:start}
+  .panel{padding:0} /* no frames */
+  .controls{display:flex; flex-direction:column; gap:10px}
 
-  .tabs{display:flex;gap:10px;justify-content:center;margin:8px 0 0}
-  .tab{padding:.6rem 1.1rem;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer}
-  .tab.active{background:#111;color:#fff;border-color:#111}
+  /* dropdown (countries for trend) */
+  .dd{position:relative}
+  .dd-btn{
+    width:100%; padding:.55rem .7rem; border:1px solid var(--ring); border-radius:10px; background:#fff; text-align:left; cursor:pointer;
+  }
+  .dd-list{
+    position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:20; background:#fff; border:1px solid var(--ring);
+    border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,.08); max-height:260px; overflow:auto; padding:6px; display:none;
+  }
+  .dd.open .dd-list{display:block}
+  .dd-item{display:flex; align-items:center; gap:8px; padding:6px 6px; border-radius:8px; cursor:pointer}
+  .dd-item:hover{background:#f3f4f6}
+  .dd-item input{pointer-events:none}
 
-  .exports{display:flex;gap:10px;margin:8px 0}
-  .muted{color:var(--muted)}
+  label.small{font-size:12px; color:var(--muted); margin-top:2px}
+
+  .row{display:flex; gap:8px; flex-wrap:wrap}
+  .btn{padding:.5rem .8rem; border:1px solid var(--ring); border-radius:10px; background:var(--btn); cursor:pointer}
+  .tabs{display:flex; justify-content:center; gap:10px; margin-top:8px}
+  .tab{padding:.55rem 1.05rem; border:1px solid var(--ring); border-radius:12px; background:#fff; cursor:pointer}
+  .tab.active{background:#111; color:#fff; border-color:#111}
+
+  #chart{width:100%; height:560px}
+
   .hidden{display:none!important}
 
-  /* Flag multi-select dropdown (trends tab) */
-  .flag-select{position:relative}
-  .flag-btn{
-    display:flex;align-items:center;gap:.5rem;width:100%;
-    padding:.5rem .6rem;border:1px solid #cfd8e3;border-radius:8px;background:#fff;cursor:pointer
-  }
-  .flag-list{
-    position:absolute;left:0;right:0;z-index:30;margin-top:.3rem;
-    max-height:280px;overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;
-    box-shadow:0 6px 18px rgba(0,0,0,.08)
-  }
-  .flag-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .6rem;cursor:pointer}
-  .flag-item:hover{background:#f3f4f6}
-  .flag-item img{width:18px;height:14px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.06) inset}
-  .flag-note{font-size:12px;color:var(--muted);margin-top:.3rem}
+  /* chart text smaller */
+  .hc-cat text, .hc-val text{font-size:11px!important}
 </style>
 
 <script>
-/* ---------------- Data config ---------------- */
-const CSV_URL="https://raw.githubusercontent.com/thomasdavid/dashboard/main/CG_dash/MasterData.csv";
+/* ---------------------- Config & constants ---------------------- */
+const CSV_URL = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/CG_dash/MasterData.csv";
 
-/* Map keys & EU styling */
-const MAP_KEY={ "Albania":"al","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy",
-  "Czechia":"cz","Czech Republic":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de",
-  "Greece":"gr","Hungary":"hu","Iceland":"is","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt",
-  "Luxembourg":"lu","Malta":"mt","Moldova":"md","Montenegro":"me","Netherlands":"nl","North Macedonia":"mk",
-  "Norway":"no","Poland":"pl","Portugal":"pt","Romania":"ro","Serbia":"rs","Slovakia":"sk","Slovenia":"si",
-  "Spain":"es","Sweden":"se","Switzerland":"ch","Türkiye":"tr","Turkey":"tr","Ukraine":"ua","United Kingdom":"gb",
-  "Bosnia and Herzegovina":"ba","Belarus":"by","Kosovo":"xk","Andorra":"ad","Monaco":"mc","San Marino":"sm",
-  "Liechtenstein":"li","European Union":"eu","EU27":"eu","EU28":"eu","EU":"eu","EU-27":"eu","EU-28":"eu" };
-const EU_NAMES = new Set(["European Union","EU27","EU28","EU-27","EU-28","EU"]);
-const EU_BAR   = "#0A6AA6";  // darker blue for EU
-const BAR_STD  = "#9ec5ff";
+/* EU naming and map keys */
+const EU_NAMES = new Set(["EU","EU27","EU-27","EU28","EU-28","European Union","EU 27","EU 28","EU27_2020","EU27_2013"]);
+const HC_KEY_BY_NAME={
+  "Albania":"al","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy",
+  "Czechia":"cz","Czech Republic":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr",
+  "Germany":"de","Greece":"gr","Hungary":"hu","Iceland":"is","Ireland":"ie","Italy":"it",
+  "Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Moldova":"md","Montenegro":"me",
+  "Netherlands":"nl","North Macedonia":"mk","Norway":"no","Poland":"pl","Portugal":"pt",
+  "Romania":"ro","Serbia":"rs","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se",
+  "Switzerland":"ch","Türkiye":"tr","Turkey":"tr","Ukraine":"ua","United Kingdom":"gb",
+  "Bosnia and Herzegovina":"ba","Belarus":"by","Kosovo":"xk","Andorra":"ad","Monaco":"mc","San Marino":"sm","Liechtenstein":"li"
+};
 
-/* Highcharts defaults */
+const BAR_STD = "#2F6FB3";  // default bars (darker)
+const EU_BAR  = "#0B3A6E";  // EU bar (even darker)
+
+/* Faster animations (50% quicker than 250ms) + small text */
 Highcharts.setOptions({
-  chart:{style:{fontFamily:'system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial'},animation:{duration:250}},
-  title:{style:{fontSize:'18px',fontWeight:700}},legend:{itemStyle:{fontSize:'12px'}},
-  exporting:{fallbackToExportServer:false,libURL:'https://code.highcharts.com/11.4.0/lib/'},credits:{enabled:false}
+  chart:{ style:{ fontFamily:"system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial" }, animation:{ duration:125 } },
+  plotOptions:{ series:{ animation:{ duration:125 } } },
+  title:{ style:{ fontSize:"18px", fontWeight:700 } },
+  xAxis:{ labels:{ style:{ fontSize:"11px" } } },
+  yAxis:{ labels:{ style:{ fontSize:"11px" } } },
+  legend:{ itemStyle:{ fontSize:"12px" } },
+  exporting:{ fallbackToExportServer:false, libURL:"https://code.highcharts.com/11.4.0/lib/" },
+  credits:{ enabled:false }
 });
 
-/* Helpers */
-const toNum=x=>x==null||x===''?NaN:(typeof x==='number'?x:+String(x).replace(/[%\s,]/g,''));
-const uniq=a=>[...new Set(a)];
-const sortAlpha=a=>a.slice().sort((x,y)=>String(x).localeCompare(String(y)));
-const safe=(s)=>String(s||'').trim();
-const filename=(kind)=>`Children_${kind} ${state.section} – ${state.label} – ${state.breakdown} – ${state.year}`.replace(/[<>:"/\\|?*\u0000-\u001F]/g,'-');
+/* ---------------------- helpers ---------------------- */
+const norm = s => String(s||"").trim();
+const toNum = v => (v==null||v==="") ? NaN : +String(v).replace(/[%\s,]/g,"");
+const uniq = a => [...new Set(a)];
+const sortAlpha = a => a.slice().sort((x,y)=>String(x).localeCompare(String(y)));
+function mapHeader(keys, wanted){ const L=keys.map(k=>[k,k.toLowerCase()]); for(const w of wanted){const t=w.toLowerCase(); const hit=L.find(([,kk])=>kk===t)||L.find(([,kk])=>kk.includes(t)); if(hit) return hit[0];} return null; }
+function yearsFor(filterRows){ return uniq(filterRows.map(r=>r[H.Year]).filter(y=>!isNaN(y))).sort((a,b)=>a-b); }
 
-/* State */
-const state={section:null,label:null,breakdown:null,years:[],countries:[],year:null,tab:'trend'};
+function placeLogo(chart){
+  const url='./logo.svg', pad=8, w=58;
+  const aspect = 0.33; // if you know the logo aspect; or let HC scale implicitly
+  const h = Math.round(w*aspect);
+  const x = chart.chartWidth - w - pad;
+  const y = chart.chartHeight - h - pad;
+  if(chart._logo) chart._logo.destroy();
+  chart._logo = chart.renderer.image(url, x, y, w, h).css({opacity:.95, pointerEvents:'none'}).add();
+}
 
-/* DOM & data */
-let rows=[],H={},chart=null,els={};
+/* ---------------------- state & DOM ---------------------- */
+let rows = [], H = {};
+const state = {
+  section:null, label:null, breakdown:null,
+  tab:'trend',
+  countries:[],  // for trend only
+  year:null      // for bar & map
+};
 
-window.addEventListener('DOMContentLoaded',()=>{
-  els.sectionRow=document.getElementById('sectionRow');
-  els.labelRow  =document.getElementById('labelRow');
-  els.breakRow  =document.getElementById('breakRow');
+let el={}, chart=null;
 
-  els.sideCountry = document.getElementById('sideCountry');
-  els.sideYear    = document.getElementById('sideYear');
-  els.yearSel     = document.getElementById('yearSel');
+/* ---------------------- init ---------------------- */
+window.addEventListener('DOMContentLoaded', ()=>{
+  el.sections = document.getElementById('sections');
+  el.labels   = document.getElementById('labels');
+  el.breaks   = document.getElementById('breaks');
 
-  els.flagUI      = document.getElementById('countryUI');
-  els.flagBtn     = document.getElementById('countryBtn');
-  els.flagList    = document.getElementById('countryList');
+  el.panelTrend = document.getElementById('panelTrend');
+  el.panelYear  = document.getElementById('panelYear');
+  el.yearSel    = document.getElementById('yearSel');
 
-  els.tabTrend=document.getElementById('tabTrend');
-  els.tabBar  =document.getElementById('tabBar');
-  els.tabMap  =document.getElementById('tabMap');
+  el.dd         = document.getElementById('countryDD');
+  el.ddBtn      = document.getElementById('ddBtn');
+  el.ddList     = document.getElementById('ddList');
 
-  els.btnCSV=document.getElementById('btnCSV');
-  els.btnPNG=document.getElementById('btnPNG');
+  el.btnCSV     = document.getElementById('btnCSV');
+  el.btnPNG     = document.getElementById('btnPNG');
 
-  document.addEventListener('click',e=>{
-    if(!els.flagUI.contains(e.target)) els.flagList.classList.add('hidden');
-  });
+  el.tabTrend   = document.getElementById('tabTrend');
+  el.tabBar     = document.getElementById('tabBar');
+  el.tabMap     = document.getElementById('tabMap');
 
-  loadCSV();
-});
+  // dropdown open/close
+  el.ddBtn.addEventListener('click', (e)=>{ e.stopPropagation(); el.dd.classList.toggle('open'); });
+  document.addEventListener('click', ()=> el.dd.classList.remove('open'));
+  el.ddList.addEventListener('click', e=> e.stopPropagation());
 
-/* CSV load */
-function mapHeader(keys,names){ const norm=s=>String(s||'').trim().toLowerCase(); const K=keys.map(k=>[k,norm(k)]); for(const n of names){const t=norm(n); const hit=K.find(([,kk])=>kk===t)||K.find(([,kk])=>kk.includes(t)); if(hit) return hit[0];} return null; }
-function tidyRows(raw){ return raw.map(r=>{const o={}; for(const k of Object.keys(r||{})){const nk=String(k||'').trim(); o[nk]=typeof r[k]==='string'?r[k].trim():r[k];} return o;}); }
+  // tabs
+  const setTab=t=>{
+    state.tab=t;
+    [el.tabTrend,el.tabBar,el.tabMap].forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+    // show/hide side-panels
+    el.panelTrend.classList.toggle('hidden', t!=='trend');
+    el.panelYear.classList.toggle('hidden',  t==='trend');
+    draw();
+  };
+  [el.tabTrend,el.tabBar,el.tabMap].forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
 
-function loadCSV(){
+  // exports
+  el.btnCSV.addEventListener('click',()=>{ if(!chart) return; const csv=chart.getCSV(); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fileName('data')+'.csv'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0); });
+  el.btnPNG.addEventListener('click',()=>{ if(!chart) return; chart.exportChartLocal({type:'image/png', filename:fileName('img')}); });
+
+  // load csv
   Papa.parse(CSV_URL,{download:true,header:true,dynamicTyping:false,skipEmptyLines:true,
     complete:({data})=>{
-      rows=tidyRows(data);
+      rows = data.map(r=>{
+        const o={}; for(const k of Object.keys(r||{})){o[norm(k)] = typeof r[k]==='string'?r[k].trim():r[k];}
+        return o;
+      });
       const keys=Object.keys(rows[0]||{});
-      H.ID=mapHeader(keys,['ID']);
-      H.Section=mapHeader(keys,['Section']);
-      H.Label=mapHeader(keys,['Label']);
-      H.Country=mapHeader(keys,['Country']);
-      H.Year=mapHeader(keys,['Year']);
-      H.Breakdown=mapHeader(keys,['Breakdown','Category']);
-      H.Value=mapHeader(keys,['Value','Rate','Percent','Share','Index','Amount']);
-
-      rows=rows.map(r=>{const o={...r}; o[H.Year]=+o[H.Year]; o[H.Value]=toNum(o[H.Value]); return o;});
+      H.ID        = mapHeader(keys,["ID","id"]);
+      H.Section   = mapHeader(keys,["Section"]);
+      H.Label     = mapHeader(keys,["Label"]);
+      H.Country   = mapHeader(keys,["Country"]);
+      H.Year      = mapHeader(keys,["Year"]);
+      H.Breakdown = mapHeader(keys,["Breakdown","Category"]);
+      H.Value     = mapHeader(keys,["Value","Rate","Percent","Share","Index","Amount"]);
+      rows = rows.map(r=>{ r[H.Value]=toNum(r[H.Value]); r[H.Year]=+r[H.Year]; return r; });
 
       buildTopFilters();
       applyDefaults();
-      wireUI();
-      updateSidePanel();
+      buildSideControls();
       draw();
-    },
-    error:err=>alert("CSV error: "+err.message)
+    }
   });
-}
+});
 
-/* ---------- Top filters (Section, Label) ---------- */
-function pillsHTML(list,active){ return list.map(v=>`<button class="pill${v===active?' active':''}" data-v="${encodeURIComponent(v)}">${v}</button>`).join(''); }
-
+/* ---------------------- Top filters ---------------------- */
 function buildTopFilters(){
-  const sections=sortAlpha(uniq(rows.map(r=>r[H.Section]).filter(Boolean)));
-  state.section = sections[0];
-  els.sectionRow.innerHTML=pillsHTML(sections,state.section);
-  els.sectionRow.onclick=e=>{
+  // sections
+  const sections = sortAlpha(uniq(rows.map(r=>r[H.Section]).filter(Boolean)));
+  el.sections.innerHTML = sections.map(s=>`<button class="pill" data-v="${encodeURIComponent(s)}">${s}</button>`).join('');
+  el.sections.onclick = e=>{
     const v=e.target?.dataset?.v; if(!v) return;
     state.section=decodeURIComponent(v);
+    markActive(el.sections, state.section);
     buildLabels();
     buildBreaks();
-    rebuildYears();
-    updateSidePanel();
+    buildSideControls(); // refresh years list etc.
     draw();
-    [...els.sectionRow.querySelectorAll('.pill')].forEach(b=>b.classList.toggle('active',decodeURIComponent(b.dataset.v)===state.section));
   };
 
+  // labels
   buildLabels();
+  // breakdowns
   buildBreaks();
 }
 function buildLabels(){
-  const labels=sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section).map(r=>r[H.Label]).filter(Boolean)));
-  state.label = labels[0];
-  els.labelRow.innerHTML=pillsHTML(labels,state.label);
-  els.labelRow.onclick=e=>{
+  const labs = sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section).map(r=>r[H.Label]).filter(Boolean)));
+  el.labels.innerHTML = labs.map(s=>`<button class="pill" data-v="${encodeURIComponent(s)}">${s}</button>`).join('');
+  el.labels.onclick = e=>{
     const v=e.target?.dataset?.v; if(!v) return;
     state.label=decodeURIComponent(v);
+    markActive(el.labels, state.label);
     buildBreaks();
-    rebuildYears();
+    buildSideControls();
     draw();
-    [...els.labelRow.querySelectorAll('.pill')].forEach(b=>b.classList.toggle('active',decodeURIComponent(b.dataset.v)===state.label));
   };
+  if(!state.label) state.label = labs[0] || null;
+  markActive(el.labels, state.label);
 }
 function buildBreaks(){
-  const list=sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section&&r[H.Label]===state.label).map(r=>r[H.Breakdown]).filter(Boolean)));
-  state.breakdown = list.includes('Total') ? 'Total' : (list[0]||'');
-  els.breakRow.innerHTML=pillsHTML(list,state.breakdown);
-  els.breakRow.onclick=e=>{
-    const v=e.target?.dataset?.v; if(!v) return;
-    state.breakdown=decodeURIComponent(v);
-    rebuildYears();
-    draw();
-    [...els.breakRow.querySelectorAll('.pill')].forEach(b=>b.classList.toggle('active',decodeURIComponent(b.dataset.v)===state.breakdown));
+  const list = sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section && r[H.Label]===state.label).map(r=>r[H.Breakdown]).filter(Boolean)));
+  const preferred = ["Total","All"].find(x=>list.includes(x));
+  state.breakdown = state.breakdown && list.includes(state.breakdown) ? state.breakdown : (preferred || list[0] || null);
+  el.breaks.innerHTML = list.map(s=>`<button class="pill" data-v="${encodeURIComponent(s)}">${s}</button>`).join('');
+  el.breaks.onclick = e=>{
+    const v=e.target?.dataset?.v; if(!v) return; state.breakdown=decodeURIComponent(v); markActive(el.breaks, state.breakdown); buildSideControls(); draw();
   };
+  markActive(el.breaks, state.breakdown);
+}
+function markActive(container, val){
+  container.querySelectorAll('.pill').forEach(b=>b.classList.toggle('active', decodeURIComponent(b.dataset.v)===val));
 }
 
-/* ---------- Years & countries ---------- */
-function yearsForCurrent(){
-  return uniq(rows.filter(r=>r[H.Section]===state.section && r[H.Label]===state.label && r[H.Breakdown]===state.breakdown)
-                  .map(r=>r[H.Year]).filter(y=>!isNaN(y))).sort((a,b)=>b-a);
-}
-function rebuildYears(){
-  const yrs = yearsForCurrent();
-  state.years = yrs;
-  els.yearSel.innerHTML = yrs.map(y=>`<option value="${y}">${y}</option>`).join('');
-  if(!state.year || !yrs.includes(state.year)) state.year = yrs[0] || null;
-  if(state.year) els.yearSel.value = String(state.year);
-}
-function countriesAll(){
-  return sortAlpha(uniq(rows.map(r=>r[H.Country]).filter(c=>c && !/^#?N\/A$/i.test(c))));
-}
-function buildFlagDropdown(){
-  const list = countriesAll();
-  const items = list.map(c=>{
-    const iso = MAP_KEY[c] || '';
-    const src = iso==='eu' ? 'https://flagcdn.com/eu.svg' : (iso?`https://flagcdn.com/${iso}.svg`: '');
-    return `<label class="flag-item">
-              <input type="checkbox" value="${c}">
-              <img alt="" src="${src}" onerror="this.style.display='none'">
-              <span>${c}</span>
-            </label>`;
-  }).join('');
-  document.getElementById('countryList').innerHTML = items;
-
-  const eu  = list.find(n=>EU_NAMES.has(n));
-  state.countries = [eu || list[0]].concat(list.filter(n=>n!==eu).slice(0,2));
-  [...document.querySelectorAll('#countryList input')].forEach(cb=>{
-    cb.checked = state.countries.includes(cb.value);
-    cb.addEventListener('change',()=>{
-      const sel = [...document.querySelectorAll('#countryList input:checked')].map(i=>i.value);
-      state.countries = sel.length ? sel : [eu || list[0]];
-      updateFlagBtnText();
-      draw();
-    });
-  });
-  updateFlagBtnText();
-}
-function updateFlagBtnText(){
-  const b=document.getElementById('countryBtn');
-  b.textContent = state.countries.length>3
-    ? `${state.countries.length} countries selected`
-    : (state.countries.join(', ') || 'Select countries');
-}
-
-/* ---------- UI wiring ---------- */
+/* ---------------------- Side controls ---------------------- */
 function applyDefaults(){
-  rebuildYears();
-  buildFlagDropdown();
+  // section default
+  const secs=sortAlpha(uniq(rows.map(r=>r[H.Section]).filter(Boolean))); state.section = secs[0]; markActive(el.sections, state.section);
+  buildLabels();
+  buildBreaks();
+
+  // default tab
   state.tab='trend';
+  [el.tabTrend,el.tabBar,el.tabMap].forEach(b=>b.classList.toggle('active', b.dataset.t===state.tab));
 }
-function wireUI(){
-  const setTab=t=>{
-    state.tab=t;
-    [els.tabTrend,els.tabBar,els.tabMap].forEach(btn=>btn.classList.toggle('active',btn.dataset.t===t));
-    updateSidePanel();
-    draw();
-  };
-  [els.tabTrend,els.tabBar,els.tabMap].forEach(btn=>btn.addEventListener('click',()=>setTab(btn.dataset.t)));
+function buildSideControls(){
+  // Countries list for Trend
+  const countries = sortAlpha(uniq(rows.map(r=>r[H.Country]).filter(c=>c && !/^#?N\/A$/i.test(c))));
+  el.ddList.innerHTML = countries.map(c=>`
+    <label class="dd-item"><input type="checkbox" value="${c}"> <span>${c}</span></label>
+  `).join('');
+  // default trend countries: EU (if present) + two others
+  if(state.countries.length===0){
+    const eu = countries.find(c=>EU_NAMES.has(c));
+    state.countries = [eu||countries[0]].concat(countries.filter(c=>c!==(eu||countries[0])).slice(0,2));
+  }
+  // set checks & caption
+  [...el.ddList.querySelectorAll('input')].forEach(chk=>{
+    chk.checked = state.countries.includes(chk.value);
+    chk.onchange = ()=>{
+      const sel = [...el.ddList.querySelectorAll('input:checked')].map(i=>i.value);
+      state.countries = sel.length? sel : [];
+      updateDDCaption();
+      draw();
+    };
+  });
+  updateDDCaption();
 
-  els.yearSel.addEventListener('change',()=>{ state.year=+els.yearSel.value; draw(); });
-
-  document.getElementById('countryBtn').addEventListener('click', (e)=>{ e.stopPropagation(); document.getElementById('countryList').classList.toggle('hidden'); });
-
-  els.btnCSV.addEventListener('click',()=>{ if(!chart) return; const csv=chart.getCSV(); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename('data')+'.csv'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},0); });
-  els.btnPNG.addEventListener('click',()=>{ if(!chart) return; chart.exportChartLocal({type:'image/png',filename:filename('img')}); });
+  // Year list for Bar+Map (only years with data for current filters)
+  const eligible = rows.filter(r=>r[H.Section]===state.section && r[H.Label]===state.label && r[H.Breakdown]===state.breakdown);
+  const years = yearsFor(eligible).sort((a,b)=>b-a); // desc for dropdown
+  el.yearSel.innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  if(!state.year || !years.includes(state.year)) state.year = years[0] || null;
+  el.yearSel.value = state.year || '';
+  el.yearSel.onchange = ()=>{ state.year = +el.yearSel.value; draw(); };
 }
-function updateSidePanel(){
-  // Trends tab: show countries dropdown, hide year
-  els.sideCountry.classList.toggle('hidden', state.tab!=='trend');
-  els.sideYear.classList.toggle('hidden',    state.tab==='trend');
+function updateDDCaption(){
+  el.ddBtn.textContent = state.countries.length ? `${state.countries.length} selected` : 'Select countries';
 }
 
-/* ---------- Subsets ---------- */
-function subset(filter){
+/* ---------------------- data subset ---------------------- */
+function subset(opts){
   return rows.filter(r=>
     r[H.Section]===state.section &&
     r[H.Label]===state.label &&
-    (state.breakdown ? r[H.Breakdown]===state.breakdown : true) &&
-    (filter.year==null ? true : r[H.Year]===filter.year) &&
-    (filter.country ? r[H.Country]===filter.country : true)
+    r[H.Breakdown]===state.breakdown &&
+    (opts.year==null || r[H.Year]===opts.year) &&
+    (opts.country? r[H.Country]===opts.country : true)
   );
 }
 
-/* ---------- Draw ---------- */
+/* ---------------------- filename ---------------------- */
+function fileName(kind){
+  const s = `${kind} ${state.section} ${state.label} ${state.breakdown} ${state.tab==='trend'?'trend':state.year}`;
+  return `Children_${s}`.replace(/[<>:"/\\|?*\u0000-\u001F]/g,'-');
+}
+
+/* ---------------------- draw ---------------------- */
 function draw(){
   if(chart) chart.destroy();
 
   if(state.tab==='trend'){
-    const years = uniq(rows.map(r=>r[H.Year]).filter(y=>!isNaN(y))).sort((a,b)=>a-b);
+    // years with at least one datapoint across selected countries
+    const ptsByYear = new Map();
+    const allRows = rows.filter(r=>r[H.Section]===state.section && r[H.Label]===state.label && r[H.Breakdown]===state.breakdown);
+    for(const r of allRows){ const y=r[H.Year]; if(!isFinite(r[H.Value])) continue; ptsByYear.set(y, true); }
+    const years = Array.from(ptsByYear.keys()).sort((a,b)=>a-b);
+
     const series = state.countries.map(c=>{
-      const pts = subset({country:c}).sort((a,b)=>a[H.Year]-b[H.Year]);
-      const map = new Map(pts.map(r=>[r[H.Year],r[H.Value]]));
-      return {name:c,data:years.map(y=>map.has(y)?map.get(y):null)};
+      const points = subset({}).filter(r=>r[H.Country]===c).sort((a,b)=>a[H.Year]-b[H.Year]);
+      const map = new Map(points.map(r=>[r[H.Year], r[H.Value]]));
+      return { name:c, data: years.map(y => (map.has(y) ? map.get(y) : null)) };
     });
 
     chart = Highcharts.chart('chart',{
-      chart:{type:'line'},
-      title:{text: state.label},
-      subtitle:{text:`Section: ${state.section} • Breakdown: ${state.breakdown}`},
-      xAxis:{categories:years,title:{text:'Year'}},
-      yAxis:{title:{text:null}},
-      tooltip:{shared:true},
-      legend:{enabled:true},
+      chart:{ type:'line', events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
+      title:{ text: state.label },
+      subtitle:{ text:`Section: ${state.section} • Breakdown: ${state.breakdown}` },
+      xAxis:{ categories:years, title:{text:'Year'} },
+      yAxis:{ title:{ text:null }, labels:{ formatter(){ return Highcharts.numberFormat(this.value,1)+'%'; } } },
+      tooltip:{ shared:true, pointFormatter(){ return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${Highcharts.numberFormat(this.y,1)}%</b><br/>`; } },
       series
     });
 
-  } else if (state.tab==='bar'){
+  } else if(state.tab==='bar'){
     const yrRows = subset({year:state.year});
-    const pts = yrRows
-      .map(r=>({name:r[H.Country], value:r[H.Value]}))
-      .filter(p=>p.name && Number.isFinite(p.value));
+    const points = yrRows
+      .map(r=>({name:r[H.Country], y:r[H.Value]}))
+      .filter(p=>p.name && isFinite(p.y));
 
-    pts.sort((a,b)=>b.value-a.value);
-
-    const categories = pts.map(p=>p.name);
-    const data = pts.map(p=>({
-      y: p.value,
-      color: EU_NAMES.has(p.name) ? EU_BAR : BAR_STD
-    }));
+    // sort desc, EU special color
+    points.sort((a,b)=>b.y-a.y);
+    const categories = points.map(p=>p.name);
+    const data = points.map(p=>({ y:p.y, color: EU_NAMES.has(p.name) ? EU_BAR : BAR_STD }));
 
     chart = Highcharts.chart('chart',{
-      chart:{type:'bar'},
-      title:{text:`${state.label} (${state.year})`},
-      subtitle:{text:`Section: ${state.section} • Breakdown: ${state.breakdown}`},
-      xAxis:{categories},
-      yAxis:{title:{text:null}},
-      legend:{enabled:false},               // <- no legend
-      plotOptions:{series:{pointWidth:16,   // <- thicker bars
-                           groupPadding:0.06, pointPadding:0.02}},
-      tooltip:{pointFormat:'<b>{point.y:.2f}</b>'},
-      series:[{name:state.label, data, colorByPoint:true}]
+      chart:{ type:'bar', events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
+      title:{ text:`${state.label} (${state.year})` },
+      subtitle:{ text:`Section: ${state.section} • Breakdown: ${state.breakdown}` },
+      xAxis:{ categories, title:{text:null}, className:'hc-cat' },
+      yAxis:{ title:{text:null}, className:'hc-val', labels:{ formatter(){ return Highcharts.numberFormat(this.value,1)+'%'; } } },
+      legend:{ enabled:false },
+      tooltip:{ pointFormatter(){ return `<b>${Highcharts.numberFormat(this.y,1)}%</b>`; } },
+      plotOptions:{
+        series:{
+          pointWidth:15,            // 14% thinner vs ~18
+          groupPadding:0.06,
+          pointPadding:0.02,
+          dataLabels:{
+            enabled:true, inside:true, align:'right', verticalAlign:'middle', x:-6, padding:0,
+            style:{ color:'#fff', fontSize:'10px', textOutline:'none' },
+            formatter(){ return Highcharts.numberFormat(this.y,1)+'%'; }
+          }
+        }
+      },
+      series:[{ name:state.label, data, colorByPoint:true }]
     });
 
   } else { // map
     const yrRows = subset({year:state.year});
     const data = [];
     for(const r of yrRows){
-      const k = MAP_KEY[r[H.Country]];
-      const v = Number(r[H.Value]);
-      if(!k || !isFinite(v)) continue;
-      data.push({'hc-key':k, value:v, name:r[H.Country]});
+      const k = HC_KEY_BY_NAME[r[H.Country]]; const v = r[H.Value];
+      if(k && isFinite(v)) data.push(['hc-key' in Object ? { 'hc-key':k, value:v } : [k,v]]);
     }
-    const vals = data.map(d=>d.value);
-    const max  = vals.length ? Math.max(...vals) : 1;
+    const flat = yrRows.map(r=>r[H.Value]).filter(v=>isFinite(v));
+    const max = flat.length ? Math.max(...flat) : 1;
 
     chart = Highcharts.mapChart('chart',{
-      chart:{map:Highcharts.maps['custom/europe'],animation:false},
-      title:{text:`${state.label} (${state.year})`},
-      subtitle:{text:`Section: ${state.section} • Breakdown: ${state.breakdown}`},
-      colorAxis:{min:0,max,tickAmount:6,stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]},
-      legend:{title:{text:''},layout:'vertical',align:'left',verticalAlign:'bottom',floating:true,
-              backgroundColor:'#fff',borderWidth:1},
-      tooltip:{useHTML:true,pointFormatter(){return `<div style="min-width:160px"><b>${this.name}</b><br>${Highcharts.numberFormat(this.value,2)}</div>`;}},
-      series:[{name:state.label,mapData:Highcharts.maps['custom/europe'],data,joinBy:'hc-key',
-               nullColor:'#f3f4f6',states:{hover:{color:'#a4edba'}},showInLegend:false,animation:false}],
-      mapNavigation:{enabled:true}
+      chart:{ map: Highcharts.maps['custom/europe'], animation:false, events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
+      title:{ text:`${state.label} (${state.year})` },
+      subtitle:{ text:`Section: ${state.section} • Breakdown: ${state.breakdown}` },
+      colorAxis:{
+        min:0, max, tickAmount:6,
+        labels:{ format:'{value:.1f}%' },
+        stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']]
+      },
+      legend:{ title:{ text:'%' }, layout:'vertical', align:'left', verticalAlign:'bottom', floating:true, backgroundColor:'#fff', borderWidth:1 },
+      tooltip:{ useHTML:true, pointFormatter(){ return `<b>${Highcharts.numberFormat(this.value,1)}%</b>`; } },
+      mapNavigation:{ enabled:true },
+      series:[{
+        name:state.label,
+        mapData: Highcharts.maps['custom/europe'],
+        data: yrRows.map(r=>{
+          const k=HC_KEY_BY_NAME[r[H.Country]]; return (k && isFinite(r[H.Value])) ? { 'hc-key':k, value:r[H.Value], name:r[H.Country] } : null;
+        }).filter(Boolean),
+        joinBy:'hc-key', nullColor:'#f3f4f6', states:{ hover:{ color:'#a4edba' } }, showInLegend:false, animation:false
+      }]
     });
   }
 }
@@ -366,38 +405,43 @@ function draw(){
 </head>
 <body>
 
-<!-- TOP FILTERS: Section (tinted row) + Label (no headings) -->
-<div class="panel">
-  <div id="sectionRow" class="row section-row"></div>
-  <div id="labelRow" class="row"></div>
+<!-- Top filters (different pill colours per row) -->
+<div class="filters">
+  <div class="pills-top" id="sections"></div>
+  <div class="pills-sub" id="labels"></div>
 </div>
 
-<div class="grid" style="margin-top:6px;">
-  <!-- SIDE PANEL (country or year, then breakdown) -->
-  <div class="panel">
-    <div id="sideCountry">
-      <div id="countryUI" class="flag-select">
-        <button id="countryBtn" type="button" class="flag-btn">Select countries</button>
-        <div id="countryList" class="flag-list hidden"></div>
-        <div class="flag-note">Click the button to open. Click outside to close.</div>
+<div class="grid">
+  <!-- Left controls (switch by tab) -->
+  <div class="panel controls">
+    <!-- Trend panel: country dropdown + breakdown -->
+    <div id="panelTrend">
+      <div class="dd" id="countryDD">
+        <button id="ddBtn" class="dd-btn">Select countries</button>
+        <div id="ddList" class="dd-list"></div>
       </div>
+      <label class="small">Breakdown</label>
+      <div class="pills-sub" id="breaks"></div>
     </div>
 
-    <div id="sideYear" class="">
-      <select id="yearSel"></select>
+    <!-- Bar/Map panel: year + breakdown -->
+    <div id="panelYear" class="hidden">
+      <div>
+        <select id="yearSel" class="dd-btn"></select>
+        <label class="small">Year</label>
+      </div>
+      <label class="small">Breakdown</label>
+      <div class="pills-sub" id="breaks-clone"></div>
     </div>
 
-    <!-- Breakdown pills now live here under the selector -->
-    <div id="breakRow" class="row" style="margin-top:8px;"></div>
-
-    <div class="exports" style="margin-top:12px;">
-      <button id="btnCSV">Download CSV</button>
-      <button id="btnPNG">Download PNG</button>
+    <div class="row">
+      <button id="btnCSV" class="btn">Download CSV</button>
+      <button id="btnPNG" class="btn">Download PNG</button>
     </div>
   </div>
 
-  <!-- CHART -->
-  <div class="panel chart-wrap">
+  <!-- Chart -->
+  <div class="panel">
     <div id="chart"></div>
     <div class="tabs">
       <button id="tabTrend" class="tab active" data-t="trend">Trends over time</button>
@@ -407,6 +451,17 @@ function draw(){
   </div>
 </div>
 
+<script>
+/* clone the same breakdown pills into the year panel too (kept in sync by events) */
+const breaksSrc = document.getElementById('breaks');
+const breaksCloneWrap = document.getElementById('breaks-clone');
+const observer = new MutationObserver(()=>{ breaksCloneWrap.innerHTML = breaksSrc.innerHTML; });
+observer.observe(breaksSrc,{childList:true, subtree:true});
+breaksCloneWrap.addEventListener('click', e=>{
+  const srcBtn = breaksSrc.querySelector(`[data-v="${e.target?.dataset?.v||''}"]`);
+  if(srcBtn) srcBtn.click();
+});
+</script>
+
 </body>
 </html>
-

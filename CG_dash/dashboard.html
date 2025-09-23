@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Children outcomes dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Children outcomes dashboard</title>
 
 <!-- Highcharts core + maps + exporting -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -16,54 +16,52 @@
 <!-- PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
 
 <style>
   :root{
     --ink:#111827; --muted:#6b7280; --b:#e5e7eb;
-    --pill:#eef7f3;              /* faint dark-green for top pills (unselected) */
-    --pill-b:#b9d3c7;            /* border for top pills */
-    --pill-on:#d6efe6;           /* selected bg for top pills */
-    --blue:#0A6AA6; --red:#B01E34; --green:#3C6F3C; --purple:#59419A;
-    --eu:#063d67;                /* darker blue for EU in bars */
+    --pill:#eef7f3; --pill-b:#b9d3c7; --pill-on:#d6efe6;
+    --blue:#0A6AA6; --red:#B01E34; --green:#3C6F3C; --purple:#59419A; --eu:#063d67;
   }
   html,body{margin:0}
   body{font:14px/1.45 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial; color:var(--ink); padding:18px}
 
-  /* pills (top row has its own tone) */
+  /* top filter pills */
   .pill{display:inline-block; padding:.44rem .9rem; border-radius:999px; cursor:pointer; user-select:none;
         border:1px solid #cbd5e1; background:#fff; color:var(--ink); margin:.28rem .45rem .28rem 0; font-size:0.88rem; font-weight:600}
   .pill.active{background:#e7effa; border-color:#b6c3d7}
   .top .pill{background:var(--pill); border-color:var(--pill-b)}
   .top .pill.active{background:var(--pill-on); border-color:#97c7b3}
-
   .row{display:flex; flex-wrap:wrap; align-items:center}
   .row.stack{flex-direction:column; align-items:flex-start}
-  .h-space{height:8px}
 
-  /* layout */
-  .wrap{display:grid; grid-template-columns: 1fr; gap:14px}
+  /* layout: left sidebar (not too wide) + chart */
+  .wrap{display:grid; grid-template-columns:260px 1fr; gap:16px; align-items:start}
+  @media (max-width:900px){ .wrap{grid-template-columns:1fr} }
+
   .selectors{padding:4px 0 2px}
-  .block{margin:10px 0 18px}
-  .block > .hdr{font-weight:700; color:#324a3f; margin:0 0 6px 2px}
+
+  /* sidebar blocks */
+  .block{margin:10px 0 20px}
+  .block .hdr{font-weight:700; color:#324a3f; margin:0 0 8px 2px}
+  .muted{color:var(--muted)}
+  .hidden{display:none!important}
 
   /* chart area */
-  .chart-panel{position:relative; border:0; border-radius:12px; padding:0}
+  .chart-panel{position:relative}
   #chart{width:100%; height:560px}
 
-  /* bottom controls (tabs + downloads) */
+  /* bottom controls */
   .bottom-bar{display:flex; gap:10px; justify-content:center; align-items:center; margin-top:8px; flex-wrap:wrap}
-
   .tab{display:inline-flex; align-items:center; gap:8px; padding:.55rem 1.0rem; border:1px solid var(--b);
        border-radius:12px; background:#fff; cursor:pointer; font-weight:600}
   .tab svg{width:16px; height:16px}
   .tab.active{background:#111; color:#fff; border-color:#111}
-
   .btn{padding:.45rem .8rem; border:1px solid #cfd8e3; border-radius:8px; background:#fff; cursor:pointer}
 
-  /* flags dropdown (countries, line tab) */
-  .flag-dd{position:relative; width:330px}
+  /* flags dropdown (line tab) */
+  .flag-dd{position:relative; width:240px}
   .flag-btn{width:100%; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
             padding:.55rem .7rem; border:1px solid #cfd8e3; border-radius:8px; background:#fff; cursor:pointer}
   .flag-list{position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:20; background:#fff;
@@ -72,25 +70,32 @@
   .flag-item{display:flex; align-items:center; gap:.6rem; padding:.44rem .55rem; border-radius:8px; cursor:pointer}
   .flag-item:hover{background:#f3f4f6}
   .fi{width:18px; height:12px; border-radius:2px; box-shadow:0 0 0 1px rgba(0,0,0,.08) inset}
-
-  /* small tweaks */
-  .muted{color:var(--muted)}
-  .hidden{display:none!important}
 </style>
 </head>
 <body>
 
-<!-- TOP FILTER PILLS -->
+<!-- TOP FILTERS -->
 <div class="selectors">
   <div class="row top" id="sectionRow"></div>
   <div class="row" id="labelRow"></div>
 </div>
 
-<!-- BREAK + CHART -->
+<!-- LEFT SIDEBAR + CHART -->
 <div class="wrap">
+  <!-- LEFT: narrow sidebar -->
+  <div id="sidebar">
+    <div class="block" id="sidePrimaryHdr"></div>
+    <div class="block" id="sidePrimaryCtrls"></div>
+
+    <div class="block">
+      <div class="hdr">Breakdown</div>
+      <div class="row stack" id="breakRow"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: chart -->
   <div class="chart-panel">
     <div id="chart"></div>
-
     <div class="bottom-bar">
       <button class="tab active" id="tLine" data-t="line" title="Trends over time">
         <svg viewBox="0 0 24 24" fill="none"><path d="M3 18h18M4 16l5-6 5 3 6-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -106,173 +111,112 @@
       </button>
 
       <span style="flex:1"></span>
-
       <button class="btn" id="dlCSV">Download CSV</button>
       <button class="btn" id="dlPNG">Download PNG</button>
-    </div>
-  </div>
-
-  <!-- SIDE SELECTORS (change per tab) -->
-  <div>
-    <div class="block" id="sidePrimaryHdr"></div>
-    <div class="block" id="sidePrimaryCtrls"></div>
-
-    <div class="block">
-      <div class="hdr">Breakdown</div>
-      <div class="row stack" id="breakRow"></div>
     </div>
   </div>
 </div>
 
 <script>
-/* -------------------- config & utils -------------------- */
+/* ============ config & utils ============ */
 const CSV_URL = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/CG_dash/MasterData.csv';
 const LOGO_URL = './logo.svg';
-
-/* map hc-key lookup */
-const HC_KEY = {
-  "Albania":"al","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy",
-  "Czechia":"cz","Czech Republic":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr",
-  "Germany":"de","Greece":"gr","Hungary":"hu","Iceland":"is","Ireland":"ie","Italy":"it","Latvia":"lv",
-  "Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Montenegro":"me","Netherlands":"nl","North Macedonia":"mk",
-  "Norway":"no","Poland":"pl","Portugal":"pt","Romania":"ro","Serbia":"rs","Slovakia":"sk","Slovenia":"si",
-  "Spain":"es","Sweden":"se","Switzerland":"ch","Türkiye":"tr","Turkey":"tr","United Kingdom":"gb","Ukraine":"ua",
-  "Bosnia and Herzegovina":"ba","Belarus":"by","Kosovo":"xk","Andorra":"ad","Monaco":"mc","San Marino":"sm","Liechtenstein":"li"
-};
-const EU_ALIASES = new Set(['EU','EU27','EU-27','EU28','EU-28','European Union','EU 27','EU 28']);
-
-/* colours */
-const C = { blue:'#0A6AA6', red:'#B01E34', green:'#3C6F3C', purple:'#59419A',
-            blueL:'#3b86bd', redL:'#c64d5c', greenL:'#5a8a5a', purpleL:'#7a61ad',
-            eu:'#063d67' };
+const HC_KEY = {"Albania":"al","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy","Czechia":"cz","Czech Republic":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Iceland":"is","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Montenegro":"me","Netherlands":"nl","North Macedonia":"mk","Norway":"no","Poland":"pl","Portugal":"pt","Romania":"ro","Serbia":"rs","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se","Switzerland":"ch","Türkiye":"tr","Turkey":"tr","United Kingdom":"gb","Ukraine":"ua","Bosnia and Herzegovina":"ba","Belarus":"by","Kosovo":"xk","Andorra":"ad","Monaco":"mc","San Marino":"sm","Liechtenstein":"li"};
+const EU = new Set(['EU','EU27','EU-27','EU28','EU-28','European Union','EU 27','EU 28']);
+const C = { blue:'#0A6AA6', red:'#B01E34', green:'#3C6F3C', purple:'#59419A', blueL:'#3b86bd', redL:'#c64d5c', greenL:'#5a8a5a', purpleL:'#7a61ad', eu:'#063d67' };
 const LINE_PALETTE = [C.blue, C.red, C.green, C.purple, C.blueL, C.redL, C.greenL, C.purpleL];
 
-/* faster animations (50% quicker than before) */
 Highcharts.setOptions({
   chart:{animation:{duration:150}, style:{fontFamily:'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial'}},
   plotOptions:{series:{animation:{duration:150}}},
-  credits:{enabled:false}, exporting:{fallbackToExportServer:false, libURL:'https://code.highcharts.com/11.4.0/lib/'}
+  exporting:{fallbackToExportServer:false, libURL:'https://code.highcharts.com/11.4.0/lib/'},
+  credits:{enabled:false}
 });
 
-/* helpers */
 const toNum = v => (v==null||v==='') ? NaN : +String(v).replace(/[, ]/g,'');
 const uniq = a => [...new Set(a)];
 const sortAlpha = a => a.slice().sort((x,y)=>String(x).localeCompare(String(y)));
 const safe = s => String(s||'').trim();
-const pctRange = arr => {
-  const v = arr.filter(x=>Number.isFinite(x));
-  if(!v.length) return false;
-  const mi = Math.min(...v), ma = Math.max(...v);
-  return mi>=0 && ma<=100;
-};
+const pctRange = arr => { const v=arr.filter(x=>Number.isFinite(x)); if(!v.length) return false; const mi=Math.min(...v), ma=Math.max(...v); return mi>=0 && ma<=100; };
 const fmtPct = v => Highcharts.numberFormat(v, 1) + '%';
-const filename = (k) => `${k} ${state.section} – ${state.label} – ${state.breakdown}`.replace(/[<>:"/\\|?*\u0000-\u001F]/g,'-');
+const filename = k => `${k}`;
 
 /* state */
 let rows=[], H={}, chart=null;
 const state = { tab:'line', section:null, label:null, breakdown:null, year:null, countries:[] };
 
-/* dom */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => [...document.querySelectorAll(sel)];
+/* DOM */
+const $ = s => document.querySelector(s);
 const el = {
   sectionRow: $('#sectionRow'), labelRow: $('#labelRow'), breakRow: $('#breakRow'),
+  sideHdr: $('#sidePrimaryHdr'), sideCtrls: $('#sidePrimaryCtrls'),
   chart: $('#chart'),
   tabs: [$('#tLine'), $('#tBar'), $('#tMap')],
-  sideHdr: $('#sidePrimaryHdr'), sideCtrls: $('#sidePrimaryCtrls'),
   dlCSV: $('#dlCSV'), dlPNG: $('#dlPNG')
 };
 
-/* flag SVGs (very small set, enough for demo) */
+/* flag svg (simple stripes) */
 function flagSVG(code){
-  const c = (code||'').toUpperCase();
-  const x = {
-    AT:'#ED2939,#FFFFFF,#ED2939', BE:'#000000,#FFD90C,#ED2939',
-    BG:'#00966E,#FFFFFF,#D62612', HR:'#FF0000,#FFFFFF,#171796',
-    CY:'#FFFFFF,#D57800,#107A3B', CZ:'#FFFFFF,#11457E,#D7141A',
-    DK:'#C60C30,#FFFFFF,#C60C30', EE:'#4891D9,#000000,#FFFFFF',
-    FI:'#FFFFFF,#003580,#FFFFFF', FR:'#0055A4,#FFFFFF,#EF4135',
-    DE:'#000000,#DD0000,#FFCE00', GR:'#0D5EAF,#FFFFFF,#0D5EAF',
-    HU:'#CE2939,#FFFFFF,#477050', IE:'#169B62,#FFFFFF,#FF883E',
-    IT:'#009246,#FFFFFF,#CE2B37', LV:'#9E3039,#FFFFFF,#9E3039',
-    LT:'#FDB913,#006A44,#C1272D', LU:'#00A1DE,#FFFFFF,#ED2939',
-    MT:'#FFFFFF,#FFFFFF,#C00', NL:'#AE1C28,#FFFFFF,#21468B',
-    PL:'#FFFFFF,#DC143C', PT:'#006600,#FF0000,#FFE600',
-    RO:'#002B7F,#FCD116,#CE1126', SK:'#0B4EA2,#FFFFFF,#EE1C25',
-    SI:'#0B4EA2,#FFFFFF,#EE1C25', ES:'#AA151B,#F1BF00,#AA151B',
-    SE:'#006AA7,#FECC00', CH:'#D52B1E,#FFFFFF', IS:'#02529C,#FFFFFF,#DC1E35',
-    NO:'#BA0C2F,#FFF,#00205B', GB:'#012169,#C8102E,#FFFFFF',
-    IEU:'#003399,#003399,#003399' /* generic EU blue */
-  };
-  const pal = x[c] || '#ccc,#ccc,#ccc';
-  const parts = pal.split(',');
-  return `<svg class="fi" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-    <rect width="24" height="16" fill="${parts[0]}"/>
-    <rect y="5.33" width="24" height="5.34" fill="${parts[1]}"/>
-    <rect y="10.67" width="24" height="5.33" fill="${parts[2]}"/>
-  </svg>`;
+  const pal = { AT:'#ED2939,#FFFFFF,#ED2939', BE:'#000000,#FFD90C,#ED2939', BG:'#00966E,#FFFFFF,#D62612',
+    HR:'#FF0000,#FFFFFF,#171796', CY:'#FFFFFF,#D57800,#107A3B', CZ:'#FFFFFF,#11457E,#D7141A', DK:'#C60C30,#FFFFFF,#C60C30',
+    EE:'#4891D9,#000000,#FFFFFF', FI:'#FFFFFF,#003580,#FFFFFF', FR:'#0055A4,#FFFFFF,#EF4135', DE:'#000000,#DD0000,#FFCE00',
+    GR:'#0D5EAF,#FFFFFF,#0D5EAF', HU:'#CE2939,#FFFFFF,#477050', IE:'#169B62,#FFFFFF,#FF883E', IT:'#009246,#FFFFFF,#CE2B37',
+    LV:'#9E3039,#FFFFFF,#9E3039', LT:'#FDB913,#006A44,#C1272D', LU:'#00A1DE,#FFFFFF,#ED2939', NL:'#AE1C28,#FFFFFF,#21468B',
+    PL:'#FFFFFF,#DC143C', PT:'#006600,#FF0000,#FFE600', RO:'#002B7F,#FCD116,#CE1126', SK:'#0B4EA2,#FFFFFF,#EE1C25',
+    SI:'#0B4EA2,#FFFFFF,#EE1C25', ES:'#AA151B,#F1BF00,#AA151B', SE:'#006AA7,#FECC00', CH:'#D52B1E,#FFFFFF',
+    IS:'#02529C,#FFFFFF,#DC1E35', NO:'#BA0C2F,#FFF,#00205B', GB:'#012169,#C8102E,#FFFFFF', IEU:'#003399,#003399,#003399' };
+  const p = (pal[(code||'').toUpperCase()]||'#ccc,#ccc,#ccc').split(',');
+  return `<svg class="fi" viewBox="0 0 24 16"><rect width="24" height="16" fill="${p[0]}"/><rect y="5.33" width="24" height="5.34" fill="${p[1]}"/><rect y="10.67" width="24" height="5.33" fill="${p[2]}"/></svg>`;
 }
 
-/* -------------------- data load -------------------- */
+/* data load */
 Papa.parse(CSV_URL,{
   download:true, header:true, dynamicTyping:false, skipEmptyLines:true,
   complete: ({data})=>{
-    // tidy headers
-    rows = data.map(r=>{
-      const o={}; for(const k of Object.keys(r)) o[safe(k)] = typeof r[k]==='string' ? safe(r[k]) : r[k];
-      return o;
-    });
-    const keys = Object.keys(rows[0]||{});
-    const find = label => keys.find(k => safe(k).toLowerCase()===label.toLowerCase());
-    H = {
-      ID:find('ID'), Section:find('Section'), Label:find('Label'),
-      Country:find('Country'), Year:find('Year'), Breakdown:find('Breakdown'),
-      Value:find('Value')
-    };
-    rows = rows.map(r => ({...r, [H.Year]: +r[H.Year], [H.Value]: toNum(r[H.Value])}));
+    rows = data.map(r=>{ const o={}; for(const k of Object.keys(r)) o[safe(k)] = typeof r[k]==='string' ? safe(r[k]) : r[k]; return o; });
+    const keys = Object.keys(rows[0]||{}), find = t => keys.find(k=>safe(k).toLowerCase()===t.toLowerCase());
+    H = { ID:find('ID'), Section:find('Section'), Label:find('Label'),
+          Country:find('Country'), Year:find('Year'), Breakdown:find('Breakdown'),
+          Value:find('Value') };
+    rows = rows.map(r=>({...r, [H.Year]:+r[H.Year], [H.Value]:toNum(r[H.Value])}));
     buildTopPills(); setDefaults(); rebuildSide(); draw();
   }
 });
 
-/* -------------------- UI builders -------------------- */
-function pillsHTML(list, active){
-  return list.map(v=>`<button class="pill ${v===active?'active':''}" data-v="${encodeURIComponent(v)}">${v}</button>`).join('');
-}
+/* top pills */
+function pillsHTML(list, active){ return list.map(v=>`<button class="pill ${v===active?'active':''}" data-v="${encodeURIComponent(v)}">${v}</button>`).join(''); }
 function buildTopPills(){
-  const sections = sortAlpha(uniq(rows.map(r=>r[H.Section]).filter(Boolean)));
-  el.sectionRow.innerHTML = pillsHTML(sections, sections[0]);
-  state.section = sections[0];
+  const secs = sortAlpha(uniq(rows.map(r=>r[H.Section]).filter(Boolean)));
+  el.sectionRow.innerHTML = pillsHTML(secs, secs[0]); state.section = secs[0];
 
   const labels = sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section).map(r=>r[H.Label]).filter(Boolean)));
-  el.labelRow.innerHTML = pillsHTML(labels, labels[0]);
-  state.label = labels[0];
+  el.labelRow.innerHTML = pillsHTML(labels, labels[0]); state.label = labels[0];
 
-  el.sectionRow.onclick = (e)=>{
-    const v = e.target?.dataset?.v; if(!v) return;
+  el.sectionRow.onclick = e=>{
+    const v=e.target?.dataset?.v; if(!v) return;
     state.section = decodeURIComponent(v);
-    // refresh labels
     const ls = sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section).map(r=>r[H.Label]).filter(Boolean)));
     state.label = ls[0];
     el.labelRow.innerHTML = pillsHTML(ls, state.label);
     [...el.sectionRow.children].forEach(b=>b.classList.toggle('active', decodeURIComponent(b.dataset.v)===state.section));
-    el.labelRow.onclick = labelClick;
+    el.labelRow.onclick = onLabel;
     refreshBreakdown(); rebuildSide(); draw();
   };
-  const labelClick = (e)=>{
-    const v = e.target?.dataset?.v; if(!v) return;
+  const onLabel = e=>{
+    const v=e.target?.dataset?.v; if(!v) return;
     state.label = decodeURIComponent(v);
     [...el.labelRow.children].forEach(b=>b.classList.toggle('active', decodeURIComponent(b.dataset.v)===state.label));
     refreshBreakdown(); rebuildSide(); draw();
   };
-  el.labelRow.onclick = labelClick;
+  el.labelRow.onclick = onLabel;
   refreshBreakdown();
 }
 function refreshBreakdown(){
   const list = sortAlpha(uniq(rows.filter(r=>r[H.Section]===state.section && r[H.Label]===state.label).map(r=>r[H.Breakdown]).filter(Boolean)));
-  state.breakdown = list.includes('Total') ? 'Total' : list[0] || '';
+  state.breakdown = list.includes('Total') ? 'Total' : (list[0]||'');
   el.breakRow.innerHTML = pillsHTML(list, state.breakdown);
-  el.breakRow.onclick = (e)=>{
-    const v = e.target?.dataset?.v; if(!v) return;
+  el.breakRow.onclick = e=>{
+    const v=e.target?.dataset?.v; if(!v) return;
     state.breakdown = decodeURIComponent(v);
     [...el.breakRow.children].forEach(b=>b.classList.toggle('active', decodeURIComponent(b.dataset.v)===state.breakdown));
     rebuildSide(); draw();
@@ -284,52 +228,44 @@ function availableYears(){
   return yrs.sort((a,b)=>a-b);
 }
 function setDefaults(){
-  // default countries for line tab (a few with data)
   const csAll = sortAlpha(uniq(rows.map(r=>r[H.Country]).filter(c=>c && !/^#?N\/A$/i.test(c))));
-  const eu = csAll.find(c=>EU_ALIASES.has(c)) || null;
+  const eu = csAll.find(c=>EU.has(c)) || null;
   state.countries = [eu, ...csAll.filter(c=>c!==eu)].slice(0,4).filter(Boolean);
-  // default year: latest available for current filter
+
   const yrs = availableYears(); state.year = yrs[yrs.length-1];
 }
-/* side controls change per tab */
+
+/* sidebar varies per tab */
 function rebuildSide(){
   el.sideHdr.innerHTML = '';
   el.sideCtrls.innerHTML = '';
   if(state.tab==='line'){
-    // Countries (flag dropdown)
     el.sideHdr.innerHTML = `<div class="hdr">Countries</div>`;
-    const sel = document.createElement('div');
-    sel.className = 'flag-dd';
+    const sel = document.createElement('div'); sel.className='flag-dd';
     sel.innerHTML = `
       <button class="flag-btn" id="cBtn"><span id="cCap">${state.countries.length} selected</span><span class="muted">▾</span></button>
       <div class="flag-list hidden" id="cList"></div>`;
     el.sideCtrls.appendChild(sel);
 
-    const list = $('#cList'); const btn = $('#cBtn'); const cap = $('#cCap');
+    const list = $('#cList'), btn = $('#cBtn'), cap = $('#cCap');
     const csAll = sortAlpha(uniq(rows.map(r=>r[H.Country]).filter(c=>c && !/^#?N\/A$/i.test(c))));
     list.innerHTML = csAll.map(c=>{
-      const iso = Object.entries(HC_KEY).find(([k,v])=>k===c) ? Object.entries(HC_KEY).find(([k,v])=>k===c)[1] : 'IEU';
+      const iso = Object.entries(HC_KEY).find(([k])=>k===c) ? Object.entries(HC_KEY).find(([k])=>k===c)[1] : 'IEU';
       const on = state.countries.includes(c);
-      return `<div class="flag-item" data-c="${encodeURIComponent(c)}">
-        ${flagSVG((iso||'IEU').toUpperCase())}
-        <span>${c}</span>
-        <span style="margin-left:auto" class="muted">${on?'✓':''}</span>
-      </div>`;
+      return `<div class="flag-item" data-c="${encodeURIComponent(c)}">${flagSVG(iso)}<span>${c}</span><span style="margin-left:auto" class="muted">${on?'✓':''}</span></div>`;
     }).join('');
     const closeAll = e => { if(!sel.contains(e.target)) list.classList.add('hidden'); };
     btn.onclick = ()=> list.classList.toggle('hidden');
     document.addEventListener('click', closeAll);
     list.onclick = e=>{
-      const target = e.target.closest('.flag-item'); if(!target) return;
-      const c = decodeURIComponent(target.dataset.c);
-      const idx = state.countries.indexOf(c);
-      if(idx>=0) state.countries.splice(idx,1); else state.countries.push(c);
+      const t = e.target.closest('.flag-item'); if(!t) return;
+      const c = decodeURIComponent(t.dataset.c);
+      const i = state.countries.indexOf(c); if(i>=0) state.countries.splice(i,1); else state.countries.push(c);
       cap.textContent = `${state.countries.length} selected`;
-      rebuildSide(); draw(); // refresh to update ticks
+      rebuildSide(); draw();
     };
 
   }else{
-    // Year selector (single) for bar/map
     el.sideHdr.innerHTML = `<div class="hdr">Year</div>`;
     const yrs = availableYears();
     const s = document.createElement('select');
@@ -340,11 +276,9 @@ function rebuildSide(){
   }
 }
 
-/* -------------------- drawing -------------------- */
+/* common helpers */
 function placeLogo(hc){
-  const w=70, h=Math.round(w*0.35);
-  const x = hc.chartWidth - w - 6;
-  const y = hc.chartHeight - h - 6;
+  const w=70, h=Math.round(w*0.35), x=hc.chartWidth-w-6, y=hc.chartHeight-h-6;
   if(hc._brand) hc._brand.destroy();
   hc._brand = hc.renderer.image(LOGO_URL, x, y, w, h).css({opacity:.95, pointerEvents:'none'}).add();
 }
@@ -356,47 +290,52 @@ function subset({country=null, year=null}={}){
     (year!=null ? r[H.Year]===year : true)
   );
 }
+
+/* draw */
 function draw(){
   if(chart) chart.destroy();
-
-  // tabs active
-  el.tabs.forEach(btn=>btn.classList.toggle('active', btn.dataset.t===state.tab));
+  el.tabs.forEach(b=>b.classList.toggle('active', b.dataset.t===state.tab));
 
   if(state.tab==='line'){
-    const years = availableYears(); // bounds fit data
+    const years = availableYears();
     const series = state.countries.map((c,i)=>{
       const pts = subset({country:c}).sort((a,b)=>a[H.Year]-b[H.Year]);
-      const m = new Map(pts.map(r=>[r[H.Year], r[H.Value]]));
-      const data = years.map(y => (m.has(y) ? m.get(y) : null));
+      const map = new Map(pts.map(r=>[r[H.Year], r[H.Value]]));
+      const values = years.map(y => (map.has(y)? map.get(y) : null));
+      const firstIdx = values.findIndex(v=>v!=null);
+      let lastIdx = -1; for(let k=values.length-1;k>=0;--k){ if(values[k]!=null){ lastIdx=k; break; } }
+      const data = values.map((v,idx)=>{
+        if(v==null) return null;
+        if(idx===firstIdx || idx===lastIdx) return { y:v, marker:{enabled:true, radius:3} };
+        return v; // no dot
+      });
       return { name:c, data, color: LINE_PALETTE[i % LINE_PALETTE.length] };
     });
-    const vals = series.flatMap(s=>s.data).filter(v=>v!=null);
+    const vals = series.flatMap(s=>s.data).map(p=>p && typeof p==='object' ? p.y : p).filter(v=>v!=null);
     const isPct = pctRange(vals);
 
     chart = Highcharts.chart('chart',{
-      chart:{ type:'line', spacing:[10,10,40,10], borderWidth:0, backgroundColor:'transparent',
+      chart:{ type:'line', spacing:[10,10,40,10], backgroundColor:'transparent',
         events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
       title:{ text: state.label },
       subtitle:{ text: `Section: ${state.section} • Breakdown: ${state.breakdown}` },
       xAxis:{ categories: years, tickmarkPlacement:'on', lineColor:'#dadde1' },
       yAxis:{ title:{ text:null }, gridLineColor:'#f0f2f5',
-        labels:{ formatter(){ return isPct ? fmtPct(this.value) : Highcharts.numberFormat(this.value,1); } }
-      },
+        labels:{ formatter(){ return isPct ? (Highcharts.numberFormat(this.value,1)+'%') : Highcharts.numberFormat(this.value,1); } } },
       legend:{ enabled:true },
       tooltip:{ shared:true, valueSuffix: isPct ? '%' : '', valueDecimals:isPct?1:1 },
-      plotOptions:{
-        series:{ marker:{ enabled:false }, lineWidth:3 }
-      },
+      plotOptions:{ series:{ marker:{ enabled:false }, lineWidth:3 } },
       series: series.map(s=>({
         ...s,
         dataLabels:{
           enabled:true, style:{ fontSize:'10px', textOutline:'none' },
           formatter:function(){
+            // labels on first/last (match our marker points)
             const pts = this.series.points.filter(p=>p.y!=null);
             if(!pts.length) return '';
             const first = pts[0], last = pts[pts.length-1];
             if(this.point!==first && this.point!==last) return '';
-            return isPct ? fmtPct(this.y) : Highcharts.numberFormat(this.y,1);
+            return isPct ? (Highcharts.numberFormat(this.y,1)+'%') : Highcharts.numberFormat(this.y,1);
           }
         }
       }))
@@ -404,92 +343,56 @@ function draw(){
 
   }else if(state.tab==='bar'){
     const yrRows = subset({year:state.year});
-    const byC = {};
-    for(const r of yrRows){
-      const c = r[H.Country]; if(/^#?N\/A$/i.test(c)) continue;
-      byC[c] = r[H.Value];
-    }
-    // sort descending
-    const cats = Object.keys(byC).filter(k=>Number.isFinite(byC[k]))
-                  .sort((a,b)=>byC[b]-byC[a]);
-    const data = cats.map(c=>{
-      const isEU = EU_ALIASES.has(c);
-      return { y: byC[c], color: isEU ? C.eu : C.blue, name:c, dataLabels:{ color:'#fff' } };
-    });
+    const byC = {}; for(const r of yrRows){ const c=r[H.Country]; if(/^#?N\/A$/i.test(c)) continue; byC[c]=r[H.Value]; }
+    const cats = Object.keys(byC).filter(k=>Number.isFinite(byC[k])).sort((a,b)=>byC[b]-byC[a]);
+    const data = cats.map(c=>({ y:byC[c], color: EU.has(c) ? C.eu : C.blue, name:c, dataLabels:{color:'#fff'} }));
     const isPct = pctRange(data.map(d=>d.y));
 
     chart = Highcharts.chart('chart',{
       chart:{ type:'bar', spacing:[10,10,40,80], backgroundColor:'transparent',
         events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
-      title:{ text: `${state.label} (${state.year})` },
-      subtitle:{ text: `Section: ${state.section} • Breakdown: ${state.breakdown}` },
+      title:{ text:`${state.label} (${state.year})` },
+      subtitle:{ text:`Section: ${state.section} • Breakdown: ${state.breakdown}` },
       xAxis:{ categories: cats, lineColor:'#dadde1', labels:{ style:{ fontSize:'11px' } } },
       yAxis:{ title:{ text:null }, gridLineColor:'#f0f2f5',
-        labels:{ formatter(){ return isPct ? fmtPct(this.value) : Highcharts.numberFormat(this.value,1); } } },
+        labels:{ formatter(){ return isPct ? (Highcharts.numberFormat(this.value,1)+'%') : Highcharts.numberFormat(this.value,1); } } },
       legend:{ enabled:false },
-      tooltip:{ pointFormatter:function(){
-        const v = isPct ? fmtPct(this.y) : Highcharts.numberFormat(this.y,1);
-        return `<span style="color:${this.color}">\u25CF</span> ${this.category}: <b>${v}</b>`;
-      }},
-      plotOptions:{
-        series:{ pointPadding:0.12, groupPadding:0.04, borderWidth:0,
-          dataLabels:{ enabled:true, inside:true, align:'right', style:{ color:'#fff', textOutline:'none', fontSize:'11px' },
-            formatter(){ return isPct ? fmtPct(this.y) : Highcharts.numberFormat(this.y,1);} } }
-      },
-      series:[{ name: state.label, data }]
+      tooltip:{ pointFormatter:function(){ const v=isPct?(Highcharts.numberFormat(this.y,1)+'%'):Highcharts.numberFormat(this.y,1); return `<span style="color:${this.color}">\u25CF</span> ${this.category}: <b>${v}</b>`; } },
+      plotOptions:{ series:{ pointPadding:0.12, groupPadding:0.04, borderWidth:0,
+        dataLabels:{ enabled:true, inside:true, align:'right', style:{ color:'#fff', textOutline:'none', fontSize:'11px' },
+          formatter(){ return isPct ? (Highcharts.numberFormat(this.y,1)+'%') : Highcharts.numberFormat(this.y,1);} } } },
+      series:[{ name:state.label, data }]
     });
 
   }else{ // map
     const yrRows = subset({year:state.year});
     const data = [];
-    for(const r of yrRows){
-      const k = HC_KEY[r[H.Country]];
-      const v = +r[H.Value];
-      if(k && isFinite(v)) data.push({ 'hc-key':k, value:v, name:r[H.Country] });
-    }
+    for(const r of yrRows){ const k=HC_KEY[r[H.Country]], v=+r[H.Value]; if(k && isFinite(v)) data.push({ 'hc-key':k, value:v, name:r[H.Country] }); }
     const values = data.map(d=>d.value);
     const isPct = pctRange(values);
-    const max = values.length ? Math.max(...values) : 1;
+    const max = values.length? Math.max(...values) : 1;
 
     chart = Highcharts.mapChart('chart',{
       chart:{ map: Highcharts.maps['custom/europe'], spacing:[10,10,40,10], backgroundColor:'transparent',
         events:{ load(){placeLogo(this)}, redraw(){placeLogo(this)} } },
       title:{ text:`${state.label} (${state.year})` },
       subtitle:{ text:`Section: ${state.section} • Breakdown: ${state.breakdown}` },
-      colorAxis:{
-        min:0, max, tickAmount:6,
-        stops:[ [0,'#355582'], [0.5,'#9ca2a9'], [1,'#005F2F'] ],
-        labels:{ formatter(){ return isPct ? fmtPct(this.value) : Highcharts.numberFormat(this.value,1); } }
-      },
-      legend:{
-        layout:'vertical', floating:true, align:'left', verticalAlign:'top',
-        x:10, y:40, backgroundColor:'#fff', borderWidth:0,
-        title:{ text: isPct ? '%' : '' }
-      },
+      colorAxis:{ min:0, max, tickAmount:6, stops:[[0,'#355582'],[0.5,'#9ca2a9'],[1,'#005F2F']],
+        labels:{ formatter(){ return isPct ? (Highcharts.numberFormat(this.value,1)+'%') : Highcharts.numberFormat(this.value,1); } } },
+      legend:{ layout:'vertical', floating:true, align:'left', verticalAlign:'top', x:10, y:20, backgroundColor:'#fff', borderWidth:0, title:{text:isPct?'%':''} },
       mapNavigation:{ enabled:true },
-      tooltip:{ pointFormatter:function(){
-        const v = isPct ? fmtPct(this.value) : Highcharts.numberFormat(this.value,1);
-        return `<b>${this.name}</b><br>${v}`;
-      }},
-      series:[{
-        name: state.label, data, joinBy:'hc-key', nullColor:'#f1f3f5',
-        states:{ hover:{ color:'#a4edba' } }, borderColor:'#fff', borderWidth:0.6
-      }]
+      tooltip:{ pointFormatter:function(){ const v=isPct?(Highcharts.numberFormat(this.value,1)+'%'):Highcharts.numberFormat(this.value,1); return `<b>${this.name}</b><br>${v}`; } },
+      series:[{ name:state.label, data, joinBy:'hc-key', nullColor:'#f1f3f5', states:{hover:{color:'#a4edba'}}, borderColor:'#fff', borderWidth:0.6 }]
     });
   }
 
-  // download handlers
-  el.dlCSV.onclick = ()=>{ const csv = chart.getCSV(); const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename('EJM_data')+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),0); };
-  el.dlPNG.onclick = ()=> chart.exportChartLocal({type:'image/png', filename: filename('EJM_img')});
+  // downloads
+  el.dlCSV.onclick = ()=>{ const csv=chart.getCSV(); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename('children_data')+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),0); };
+  el.dlPNG.onclick = ()=> chart.exportChartLocal({type:'image/png', filename: filename('children_img')});
 }
 
-/* --------------- tab switching --------------- */
-el.tabs.forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    state.tab = btn.dataset.t;
-    rebuildSide(); draw();
-  });
-});
+/* tabs */
+el.tabs.forEach(b=>b.addEventListener('click',()=>{ state.tab=b.dataset.t; rebuildSide(); draw(); }));
 </script>
 </body>
 </html>

@@ -1,0 +1,55 @@
+﻿Level 1,Level 2,Level 3,Definition for pop-up,size
+Environmental,Climate change,GHG emission,Total national Greenhouse Gas emissions.,0.166667
+Environmental,Climate change,Heating degree days,Weather-based index designed to describe the need for the heating energy requirements of buildings.,0.166667
+Environmental,Climate change,Final energy consumption,"Average amount of energy used per citizen at home, excluding energy used for transportation.",0.166667
+Digital,Digital skills,Employed ICT specialists,"Employed ICT specialists. Broad definition based on the ISCO-08 classification and including jobs like ICT service managers, ICT professionals, ICT technicians, ICT installers and servicers.",0.5
+Digital,Digital adoption,At least 100 Mbps fixed broadband take-up,Percentage of households subscribing to fixed broadband of at least 100 Mbps.,0.125
+Digital,Digital adoption,Fixed  VHCN Network coverage,Percentage of households covered by any fixed Very High Capacity Network (fiber).,0.125
+Digital,Digital adoption,Digital public services for citizens,"The share of administrative steps that can be done online for major life events (birth of a child, new residence, etc.) for citizens.",0.125
+Digital,Digital adoption,Households with access to the internet,Households with access to the internet at home: any member of the household has access to the Internet at home,0.125
+Environmental,Green Transition,GVA environmental goods and services sector,Gross value added in the environmental goods and services sector (EGSS) represents the contribution of the environmental goods and services sector to GDP and is defined as the difference between the value of the sector’s output and intermediate consumption.,0.125
+Environmental,Green Transition,Environmental taxes,"Total environmental taxes (energy, pollution, resource, transport) for all economic activities expressed as share of GDP.",0.125
+Environmental,Green Transition,National expenditure on environmental protection,Percentage of GDP spent on environmental protection,0.125
+Environmental,Green Transition,Share of energy from renewable sources,"Share of energy produced with: hydro, wind, solar and electricity generation from gaseous and liquid biofuels, renewable municipal waste, geothermal, and tide, wave & ocean.",0.125
+Economic,Human capital creation,Early leavers,Early leavers: the percentage of the population aged 18 to 24 who have attained at most lower secondary education and are not involved in further education or training.,0.125
+Economic,Human capital creation,Tertiary education,Tertiary education: the indicator measures the share of the population aged 25-34 who have successfully completed tertiary studies (e.g. at university or a higher technical institution).,0.125
+Economic,Human capital investment,Adult participation in learning,Adult learning: the indicator measures the share of people aged 25 to 64 who stated that they received formal or non-formal education and training in the four preceding weeks.,0.0625
+Economic,Human capital investment,NEETs,Percentage of the population of a given age group and sex who is not employed and not involved in further education or training.,0.0625
+Economic,Human capital investment,GERD,Gross domestic expenditure in R&D: the indicator measures gross domestic expenditure on R&D (GERD) as a percentage of the gross domestic product (GDP).,0.0625
+Economic,Human capital investment,Education expenditure as % of GDP,Education expenditure: education expenditure (all education levels)  as percentage of GDP,0.0625
+Institutional,Industrial relations,Industrial Democracy index,"All participation rights of employers and employees in the governance of the employment relationship, either directly or indirectly, via trade unions, works councils, shop stewards or other forms of employee representation at any level.",0.5
+Economic,Labour market participation,Employment rate 20-64 %,Percentage of people aged 20–64 years who are in employment.,0.0625
+Economic,Labour market participation,Employment rate 15-29 (%),Percentage of people aged 15–29 years who are in employment.,0.0625
+Economic,Labour market participation,Long term unemployment rate,"The number of people who are long-term unemployed, out of work, and actively seeking employment for at least a year, as a percentage of the labour force",0.0625
+Economic,Labour market participation,Unemployment rate,Number of people unemployed as a percentage of the labour force.,0.0625
+Social,Living conditions,Number of medical doctors,"human resources available for providing health care services in the country, irrespective of the sector of employment. (Only physicians)",0.045455
+Social,Living conditions,Self-reported unmet needs for medical examination,"Share of the population aged 16 and over, reporting unmet needs for medical care.",0.045455
+Social,Living conditions,Healthy life expectancy,"How many years a person is expected to live in good perceived health, combining mortality data with data on self-perceived health.",0.045455
+Social,Living conditions,People at risk of poverty and exclusion,"Percentage of households that face pollution, grime, or other environmental problems in the local area, such as smoke, dust, unpleasant smells, or polluted water.",0.045455
+Social,Living conditions,"Pollution,grime or other environmental problems","Percentage of households that face pollution, grime, or other environmental problems in the local area, such as smoke, dust, unpleasant smells, or polluted water.",0.045455
+Social,Living conditions,"Crime, violence, or vandalism in the area",Percentage of people reporting crime violence and vandalism in the area.,0.045455
+Social,Living conditions,Arrears in utility bills,"Whether the household has been in arrears in the last 12 months that is, unable to pay on time (as scheduled) utility bills (heating, electricity, gas, water, etc..) for the main dwelling.",0.045455
+Social,Living conditions,Inability to keep home adequately warm,Share of (sub-) population/households not able to keep their home adequately warm.,0.045455
+Social,Living conditions,Housing cost overburden,Percentage of the population living in a household where the total housing costs (net of housing allowances) represent more than 40% of the total disposable household income (net of housing allowances).,0.045455
+Social,Living conditions,Living in a dwelling with structural issues,"Percentage of the total population living in a dwelling with either a leaking roof, or damp walls/floors/foundation, or rot in window frames or floor.",0.045455
+Social,Living conditions,Motorization rate,Number of vehicles per 1000 inhabitants,0.045455
+Economic,Macro economic,Gender employment gap,Difference between the employment rates of men and women aged 20–64 years,0.0625
+Economic,Macro economic,Proportion of women in managerial positions,Proportion of females in the total number of persons employed in managerial positions.,0.0625
+Economic,Macro economic,Harmonized Index of Consumer Prices,Harmonised Index of Consumer Prices (HICP): change over time in the prices of consumer goods and services acquired by households. It gives comparable measures of inflation for the countries and country groups.,0.0625
+Economic,Macro economic,GDP per capita in PPS,"GDP per capita: value of total final output of goods and services produced by an economy within a certain period of time. GDP per capita, by measuring the output value per person, indirectly serves as an indicator of per capita income.",0.0625
+Institutional,Political participation,Elections turnout,Voters turnout at national elections,0.5
+Trust,Quality of institutions,Seats held by women in national parliaments,Share of women among the members in the parliament (both houses),0.333333
+Trust,Governance,Control of Corruption,"Perceptions of the extent to which public power is exercised for private gain, including both petty and grand forms of corruption, as well as the state by elites and private interests.",0.055556
+Trust,Governance,Government Effectiveness,"Perceptions of the quality of public services, the quality of the civil service and the degree of its independence from political pressures, the quality of policy formulation and implementation, and the credibility of the government's commitment to such policies.",0.055556
+Trust,Governance,Political Stability,"Perceptions of the likelihood of political instability and/or politically motivated violence, including terrorism",0.055556
+Trust,Governance,Regulatory Quality,Perceptions of the ability of the government to formulate and implement sound policies and regulations that permit and promote private sector development.,0.055556
+Trust,Governance,Rule of Law,"Perceptions of the extent to which agents have confidence in and abide by the rules of society, particularly the quality of contract enforcement, property rights, the police, and the courts, as well as the likelihood of crime and violence.",0.055556
+Trust,Governance,Voice and Accountability,"Perceptions of the extent to which a country's citizens can participate in selecting their government, as well as freedom of expression, freedom of association, and free media.",0.055556
+Trust,Trust,Trust in the EU,Share of Europeans who trust the EU,0.166667
+Trust,Trust,Trust in national government,Share of Europeans who trust the National government,0.166667
+Social,Working conditions,Underemployment rate,Share of employees who could not find a permanent or full-time job.,0.083333
+Social,Working conditions,Involuntary part-time employment rate,Share of involuntary part-time employment in total part-time employment.,0.083333
+Social,Working conditions,Employment at atypical working time,"Employees carrying out ""evening or night work”, ""Saturday or Sunday working"" and ""shift work"", as a percentage of the total employment.",0.083333
+Social,Working conditions,Long working hours in main job,Percentage of workers who usually spend 49 hours or more per week at work.,0.083333
+Social,Working conditions,Short-term contract rate,Percentage of employees with a short-term contract of up to 3 months.,0.083333
+Social,Working conditions,In-work poverty risk,Individuals working for over half of the year and their equivalised yearly disposable household income is below 60% of the national median income level.,0.083333

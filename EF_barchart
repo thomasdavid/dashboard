@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Publications dashboard</title>
+<link rel="preconnect" href="https://code.highcharts.com">
+<style>
+  :root{
+    --ink:#212529; --muted:#6b7280; --bg:#f8fafc; --card:#ffffff; --accent:#0d5675;
+  }
+  html,body{height:100%}
+  body{margin:0;font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  h1{margin:0 0 8px;font-size:22px}
+  .tabs{display:flex;gap:8px;margin:16px 0 12px}
+  .tab{padding:10px 14px;border-radius:10px;background:#e5eef3;color:#0b3f57;cursor:pointer;font-weight:600}
+  .tab[aria-selected="true"]{background:var(--accent);color:#fff}
+  .panel{display:none}
+  .panel.active{display:block}
+  textarea{width:100%;min-height:260px;padding:12px;border-radius:12px;border:1px solid #d1d5db;font-family:ui-monospace,Consolas,Menlo,monospace}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}
+  button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600}
+  button.secondary{background:#e5e7eb;color:#111827}
+  select,input[type="text"],input[type="password"]{padding:8px 10px;border-radius:10px;border:1px solid #d1d5db;background:#fff}
+  .card{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+  .hint{color:var(--muted);font-size:13px}
+  .footer-note{margin-top:8px;color:var(--muted);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .right{margin-left:auto}
+  .logo{
+    position:fixed; right:14px; bottom:14px; width:120px; height:auto; opacity:.9;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.08));
+    z-index:9;
+  }
+</style>
+</head>
+<body>
+<img class="logo" alt="logo" src="https://raw.githubusercontent.com/thomasdavid/dashboard/main/CG_dash/logo.svg" />
+<div class="wrap">
+  <h1>Publications dashboard</h1>
+  <div class="tabs" role="tablist" aria-label="Data/Chart tabs">
+    <div class="tab" id="tab-data" role="tab" aria-selected="true" aria-controls="panel-data">1) Paste data</div>
+    <div class="tab" id="tab-chart" role="tab" aria-selected="false" aria-controls="panel-chart">2) Chart</div>
+    <div class="tab right" id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">⚙ Settings</div>
+  </div>
+
+  <!-- DATA -->
+  <section id="panel-data" class="panel active card" role="tabpanel" aria-labelledby="tab-data">
+    <p class="hint">Paste wide table (first row = headers). First two columns: <strong>v</strong>, <strong>date</strong>. Delimiters: tabs or commas.</p>
+    <textarea id="dataInput"></textarea>
+    <div class="row">
+      <button id="loadSample" class="secondary">Load sample</button>
+      <button id="parseBtn">Parse & update chart</button>
+      <span class="hint" id="statusHint"></span>
+    </div>
+    <p class="footer-note">Every parse becomes the default (saved to your browser). If GitHub sync is enabled in Settings, it also saves to the repo and will auto-load from there next time.</p>
+  </section>
+
+  <!-- CHART -->
+  <section id="panel-chart" class="panel card" role="tabpanel" aria-labelledby="tab-chart">
+    <div class="row">
+      <label for="vFilter"><strong>Filter:</strong></label>
+      <select id="vFilter"></select>
+    </div>
+    <div id="chart" style="width:100%;min-height:540px"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button id="btnPng" class="secondary">Download PNG</button>
+      <button id="btnSvg" class="secondary">Download SVG</button>
+      <button id="btnPdf" class="secondary">Download PDF</button>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="panel-settings" class="panel card" role="tabpanel" aria-labelledby="tab-settings">
+    <h3 style="margin:4px 0 8px">GitHub sync (optional)</h3>
+    <div class="grid">
+      <label>Owner/Repo
+        <input id="ghRepo" placeholder="thomasdavid/dashboard" type="text">
+      </label>
+      <label>Branch
+        <input id="ghBranch" placeholder="main" type="text">
+      </label>
+      <label>Path to data file
+        <input id="ghPath" placeholder="CG_dash/default_datasheet.tsv" type="text">
+      </label>
+      <label>Personal access token
+        <input id="ghToken" placeholder="github_pat_..." type="password">
+      </label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="ghEnable"> Enable GitHub load/save</label>
+      <button id="saveSettings">Save settings</button>
+      <button id="testLoad" class="secondary">Test load from GitHub</button>
+      <span class="hint" id="settingsHint"></span>
+    </div>
+  </section>
+</div>
+
+<!-- Highcharts -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+
+<script>
+/* ====== Colour palette ======
+   Base 4 from your screenshot (approximate):
+   Blue  #096C92, Red #B22A3A, Green #3C6E39, Purple #5A3F8E
+   Then two lighter passes (15% and 30% lighter) → 12 colours.
+*/
+const BASE4 = ["#096C92","#B22A3A","#3C6E39","#5A3F8E"];
+function hexToHsl(hex){
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(x=>x+x).join('');
+  const r = parseInt(hex.substr(0,2),16)/255;
+  const g = parseInt(hex.substr(2,2),16)/255;
+  const b = parseInt(hex.substr(4,2),16)/255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;} else{
+    const d=max-min;
+    s=l>0.5? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h=(g-b)/d + (g<b?6:0); break;
+      case g: h=(b-r)/d + 2; break;
+      case b: h=(r-g)/d + 4; break;
+    }
+    h/=6;
+  }
+  return {h,s,l};
+}
+function hslToHex(h,s,l){
+  function hue2rgb(p,q,t){ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; }
+  let r,g,b;
+  if(s===0){ r=g=b=l; } else{
+    const q = l<0.5 ? l*(1+s) : l+s-l*s;
+    const p = 2*l-q;
+    r = hue2rgb(p,q,h+1/3);
+    g = hue2rgb(p,q,h);
+    b = hue2rgb(p,q,h-1/3);
+  }
+  const toHex=v=>('#'+Math.round(v*255).toString(16).padStart(2,'0')).slice(1);
+  return '#'+[r,g,b].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
+}
+function lighten(hex, pct){ const {h,s,l}=hexToHsl(hex); return hslToHex(h,s,Math.min(1,l + pct)); }
+function buildPalette(){
+  const shades = [];
+  // pass 0 (original), +15%, +30%
+  const passes = [0, 0.15, 0.30];
+  passes.forEach(p=>{
+    BASE4.forEach(base=> shades.push(p===0? base : lighten(base, p)));
+  });
+  return shades; // length 12
+}
+const PALETTE = buildPalette();
+
+/* ====== Parsing, aggregation, chart ====== */
+const monthMap = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function parseMonthToken(tok){
+  if(!tok) return null;
+  const [m,yy] = String(tok).trim().split(/\s+/);
+  const month = monthMap[m];
+  if(month==null || yy==null) return null;
+  const y = Number(yy); const fullYear = (y >= 70 ? 1900 + y : 2000 + y);
+  return new Date(fullYear, month, 1);
+}
+function formatMonth(d){
+  return d.toLocaleString('en-GB', {month:'short', year:'2-digit'}).replace(' ',' ');
+}
+function splitRows(text){
+  const lines = text.trim().split(/\r?\n/).filter(Boolean);
+  return lines.map(line=>{
+    if(/\t/.test(line)) return line.split('\t');
+    // CSV with naive quote handling
+    const out=[]; let cur=''; let q=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='\"'){ q=!q; continue; }
+      if(c===',' && !q){ out.push(cur); cur=''; continue; }
+      cur+=c;
+    }
+    out.push(cur);
+    return out;
+  });
+}
+
+let rawTable = { headers:[], rows:[] };
+let vValues = [];
+let seriesNames = [];
+let monthsSorted = [];
+let aggregatedByV = new Map();
+
+function parseInput(text){
+  const matrix = splitRows(text);
+  if(matrix.length < 2) throw new Error('Need header + at least one data row.');
+  const headers = matrix[0].map(h => h.trim());
+  if(headers.length < 3) throw new Error('At minimum: v, date, and one series column.');
+  if(!/^v$/i.test(headers[0])) throw new Error('First header must be "v".');
+  if(!/^date$/i.test(headers[1])) throw new Error('Second header must be "date".');
+  rawTable.headers = headers;
+  rawTable.rows = matrix.slice(1);
+  seriesNames = headers.slice(2);
+
+  const vSet = new Set();
+  const monthSet = new Set();
+  const monthDates = [];
+  aggregatedByV = new Map();
+
+  rawTable.rows.forEach(r=>{
+    const v = (r[0]||'').trim();
+    const monthStr = (r[1]||'').trim();
+    if(!v || !monthStr) return;
+    const d = parseMonthToken(monthStr);
+    if(!d) return;
+    const key = d.toISOString().slice(0,7);
+    vSet.add(v);
+    if(!monthSet.has(key)){ monthSet.add(key); monthDates.push(d); }
+    if(!aggregatedByV.has(v)) aggregatedByV.set(v, new Map());
+    const mapForV = aggregatedByV.get(v);
+    if(!mapForV.has(key)){
+      const obj={}; seriesNames.forEach(s=>obj[s]=0); mapForV.set(key,obj);
+    }
+    const target = mapForV.get(key);
+    seriesNames.forEach((s, idx)=>{
+      const cell = r[idx+2] ?? '';
+      const num = Number(String(cell).trim() || 0);
+      if(!isNaN(num)) target[s] += num;
+    });
+  });
+
+  monthsSorted = monthDates.sort((a,b)=>a-b);
+  vValues = Array.from(vSet).sort();
+  populateFilter(vValues);
+}
+
+function populateFilter(values){
+  const sel = document.getElementById('vFilter');
+  sel.innerHTML = '';
+  values.forEach(v=>{
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  });
+}
+
+function buildSeriesFor(v){
+  const byMonth = aggregatedByV.get(v) || new Map();
+  const categories = monthsSorted.map(formatMonth);
+  const dataBySeries = new Map();
+  seriesNames.forEach(s=> dataBySeries.set(s, new Array(categories.length).fill(0)));
+  monthsSorted.forEach((d, i)=>{
+    const key = d.toISOString().slice(0,7);
+    const obj = byMonth.get(key);
+    if(!obj) return;
+    seriesNames.forEach(s=>{
+      dataBySeries.get(s)[i] = obj[s] ?? 0;
+    });
+  });
+  const series = seriesNames.map((name, idx)=>({
+    name,
+    data: dataBySeries.get(name),
+    type: 'column',
+    stack: 'pubs',
+    color: PALETTE[idx % PALETTE.length],
+    dataLabels: { enabled:true, style:{ textOutline:'none', fontWeight:'600', color:'#fff' }, formatter(){ return this.y>0 ? this.y : ''; } }
+  }));
+  return { categories, series };
+}
+
+let chart;
+function renderChart(v){
+  const { categories, series } = buildSeriesFor(v);
+  if(!chart){
+    chart = Highcharts.chart('chart', {
+      chart: { type:'column', spacing:[10,10,10,10] },
+      title: { text: v },
+      xAxis: { categories, tickLength:0, lineColor:'#cbd5e1' },
+      yAxis: {
+        title: { text: null },
+        allowDecimals:false,
+        gridLineColor:'#eef2f7',
+        stackLabels:{ enabled:true, style:{fontWeight:'700', color:'#111'}, formatter(){ return this.total>0 ? this.total : ''; } }
+      },
+      legend: { itemStyle:{fontWeight:'600'} },
+      tooltip: { shared:true },
+      plotOptions: { column: { stacking:'normal', borderWidth:0, groupPadding:0.12, pointPadding:0.02 } },
+      exporting: { enabled:false }, // we use custom buttons below
+      series
+    });
+  } else {
+    chart.update({ title:{ text:v }, xAxis:{ categories } }, false);
+    while(chart.series.length) chart.series[0].remove(false);
+    series.forEach(s=>chart.addSeries(s, false));
+    chart.redraw();
+  }
+}
+
+/* ====== GitHub I/O (optional) ====== */
+const SETTINGS_KEY = 'pubs_settings_v1';
+const DEFAULT_KEY  = 'pubs_paste_default';
+
+function getSettings(){
+  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+  return Object.assign({ ghEnable:false, ghRepo:'', ghBranch:'main', ghPath:'CG_dash/default_datasheet.tsv', ghToken:'' }, s);
+}
+function saveSettingsUI(){
+  const s = {
+    ghEnable: document.getElementById('ghEnable').checked,
+    ghRepo:   document.getElementById('ghRepo').value.trim(),
+    ghBranch: document.getElementById('ghBranch').value.trim(),
+    ghPath:   document.getElementById('ghPath').value.trim(),
+    ghToken:  document.getElementById('ghToken').value
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  document.getElementById('settingsHint').textContent = 'Saved ✓';
+}
+function loadSettingsUI(){
+  const s = getSettings();
+  document.getElementById('ghEnable').checked = !!s.ghEnable;
+  document.getElementById('ghRepo').value = s.ghRepo || '';
+  document.getElementById('ghBranch').value = s.ghBranch || 'main';
+  document.getElementById('ghPath').value = s.ghPath || '';
+  document.getElementById('ghToken').value = s.ghToken || '';
+}
+
+async function ghGetFile(repo, path, branch, token){
+  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+  const res = await fetch(url, { headers: token ? {Authorization:`Bearer ${token}`} : {} });
+  if(res.status===404) return null;
+  if(!res.ok) throw new Error('GitHub GET failed: ' + res.status);
+  const json = await res.json();
+  const content = atob(json.content.replace(/\n/g,''));
+  return { content, sha: json.sha };
+}
+async function ghPutFile(repo, path, branch, token, text, sha){
+  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`;
+  const body = {
+    message: 'Update default datasheet via dashboard',
+    branch, content: btoa(unescape(encodeURIComponent(text))),
+    sha
+  };
+  const res = await fetch(url, {
+    method:'PUT',
+    headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error('GitHub PUT failed: ' + res.status);
+  return await res.json();
+}
+
+/* ====== UI wiring ====== */
+document.getElementById('parseBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('dataInput').value;
+  try{
+    parseInput(text);
+    // Persist locally as default
+    localStorage.setItem(DEFAULT_KEY, text);
+    document.getElementById('statusHint').textContent = 'Parsed & saved as default ✓';
+
+    // GitHub save if enabled
+    const s = getSettings();
+    if(s.ghEnable && s.ghRepo && s.ghPath && s.ghToken){
+      document.getElementById('statusHint').textContent += ' | Saving to GitHub…';
+      let sha=null; try{ const f=await ghGetFile(s.ghRepo, s.ghPath, s.ghBranch, s.ghToken); if(f) sha=f.sha; }catch(e){}
+      await ghPutFile(s.ghRepo, s.ghPath, s.ghBranch, s.ghToken, text, sha);
+      document.getElementById('statusHint').textContent = 'Parsed, saved locally, and synced to GitHub ✓';
+    }
+
+    const vSel = document.getElementById('vFilter');
+    if(vValues.length){ vSel.value = vValues[0]; renderChart(vSel.value); }
+    setTab('chart');
+  }catch(err){
+    document.getElementById('statusHint').textContent = 'Error: ' + err.message;
+  }
+});
+document.getElementById('vFilter').addEventListener('change', (e)=> renderChart(e.target.value));
+
+// Export buttons (client-side)
+document.getElementById('btnPng').onclick = ()=> chart && chart.exportChartLocal({ type:'image/png', filename:'publications' });
+document.getElementById('btnSvg').onclick = ()=> chart && chart.exportChartLocal({ type:'image/svg+xml', filename:'publications' });
+document.getElementById('btnPdf').onclick = ()=> chart && chart.exportChartLocal({ type:'application/pdf', filename:'publications' });
+
+// Tabs
+function setTab(which){
+  const ids = ['data','chart','settings'];
+  ids.forEach(id=>{
+    document.getElementById('tab-'+id).setAttribute('aria-selected', which===id);
+    document.getElementById('panel-'+id).classList.toggle('active', which===id);
+  });
+}
+document.getElementById('tab-data').onclick = ()=>setTab('data');
+document.getElementById('tab-chart').onclick = ()=>setTab('chart');
+document.getElementById('tab-settings').onclick = ()=>setTab('settings');
+
+// Settings UI
+document.getElementById('saveSettings').onclick = saveSettingsUI;
+document.getElementById('testLoad').onclick = async ()=>{
+  const s = getSettings();
+  try{
+    const f = await ghGetFile(s.ghRepo, s.ghPath, s.ghBranch, s.ghToken);
+    if(!f){ document.getElementById('settingsHint').textContent = 'No file found at path.'; return; }
+    document.getElementById('dataInput').value = f.content;
+    document.getElementById('settingsHint').textContent = 'Loaded file into editor ✓';
+    setTab('data');
+  }catch(e){
+    document.getElementById('settingsHint').textContent = 'Load failed: ' + e.message;
+  }
+};
+loadSettingsUI();
+
+// Load order: GitHub (if enabled) → local default → sample
+const sampleText =
+`v\tdate\tArticle\tBackground paper\tBlog\tBlog post
+Publication\tJan 26\t\t\t\t1
+Publication\tFeb 26\t\t1\t\t1
+Publication\tMar 26\t1\t\t\t1
+Publication\tApr 26\t\t\t\t1
+Publication\tMay 26\t1\t\t\t1
+Publication\tJun 26\t\t1\t1\t1
+Publication\tJul 26\t1\t\t\t
+Publication\tAug 26\t1\t\t\t
+Publication\tSep 26\t1\t\t1\t1
+Publication\tOct 26\t1\t1\t\t1
+Publication\tNov 26\t\t\t\t1
+Publication\tDec 26\t7\t1\t\t
+Publication\tJan 27\t1\t\t\t
+Publication\tFeb 27\t\t\t\t
+Publication\tMar 27\t\t\t\t
+Publication\tApr 27\t\t\t\t
+Handover\tNov 25\t\t\t\t
+Handover\tDec 25\t\t\t\t
+Handover\tJan 26\t\t\t\t1
+Handover\tFeb 26\t1\t1\t\t1
+Handover\tMar 26\t\t\t\t1`;
+
+(async function bootstrap(){
+  const s = getSettings();
+  if(s.ghEnable && s.ghRepo && s.ghPath){
+    try{
+      const f = await ghGetFile(s.ghRepo, s.ghPath, s.ghBranch, s.ghToken);
+      if(f && f.content){
+        document.getElementById('dataInput').value = f.content;
+      } else {
+        const local = localStorage.getItem(DEFAULT_KEY);
+        document.getElementById('dataInput').value = local || sampleText;
+      }
+    }catch(e){
+      const local = localStorage.getItem(DEFAULT_KEY);
+      document.getElementById('dataInput').value = local || sampleText;
+    }
+  }else{
+    const local = localStorage.getItem(DEFAULT_KEY);
+    document.getElementById('dataInput').value = local || sampleText;
+  }
+})();
+</script>
+</body>
+</html>

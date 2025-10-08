@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Trust beeswarm – year slider bottom</title>
+<title>Trust beeswarm – year dropdown</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
@@ -11,51 +11,21 @@
     /* diverging scheme: orange (low) – grey (mid) – blue (high) */
     --low:#C35A08; --mid:#C8CED3; --high:#0B3D56;
     --ink:#222c4c; --axis:#bfbfbf; --grid:#e9e9e9;
-
-    /* keep this in sync with the SVG left margin below */
-    --chart-left: 270px;
+    --chart-left: 270px; /* keep in sync with SVG left margin if needed */
   }
 
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
 
-  /* top controls unchanged, centered */
-  header{
-    display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;
-    justify-content:center;
+  /* ───────── Top controls: year (left) + country (right), centered ───────── */
+  .top-controls{
+    display:flex; flex-direction:column; align-items:center;
+    gap:10px; margin:6px 0 12px;
   }
-
-  /* bottom year slider (subtle) */
- /* bottom-left placement aligned with chart plotting area */
-.year-footer{
-  display:flex;
-  align-items:flex-end;
-  padding-left: var(--chart-left); /* must match the chart's left margin */
-  margin: 6px 0 0;                 /* tweak if you need a tiny vertical nudge */
-}
-
-/* tiny vertical stack: year above, slider below */
-.year-mini{ display:flex; flex-direction:column; gap:4x; align-items:center; }
-.year-mini output{ font-weight:800; color:#0B3D56; font-size:14; line-height:2}
-
-/* minimalist 50px slider */
-.year-mini input[type="range"]{
-  width:60height:8px; background:transparent; accent-color:#bcbcbc;
-}
-.year-mini input[type="range"]::-webkit-slider-runnable-track{
-  height:4px; background:#e6e6e6; border-radius:999px;
-}
-.year-mini input[type="range"]::-webkit-slider-thumb{
-  margin-top:-7px; width:10x; height:16px; border-radius:50%;
-  background:#bcbcbc; border:0; box-shadow:0 1x 8px rgba(0,0,0,.18);
-}
-.year-mini input[type="range"]::-moz-range-track{
-  height:4px; background:#e6e6e6; border-radius:999px;
-}
-.year-mini input[type="range"]::-moz-range-thumb{
-  width:16px; height:16px; border-radius:20;
-  background:#bcbcbc; border:0; box-shadow:0 4px 8px rgba(0,0,0,.18);
-}
+  .controls-row{
+    display:flex; align-items:center; justify-content:center; gap:16px;
+  }
+  .legend-row{ margin-top:4px; }
 
   /* ───────── Select + clear (×) ───────── */
   .select-wrap{ position:relative; display:inline-block }
@@ -66,6 +36,9 @@
     font-size: 14px; line-height:1; color:#111;
     appearance:none; background-image:none;   /* no chevron */
   }
+  /* make the year dropdown a bit narrower */
+  .select-wrap.year select{ min-width: 140px; }
+
   .select-wrap select:focus{
     outline:none; border-color:#b8c2cf; box-shadow:0 0 0 3px rgba(0,0,0,.04);
   }
@@ -122,33 +95,36 @@
 </head>
 <body>
 <div class="wrap">
-  
+  <h2 style="margin:8px 0 6px">Trust indicators dashboard</h2>
 
-  <!-- TOP CONTROLS (unchanged) -->
-  <header>
-    <div class="select-wrap">
-      <select id="countrySel" required>
-        <option value="" disabled selected hidden>Select a country</option>
-      </select>
-      <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
+  <!-- TOP CONTROLS: Year (left) + Country (right), both centered; legend below -->
+  <header class="top-controls">
+    <div class="controls-row">
+      <!-- Year dropdown -->
+      <div class="select-wrap year">
+        <select id="yearSel" required>
+          <option value="" disabled selected hidden>Select year</option>
+        </select>
+      </div>
+
+      <!-- Country dropdown with clear button -->
+      <div class="select-wrap">
+        <select id="countrySel" required>
+          <option value="" disabled selected hidden>Select a country</option>
+        </select>
+        <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
+      </div>
     </div>
 
-    <div class="legend-eu" title="EU27 average">
-      <div class="chip"></div><span>EU27 average</span>
+    <!-- EU legend row -->
+    <div class="legend-row">
+      <div class="legend-eu" title="EU27 average">
+        <div class="chip"></div><span>EU27 average</span>
+      </div>
     </div>
   </header>
 
   <svg id="chart" width="1100" height="640" viewBox="0 0 1100 640" aria-label="beeswarm chart"></svg>
-
-  <!-- BOTTOM YEAR SLIDER (subtle, no label) -->
-<!-- BOTTOM YEAR SLIDER (tiny, no label) -->
-<div class="year-footer">
-  <div class="year-mini">
-    <output id="yearOut">—</output>
-    <input id="yearRange" type="range" min="0" max="0" step="1" value="0" />
-  </div>
-</div>
-
 </div>
 
 <div id="tooltip" class="tooltip" style="display:none"></div>
@@ -168,7 +144,7 @@ const FLAG_CODE = {
 /* ---------- chart setup ---------- */
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
-const margin = { top:4, right:28, bottom:110, left:270 }; // keep left in sync with --chart-left
+const margin = { top:4, right:28, bottom:110, left:270 };
 const rowGap = 90;
 const r = 6;
 const innerW = width - margin.left - margin.right;
@@ -211,10 +187,9 @@ function clearFade(){
 }
 
 /* controls */
-const sel = document.getElementById("countrySel");
+const yearSel  = document.getElementById("yearSel");
+const sel      = document.getElementById("countrySel");
 const clearBtn = document.getElementById("clearSel");
-const yearRange = document.getElementById("yearRange");
-const yearOut   = document.getElementById("yearOut");
 
 let selected = "";
 let categories = [];
@@ -223,20 +198,20 @@ let years = [];
 let curYear = null;
 
 /* ---------- load & init ---------- */
+let allRows = [];
 d3.csv(CSV_URL, d3.autoType).then(init);
 
 function init(rows){
-  rows = rows.map(d => ({ Year:+d.Year, Metric:String(d.Metric), Country:String(d.Country), Score:+d.Score }));
+  allRows = rows.map(d => ({ Year:+d.Year, Metric:String(d.Metric), Country:String(d.Country), Score:+d.Score }));
 
-  years = Array.from(new Set(rows.map(d=>d.Year))).sort(d3.ascending);
-  curYear = d3.max(years);
+  years = Array.from(new Set(allRows.map(d=>d.Year))).sort(d3.ascending);
+  curYear = d3.max(years); // initial view uses latest year
 
-  // minimalist bottom slider values
-  yearRange.min = years[0]; yearRange.max = years[years.length-1]; yearRange.value = curYear;
-  yearOut.value = curYear;
+  // populate Year dropdown (latest first so it’s easy to pick)
+  [...years].sort((a,b)=>b-a).forEach(y => yearSel.add(new Option(y, y)));
 
   // metrics sorted by EU value for initial year
-  const byYear = rows.filter(d=>d.Year===curYear);
+  const byYear = allRows.filter(d=>d.Year===curYear);
   const metrics = Array.from(new Set(byYear.map(d=>d.Metric)));
   const euVal = Object.fromEntries(metrics.map(m => {
     const r = byYear.find(d=>d.Metric===m && d.Country==="European Union");
@@ -276,21 +251,24 @@ function init(rows){
   ordered.forEach(c => sel.add(new Option(c, c)));
 
   // handlers
+  yearSel.addEventListener("change", ()=>{
+    const val = yearSel.value;
+    if (!val) return;
+    const y = +val;
+    if (y === curYear) return;
+    curYear = y;
+    updateYear(allRows.filter(d=>d.Year===curYear));
+  });
+
   sel.addEventListener("change", ()=>{
     selected = sel.value;
     clearBtn.hidden = !selected;
     if (selected){ setFade(selected); drawHighlight(selected, true); }
     else { clearFade(); clearHighlight(); }
   });
+
   clearBtn.addEventListener("click", ()=>{
     sel.value = ""; selected = ""; clearBtn.hidden = true; clearFade(); clearHighlight();
-  });
-
-  yearRange.addEventListener("input", ()=>{
-    const y = +yearRange.value;
-    if (y === curYear) return;
-    curYear = y; yearOut.value = y;
-    updateYear(rows.filter(d=>d.Year===curYear));
   });
 }
 
@@ -375,7 +353,7 @@ function updateYear(rowsForYear){
 
   if (selected){
     setFade(selected);
-    drawHighlight(selected, false); // no draw-on animation during year scrub
+    drawHighlight(selected, false); // no draw-on animation during year change
   }
 }
 

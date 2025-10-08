@@ -17,8 +17,24 @@
 
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
+
   header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
-  select{padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;min-width:220px}
+
+  /* select with clear (×) */
+  .select-wrap{position:relative; display:inline-block}
+  .select-wrap select{
+    padding:6px 36px 6px 10px;
+    border:1px solid #cbd5e1;border-radius:8px;background:#fff;min-width:220px;
+    appearance:none;background-image:linear-gradient(45deg,transparent 50%,#666 50%),linear-gradient(135deg,#666 50%,transparent 50%);
+    background-position: right 14px center, right 8px center; background-size:6px 6px; background-repeat:no-repeat;
+  }
+  .clear-btn{
+    position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    width:24px; height:24px; border-radius:6px; border:1px solid #d7dbe2;
+    display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer;
+    font-size:16px; line-height:1; color:#222;
+  }
+  .clear-btn[hidden]{display:none}
 
   /* Legend chip for EU: neutral grey fill with black outline */
   .legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
@@ -40,6 +56,8 @@
   .axis-cues .avg{fill:#6b6f76;font-weight:700}
   .axis-cues .high{fill:#0B3D56}
 
+  .sel-name{font-size:18px; font-weight:800; fill:#111; text-anchor:middle}
+
   .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
            font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
 </style>
@@ -48,10 +66,12 @@
 <div class="wrap">
   <h2 style="margin:8px 0 6px">Trust indicators dashboard</h2>
   <header>
-    <label for="countrySel"></label>
-    <select id="countrySel">
-      <option value="">Select a country</option>
-    </select>
+    <div class="select-wrap">
+      <select id="countrySel">
+        <option value="">Select a country</option>
+      </select>
+      <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
+    </div>
 
     <div class="legend-eu" title="EU27 average">
       <div class="chip"></div><span>EU27 average</span>
@@ -315,16 +335,17 @@ function css(v){ return getComputedStyle(document.documentElement).getPropertyVa
 /* ----- horizontal row rules + labels ----- */
 categories.forEach((lab,i)=>{
   g.append("text").attr("class","label").attr("x",-16).attr("y",rowY(i)).attr("text-anchor","end").text(lab);
-g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
-  .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
-
+  g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
+    .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
 });
+// last rule y used for center line length
+const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
 
-/* ----- single vertical guide at 5 ----- */
+/* ----- single vertical guide at 5 (solid, extends to last row rule) ----- */
 g.append("line")
   .attr("x1", x(5)).attr("x2", x(5))
-  .attr("y1", 0).attr("y2", rowsHeight)
-  .attr("stroke", "#d6d6d6").attr("stroke-dasharray", "3 4");
+  .attr("y1", 0).attr("y2", lastRuleY)
+  .attr("stroke", "#d6d6d6"); // solid, no dash
 
 /* ----- build points + beeswarm per row ----- */
 function buildPoints(){
@@ -368,6 +389,7 @@ function hideTip(){ tip.style.display = "none"; }
 /* ----- layers ----- */
 const dotsG = g.append("g");
 const hiG   = g.append("g").attr("class","highlight-layer");
+const nameG = g.append("g").attr("class","name-layer"); // for selected-country label
 
 let points = buildPoints();
 beeswarm(points);
@@ -392,6 +414,19 @@ cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end
 
 /* ----- numeric axis BELOW the cues ----- */
 
+/* ----- selected-country label (above FIRST row) ----- */
+function drawSelectedName(country){
+  nameG.selectAll("*").remove();
+  if (!country) return;
+  const firstCat = categories[0];
+  const pt = points.find(p=>p.Country===country && p.Metric===firstCat);
+  if (!pt) return;
+  nameG.append("text")
+    .attr("class","sel-name")
+    .attr("x", pt.x)
+    .attr("y", rowY(0) - 22)
+    .text(country === "European Union" ? "EU27 average" : country);
+}
 
 /* ----- hover/selection highlight (no side label) ----- */
 function drawHighlight(country){
@@ -399,21 +434,26 @@ function drawHighlight(country){
   dotsG.selectAll("circle").classed("emph", d => d.Country === country);
 
   const cPts = categories.map(cat => points.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
-  if (!cPts.length) return;
+  if (!cPts.length) { drawSelectedName(""); return; }
 
   const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
   hiG.append("path").attr("class","highlight").attr("d", line(cPts));
   cPts.forEach(p=>{
     hiG.append("circle").attr("class","highlight-pin").attr("r", r+2).attr("cx", p.x).attr("cy", p.y);
   });
+
+  // sticky name on first row
+  drawSelectedName(country);
 }
 function clearHighlight(){
   hiG.selectAll("*").remove();
+  nameG.selectAll("*").remove();
   dotsG.selectAll("circle").classed("emph", false);
 }
 
-/* ----- dropdown = sticky hover ----- */
+/* ----- dropdown = sticky hover + clear (×) ----- */
 const sel = document.getElementById("countrySel");
+const clearBtn = document.getElementById("clearSel");
 const countries = Array.from(new Set(points.map(p=>p.Country)))
   .sort((a,b)=> (a==="European Union") ? -1 : (b==="European Union") ? 1 : a.localeCompare(b));
 countries.forEach(c => sel.add(new Option(c, c)));
@@ -421,8 +461,15 @@ countries.forEach(c => sel.add(new Option(c, c)));
 let selected = "";
 sel.addEventListener("change", ()=>{
   selected = sel.value;
+  clearBtn.hidden = !selected;
   if (selected) drawHighlight(selected);
   else clearHighlight();
+});
+clearBtn.addEventListener("click", ()=>{
+  sel.value = "";
+  selected = "";
+  clearBtn.hidden = true;
+  clearHighlight();
 });
 </script>
 </body>

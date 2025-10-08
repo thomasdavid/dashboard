@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Beeswarm – Ordered by EU average</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
   :root{
     /* diverging scheme: orange (low) – grey (mid) – blue (high) */
@@ -18,7 +19,8 @@
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
 
-  header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+  header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;justify-content:center; 
+}
 
   /* select with clear (×) */
   .select-wrap{position:relative; display:inline-block}
@@ -46,8 +48,13 @@
   .dot{stroke:#fff;stroke-width:1}
   .dot.emph{stroke:var(--ink);stroke-width:2}
   .eu-dot{stroke:#000;stroke-width:2} /* EU: coloured fill + black outline */
-  .highlight{fill:none;stroke:var(--ink);stroke-width:2}
-  .highlight-pin{fill:#fff;stroke:var(--ink);stroke-width:2}
+  .highlight{fill:none;stroke:var(--ink);stroke-width:1.3}
+ .highlight-pin{
+  fill: none;                 /* was #fff */
+  stroke: #0f1d3a;
+  stroke-width: .5;
+  pointer-events: none;       /* so hover still works */
+}
 
   /* Axis + cues area */
   .x-axis line,.x-axis path{stroke:var(--axis)}
@@ -56,7 +63,16 @@
   .axis-cues .avg{fill:#6b6f76;font-weight:700}
   .axis-cues .high{fill:#0B3D56}
 
-  .sel-name{font-size:18px; font-weight:800; fill:#111; text-anchor:middle}
+  /* sticky name with soft white halo (rendered via foreignObject HTML) */
+  .name-fo{pointer-events:none}
+.flag-row{
+  display:flex; align-items:center; gap:6px;
+  font-weight:800; font-size:18px; color:#111; line-height:1;
+  text-shadow:
+    0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff,
+    0 0 3px rgba(255,255,255,.95);
+  white-space: nowrap;        /* <— no line breaks */
+}
 
   .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
            font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
@@ -289,6 +305,16 @@ const data = raw.trim().split(/\r?\n/).map(r=>{
   return { Metric, Country, Score:+Score };
 });
 
+/* ISO codes for flag-icons */
+const FLAG_CODE = {
+  "European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr",
+  "Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi",
+  "France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie",
+  "Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt",
+  "Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk",
+  "Slovenia":"si","Spain":"es","Sweden":"se"
+};
+
 // Base order, then sort rows by EU value (lowest at bottom)
 const baseCats = [
   "Trust in police",
@@ -316,7 +342,7 @@ const rowGap = 90;
 const r = 6;
 const innerW = width - margin.left - margin.right;
 
-// vertical layout: rows → big cues → (gap) → axis
+// vertical layout: rows → big cues → (gap) → axis (unchanged)
 const rowsHeight = (categories.length-1)*rowGap;
 const cuesOffset   = rowsHeight + 78;  // where the big cues sit
 const axisOffset   = cuesOffset + 24;  // axis below cues
@@ -345,7 +371,7 @@ const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
 g.append("line")
   .attr("x1", x(5)).attr("x2", x(5))
   .attr("y1", 0).attr("y2", lastRuleY)
-  .attr("stroke", "#d6d6d6"); // solid, no dash
+  .attr("stroke", "#d6d6d6"); // solid
 
 /* ----- build points + beeswarm per row ----- */
 function buildPoints(){
@@ -413,42 +439,80 @@ cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","mi
 cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end").text("Higher trust →");
 
 /* ----- numeric axis BELOW the cues ----- */
+// (intentionally left out per your current code)
 
-/* ----- selected-country label (above FIRST row) ----- */
+/* ----- sticky name (top) with FLAG-ICONS ----- */
 function drawSelectedName(country){
   nameG.selectAll("*").remove();
   if (!country) return;
+
   const firstCat = categories[0];
   const pt = points.find(p=>p.Country===country && p.Metric===firstCat);
   if (!pt) return;
-  nameG.append("text")
-    .attr("class","sel-name")
-    .attr("x", pt.x)
-    .attr("y", rowY(0) - 22)
-    .text(country === "European Union" ? "EU27 average" : country);
+
+  const label = country === "European Union" ? "European Union" : country;
+  // measure text to center the label block
+  const meas = nameG.append("text").attr("font-weight",800).attr("font-size",18).text(label);
+  const wText = meas.node().getBBox().width; meas.remove();
+
+  const iso = (FLAG_CODE[country] || "").toLowerCase();
+  const wFlag = iso ? 18 : 0, pad = iso ? 6 : 0;
+  const total = wFlag + pad + wText;
+
+  const baseX = pt.x - total/2;
+  const baseY = rowY(0) - 28;
+
+  const fo = nameG.append("foreignObject")
+    .attr("class","name-fo")
+    .attr("x", baseX).attr("y", baseY-12) /* y tweaks for alignment */
+    .attr("width", total).attr("height", 26);
+
+  fo.html(`
+    <div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
+      ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
+      <span>${label}</span>
+    </div>
+  `);
 }
 
-/* ----- hover/selection highlight (no side label) ----- */
-function drawHighlight(country){
+/* ----- hover/selection highlight (fade others to 20%) ----- */
+// A) function signature + animation guard
+function drawHighlight(country, animate = false){
   hiG.selectAll("*").remove();
-  dotsG.selectAll("circle").classed("emph", d => d.Country === country);
+  dotsG.selectAll("circle")
+    .classed("emph", d => d.Country === country)
+    .attr("opacity", d => d.Country === country ? 1 : 0.2);
 
   const cPts = categories.map(cat => points.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
   if (!cPts.length) { drawSelectedName(""); return; }
 
   const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
-  hiG.append("path").attr("class","highlight").attr("d", line(cPts));
+  const path = hiG.append("path").attr("class","highlight").attr("d", line(cPts));
+
+  if (animate){                         // <— animate only when requested
+    const L = path.node().getTotalLength();
+    path.attr("stroke-dasharray", `${L} ${L}`)
+        .attr("stroke-dashoffset", L)
+        .transition().duration(400).ease(d3.easeCubicInOut)
+        .attr("stroke-dashoffset", 0);
+  }
+
   cPts.forEach(p=>{
-    hiG.append("circle").attr("class","highlight-pin").attr("r", r+2).attr("cx", p.x).attr("cy", p.y);
+    hiG.append("circle")
+      .attr("class","highlight-pin")
+      .attr("r", r+2)
+      .attr("cx", p.x)
+      .attr("cy", p.y)
+      .attr("fill","none");             // keep the dot colour visible
   });
 
-  // sticky name on first row
   drawSelectedName(country);
 }
+
 function clearHighlight(){
   hiG.selectAll("*").remove();
   nameG.selectAll("*").remove();
-  dotsG.selectAll("circle").classed("emph", false);
+  dotsG.selectAll("circle").classed("emph", false).attr("opacity", 1); // restore opacity
 }
 
 /* ----- dropdown = sticky hover + clear (×) ----- */
@@ -462,7 +526,7 @@ let selected = "";
 sel.addEventListener("change", ()=>{
   selected = sel.value;
   clearBtn.hidden = !selected;
-  if (selected) drawHighlight(selected);
+  if (selected) drawHighlight(selected, true);  // <— animate here
   else clearHighlight();
 });
 clearBtn.addEventListener("click", ()=>{

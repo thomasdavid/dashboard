@@ -3,88 +3,132 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Beeswarm – Ordered by EU average</title>
+<title>Trust beeswarm – year slider bottom</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
   :root{
     /* diverging scheme: orange (low) – grey (mid) – blue (high) */
-    --low:#C35A08;
-    --mid:#C8CED3;
-    --high:#0B3D56;
-
+    --low:#C35A08; --mid:#C8CED3; --high:#0B3D56;
     --ink:#222c4c; --axis:#bfbfbf; --grid:#e9e9e9;
+
+    /* keep this in sync with the SVG left margin below */
+    --chart-left: 270px;
   }
 
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
 
-  header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;justify-content:center; 
+  /* top controls unchanged, centered */
+  header{
+    display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px;
+    justify-content:center;
+  }
+
+  /* bottom year slider (subtle) */
+ /* bottom-left placement aligned with chart plotting area */
+.year-footer{
+  display:flex;
+  align-items:flex-end;
+  padding-left: var(--chart-left); /* must match the chart's left margin */
+  margin: 6px 0 0;                 /* tweak if you need a tiny vertical nudge */
 }
 
-  /* select with clear (×) */
-  .select-wrap{position:relative; display:inline-block}
-  .select-wrap select{
-    padding:6px 36px 6px 10px;
-    border:1px solid #cbd5e1;border-radius:8px;background:#fff;min-width:220px;
-    appearance:none;background-image:linear-gradient(45deg,transparent 50%,#666 50%),linear-gradient(135deg,#666 50%,transparent 50%);
-    background-position: right 14px center, right 8px center; background-size:6px 6px; background-repeat:no-repeat;
-  }
-  .clear-btn{
-    position:absolute; right:6px; top:50%; transform:translateY(-50%);
-    width:24px; height:24px; border-radius:6px; border:1px solid #d7dbe2;
-    display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer;
-    font-size:16px; line-height:1; color:#222;
-  }
-  .clear-btn[hidden]{display:none}
+/* tiny vertical stack: year above, slider below */
+.year-mini{ display:flex; flex-direction:column; gap:4x; align-items:center; }
+.year-mini output{ font-weight:800; color:#0B3D56; font-size:14; line-height:2}
 
-  /* Legend chip for EU: neutral grey fill with black outline */
+/* minimalist 50px slider */
+.year-mini input[type="range"]{
+  width:60height:8px; background:transparent; accent-color:#bcbcbc;
+}
+.year-mini input[type="range"]::-webkit-slider-runnable-track{
+  height:4px; background:#e6e6e6; border-radius:999px;
+}
+.year-mini input[type="range"]::-webkit-slider-thumb{
+  margin-top:-7px; width:10x; height:16px; border-radius:50%;
+  background:#bcbcbc; border:0; box-shadow:0 1x 8px rgba(0,0,0,.18);
+}
+.year-mini input[type="range"]::-moz-range-track{
+  height:4px; background:#e6e6e6; border-radius:999px;
+}
+.year-mini input[type="range"]::-moz-range-thumb{
+  width:16px; height:16px; border-radius:20;
+  background:#bcbcbc; border:0; box-shadow:0 4px 8px rgba(0,0,0,.18);
+}
+
+  /* ───────── Select + clear (×) ───────── */
+  .select-wrap{ position:relative; display:inline-block }
+  .select-wrap select{
+    min-width: 220px;
+    padding: 10px 44px 10px 14px;
+    border: 1px solid #d5dbe3; border-radius: 12px; background:#fff;
+    font-size: 14px; line-height:1; color:#111;
+    appearance:none; background-image:none;   /* no chevron */
+  }
+  .select-wrap select:focus{
+    outline:none; border-color:#b8c2cf; box-shadow:0 0 0 3px rgba(0,0,0,.04);
+  }
+  /* faded placeholder look while required select is on the hidden empty option */
+  .select-wrap select:invalid{ color:#8b95a3; }
+  .select-wrap option{ color:#111; }
+
+  .clear-btn{
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    width:28px; height:28px; border:0; background:transparent;
+    color:#111; font-size:22px; line-height:1; padding:0; cursor:pointer;
+  }
+  .clear-btn:hover{ color:#000; transform:translateY(-50%) scale(1.05); }
+  .clear-btn:active{ transform:translateY(-50%) scale(.98); }
+  .clear-btn[hidden]{ display:none; }
+
+  /* EU legend chip */
   .legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
   .legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}
 
+  /* chart */
   svg{display:block;width:100%;height:auto}
   .label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}
   .row-rule{stroke:var(--grid);stroke-width:1}
   .dot{stroke:#fff;stroke-width:1}
   .dot.emph{stroke:var(--ink);stroke-width:2}
-  .eu-dot{stroke:#000;stroke-width:2} /* EU: coloured fill + black outline */
-  .highlight{fill:none;stroke:var(--ink);stroke-width:1.3}
- .highlight-pin{
-  fill: none;                 /* was #fff */
-  stroke: #0f1d3a;
-  stroke-width: .5;
-  pointer-events: none;       /* so hover still works */
-}
+  .eu-dot{stroke:#000;stroke-width:2}
 
-  /* Axis + cues area */
+  .highlight{
+    fill:none; stroke:#6b7280; stroke-opacity:.45; stroke-width:1.8;
+    stroke-linecap:round; pointer-events:none;
+  }
+  .highlight-pin{ fill:none; stroke:#0f1d3a; stroke-width:.5; pointer-events:none; }
+
   .x-axis line,.x-axis path{stroke:var(--axis)}
   .axis-cues text{font-size:18px;font-weight:800}
   .axis-cues .low{fill:var(--low)}
   .axis-cues .avg{fill:#6b6f76;font-weight:700}
   .axis-cues .high{fill:#0B3D56}
 
-  /* sticky name with soft white halo (rendered via foreignObject HTML) */
   .name-fo{pointer-events:none}
-.flag-row{
-  display:flex; align-items:center; gap:6px;
-  font-weight:800; font-size:18px; color:#111; line-height:1;
-  text-shadow:
-    0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff,
-    0 0 3px rgba(255,255,255,.95);
-  white-space: nowrap;        /* <— no line breaks */
-}
+  .flag-row{
+    display:flex; align-items:center; gap:6px;
+    font-weight:800; font-size:18px; color:#111; line-height:1;
+    text-shadow:0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 0 3px rgba(255,255,255,.95);
+    white-space:nowrap;
+  }
 
-  .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
-           font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .tooltip{
+    position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
+    font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2 style="margin:8px 0 6px">Trust indicators dashboard</h2>
+  
+
+  <!-- TOP CONTROLS (unchanged) -->
   <header>
     <div class="select-wrap">
-      <select id="countrySel">
-        <option value="">Select a country</option>
+      <select id="countrySel" required>
+        <option value="" disabled selected hidden>Select a country</option>
       </select>
       <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
     </div>
@@ -95,289 +139,166 @@
   </header>
 
   <svg id="chart" width="1100" height="640" viewBox="0 0 1100 640" aria-label="beeswarm chart"></svg>
+
+  <!-- BOTTOM YEAR SLIDER (subtle, no label) -->
+<!-- BOTTOM YEAR SLIDER (tiny, no label) -->
+<div class="year-footer">
+  <div class="year-mini">
+    <output id="yearOut">—</output>
+    <input id="yearRange" type="range" min="0" max="0" step="1" value="0" />
+  </div>
 </div>
+
+</div>
+
 <div id="tooltip" class="tooltip" style="display:none"></div>
 
 <script>
-/* ----------------- Data (Metric, Country, Score) ----------------- */
-const raw = `
-Trust in police,Slovakia,5
-Trust in police,Slovenia,5.9
-Trust in police,Sweden,6.7
-Trust in police,Romania,4.8
-Trust in police,Portugal,6.6
-Trust in police,Poland,4.8
-Trust in police,Netherlands,6.2
-Trust in police,Malta,5
-Trust in police,Latvia,5.3
-Trust in police,Luxembourg,6.6
-Trust in police,Lithuania,6.4
-Trust in police,Italy,5.9
-Trust in police,Ireland,6.2
-Trust in police,Hungary,5.1
-Trust in police,Croatia,4.9
-Trust in police,France,6.2
-Trust in police,Finland,7.4
-Trust in police,Spain,6.3
-Trust in police,Greece,4.1
-Trust in police,Estonia,6.4
-Trust in police,Denmark,6.9
-Trust in police,Germany,6.5
-Trust in police,Czechia,6.4
-Trust in police,Cyprus,4.3
-Trust in police,Bulgaria,4.2
-Trust in police,Belgium,5.9
-Trust in police,Austria,7
-Trust in police,European Union,6
-Trust in EU,Slovakia,4.9
-Trust in EU,Slovenia,3.9
-Trust in EU,Sweden,4.7
-Trust in EU,Romania,5
-Trust in EU,Portugal,5.3
-Trust in EU,Poland,5.2
-Trust in EU,Netherlands,4.2
-Trust in EU,Malta,5
-Trust in EU,Latvia,5.1
-Trust in EU,Luxembourg,5
-Trust in EU,Lithuania,5.6
-Trust in EU,Italy,4.4
-Trust in EU,Ireland,5.4
-Trust in EU,Hungary,5.7
-Trust in EU,Croatia,4.2
-Trust in EU,France,3.9
-Trust in EU,Finland,5.6
-Trust in EU,Spain,5.1
-Trust in EU,Greece,4
-Trust in EU,Estonia,4.4
-Trust in EU,Denmark,5.3
-Trust in EU,Germany,4.8
-Trust in EU,Czechia,4.3
-Trust in EU,Cyprus,4.2
-Trust in EU,Bulgaria,4.5
-Trust in EU,Belgium,3.9
-Trust in EU,Austria,4.6
-Trust in EU,European Union,4.7
-Trust in government,Slovakia,3.3
-Trust in government,Slovenia,3.5
-Trust in government,Sweden,5.5
-Trust in government,Romania,2.5
-Trust in government,Portugal,4.1
-Trust in government,Poland,4.2
-Trust in government,Netherlands,3.8
-Trust in government,Malta,3.1
-Trust in government,Latvia,3.7
-Trust in government,Luxembourg,5.4
-Trust in government,Lithuania,4.1
-Trust in government,Italy,3.1
-Trust in government,Ireland,4.5
-Trust in government,Hungary,2.4
-Trust in government,Croatia,2.5
-Trust in government,France,3.3
-Trust in government,Finland,3.1
-Trust in government,Spain,4.4
-Trust in government,Greece,2.8
-Trust in government,Estonia,3.3
-Trust in government,Denmark,5.8
-Trust in government,Germany,4.4
-Trust in government,Czechia,3.8
-Trust in government,Cyprus,3.2
-Trust in government,Bulgaria,2.4
-Trust in government,Belgium,3.6
-Trust in government,Austria,3.9
-Trust in government,European Union,3.8
-Trust in people,Slovakia,4.5
-Trust in people,Slovenia,4.4
-Trust in people,Sweden,5.5
-Trust in people,Romania,4.6
-Trust in people,Portugal,5.1
-Trust in people,Poland,4.3
-Trust in people,Netherlands,5.5
-Trust in people,Malta,4.5
-Trust in people,Latvia,4.8
-Trust in people,Luxembourg,4.8
-Trust in people,Lithuania,4.8
-Trust in people,Italy,4.5
-Trust in people,Ireland,5.6
-Trust in people,Hungary,4.6
-Trust in people,Croatia,3.9
-Trust in people,France,4.3
-Trust in people,Finland,6.1
-Trust in people,Spain,5.5
-Trust in people,Greece,4
-Trust in people,Estonia,5.2
-Trust in people,Denmark,6.2
-Trust in people,Germany,5.3
-Trust in people,Czechia,4.9
-Trust in people,Cyprus,3.7
-Trust in people,Bulgaria,4.3
-Trust in people,Belgium,4.8
-Trust in people,Austria,5.2
-Trust in people,European Union,4.9
-Trust in social media,Slovakia,3.3
-Trust in social media,Slovenia,3
-Trust in social media,Sweden,2.9
-Trust in social media,Romania,3.7
-Trust in social media,Portugal,2.8
-Trust in social media,Poland,3.6
-Trust in social media,Netherlands,3
-Trust in social media,Malta,3.1
-Trust in social media,Latvia,3.9
-Trust in social media,Luxembourg,3
-Trust in social media,Lithuania,3.7
-Trust in social media,Italy,2.9
-Trust in social media,Ireland,2.8
-Trust in social media,Hungary,3
-Trust in social media,Croatia,3.2
-Trust in social media,France,2.8
-Trust in social media,Finland,3.5
-Trust in social media,Spain,3
-Trust in social media,Greece,3.2
-Trust in social media,Estonia,3.4
-Trust in social media,Denmark,3.2
-Trust in social media,Germany,3.2
-Trust in social media,Czechia,3.3
-Trust in social media,Cyprus,3
-Trust in social media,Bulgaria,3.2
-Trust in social media,Belgium,2.9
-Trust in social media,Austria,3.1
-Trust in social media,European Union,3.1
-Trust in healthcare,Slovakia,5.4
-Trust in healthcare,Slovenia,5.4
-Trust in healthcare,Sweden,5.9
-Trust in healthcare,Romania,4.6
-Trust in healthcare,Portugal,6.2
-Trust in healthcare,Poland,5
-Trust in healthcare,Netherlands,5.7
-Trust in healthcare,Malta,6.4
-Trust in healthcare,Latvia,5.6
-Trust in healthcare,Luxembourg,6.4
-Trust in healthcare,Lithuania,6.1
-Trust in healthcare,Italy,5.5
-Trust in healthcare,Ireland,5.7
-Trust in healthcare,Hungary,4
-Trust in healthcare,Croatia,5.3
-Trust in healthcare,France,6.1
-Trust in healthcare,Finland,6.2
-Trust in healthcare,Spain,6.7
-Trust in healthcare,Greece,4.6
-Trust in healthcare,Estonia,6.1
-Trust in healthcare,Denmark,6.8
-Trust in healthcare,Germany,6
-Trust in healthcare,Czechia,6.8
-Trust in healthcare,Cyprus,5.3
-Trust in healthcare,Bulgaria,4.4
-Trust in healthcare,Belgium,6.4
-Trust in healthcare,Austria,6.5
-Trust in healthcare,European Union,5.8
-Trust in news media,Slovakia,4
-Trust in news media,Slovenia,3.7
-Trust in news media,Sweden,4.8
-Trust in news media,Romania,3.3
-Trust in news media,Portugal,4.2
-Trust in news media,Poland,4
-Trust in news media,Netherlands,4.2
-Trust in news media,Malta,3.6
-Trust in news media,Latvia,4.3
-Trust in news media,Luxembourg,4.2
-Trust in news media,Lithuania,4
-Trust in news media,Italy,3.6
-Trust in news media,Ireland,4.3
-Trust in news media,Hungary,2.4
-Trust in news media,Croatia,3.3
-Trust in news media,France,3.6
-Trust in news media,Finland,5.7
-Trust in news media,Spain,3.6
-Trust in news media,Greece,2.1
-Trust in news media,Estonia,4
-Trust in news media,Denmark,5
-Trust in news media,Germany,4.9
-Trust in news media,Czechia,4.1
-Trust in news media,Cyprus,3
-Trust in news media,Bulgaria,2.9
-Trust in news media,Belgium,4.1
-Trust in news media,Austria,4.8
-Trust in news media,European Union,4
-`;
+const CSV_URL = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/Trust.csv";
 
-// Parse
-const data = raw.trim().split(/\r?\n/).map(r=>{
-  const [Metric, Country, Score] = r.split(",").map(s=>s.trim());
-  return { Metric, Country, Score:+Score };
-});
-
-/* ISO codes for flag-icons */
+/* flag-icons codes */
 const FLAG_CODE = {
   "European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr",
-  "Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi",
-  "France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie",
-  "Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt",
-  "Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk",
-  "Slovenia":"si","Spain":"es","Sweden":"se"
+  "Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr",
+  "Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv",
+  "Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl",
+  "Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"
 };
 
-// Base order, then sort rows by EU value (lowest at bottom)
-const baseCats = [
-  "Trust in police",
-  "Trust in EU",
-  "Trust in government",
-  "Trust in people",
-  "Trust in social media",
-  "Trust in healthcare",
-  "Trust in news media"
-];
-const euValue = Object.fromEntries(
-  baseCats.map(cat=>{
-    const rec = data.find(d=>d.Metric===cat && d.Country==="European Union");
-    return [cat, rec ? rec.Score : NaN];
-  })
-);
-// Highest at top → lowest at bottom
-const categories = baseCats.slice().sort((a,b)=> d3.descending(euValue[a], euValue[b]));
-
-// --- Chart dims ---
+/* ---------- chart setup ---------- */
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
-const margin = { top:4, right:28, bottom:110, left:270 };
+const margin = { top:4, right:28, bottom:110, left:270 }; // keep left in sync with --chart-left
 const rowGap = 90;
 const r = 6;
 const innerW = width - margin.left - margin.right;
-
-// vertical layout: rows → big cues → (gap) → axis (unchanged)
-const rowsHeight = (categories.length-1)*rowGap;
-const cuesOffset   = rowsHeight + 78;  // where the big cues sit
-const axisOffset   = cuesOffset + 24;  // axis below cues
-const totalH = margin.top + margin.bottom + axisOffset + 40;
-svg.attr("height", totalH);
 
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const x = d3.scaleLinear().domain([1,8]).range([0, innerW]);
 const rowY = i => i*rowGap;
 
-// Diverging colour around 5
 const interp = d3.interpolateRgbBasis([css("--low"), css("--mid"), css("--high")]);
 const color = d3.scaleDiverging().domain([1,5,8]).interpolator(interp);
 function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
-/* ----- horizontal row rules + labels ----- */
-categories.forEach((lab,i)=>{
-  g.append("text").attr("class","label").attr("x",-16).attr("y",rowY(i)).attr("text-anchor","end").text(lab);
-  g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
-    .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
-});
-// last rule y used for center line length
-const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
+/* layers */
+const dotsG = g.append("g");
+const hiG   = g.append("g").attr("class","highlight-layer");
+const nameG = g.append("g").attr("class","name-layer");
+dotsG.raise();
 
-/* ----- single vertical guide at 5 (solid, extends to last row rule) ----- */
-g.append("line")
-  .attr("x1", x(5)).attr("x2", x(5))
-  .attr("y1", 0).attr("y2", lastRuleY)
-  .attr("stroke", "#d6d6d6"); // solid
+/* tooltip */
+const tip = document.getElementById("tooltip");
+function showTip(e, p){
+  tip.style.display = "block";
+  tip.style.left = (e.clientX + 12) + "px";
+  tip.style.top  = (e.clientY + 12) + "px";
+  tip.innerHTML = `<strong>${p.Country==="European Union"?"European Union":p.Country}</strong><br>${p.Metric}: ${p.value}`;
+}
+function hideTip(){ tip.style.display = "none"; }
 
-/* ----- build points + beeswarm per row ----- */
-function buildPoints(){
+/* fade helpers */
+const FADE_OTHER = 0.2;
+function setFade(country){
+  dotsG.selectAll("circle")
+    .classed("emph", d => d.Country === country)
+    .transition().duration(180)
+    .attr("opacity", d => d.Country === country ? 1 : FADE_OTHER);
+}
+function clearFade(){
+  dotsG.selectAll("circle").classed("emph", false)
+    .transition().duration(180).attr("opacity", 1);
+}
+
+/* controls */
+const sel = document.getElementById("countrySel");
+const clearBtn = document.getElementById("clearSel");
+const yearRange = document.getElementById("yearRange");
+const yearOut   = document.getElementById("yearOut");
+
+let selected = "";
+let categories = [];
+let points = [];
+let years = [];
+let curYear = null;
+
+/* ---------- load & init ---------- */
+d3.csv(CSV_URL, d3.autoType).then(init);
+
+function init(rows){
+  rows = rows.map(d => ({ Year:+d.Year, Metric:String(d.Metric), Country:String(d.Country), Score:+d.Score }));
+
+  years = Array.from(new Set(rows.map(d=>d.Year))).sort(d3.ascending);
+  curYear = d3.max(years);
+
+  // minimalist bottom slider values
+  yearRange.min = years[0]; yearRange.max = years[years.length-1]; yearRange.value = curYear;
+  yearOut.value = curYear;
+
+  // metrics sorted by EU value for initial year
+  const byYear = rows.filter(d=>d.Year===curYear);
+  const metrics = Array.from(new Set(byYear.map(d=>d.Metric)));
+  const euVal = Object.fromEntries(metrics.map(m => {
+    const r = byYear.find(d=>d.Metric===m && d.Country==="European Union");
+    return [m, r? r.Score : NaN];
+  }));
+  categories = metrics.slice().sort((a,b)=> d3.descending(euVal[a], euVal[b]));
+
+  // chart height / rules / labels
+  const rowsHeight = (categories.length-1)*rowGap;
+  const cuesOffset = rowsHeight + 78;
+  const axisOffset = cuesOffset + 24;
+  const totalH = margin.top + margin.bottom + axisOffset + 40;
+  svg.attr("height", totalH);
+
+  categories.forEach((lab,i)=>{
+    g.append("text").attr("class","label").attr("x",-16).attr("y",rowY(i)).attr("text-anchor","end").text(lab);
+    g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
+      .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
+  });
+  const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
+  g.append("line").attr("x1", x(5)).attr("x2", x(5)).attr("y1", 0).attr("y2", lastRuleY).attr("stroke", "#d6d6d6");
+
+  // cues below rows (no numeric axis)
+  const cues = g.append("g").attr("class","axis-cues").attr("transform", `translate(0,${rowsHeight + 78})`);
+  cues.append("text").attr("class","low").attr("x", x(1)).attr("text-anchor","start").text("← Lower trust");
+  cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
+  cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end").text("Higher trust →");
+
+  // first render
+  points = buildPoints(byYear);
+  beeswarm(points);
+  drawDots();
+
+  // country select (EU first, then A–Z)
+  const allCountries = Array.from(new Set(byYear.map(d=>d.Country))).filter(Boolean);
+  const ordered = ["European Union", ...allCountries.filter(c => c !== "European Union").sort((a,b)=>a.localeCompare(b))];
+  ordered.forEach(c => sel.add(new Option(c, c)));
+
+  // handlers
+  sel.addEventListener("change", ()=>{
+    selected = sel.value;
+    clearBtn.hidden = !selected;
+    if (selected){ setFade(selected); drawHighlight(selected, true); }
+    else { clearFade(); clearHighlight(); }
+  });
+  clearBtn.addEventListener("click", ()=>{
+    sel.value = ""; selected = ""; clearBtn.hidden = true; clearFade(); clearHighlight();
+  });
+
+  yearRange.addEventListener("input", ()=>{
+    const y = +yearRange.value;
+    if (y === curYear) return;
+    curYear = y; yearOut.value = y;
+    updateYear(rows.filter(d=>d.Year===curYear));
+  });
+}
+
+/* ---------- building & layout ---------- */
+function buildPoints(rows){
   const pts=[];
   categories.forEach((cat,i)=>{
-    data.filter(d=>d.Metric===cat).forEach(d=>{
+    rows.filter(d=>d.Metric===cat).forEach(d=>{
       pts.push({
         id:`${d.Country}-${cat}`,
         Country:d.Country,
@@ -390,58 +311,75 @@ function buildPoints(){
   });
   return pts;
 }
-function beeswarm(points){
+
+function beeswarm(pts, prevMap){
   categories.forEach((cat,i)=>{
-    const rowPts = points.filter(p=>p.Metric===cat);
+    const rowPts = pts.filter(p=>p.Metric===cat);
+    if (prevMap){
+      rowPts.forEach(p=>{
+        const pr = prevMap.get(p.id);
+        if (pr){ p.x = pr.x; p.y = pr.y; }
+      });
+    }
     const sim = d3.forceSimulation(rowPts)
+      .alpha(0.9)
       .force("x", d3.forceX(p=>x(p.value)).strength(0.8))
       .force("y", d3.forceY(rowY(i)).strength(0.15))
       .force("collide", d3.forceCollide(r+1.4))
       .stop();
-    for (let k=0;k<350;k++) sim.tick();
+    for (let k=0;k<250;k++) sim.tick();
   });
 }
 
-/* ----- tooltip ----- */
-const tip = document.getElementById("tooltip");
-function showTip(e, p){
-  tip.style.display = "block";
-  tip.style.left = (e.clientX + 12) + "px";
-  tip.style.top  = (e.clientY + 12) + "px";
-  tip.innerHTML = `<strong>${p.Country==="European Union"?"EU27 average":p.Country}</strong><br>${p.Metric}: ${p.value}`;
-}
-function hideTip(){ tip.style.display = "none"; }
+/* ---------- drawing ---------- */
+function drawDots(){
+  const selDots = dotsG.selectAll("circle").data(points, d=>d.id);
 
-/* ----- layers ----- */
-const dotsG = g.append("g");
-const hiG   = g.append("g").attr("class","highlight-layer");
-const nameG = g.append("g").attr("class","name-layer"); // for selected-country label
-
-let points = buildPoints();
-beeswarm(points);
-
-/* draw dots (EU has black outline, keeps colour fill) */
-dotsG.selectAll("circle").data(points, d=>d.id)
-  .join("circle")
-  .attr("r", r)
-  .attr("cx", d=>d.x)
-  .attr("cy", d=>d.y)
-  .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
-  .attr("fill", d => color(d.value))
-  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected) drawHighlight(d.Country); })
+  selDots.join(
+    enter => enter.append("circle")
+      .attr("r", r)
+      .attr("cx", d=>d.x)
+      .attr("cy", d=>d.y)
+      .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
+      .attr("fill", d => color(d.value))
+      .attr("opacity", 1),
+    update => update,
+    exit => exit.remove()
+  )
+  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected){ setFade(d.Country); drawHighlight(d.Country, false); } })
   .on("mousemove",  (e,d)=>{ showTip(e,d); })
-  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected) clearHighlight(); });
+  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected){ clearFade(); clearHighlight(); } });
+}
 
-/* ----- big cues BELOW the last row ----- */
-const cues = g.append("g").attr("class","axis-cues").attr("transform", `translate(0,${cuesOffset})`);
-cues.append("text").attr("class","low").attr("x", x(1)).attr("text-anchor","start").text("← Lower trust");
-cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
-cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end").text("Higher trust →");
+function updateYear(rowsForYear){
+  const prevMap = new Map(points.map(p=>[p.id, {x:p.x, y:p.y}]));
+  const newPts = buildPoints(rowsForYear);
+  beeswarm(newPts, prevMap);
+  points = newPts;
 
-/* ----- numeric axis BELOW the cues ----- */
-// (intentionally left out per your current code)
+  dotsG.selectAll("circle").data(points, d=>d.id)
+    .join(
+      enter => enter.append("circle")
+        .attr("r", r).attr("cx", d=>d.x).attr("cy", d=>d.y)
+        .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
+        .attr("fill", d => color(d.value))
+        .attr("opacity", selected ? (d => d.Country===selected ? 1 : 0.2) : 1),
+      update => update,
+      exit => exit.remove()
+    )
+    .transition().duration(600).ease(d3.easeCubicInOut)
+    .attr("cx", d=>d.x).attr("cy", d=>d.y)
+    .attr("fill", d => color(d.value));
 
-/* ----- sticky name (top) with FLAG-ICONS ----- */
+  drawDots(); // rebind events
+
+  if (selected){
+    setFade(selected);
+    drawHighlight(selected, false); // no draw-on animation during year scrub
+  }
+}
+
+/* ---------- highlight & label ---------- */
 function drawSelectedName(country){
   nameG.selectAll("*").remove();
   if (!country) return;
@@ -451,10 +389,8 @@ function drawSelectedName(country){
   if (!pt) return;
 
   const label = country === "European Union" ? "European Union" : country;
-  // measure text to center the label block
   const meas = nameG.append("text").attr("font-weight",800).attr("font-size",18).text(label);
   const wText = meas.node().getBBox().width; meas.remove();
-
   const iso = (FLAG_CODE[country] || "").toLowerCase();
   const wFlag = iso ? 18 : 0, pad = iso ? 6 : 0;
   const total = wFlag + pad + wText;
@@ -462,26 +398,20 @@ function drawSelectedName(country){
   const baseX = pt.x - total/2;
   const baseY = rowY(0) - 28;
 
-  const fo = nameG.append("foreignObject")
+  nameG.append("foreignObject")
     .attr("class","name-fo")
-    .attr("x", baseX).attr("y", baseY-12) /* y tweaks for alignment */
-    .attr("width", total).attr("height", 26);
-
-  fo.html(`
-    <div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
-      ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
-      <span>${label}</span>
-    </div>
-  `);
+    .attr("x", baseX).attr("y", baseY-12)
+    .attr("width", total).attr("height", 26)
+    .html(`
+      <div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
+        ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
+        <span>${label}</span>
+      </div>
+    `);
 }
 
-/* ----- hover/selection highlight (fade others to 20%) ----- */
-// A) function signature + animation guard
-function drawHighlight(country, animate = false){
+function drawHighlight(country, animate=false){
   hiG.selectAll("*").remove();
-  dotsG.selectAll("circle")
-    .classed("emph", d => d.Country === country)
-    .attr("opacity", d => d.Country === country ? 1 : 0.2);
 
   const cPts = categories.map(cat => points.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
   if (!cPts.length) { drawSelectedName(""); return; }
@@ -489,11 +419,11 @@ function drawHighlight(country, animate = false){
   const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
   const path = hiG.append("path").attr("class","highlight").attr("d", line(cPts));
 
-  if (animate){                         // <— animate only when requested
+  if (animate){
     const L = path.node().getTotalLength();
     path.attr("stroke-dasharray", `${L} ${L}`)
         .attr("stroke-dashoffset", L)
-        .transition().duration(400).ease(d3.easeCubicInOut)
+        .transition().duration(1000).ease(d3.easeCubicInOut)
         .attr("stroke-dashoffset", 0);
   }
 
@@ -503,7 +433,7 @@ function drawHighlight(country, animate = false){
       .attr("r", r+2)
       .attr("cx", p.x)
       .attr("cy", p.y)
-      .attr("fill","none");             // keep the dot colour visible
+      .attr("fill","none");
   });
 
   drawSelectedName(country);
@@ -512,29 +442,7 @@ function drawHighlight(country, animate = false){
 function clearHighlight(){
   hiG.selectAll("*").remove();
   nameG.selectAll("*").remove();
-  dotsG.selectAll("circle").classed("emph", false).attr("opacity", 1); // restore opacity
 }
-
-/* ----- dropdown = sticky hover + clear (×) ----- */
-const sel = document.getElementById("countrySel");
-const clearBtn = document.getElementById("clearSel");
-const countries = Array.from(new Set(points.map(p=>p.Country)))
-  .sort((a,b)=> (a==="European Union") ? -1 : (b==="European Union") ? 1 : a.localeCompare(b));
-countries.forEach(c => sel.add(new Option(c, c)));
-
-let selected = "";
-sel.addEventListener("change", ()=>{
-  selected = sel.value;
-  clearBtn.hidden = !selected;
-  if (selected) drawHighlight(selected, true);  // <— animate here
-  else clearHighlight();
-});
-clearBtn.addEventListener("click", ()=>{
-  sel.value = "";
-  selected = "";
-  clearBtn.hidden = true;
-  clearHighlight();
-});
 </script>
 </body>
 </html>

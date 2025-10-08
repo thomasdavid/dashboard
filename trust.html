@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Beeswarm – Ordered by EU average</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  :root{
+    /* diverging scheme: orange (low) – grey (mid) – blue (high) */
+    --low:#C35A08;
+    --mid:#C8CED3;
+    --high:#0B3D56;
+
+    --ink:#222c4c; --axis:#bfbfbf; --grid:#e9e9e9;
+  }
+
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
+  .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
+  header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+  select{padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;min-width:220px}
+
+  /* Legend chip for EU: neutral grey fill with black outline */
+  .legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
+  .legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}
+
+  svg{display:block;width:100%;height:auto}
+  .label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}
+  .row-rule{stroke:var(--grid);stroke-width:1}
+  .dot{stroke:#fff;stroke-width:1}
+  .dot.emph{stroke:var(--ink);stroke-width:2}
+  .eu-dot{stroke:#000;stroke-width:2} /* EU: coloured fill + black outline */
+  .highlight{fill:none;stroke:var(--ink);stroke-width:2}
+  .highlight-pin{fill:#fff;stroke:var(--ink);stroke-width:2}
+
+  /* Axis + cues area */
+  .x-axis line,.x-axis path{stroke:var(--axis)}
+  .axis-cues text{font-size:18px;font-weight:800}
+  .axis-cues .low{fill:var(--low)}
+  .axis-cues .avg{fill:#6b6f76;font-weight:700}
+  .axis-cues .high{fill:#0B3D56}
+
+  .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
+           font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 style="margin:8px 0 6px">Trust indicators dashboard</h2>
+  <header>
+    <label for="countrySel"></label>
+    <select id="countrySel">
+      <option value="">Select a country</option>
+    </select>
+
+    <div class="legend-eu" title="EU27 average">
+      <div class="chip"></div><span>EU27 average</span>
+    </div>
+  </header>
+
+  <svg id="chart" width="1100" height="640" viewBox="0 0 1100 640" aria-label="beeswarm chart"></svg>
+</div>
+<div id="tooltip" class="tooltip" style="display:none"></div>
+
+<script>
+/* ----------------- Data (Metric, Country, Score) ----------------- */
+const raw = `
+Trust in police,Slovakia,5
+Trust in police,Slovenia,5.9
+Trust in police,Sweden,6.7
+Trust in police,Romania,4.8
+Trust in police,Portugal,6.6
+Trust in police,Poland,4.8
+Trust in police,Netherlands,6.2
+Trust in police,Malta,5
+Trust in police,Latvia,5.3
+Trust in police,Luxembourg,6.6
+Trust in police,Lithuania,6.4
+Trust in police,Italy,5.9
+Trust in police,Ireland,6.2
+Trust in police,Hungary,5.1
+Trust in police,Croatia,4.9
+Trust in police,France,6.2
+Trust in police,Finland,7.4
+Trust in police,Spain,6.3
+Trust in police,Greece,4.1
+Trust in police,Estonia,6.4
+Trust in police,Denmark,6.9
+Trust in police,Germany,6.5
+Trust in police,Czechia,6.4
+Trust in police,Cyprus,4.3
+Trust in police,Bulgaria,4.2
+Trust in police,Belgium,5.9
+Trust in police,Austria,7
+Trust in police,European Union,6
+Trust in EU,Slovakia,4.9
+Trust in EU,Slovenia,3.9
+Trust in EU,Sweden,4.7
+Trust in EU,Romania,5
+Trust in EU,Portugal,5.3
+Trust in EU,Poland,5.2
+Trust in EU,Netherlands,4.2
+Trust in EU,Malta,5
+Trust in EU,Latvia,5.1
+Trust in EU,Luxembourg,5
+Trust in EU,Lithuania,5.6
+Trust in EU,Italy,4.4
+Trust in EU,Ireland,5.4
+Trust in EU,Hungary,5.7
+Trust in EU,Croatia,4.2
+Trust in EU,France,3.9
+Trust in EU,Finland,5.6
+Trust in EU,Spain,5.1
+Trust in EU,Greece,4
+Trust in EU,Estonia,4.4
+Trust in EU,Denmark,5.3
+Trust in EU,Germany,4.8
+Trust in EU,Czechia,4.3
+Trust in EU,Cyprus,4.2
+Trust in EU,Bulgaria,4.5
+Trust in EU,Belgium,3.9
+Trust in EU,Austria,4.6
+Trust in EU,European Union,4.7
+Trust in government,Slovakia,3.3
+Trust in government,Slovenia,3.5
+Trust in government,Sweden,5.5
+Trust in government,Romania,2.5
+Trust in government,Portugal,4.1
+Trust in government,Poland,4.2
+Trust in government,Netherlands,3.8
+Trust in government,Malta,3.1
+Trust in government,Latvia,3.7
+Trust in government,Luxembourg,5.4
+Trust in government,Lithuania,4.1
+Trust in government,Italy,3.1
+Trust in government,Ireland,4.5
+Trust in government,Hungary,2.4
+Trust in government,Croatia,2.5
+Trust in government,France,3.3
+Trust in government,Finland,3.1
+Trust in government,Spain,4.4
+Trust in government,Greece,2.8
+Trust in government,Estonia,3.3
+Trust in government,Denmark,5.8
+Trust in government,Germany,4.4
+Trust in government,Czechia,3.8
+Trust in government,Cyprus,3.2
+Trust in government,Bulgaria,2.4
+Trust in government,Belgium,3.6
+Trust in government,Austria,3.9
+Trust in government,European Union,3.8
+Trust in people,Slovakia,4.5
+Trust in people,Slovenia,4.4
+Trust in people,Sweden,5.5
+Trust in people,Romania,4.6
+Trust in people,Portugal,5.1
+Trust in people,Poland,4.3
+Trust in people,Netherlands,5.5
+Trust in people,Malta,4.5
+Trust in people,Latvia,4.8
+Trust in people,Luxembourg,4.8
+Trust in people,Lithuania,4.8
+Trust in people,Italy,4.5
+Trust in people,Ireland,5.6
+Trust in people,Hungary,4.6
+Trust in people,Croatia,3.9
+Trust in people,France,4.3
+Trust in people,Finland,6.1
+Trust in people,Spain,5.5
+Trust in people,Greece,4
+Trust in people,Estonia,5.2
+Trust in people,Denmark,6.2
+Trust in people,Germany,5.3
+Trust in people,Czechia,4.9
+Trust in people,Cyprus,3.7
+Trust in people,Bulgaria,4.3
+Trust in people,Belgium,4.8
+Trust in people,Austria,5.2
+Trust in people,European Union,4.9
+Trust in social media,Slovakia,3.3
+Trust in social media,Slovenia,3
+Trust in social media,Sweden,2.9
+Trust in social media,Romania,3.7
+Trust in social media,Portugal,2.8
+Trust in social media,Poland,3.6
+Trust in social media,Netherlands,3
+Trust in social media,Malta,3.1
+Trust in social media,Latvia,3.9
+Trust in social media,Luxembourg,3
+Trust in social media,Lithuania,3.7
+Trust in social media,Italy,2.9
+Trust in social media,Ireland,2.8
+Trust in social media,Hungary,3
+Trust in social media,Croatia,3.2
+Trust in social media,France,2.8
+Trust in social media,Finland,3.5
+Trust in social media,Spain,3
+Trust in social media,Greece,3.2
+Trust in social media,Estonia,3.4
+Trust in social media,Denmark,3.2
+Trust in social media,Germany,3.2
+Trust in social media,Czechia,3.3
+Trust in social media,Cyprus,3
+Trust in social media,Bulgaria,3.2
+Trust in social media,Belgium,2.9
+Trust in social media,Austria,3.1
+Trust in social media,European Union,3.1
+Trust in healthcare,Slovakia,5.4
+Trust in healthcare,Slovenia,5.4
+Trust in healthcare,Sweden,5.9
+Trust in healthcare,Romania,4.6
+Trust in healthcare,Portugal,6.2
+Trust in healthcare,Poland,5
+Trust in healthcare,Netherlands,5.7
+Trust in healthcare,Malta,6.4
+Trust in healthcare,Latvia,5.6
+Trust in healthcare,Luxembourg,6.4
+Trust in healthcare,Lithuania,6.1
+Trust in healthcare,Italy,5.5
+Trust in healthcare,Ireland,5.7
+Trust in healthcare,Hungary,4
+Trust in healthcare,Croatia,5.3
+Trust in healthcare,France,6.1
+Trust in healthcare,Finland,6.2
+Trust in healthcare,Spain,6.7
+Trust in healthcare,Greece,4.6
+Trust in healthcare,Estonia,6.1
+Trust in healthcare,Denmark,6.8
+Trust in healthcare,Germany,6
+Trust in healthcare,Czechia,6.8
+Trust in healthcare,Cyprus,5.3
+Trust in healthcare,Bulgaria,4.4
+Trust in healthcare,Belgium,6.4
+Trust in healthcare,Austria,6.5
+Trust in healthcare,European Union,5.8
+Trust in news media,Slovakia,4
+Trust in news media,Slovenia,3.7
+Trust in news media,Sweden,4.8
+Trust in news media,Romania,3.3
+Trust in news media,Portugal,4.2
+Trust in news media,Poland,4
+Trust in news media,Netherlands,4.2
+Trust in news media,Malta,3.6
+Trust in news media,Latvia,4.3
+Trust in news media,Luxembourg,4.2
+Trust in news media,Lithuania,4
+Trust in news media,Italy,3.6
+Trust in news media,Ireland,4.3
+Trust in news media,Hungary,2.4
+Trust in news media,Croatia,3.3
+Trust in news media,France,3.6
+Trust in news media,Finland,5.7
+Trust in news media,Spain,3.6
+Trust in news media,Greece,2.1
+Trust in news media,Estonia,4
+Trust in news media,Denmark,5
+Trust in news media,Germany,4.9
+Trust in news media,Czechia,4.1
+Trust in news media,Cyprus,3
+Trust in news media,Bulgaria,2.9
+Trust in news media,Belgium,4.1
+Trust in news media,Austria,4.8
+Trust in news media,European Union,4
+`;
+
+// Parse
+const data = raw.trim().split(/\r?\n/).map(r=>{
+  const [Metric, Country, Score] = r.split(",").map(s=>s.trim());
+  return { Metric, Country, Score:+Score };
+});
+
+// Base order, then sort rows by EU value (lowest at bottom)
+const baseCats = [
+  "Trust in police",
+  "Trust in EU",
+  "Trust in government",
+  "Trust in people",
+  "Trust in social media",
+  "Trust in healthcare",
+  "Trust in news media"
+];
+const euValue = Object.fromEntries(
+  baseCats.map(cat=>{
+    const rec = data.find(d=>d.Metric===cat && d.Country==="European Union");
+    return [cat, rec ? rec.Score : NaN];
+  })
+);
+// Highest at top → lowest at bottom
+const categories = baseCats.slice().sort((a,b)=> d3.descending(euValue[a], euValue[b]));
+
+// --- Chart dims ---
+const svg = d3.select("#chart");
+const width = +svg.attr("width");
+const margin = { top:4, right:28, bottom:110, left:270 };
+const rowGap = 90;
+const r = 6;
+const innerW = width - margin.left - margin.right;
+
+// vertical layout: rows → big cues → (gap) → axis
+const rowsHeight = (categories.length-1)*rowGap;
+const cuesOffset   = rowsHeight + 78;  // where the big cues sit
+const axisOffset   = cuesOffset + 24;  // axis below cues
+const totalH = margin.top + margin.bottom + axisOffset + 40;
+svg.attr("height", totalH);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+const x = d3.scaleLinear().domain([1,8]).range([0, innerW]);
+const rowY = i => i*rowGap;
+
+// Diverging colour around 5
+const interp = d3.interpolateRgbBasis([css("--low"), css("--mid"), css("--high")]);
+const color = d3.scaleDiverging().domain([1,5,8]).interpolator(interp);
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+/* ----- horizontal row rules + labels ----- */
+categories.forEach((lab,i)=>{
+  g.append("text").attr("class","label").attr("x",-16).attr("y",rowY(i)).attr("text-anchor","end").text(lab);
+g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
+  .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
+
+});
+
+/* ----- single vertical guide at 5 ----- */
+g.append("line")
+  .attr("x1", x(5)).attr("x2", x(5))
+  .attr("y1", 0).attr("y2", rowsHeight)
+  .attr("stroke", "#d6d6d6").attr("stroke-dasharray", "3 4");
+
+/* ----- build points + beeswarm per row ----- */
+function buildPoints(){
+  const pts=[];
+  categories.forEach((cat,i)=>{
+    data.filter(d=>d.Metric===cat).forEach(d=>{
+      pts.push({
+        id:`${d.Country}-${cat}`,
+        Country:d.Country,
+        Metric:cat,
+        value:d.Score,
+        x:x(d.Score),
+        y:rowY(i)
+      });
+    });
+  });
+  return pts;
+}
+function beeswarm(points){
+  categories.forEach((cat,i)=>{
+    const rowPts = points.filter(p=>p.Metric===cat);
+    const sim = d3.forceSimulation(rowPts)
+      .force("x", d3.forceX(p=>x(p.value)).strength(0.8))
+      .force("y", d3.forceY(rowY(i)).strength(0.15))
+      .force("collide", d3.forceCollide(r+1.4))
+      .stop();
+    for (let k=0;k<350;k++) sim.tick();
+  });
+}
+
+/* ----- tooltip ----- */
+const tip = document.getElementById("tooltip");
+function showTip(e, p){
+  tip.style.display = "block";
+  tip.style.left = (e.clientX + 12) + "px";
+  tip.style.top  = (e.clientY + 12) + "px";
+  tip.innerHTML = `<strong>${p.Country==="European Union"?"EU27 average":p.Country}</strong><br>${p.Metric}: ${p.value}`;
+}
+function hideTip(){ tip.style.display = "none"; }
+
+/* ----- layers ----- */
+const dotsG = g.append("g");
+const hiG   = g.append("g").attr("class","highlight-layer");
+
+let points = buildPoints();
+beeswarm(points);
+
+/* draw dots (EU has black outline, keeps colour fill) */
+dotsG.selectAll("circle").data(points, d=>d.id)
+  .join("circle")
+  .attr("r", r)
+  .attr("cx", d=>d.x)
+  .attr("cy", d=>d.y)
+  .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
+  .attr("fill", d => color(d.value))
+  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected) drawHighlight(d.Country); })
+  .on("mousemove",  (e,d)=>{ showTip(e,d); })
+  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected) clearHighlight(); });
+
+/* ----- big cues BELOW the last row ----- */
+const cues = g.append("g").attr("class","axis-cues").attr("transform", `translate(0,${cuesOffset})`);
+cues.append("text").attr("class","low").attr("x", x(1)).attr("text-anchor","start").text("← Lower trust");
+cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
+cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end").text("Higher trust →");
+
+/* ----- numeric axis BELOW the cues ----- */
+
+
+/* ----- hover/selection highlight (no side label) ----- */
+function drawHighlight(country){
+  hiG.selectAll("*").remove();
+  dotsG.selectAll("circle").classed("emph", d => d.Country === country);
+
+  const cPts = categories.map(cat => points.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
+  if (!cPts.length) return;
+
+  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
+  hiG.append("path").attr("class","highlight").attr("d", line(cPts));
+  cPts.forEach(p=>{
+    hiG.append("circle").attr("class","highlight-pin").attr("r", r+2).attr("cx", p.x).attr("cy", p.y);
+  });
+}
+function clearHighlight(){
+  hiG.selectAll("*").remove();
+  dotsG.selectAll("circle").classed("emph", false);
+}
+
+/* ----- dropdown = sticky hover ----- */
+const sel = document.getElementById("countrySel");
+const countries = Array.from(new Set(points.map(p=>p.Country)))
+  .sort((a,b)=> (a==="European Union") ? -1 : (b==="European Union") ? 1 : a.localeCompare(b));
+countries.forEach(c => sel.add(new Option(c, c)));
+
+let selected = "";
+sel.addEventListener("change", ()=>{
+  selected = sel.value;
+  if (selected) drawHighlight(selected);
+  else clearHighlight();
+});
+</script>
+</body>
+</html>

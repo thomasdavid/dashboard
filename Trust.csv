@@ -1,0 +1,393 @@
+﻿Year,Metric,Country,Score
+2024,Trust in police,Slovakia,5
+2024,Trust in police,Slovenia,5.9
+2024,Trust in police,Sweden,6.7
+2024,Trust in police,Romania,4.8
+2024,Trust in police,Portugal,6.6
+2024,Trust in police,Poland,4.8
+2024,Trust in police,Netherlands,6.2
+2024,Trust in police,Malta,5
+2024,Trust in police,Latvia,5.3
+2024,Trust in police,Luxembourg,6.6
+2024,Trust in police,Lithuania,6.4
+2024,Trust in police,Italy,5.9
+2024,Trust in police,Ireland,6.2
+2024,Trust in police,Hungary,5.1
+2024,Trust in police,Croatia,4.9
+2024,Trust in police,France,6.2
+2024,Trust in police,Finland,7.4
+2024,Trust in police,Spain,6.3
+2024,Trust in police,Greece,4.1
+2024,Trust in police,Estonia,6.4
+2024,Trust in police,Denmark,6.9
+2024,Trust in police,Germany,6.5
+2024,Trust in police,Czechia,6.4
+2024,Trust in police,Cyprus,4.3
+2024,Trust in police,Bulgaria,4.2
+2024,Trust in police,Belgium,5.9
+2024,Trust in police,Austria,7
+2024,Trust in police,European Union,6
+2024,Trust in EU,Slovakia,4.9
+2024,Trust in EU,Slovenia,3.9
+2024,Trust in EU,Sweden,4.7
+2024,Trust in EU,Romania,5
+2024,Trust in EU,Portugal,5.3
+2024,Trust in EU,Poland,5.2
+2024,Trust in EU,Netherlands,4.2
+2024,Trust in EU,Malta,5
+2024,Trust in EU,Latvia,5.1
+2024,Trust in EU,Luxembourg,5
+2024,Trust in EU,Lithuania,5.6
+2024,Trust in EU,Italy,4.4
+2024,Trust in EU,Ireland,5.4
+2024,Trust in EU,Hungary,5.7
+2024,Trust in EU,Croatia,4.2
+2024,Trust in EU,France,3.9
+2024,Trust in EU,Finland,5.6
+2024,Trust in EU,Spain,5.1
+2024,Trust in EU,Greece,4
+2024,Trust in EU,Estonia,4.4
+2024,Trust in EU,Denmark,5.3
+2024,Trust in EU,Germany,4.8
+2024,Trust in EU,Czechia,4.3
+2024,Trust in EU,Cyprus,4.2
+2024,Trust in EU,Bulgaria,4.5
+2024,Trust in EU,Belgium,3.9
+2024,Trust in EU,Austria,4.6
+2024,Trust in EU,European Union,4.7
+2024,Trust in government,Slovakia,3.3
+2024,Trust in government,Slovenia,3.5
+2024,Trust in government,Sweden,5.5
+2024,Trust in government,Romania,2.5
+2024,Trust in government,Portugal,4.1
+2024,Trust in government,Poland,4.2
+2024,Trust in government,Netherlands,3.8
+2024,Trust in government,Malta,3.1
+2024,Trust in government,Latvia,3.7
+2024,Trust in government,Luxembourg,5.4
+2024,Trust in government,Lithuania,4.1
+2024,Trust in government,Italy,3.1
+2024,Trust in government,Ireland,4.5
+2024,Trust in government,Hungary,2.4
+2024,Trust in government,Croatia,2.5
+2024,Trust in government,France,3.3
+2024,Trust in government,Finland,3.1
+2024,Trust in government,Spain,4.4
+2024,Trust in government,Greece,2.8
+2024,Trust in government,Estonia,3.3
+2024,Trust in government,Denmark,5.8
+2024,Trust in government,Germany,4.4
+2024,Trust in government,Czechia,3.8
+2024,Trust in government,Cyprus,3.2
+2024,Trust in government,Bulgaria,2.4
+2024,Trust in government,Belgium,3.6
+2024,Trust in government,Austria,3.9
+2024,Trust in government,European Union,3.8
+2024,Trust in people,Slovakia,4.5
+2024,Trust in people,Slovenia,4.4
+2024,Trust in people,Sweden,5.5
+2024,Trust in people,Romania,4.6
+2024,Trust in people,Portugal,5.1
+2024,Trust in people,Poland,4.3
+2024,Trust in people,Netherlands,5.5
+2024,Trust in people,Malta,4.5
+2024,Trust in people,Latvia,4.8
+2024,Trust in people,Luxembourg,4.8
+2024,Trust in people,Lithuania,4.8
+2024,Trust in people,Italy,4.5
+2024,Trust in people,Ireland,5.6
+2024,Trust in people,Hungary,4.6
+2024,Trust in people,Croatia,3.9
+2024,Trust in people,France,4.3
+2024,Trust in people,Finland,6.1
+2024,Trust in people,Spain,5.5
+2024,Trust in people,Greece,4
+2024,Trust in people,Estonia,5.2
+2024,Trust in people,Denmark,6.2
+2024,Trust in people,Germany,5.3
+2024,Trust in people,Czechia,4.9
+2024,Trust in people,Cyprus,3.7
+2024,Trust in people,Bulgaria,4.3
+2024,Trust in people,Belgium,4.8
+2024,Trust in people,Austria,5.2
+2024,Trust in people,European Union,4.9
+2024,Trust in social media,Slovakia,3.3
+2024,Trust in social media,Slovenia,3
+2024,Trust in social media,Sweden,2.9
+2024,Trust in social media,Romania,3.7
+2024,Trust in social media,Portugal,2.8
+2024,Trust in social media,Poland,3.6
+2024,Trust in social media,Netherlands,3
+2024,Trust in social media,Malta,3.1
+2024,Trust in social media,Latvia,3.9
+2024,Trust in social media,Luxembourg,3
+2024,Trust in social media,Lithuania,3.7
+2024,Trust in social media,Italy,2.9
+2024,Trust in social media,Ireland,2.8
+2024,Trust in social media,Hungary,3
+2024,Trust in social media,Croatia,3.2
+2024,Trust in social media,France,2.8
+2024,Trust in social media,Finland,3.5
+2024,Trust in social media,Spain,3
+2024,Trust in social media,Greece,3.2
+2024,Trust in social media,Estonia,3.4
+2024,Trust in social media,Denmark,3.2
+2024,Trust in social media,Germany,3.2
+2024,Trust in social media,Czechia,3.3
+2024,Trust in social media,Cyprus,3
+2024,Trust in social media,Bulgaria,3.2
+2024,Trust in social media,Belgium,2.9
+2024,Trust in social media,Austria,3.1
+2024,Trust in social media,European Union,3.1
+2024,Trust in healthcare,Slovakia,5.4
+2024,Trust in healthcare,Slovenia,5.4
+2024,Trust in healthcare,Sweden,5.9
+2024,Trust in healthcare,Romania,4.6
+2024,Trust in healthcare,Portugal,6.2
+2024,Trust in healthcare,Poland,5
+2024,Trust in healthcare,Netherlands,5.7
+2024,Trust in healthcare,Malta,6.4
+2024,Trust in healthcare,Latvia,5.6
+2024,Trust in healthcare,Luxembourg,6.4
+2024,Trust in healthcare,Lithuania,6.1
+2024,Trust in healthcare,Italy,5.5
+2024,Trust in healthcare,Ireland,5.7
+2024,Trust in healthcare,Hungary,4
+2024,Trust in healthcare,Croatia,5.3
+2024,Trust in healthcare,France,6.1
+2024,Trust in healthcare,Finland,6.2
+2024,Trust in healthcare,Spain,6.7
+2024,Trust in healthcare,Greece,4.6
+2024,Trust in healthcare,Estonia,6.1
+2024,Trust in healthcare,Denmark,6.8
+2024,Trust in healthcare,Germany,6
+2024,Trust in healthcare,Czechia,6.8
+2024,Trust in healthcare,Cyprus,5.3
+2024,Trust in healthcare,Bulgaria,4.4
+2024,Trust in healthcare,Belgium,6.4
+2024,Trust in healthcare,Austria,6.5
+2024,Trust in healthcare,European Union,5.8
+2024,Trust in news media,Slovakia,4
+2024,Trust in news media,Slovenia,3.7
+2024,Trust in news media,Sweden,4.8
+2024,Trust in news media,Romania,3.3
+2024,Trust in news media,Portugal,4.2
+2024,Trust in news media,Poland,4
+2024,Trust in news media,Netherlands,4.2
+2024,Trust in news media,Malta,3.6
+2024,Trust in news media,Latvia,4.3
+2024,Trust in news media,Luxembourg,4.2
+2024,Trust in news media,Lithuania,4
+2024,Trust in news media,Italy,3.6
+2024,Trust in news media,Ireland,4.3
+2024,Trust in news media,Hungary,2.4
+2024,Trust in news media,Croatia,3.3
+2024,Trust in news media,France,3.6
+2024,Trust in news media,Finland,5.7
+2024,Trust in news media,Spain,3.6
+2024,Trust in news media,Greece,2.1
+2024,Trust in news media,Estonia,4
+2024,Trust in news media,Denmark,5
+2024,Trust in news media,Germany,4.9
+2024,Trust in news media,Czechia,4.1
+2024,Trust in news media,Cyprus,3
+2024,Trust in news media,Bulgaria,2.9
+2024,Trust in news media,Belgium,4.1
+2024,Trust in news media,Austria,4.8
+2024,Trust in news media,European Union,4
+2025,Trust in police,Slovakia,4.5
+2025,Trust in police,Slovenia,5.31
+2025,Trust in police,Sweden,6.03
+2025,Trust in police,Romania,4.32
+2025,Trust in police,Portugal,5.94
+2025,Trust in police,Poland,4.32
+2025,Trust in police,Netherlands,5.58
+2025,Trust in police,Malta,4.5
+2025,Trust in police,Latvia,4.77
+2025,Trust in police,Luxembourg,5.94
+2025,Trust in police,Lithuania,5.76
+2025,Trust in police,Italy,5.31
+2025,Trust in police,Ireland,5.58
+2025,Trust in police,Hungary,4.59
+2025,Trust in police,Croatia,4.41
+2025,Trust in police,France,5.58
+2025,Trust in police,Finland,6.66
+2025,Trust in police,Spain,5.67
+2025,Trust in police,Greece,3.69
+2025,Trust in police,Estonia,5.76
+2025,Trust in police,Denmark,6.21
+2025,Trust in police,Germany,5.85
+2025,Trust in police,Czechia,5.76
+2025,Trust in police,Cyprus,3.87
+2025,Trust in police,Bulgaria,3.78
+2025,Trust in police,Belgium,5.31
+2025,Trust in police,Austria,6.3
+2025,Trust in police,European Union,5.4
+2025,Trust in EU,Slovakia,4.41
+2025,Trust in EU,Slovenia,3.51
+2025,Trust in EU,Sweden,4.23
+2025,Trust in EU,Romania,4.5
+2025,Trust in EU,Portugal,4.77
+2025,Trust in EU,Poland,4.68
+2025,Trust in EU,Netherlands,3.78
+2025,Trust in EU,Malta,4.5
+2025,Trust in EU,Latvia,4.59
+2025,Trust in EU,Luxembourg,4.5
+2025,Trust in EU,Lithuania,5.04
+2025,Trust in EU,Italy,3.96
+2025,Trust in EU,Ireland,4.86
+2025,Trust in EU,Hungary,5.13
+2025,Trust in EU,Croatia,3.78
+2025,Trust in EU,France,3.51
+2025,Trust in EU,Finland,5.04
+2025,Trust in EU,Spain,4.59
+2025,Trust in EU,Greece,3.6
+2025,Trust in EU,Estonia,3.96
+2025,Trust in EU,Denmark,4.77
+2025,Trust in EU,Germany,4.32
+2025,Trust in EU,Czechia,3.87
+2025,Trust in EU,Cyprus,3.78
+2025,Trust in EU,Bulgaria,4.05
+2025,Trust in EU,Belgium,3.51
+2025,Trust in EU,Austria,4.14
+2025,Trust in EU,European Union,4.23
+2025,Trust in government,Slovakia,2.97
+2025,Trust in government,Slovenia,3.15
+2025,Trust in government,Sweden,4.95
+2025,Trust in government,Romania,2.25
+2025,Trust in government,Portugal,3.69
+2025,Trust in government,Poland,3.78
+2025,Trust in government,Netherlands,3.42
+2025,Trust in government,Malta,2.79
+2025,Trust in government,Latvia,3.33
+2025,Trust in government,Luxembourg,4.86
+2025,Trust in government,Lithuania,3.69
+2025,Trust in government,Italy,2.79
+2025,Trust in government,Ireland,4.05
+2025,Trust in government,Hungary,2.16
+2025,Trust in government,Croatia,2.25
+2025,Trust in government,France,2.97
+2025,Trust in government,Finland,2.79
+2025,Trust in government,Spain,3.96
+2025,Trust in government,Greece,2.52
+2025,Trust in government,Estonia,2.97
+2025,Trust in government,Denmark,5.22
+2025,Trust in government,Germany,3.96
+2025,Trust in government,Czechia,3.42
+2025,Trust in government,Cyprus,2.88
+2025,Trust in government,Bulgaria,2.16
+2025,Trust in government,Belgium,3.24
+2025,Trust in government,Austria,3.51
+2025,Trust in government,European Union,3.42
+2025,Trust in people,Slovakia,4.05
+2025,Trust in people,Slovenia,3.96
+2025,Trust in people,Sweden,4.95
+2025,Trust in people,Romania,4.14
+2025,Trust in people,Portugal,4.59
+2025,Trust in people,Poland,3.87
+2025,Trust in people,Netherlands,4.95
+2025,Trust in people,Malta,4.05
+2025,Trust in people,Latvia,4.32
+2025,Trust in people,Luxembourg,4.32
+2025,Trust in people,Lithuania,4.32
+2025,Trust in people,Italy,4.05
+2025,Trust in people,Ireland,5.04
+2025,Trust in people,Hungary,4.14
+2025,Trust in people,Croatia,3.51
+2025,Trust in people,France,3.87
+2025,Trust in people,Finland,5.49
+2025,Trust in people,Spain,4.95
+2025,Trust in people,Greece,3.6
+2025,Trust in people,Estonia,4.68
+2025,Trust in people,Denmark,5.58
+2025,Trust in people,Germany,4.77
+2025,Trust in people,Czechia,4.41
+2025,Trust in people,Cyprus,3.33
+2025,Trust in people,Bulgaria,3.87
+2025,Trust in people,Belgium,4.32
+2025,Trust in people,Austria,4.68
+2025,Trust in people,European Union,4.41
+2025,Trust in social media,Slovakia,2.97
+2025,Trust in social media,Slovenia,2.7
+2025,Trust in social media,Sweden,2.61
+2025,Trust in social media,Romania,3.33
+2025,Trust in social media,Portugal,2.52
+2025,Trust in social media,Poland,3.24
+2025,Trust in social media,Netherlands,2.7
+2025,Trust in social media,Malta,2.79
+2025,Trust in social media,Latvia,3.51
+2025,Trust in social media,Luxembourg,2.7
+2025,Trust in social media,Lithuania,3.33
+2025,Trust in social media,Italy,2.61
+2025,Trust in social media,Ireland,2.52
+2025,Trust in social media,Hungary,2.7
+2025,Trust in social media,Croatia,2.88
+2025,Trust in social media,France,2.52
+2025,Trust in social media,Finland,3.15
+2025,Trust in social media,Spain,2.7
+2025,Trust in social media,Greece,2.88
+2025,Trust in social media,Estonia,3.06
+2025,Trust in social media,Denmark,2.88
+2025,Trust in social media,Germany,2.88
+2025,Trust in social media,Czechia,2.97
+2025,Trust in social media,Cyprus,2.7
+2025,Trust in social media,Bulgaria,2.88
+2025,Trust in social media,Belgium,2.61
+2025,Trust in social media,Austria,2.79
+2025,Trust in social media,European Union,2.79
+2025,Trust in healthcare,Slovakia,4.86
+2025,Trust in healthcare,Slovenia,4.86
+2025,Trust in healthcare,Sweden,5.31
+2025,Trust in healthcare,Romania,4.14
+2025,Trust in healthcare,Portugal,5.58
+2025,Trust in healthcare,Poland,4.5
+2025,Trust in healthcare,Netherlands,5.13
+2025,Trust in healthcare,Malta,5.76
+2025,Trust in healthcare,Latvia,5.04
+2025,Trust in healthcare,Luxembourg,5.76
+2025,Trust in healthcare,Lithuania,5.49
+2025,Trust in healthcare,Italy,4.95
+2025,Trust in healthcare,Ireland,5.13
+2025,Trust in healthcare,Hungary,3.6
+2025,Trust in healthcare,Croatia,4.77
+2025,Trust in healthcare,France,5.49
+2025,Trust in healthcare,Finland,5.58
+2025,Trust in healthcare,Spain,6.03
+2025,Trust in healthcare,Greece,4.14
+2025,Trust in healthcare,Estonia,5.49
+2025,Trust in healthcare,Denmark,6.12
+2025,Trust in healthcare,Germany,5.4
+2025,Trust in healthcare,Czechia,6.12
+2025,Trust in healthcare,Cyprus,4.77
+2025,Trust in healthcare,Bulgaria,3.96
+2025,Trust in healthcare,Belgium,5.76
+2025,Trust in healthcare,Austria,5.85
+2025,Trust in healthcare,European Union,5.22
+2025,Trust in news media,Slovakia,3.6
+2025,Trust in news media,Slovenia,3.33
+2025,Trust in news media,Sweden,4.32
+2025,Trust in news media,Romania,2.97
+2025,Trust in news media,Portugal,3.78
+2025,Trust in news media,Poland,3.6
+2025,Trust in news media,Netherlands,3.78
+2025,Trust in news media,Malta,3.24
+2025,Trust in news media,Latvia,3.87
+2025,Trust in news media,Luxembourg,3.78
+2025,Trust in news media,Lithuania,3.6
+2025,Trust in news media,Italy,3.24
+2025,Trust in news media,Ireland,3.87
+2025,Trust in news media,Hungary,2.16
+2025,Trust in news media,Croatia,2.97
+2025,Trust in news media,France,3.24
+2025,Trust in news media,Finland,5.13
+2025,Trust in news media,Spain,3.24
+2025,Trust in news media,Greece,1.89
+2025,Trust in news media,Estonia,3.6
+2025,Trust in news media,Denmark,4.5
+2025,Trust in news media,Germany,4.41
+2025,Trust in news media,Czechia,3.69
+2025,Trust in news media,Cyprus,2.7
+2025,Trust in news media,Bulgaria,2.61
+2025,Trust in news media,Belgium,3.69
+2025,Trust in news media,Austria,4.32
+2025,Trust in news media,European Union,3.6

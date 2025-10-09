@@ -3,82 +3,86 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Trust beeswarm – year dropdown</title>
+<title>Trust beeswarm – centered selects + legend</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
   :root{
-    /* diverging scheme: orange (low) – grey (mid) – blue (high) */
     --low:#C35A08; --mid:#C8CED3; --high:#0B3D56;
     --ink:#222c4c; --axis:#bfbfbf; --grid:#e9e9e9;
-    --chart-left: 270px; /* keep in sync with SVG left margin if needed */
   }
 
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
+  h2{margin:8px 0 6px;text-align:center}
 
-  /* ───────── Top controls: year (left) + country (right), centered ───────── */
-  .top-controls{
+  /* ───────── Controls: country + year centered, legend centered below ───────── */
+  .controls-stack{
     display:flex; flex-direction:column; align-items:center;
-    gap:10px; margin:6px 0 12px;
+    gap:10px;               /* small gap between selects row and legend */
+    margin:6px 0 6px;       /* keep controls close to chart */
   }
   .controls-row{
-    display:flex; align-items:center; justify-content:center; gap:16px;
+    display:flex; align-items:center; justify-content:center;
+    gap:12px;               /* space between the two selects */
   }
-  .legend-row{ margin-top:4px; }
+  .legend-row{
+    margin-top:2px;
+    transform:scale(.9);    /* subtly smaller and close to chart */
+    transform-origin:center;
+  }
 
-  /* ───────── Select + clear (×) ───────── */
+  /* ───────── Selects ───────── */
   .select-wrap{ position:relative; display:inline-block }
+  /* Base select NO chevron (used by country) */
   .select-wrap select{
-    min-width: 220px;
-    padding: 10px 44px 10px 14px;
-    border: 1px solid #d5dbe3; border-radius: 12px; background:#fff;
-    font-size: 14px; line-height:1; color:#111;
-    appearance:none; background-image:none;   /* no chevron */
+    min-width:240px;
+    padding:10px 40px 10px 14px;
+    border:1px solid #d5dbe3; border-radius:12px; background:#fff;
+    font-size:14px; line-height:1; color:#111;
+    appearance:none; background-image:none;   /* no chevron by default */
   }
-  /* make the year dropdown a bit narrower */
-  .select-wrap.year select{ min-width: 140px; }
-
   .select-wrap select:focus{
-    outline:none; border-color:#b8c2cf; box-shadow:0 0 0 3px rgba(0,0,0,.04);
+    outline:none;border-color:#b8c2cf;box-shadow:0 0 0 3px rgba(0,0,0,.04);
   }
-  /* faded placeholder look while required select is on the hidden empty option */
-  .select-wrap select:invalid{ color:#8b95a3; }
-  .select-wrap option{ color:#111; }
+  /* Year ONLY: add chevron and slightly narrower */
+  .select-wrap.year select{
+    min-width:150px;
+    background-image:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    background-size:12px 8px;
+  }
+  /* Optional: greyed until the user changes year */
+  .select-wrap.year select.soft{ color:#7c8796; }
 
   .clear-btn{
     position:absolute; right:10px; top:50%; transform:translateY(-50%);
     width:28px; height:28px; border:0; background:transparent;
     color:#111; font-size:22px; line-height:1; padding:0; cursor:pointer;
   }
-  .clear-btn:hover{ color:#000; transform:translateY(-50%) scale(1.05); }
-  .clear-btn:active{ transform:translateY(-50%) scale(.98); }
-  .clear-btn[hidden]{ display:none; }
+  .clear-btn:hover{ color:#000; transform:translateY(-50%) scale(1.05) }
+  .clear-btn:active{ transform:translateY(-50%) scale(.98) }
+  .clear-btn[hidden]{ display:none }
 
   /* EU legend chip */
   .legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
   .legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}
 
-  /* chart */
+  /* ───────── Chart styles (unchanged) ───────── */
   svg{display:block;width:100%;height:auto}
   .label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}
   .row-rule{stroke:var(--grid);stroke-width:1}
   .dot{stroke:#fff;stroke-width:1}
   .dot.emph{stroke:var(--ink);stroke-width:2}
   .eu-dot{stroke:#000;stroke-width:2}
-
-  .highlight{
-    fill:none; stroke:#6b7280; stroke-opacity:.45; stroke-width:1.8;
-    stroke-linecap:round; pointer-events:none;
-  }
+  .highlight{ fill:none; stroke:#6b7280; stroke-opacity:.45; stroke-width:1.8; stroke-linecap:round; pointer-events:none; }
   .highlight-pin{ fill:none; stroke:#0f1d3a; stroke-width:.5; pointer-events:none; }
-
-  .x-axis line,.x-axis path{stroke:var(--axis)}
-  .axis-cues text{font-size:18px;font-weight:800}
+  .axis-cues text{font-size:22px;font-weight:800}
   .axis-cues .low{fill:var(--low)}
   .axis-cues .avg{fill:#6b6f76;font-weight:700}
   .axis-cues .high{fill:#0B3D56}
-
   .name-fo{pointer-events:none}
   .flag-row{
     display:flex; align-items:center; gap:6px;
@@ -86,37 +90,32 @@
     text-shadow:0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 0 3px rgba(255,255,255,.95);
     white-space:nowrap;
   }
-
-  .tooltip{
-    position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;
-    font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)
-  }
+  .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2 style="margin:8px 0 6px">Trust indicators dashboard</h2>
+  <h2>Trust indicators dashboard</h2>
 
-  <!-- TOP CONTROLS: Year (left) + Country (right), both centered; legend below -->
-  <header class="top-controls">
+  <!-- Centered country + year, then centered legend close to chart -->
+  <header class="controls-stack">
     <div class="controls-row">
-      <!-- Year dropdown -->
-      <div class="select-wrap year">
-        <select id="yearSel" required>
-          <option value="" disabled selected hidden>Select year</option>
-        </select>
-      </div>
-
-      <!-- Country dropdown with clear button -->
+      <!-- Country (no chevron) -->
       <div class="select-wrap">
         <select id="countrySel" required>
           <option value="" disabled selected hidden>Select a country</option>
         </select>
         <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
       </div>
+
+      <!-- Year (with chevron) -->
+      <div class="select-wrap year">
+        <select id="yearSel" required class="soft">
+          <!-- options injected by JS -->
+        </select>
+      </div>
     </div>
 
-    <!-- EU legend row -->
     <div class="legend-row">
       <div class="legend-eu" title="EU27 average">
         <div class="chip"></div><span>EU27 average</span>
@@ -131,8 +130,6 @@
 
 <script>
 const CSV_URL = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/Trust.csv";
-
-/* flag-icons codes */
 const FLAG_CODE = {
   "European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr",
   "Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr",
@@ -145,13 +142,11 @@ const FLAG_CODE = {
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
 const margin = { top:4, right:28, bottom:110, left:270 };
-const rowGap = 90;
-const r = 6;
-const innerW = width - margin.left - margin.right;
-
+const rowGap = 90, r = 6, innerW = width - margin.left - margin.right;
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const x = d3.scaleLinear().domain([1,8]).range([0, innerW]);
 const rowY = i => i*rowGap;
+const labelLeft = -margin.left + 24;
 
 const interp = d3.interpolateRgbBasis([css("--low"), css("--mid"), css("--high")]);
 const color = d3.scaleDiverging().domain([1,5,8]).interpolator(interp);
@@ -175,15 +170,10 @@ function hideTip(){ tip.style.display = "none"; }
 
 /* fade helpers */
 const FADE_OTHER = 0.2;
-function setFade(country){
+function applyFade(country){
   dotsG.selectAll("circle")
     .classed("emph", d => d.Country === country)
-    .transition().duration(180)
-    .attr("opacity", d => d.Country === country ? 1 : FADE_OTHER);
-}
-function clearFade(){
-  dotsG.selectAll("circle").classed("emph", false)
-    .transition().duration(180).attr("opacity", 1);
+    .attr("opacity", d => country ? (d.Country === country ? 1 : FADE_OTHER) : 1);
 }
 
 /* controls */
@@ -196,21 +186,23 @@ let categories = [];
 let points = [];
 let years = [];
 let curYear = null;
+let allRows = [];
 
 /* ---------- load & init ---------- */
-let allRows = [];
 d3.csv(CSV_URL, d3.autoType).then(init);
 
 function init(rows){
   allRows = rows.map(d => ({ Year:+d.Year, Metric:String(d.Metric), Country:String(d.Country), Score:+d.Score }));
 
   years = Array.from(new Set(allRows.map(d=>d.Year))).sort(d3.ascending);
-  curYear = d3.max(years); // initial view uses latest year
+  curYear = d3.max(years);
 
-  // populate Year dropdown (latest first so it’s easy to pick)
-  [...years].sort((a,b)=>b-a).forEach(y => yearSel.add(new Option(y, y)));
+  // Populate year dropdown (latest first); preselect latest & grey until changed
+  [...years].sort((a,b)=>b-a).forEach(y => yearSel.add(new Option(y, y, false, y===curYear)));
+  yearSel.classList.add('soft');
+  yearSel.addEventListener('change', ()=> yearSel.classList.remove('soft'));
 
-  // metrics sorted by EU value for initial year
+  // Metrics sorted by EU value for initial year
   const byYear = allRows.filter(d=>d.Year===curYear);
   const metrics = Array.from(new Set(byYear.map(d=>d.Metric)));
   const euVal = Object.fromEntries(metrics.map(m => {
@@ -227,8 +219,10 @@ function init(rows){
   svg.attr("height", totalH);
 
   categories.forEach((lab,i)=>{
-    g.append("text").attr("class","label").attr("x",-16).attr("y",rowY(i)).attr("text-anchor","end").text(lab);
-    g.append("line").attr("class","row-rule").attr("x1",0).attr("x2",innerW)
+    g.append("text").attr("class","label")
+      .attr("x", labelLeft).attr("y", rowY(i)).attr("text-anchor","start").text(lab);
+    g.append("line").attr("class","row-rule")
+      .attr("x1", labelLeft).attr("x2", innerW)
       .attr("y1", rowY(i) + r + 38).attr("y2", rowY(i) + r + 38);
   });
   const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
@@ -236,9 +230,9 @@ function init(rows){
 
   // cues below rows (no numeric axis)
   const cues = g.append("g").attr("class","axis-cues").attr("transform", `translate(0,${rowsHeight + 78})`);
-  cues.append("text").attr("class","low").attr("x", x(1)).attr("text-anchor","start").text("← Lower trust");
+  cues.append("text").attr("class","low").attr("x", x(1.2)).attr("text-anchor","start").text("← Lower trust");
   cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
-  cues.append("text").attr("class","high").attr("x", x(8)).attr("text-anchor","end").text("Higher trust →");
+  cues.append("text").attr("class","high").attr("x", x(7.5)).attr("text-anchor","end").text("Higher trust →");
 
   // first render
   points = buildPoints(byYear);
@@ -252,23 +246,27 @@ function init(rows){
 
   // handlers
   yearSel.addEventListener("change", ()=>{
-    const val = yearSel.value;
-    if (!val) return;
-    const y = +val;
+    const y = +yearSel.value;
     if (y === curYear) return;
+
+    // cache previous layout and (if selected) previous country per-row points
+    const prevMap = new Map(points.map(p=>[p.id, {x:p.x, y:p.y}]));
+    const prevCountry = selected;
+    const prevCountryPts = prevCountry ? getCountryRowPoints(prevMap, prevCountry) : null;
+
     curYear = y;
-    updateYear(allRows.filter(d=>d.Year===curYear));
+    updateYear(allRows.filter(d=>d.Year===curYear), prevMap, prevCountry, prevCountryPts);
   });
 
   sel.addEventListener("change", ()=>{
     selected = sel.value;
     clearBtn.hidden = !selected;
-    if (selected){ setFade(selected); drawHighlight(selected, true); }
-    else { clearFade(); clearHighlight(); }
+    if (selected){ applyFade(selected); drawHighlight(selected, true); }
+    else { applyFade(""); clearHighlight(); }
   });
 
   clearBtn.addEventListener("click", ()=>{
-    sel.value = ""; selected = ""; clearBtn.hidden = true; clearFade(); clearHighlight();
+    sel.value = ""; selected = ""; clearBtn.hidden = true; applyFade(""); clearHighlight();
   });
 }
 
@@ -324,16 +322,30 @@ function drawDots(){
     update => update,
     exit => exit.remove()
   )
-  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected){ setFade(d.Country); drawHighlight(d.Country, false); } })
+  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected){ applyFade(d.Country); drawHighlight(d.Country, false); } })
   .on("mousemove",  (e,d)=>{ showTip(e,d); })
-  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected){ clearFade(); clearHighlight(); } });
+  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected){ applyFade(""); clearHighlight(); } });
 }
 
-function updateYear(rowsForYear){
-  const prevMap = new Map(points.map(p=>[p.id, {x:p.x, y:p.y}]));
+/* helpers for highlight morph */
+function getCountryRowPoints(mapOrPoints, country){
+  if (mapOrPoints instanceof Map){
+    return categories.map(cat=>{
+      const id = `${country}-${cat}`;
+      const p = mapOrPoints.get(id);
+      return p ? {x:p.x, y:rowY(categories.indexOf(cat))} : null;
+    }).filter(Boolean);
+  } else {
+    return categories.map(cat => mapOrPoints.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
+  }
+}
+
+function updateYear(rowsForYear, prevMap, prevCountry, prevCountryPts){
   const newPts = buildPoints(rowsForYear);
   beeswarm(newPts, prevMap);
   points = newPts;
+
+  const t = d3.transition().duration(600).ease(d3.easeCubicInOut);
 
   dotsG.selectAll("circle").data(points, d=>d.id)
     .join(
@@ -345,19 +357,71 @@ function updateYear(rowsForYear){
       update => update,
       exit => exit.remove()
     )
-    .transition().duration(600).ease(d3.easeCubicInOut)
+    .transition(t)
     .attr("cx", d=>d.x).attr("cy", d=>d.y)
-    .attr("fill", d => color(d.value));
+    .attr("fill", d => color(d.value))
+    .attr("opacity", selected ? (d => d.Country===selected ? 1 : 0.2) : 1);
 
   drawDots(); // rebind events
 
   if (selected){
-    setFade(selected);
-    drawHighlight(selected, false); // no draw-on animation during year change
+    const nextPts = getCountryRowPoints(points, selected);
+    if (prevCountry && prevCountry === selected && prevCountryPts && prevCountryPts.length){
+      animateHighlightFromTo(prevCountryPts, nextPts, t.duration());
+    }else{
+      drawHighlight(selected, false);
+    }
+  } else {
+    applyFade("");
+    clearHighlight();
   }
 }
 
-/* ---------- highlight & label ---------- */
+function animateHighlightFromTo(prevPts, nextPts, duration){
+  hiG.selectAll("*").remove();
+
+  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
+
+  // Path starts at previous geometry
+  const path = hiG.append("path")
+    .attr("class","highlight")
+    .attr("d", line(prevPts));
+
+  // Morph to new geometry
+  path.transition().duration(duration).ease(d3.easeCubicInOut)
+    .attrTween("d", function(){
+      const n = Math.min(prevPts.length, nextPts.length);
+      const iFuncs = [];
+      for (let i=0;i<n;i++){
+        iFuncs.push({
+          x: d3.interpolateNumber(prevPts[i].x, nextPts[i].x),
+          y: d3.interpolateNumber(prevPts[i].y, nextPts[i].y)
+        });
+      }
+      return function(t){
+        const cur = iFuncs.map(f=>({x:f.x(t), y:f.y(t)}));
+        return line(cur);
+      };
+    });
+
+  // Pins: start at prev, move to next
+  hiG.selectAll("circle.highlight-pin")
+    .data(nextPts, (d,i)=>i)
+    .enter()
+    .append("circle")
+    .attr("class","highlight-pin")
+    .attr("r", r+2)
+    .attr("cx", (d,i)=> prevPts[i] ? prevPts[i].x : d.x)
+    .attr("cy", (d,i)=> prevPts[i] ? prevPts[i].y : d.y)
+    .attr("fill","none")
+    .transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr("cx", d=>d.x).attr("cy", d=>d.y);
+
+  drawSelectedName(selected);
+  applyFade(selected);
+}
+
+/* ----- selected-country label ----- */
 function drawSelectedName(country){
   nameG.selectAll("*").remove();
   if (!country) return;
@@ -405,21 +469,24 @@ function drawHighlight(country, animate=false){
         .attr("stroke-dashoffset", 0);
   }
 
-  cPts.forEach(p=>{
-    hiG.append("circle")
-      .attr("class","highlight-pin")
-      .attr("r", r+2)
-      .attr("cx", p.x)
-      .attr("cy", p.y)
-      .attr("fill","none");
-  });
+  hiG.selectAll(null)
+    .data(cPts)
+    .enter()
+    .append("circle")
+    .attr("class","highlight-pin")
+    .attr("r", r+2)
+    .attr("cx", d=>d.x)
+    .attr("cy", d=>d.y)
+    .attr("fill","none");
 
   drawSelectedName(country);
+  applyFade(country);
 }
 
 function clearHighlight(){
   hiG.selectAll("*").remove();
   nameG.selectAll("*").remove();
+  applyFade("");
 }
 </script>
 </body>

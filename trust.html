@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
   :root{
-    --low:#C35A08; --mid:#C8CED3; --high:#0B3D56;
+    --low:#C35A08; --mid:#C8CED3; --high:#0B3D56; --second:#1B2110;
     --ink:#222c4c; --axis:#bfbfbf; --grid:#e9e9e9;
   }
 
@@ -113,7 +113,7 @@ function css(v){ return getComputedStyle(document.documentElement).getPropertyVa
 
 /* layers */
 const dotsG = g.append("g");
-const layers = {
+let layers = {
   A: { g: g.append("g").attr("class","layer-A"), labelG: g.append("g").attr("class","label-A") },
   B: { g: g.append("g").attr("class","layer-B"), labelG: g.append("g").attr("class","label-B") }
 };
@@ -214,15 +214,53 @@ function init(rows){
     const choice = countrySel.value;
     if (!choice) return;
     if (selectedCountries.includes(choice)){ countrySel.value=""; return; }
-    if (selectedCountries.length >= 2){ alert("You can select up to two countries."); countrySel.value=""; return; }
 
-    selectedCountries.push(choice); // keep existing ones
-    updateCountryDisplay();
-    renderSelectedLayers(true); // add (don’t clear) new line(s)
+    if (selectedCountries.length === 0){
+      selectedCountries = [choice];
+      updateCountryDisplay();
+      renderSelectedLayers(true);
+    } else if (selectedCountries.length === 1){
+      selectedCountries.push(choice);
+      updateCountryDisplay();
+      // draw ONLY the second (new) line
+      renderOnlySecond(true);
+    } else {
+      // === KEY CHANGE ===
+      // We already have 2. Drop the oldest; keep the recent without redrawing:
+      // 1) swap layer references so old B becomes visible A without re-render
+      swapLayersAB();
+      // 2) update selectedCountries -> [oldB, newChoice]
+      selectedCountries = [selectedCountries[1], choice];
+      updateCountryDisplay();
+      // 3) clear & draw ONLY the new second line
+      renderOnlySecond(true);
+    }
     countrySel.value = "";
   });
 
-  clearBtn.addEventListener("click", ()=>{ selectedCountries=[]; updateCountryDisplay(); applyFade(new Set()); clearLayers(); });
+  clearBtn.addEventListener("click", ()=>{
+    selectedCountries=[]; updateCountryDisplay();
+    applyFade(new Set()); clearLayers();
+  });
+}
+
+/* swap the layer group references (so the on-screen graphics for B become A without redraw) */
+function swapLayersAB(){
+  // swap the DOM groups by swapping references; also swap their class names for consistency
+  const oldA = layers.A, oldB = layers.B;
+  layers.A = oldB; layers.B = oldA;
+
+  // update class names so CSS colors align with logical roles
+  layers.A.g.classed("layer-A", true).classed("layer-B", false);
+  layers.A.labelG.classed("label-A", true).classed("label-B", false);
+  layers.B.g.classed("layer-B", true).classed("layer-A", false);
+  layers.B.labelG.classed("label-B", true).classed("label-A", false);
+
+  // also toggle the stroke classes on existing paths/pins
+  // former B (now A) should NOT have ".second"
+  layers.A.g.selectAll(".highlight").classed("second", false);
+  layers.A.g.selectAll(".highlight-pin").classed("second", false);
+  // former A (now B) is going to be redrawn anyway (we clear it in renderOnlySecond)
 }
 
 /* select label */
@@ -258,7 +296,7 @@ function beeswarm(pts, prevMap){
   });
 }
 
-/* dots + hover (disabled when selections active) */
+/* dots + hover (keep tooltips active always) */
 function drawDots(){
   const selDots = dotsG.selectAll("circle").data(points, d=>d.id);
   selDots.join(
@@ -268,9 +306,9 @@ function drawDots(){
       .attr("fill", d => color(d.value)).attr("opacity", 1),
     update => update, exit => exit.remove()
   )
-  .on("mouseenter", (e,d)=>{ if(!selectedCountries.length){ showTip(e,d); applyFade(new Set([d.Country])); drawPreview(layers.A.g, layers.A.labelG, d.Country, ""); } })
-  .on("mousemove",  (e,d)=>{ if(!selectedCountries.length){ showTip(e,d); }})
-  .on("mouseleave", ()=>{ if(!selectedCountries.length){ hideTip(); applyFade(new Set()); clearLayer(layers.A); }});
+  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selectedCountries.length){ applyFade(new Set([d.Country])); drawPreview(layers.A.g, layers.A.labelG, d.Country, ""); } })
+  .on("mousemove",  (e,d)=>{ showTip(e,d); })
+  .on("mouseleave", ()=>{ hideTip(); if(!selectedCountries.length){ applyFade(new Set()); clearLayer(layers.A); }});
 }
 
 /* helpers */
@@ -310,18 +348,16 @@ function updateYear(rowsForYear, prevMap, prevByCountry){
 
   if (selectedCountries.length){
     applyFade(new Set(selectedCountries));
-    // morph each existing layer independently
-    ["A","B"].forEach((slot,i)=>{
-      const country = selectedCountries[i];
-      if (!country) { clearLayer(layers[slot]); return; }
+    ["A","B"].forEach(slot=>{
+      const country = selectedCountries[slot==="A"?0:1];
+      if (!country){ clearLayer(layers[slot]); return; }
       const prevPts = prevByCountry && prevByCountry[country];
       const nextPts = getCountryRowPoints(points, country);
       if (prevPts && prevPts.length){
-        morphLayer(layers[slot], prevPts, nextPts, slot==="B"); // B = blue style
+        morphLayer(layers[slot], prevPts, nextPts, slot==="B");
       }else{
         drawLayer(layers[slot], nextPts, slot==="B");
       }
-      // update moving label
       drawLabel(layers[slot].labelG, country, slot==="B" ? -48 : -28);
     });
   }else{
@@ -330,13 +366,12 @@ function updateYear(rowsForYear, prevMap, prevByCountry){
   }
 }
 
-/* selection: render both layers but NEVER clear the other one */
+/* selection rendering */
 function renderSelectedLayers(animate){
   applyFade(new Set(selectedCountries));
-  // slot mapping
   const slots = { A: selectedCountries[0] || null, B: selectedCountries[1] || null };
 
-  ["A","B"].forEach((slot,i)=>{
+  ["A","B"].forEach(slot=>{
     const country = slots[slot];
     if(!country){ clearLayer(layers[slot]); return; }
     const pts = getCountryRowPoints(points, country);
@@ -345,10 +380,28 @@ function renderSelectedLayers(animate){
   });
 }
 
+/* draw ONLY the second line (keep first exactly as-is) */
+function renderOnlySecond(animate){
+  applyFade(new Set(selectedCountries));
+  const countryB = selectedCountries[1];
+  // ensure B group is clean, then draw it
+  clearLayer(layers.B);
+  if (countryB){
+    const ptsB = getCountryRowPoints(points, countryB);
+    drawLayer(layers.B, ptsB, true, animate);
+    drawLabel(layers.B.labelG, countryB, -48);
+  }
+  // also (re)draw label for A just to ensure it exists if A exists (no redraw of path)
+  const countryA = selectedCountries[0];
+  if (countryA){
+    drawLabel(layers.A.labelG, countryA, -28);
+  }
+}
+
 /* layer draw/morph helpers */
-function drawPreview(gLine, gLabel, country, suffixClass){
+function drawPreview(gLine, gLabel, country){
   const pts = getCountryRowPoints(points, country);
-  drawLayer({g:gLine,labelG:gLabel}, pts, false, true, suffixClass);
+  drawLayer({g:gLine,labelG:gLabel}, pts, false, true);
 }
 
 function drawLayer(layer, pts, isSecond=false, animate=false){
@@ -412,9 +465,6 @@ function drawLabel(labelG, country, yOffset){
 
 function clearLayer(layer){ layer.g.selectAll("*").remove(); layer.labelG.selectAll("*").remove(); }
 function clearLayers(){ clearLayer(layers.A); clearLayer(layers.B); }
-
-/* preview-only path used on hover when no selections */
-function drawPreview(){ /* implemented above via drawPreview(g,label,country) */ }
 </script>
 </body>
 </html>

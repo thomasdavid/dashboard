@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Trust beeswarm – centered selects + legend</title>
+<title>Trust beeswarm – two-country compare (fixed)</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
@@ -16,78 +16,51 @@
   .wrap{max-width:1200px;margin:20px auto;padding:0 12px}
   h2{margin:8px 0 6px;text-align:center}
 
-  /* ───────── Controls: country + year centered, legend centered below ───────── */
-  .controls-stack{
-    display:flex; flex-direction:column; align-items:center;
-    gap:10px;               /* small gap between selects row and legend */
-    margin:6px 0 6px;       /* keep controls close to chart */
-  }
-  .controls-row{
-    display:flex; align-items:center; justify-content:center;
-    gap:12px;               /* space between the two selects */
-  }
-  .legend-row{
-    margin-top:2px;
-    transform:scale(.9);    /* subtly smaller and close to chart */
-    transform-origin:center;
-  }
+  .controls-stack{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 6px}
+  .controls-row{display:flex;align-items:center;justify-content:center;gap:12px}
+  .legend-row{margin-top:2px;transform:scale(.9);transform-origin:center}
 
-  /* ───────── Selects ───────── */
-  .select-wrap{ position:relative; display:inline-block }
-  /* Base select NO chevron (used by country) */
+  .select-wrap{position:relative;display:inline-block}
   .select-wrap select{
-    min-width:240px;
-    padding:10px 40px 10px 14px;
-    border:1px solid #d5dbe3; border-radius:12px; background:#fff;
-    font-size:14px; line-height:1; color:#111;
-    appearance:none; background-image:none;   /* no chevron by default */
+    min-width:240px;padding:10px 40px 10px 14px;border:1px solid #d5dbe3;border-radius:12px;background:#fff;
+    font-size:14px;line-height:1;color:#111;appearance:none;background-image:none;
   }
-  .select-wrap select:focus{
-    outline:none;border-color:#b8c2cf;box-shadow:0 0 0 3px rgba(0,0,0,.04);
-  }
-  /* Year ONLY: add chevron and slightly narrower */
+  .select-wrap select:focus{outline:none;border-color:#b8c2cf;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
   .select-wrap.year select{
     min-width:150px;
-    background-image:
-      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-    background-repeat:no-repeat;
-    background-position:right 12px center;
-    background-size:12px 8px;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px;
   }
-  /* Optional: greyed until the user changes year */
-  .select-wrap.year select.soft{ color:#7c8796; }
+  .select-wrap.year select.soft{color:#7c8796}
+  .clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;background:transparent;color:#111;font-size:22px;line-height:1;padding:0;cursor:pointer}
+  .clear-btn:hover{color:#000;transform:translateY(-50%) scale(1.05)}
+  .clear-btn:active{transform:translateY(-50%) scale(.98)}
+  .clear-btn[hidden]{display:none}
 
-  .clear-btn{
-    position:absolute; right:10px; top:50%; transform:translateY(-50%);
-    width:28px; height:28px; border:0; background:transparent;
-    color:#111; font-size:22px; line-height:1; padding:0; cursor:pointer;
-  }
-  .clear-btn:hover{ color:#000; transform:translateY(-50%) scale(1.05) }
-  .clear-btn:active{ transform:translateY(-50%) scale(.98) }
-  .clear-btn[hidden]{ display:none }
-
-  /* EU legend chip */
   .legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
   .legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}
 
-  /* ───────── Chart styles (unchanged) ───────── */
   svg{display:block;width:100%;height:auto}
   .label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}
   .row-rule{stroke:var(--grid);stroke-width:1}
   .dot{stroke:#fff;stroke-width:1}
   .dot.emph{stroke:var(--ink);stroke-width:2}
   .eu-dot{stroke:#000;stroke-width:2}
-  .highlight{ fill:none; stroke:#6b7280; stroke-opacity:.45; stroke-width:1.8; stroke-linecap:round; pointer-events:none; }
-  .highlight-pin{ fill:none; stroke:#0f1d3a; stroke-width:.5; pointer-events:none; }
+
+  /* line A */
+  .highlight{fill:none;stroke:#6b7280;stroke-opacity:.55;stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+  .highlight-pin{fill:none;stroke:#0f1d3a;stroke-width:.6;pointer-events:none}
+  /* line B (blue-ish) */
+  .highlight.second{stroke:var(--high);stroke-opacity:.55}
+  .highlight-pin.second{stroke:var(--high);stroke-opacity:.6}
+
   .axis-cues text{font-size:22px;font-weight:800}
-  .axis-cues .low{fill:var(--low)}
-  .axis-cues .avg{fill:#6b6f76;font-weight:700}
-  .axis-cues .high{fill:#0B3D56}
+  .axis-cues .low{fill:var(--low)} .axis-cues .avg{fill:#6b6f76;font-weight:700} .axis-cues .high{fill:#0B3D56}
+
   .name-fo{pointer-events:none}
   .flag-row{
-    display:flex; align-items:center; gap:6px;
-    font-weight:800; font-size:18px; color:#111; line-height:1;
-    text-shadow:0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 0 3px rgba(255,255,255,.95);
+    display:flex;align-items:center;gap:6px;font-weight:800;font-size:18px;color:#111;line-height:1;
+    text-shadow:0 1px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 3px rgba(255,255,255,.95);
     white-space:nowrap;
   }
   .tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
@@ -97,29 +70,20 @@
 <div class="wrap">
   <h2>Trust indicators dashboard</h2>
 
-  <!-- Centered country + year, then centered legend close to chart -->
   <header class="controls-stack">
     <div class="controls-row">
-      <!-- Country (no chevron) -->
       <div class="select-wrap">
         <select id="countrySel" required>
-          <option value="" disabled selected hidden>Select a country</option>
+          <option id="countryDisplay" value="" disabled selected hidden>Select a country</option>
         </select>
         <button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button>
       </div>
-
-      <!-- Year (with chevron) -->
       <div class="select-wrap year">
-        <select id="yearSel" required class="soft">
-          <!-- options injected by JS -->
-        </select>
+        <select id="yearSel" required class="soft"></select>
       </div>
     </div>
-
     <div class="legend-row">
-      <div class="legend-eu" title="EU27 average">
-        <div class="chip"></div><span>EU27 average</span>
-      </div>
+      <div class="legend-eu" title="EU27 average"><div class="chip"></div><span>EU27 average</span></div>
     </div>
   </header>
 
@@ -130,15 +94,9 @@
 
 <script>
 const CSV_URL = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/Trust.csv";
-const FLAG_CODE = {
-  "European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr",
-  "Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr",
-  "Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv",
-  "Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl",
-  "Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"
-};
+const FLAG_CODE = {"European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"};
 
-/* ---------- chart setup ---------- */
+/* chart setup */
 const svg = d3.select("#chart");
 const width = +svg.attr("width");
 const margin = { top:4, right:28, bottom:110, left:270 };
@@ -148,61 +106,58 @@ const x = d3.scaleLinear().domain([1,8]).range([0, innerW]);
 const rowY = i => i*rowGap;
 const labelLeft = -margin.left + 24;
 
-const interp = d3.interpolateRgbBasis([css("--low"), css("--mid"), css("--high")]);
-const color = d3.scaleDiverging().domain([1,5,8]).interpolator(interp);
+const color = d3.scaleDiverging()
+  .domain([1,5,8])
+  .interpolator(d3.interpolateRgbBasis([css("--low"), css("--mid"), css("--high")]));
 function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
 /* layers */
 const dotsG = g.append("g");
-const hiG   = g.append("g").attr("class","highlight-layer");
-const nameG = g.append("g").attr("class","name-layer");
+const layers = {
+  A: { g: g.append("g").attr("class","layer-A"), labelG: g.append("g").attr("class","label-A") },
+  B: { g: g.append("g").attr("class","layer-B"), labelG: g.append("g").attr("class","label-B") }
+};
 dotsG.raise();
 
 /* tooltip */
 const tip = document.getElementById("tooltip");
-function showTip(e, p){
-  tip.style.display = "block";
-  tip.style.left = (e.clientX + 12) + "px";
-  tip.style.top  = (e.clientY + 12) + "px";
-  tip.innerHTML = `<strong>${p.Country==="European Union"?"European Union":p.Country}</strong><br>${p.Metric}: ${p.value}`;
-}
-function hideTip(){ tip.style.display = "none"; }
+function showTip(e, p){ tip.style.display="block"; tip.style.left=(e.clientX+12)+"px"; tip.style.top=(e.clientY+12)+"px"; tip.innerHTML=`<strong>${p.Country==="European Union"?"European Union":p.Country}</strong><br>${p.Metric}: ${p.value}`; }
+function hideTip(){ tip.style.display="none"; }
 
 /* fade helpers */
 const FADE_OTHER = 0.2;
-function applyFade(country){
+function applyFade(set){
   dotsG.selectAll("circle")
-    .classed("emph", d => d.Country === country)
-    .attr("opacity", d => country ? (d.Country === country ? 1 : FADE_OTHER) : 1);
+    .classed("emph", d => set.has(d.Country))
+    .attr("opacity", d => set.size ? (set.has(d.Country) ? 1 : FADE_OTHER) : 1);
 }
 
-/* controls */
-const yearSel  = document.getElementById("yearSel");
-const sel      = document.getElementById("countrySel");
-const clearBtn = document.getElementById("clearSel");
+/* controls / state */
+const yearSel        = document.getElementById("yearSel");
+const countrySel     = document.getElementById("countrySel");
+const countryDisplay = document.getElementById("countryDisplay");
+const clearBtn       = document.getElementById("clearSel");
 
-let selected = "";
+let selectedCountries = []; // slot 0 = A, slot 1 = B
 let categories = [];
 let points = [];
 let years = [];
 let curYear = null;
 let allRows = [];
 
-/* ---------- load & init ---------- */
+/* load */
 d3.csv(CSV_URL, d3.autoType).then(init);
 
 function init(rows){
   allRows = rows.map(d => ({ Year:+d.Year, Metric:String(d.Metric), Country:String(d.Country), Score:+d.Score }));
-
   years = Array.from(new Set(allRows.map(d=>d.Year))).sort(d3.ascending);
   curYear = d3.max(years);
 
-  // Populate year dropdown (latest first); preselect latest & grey until changed
+  // populate year
   [...years].sort((a,b)=>b-a).forEach(y => yearSel.add(new Option(y, y, false, y===curYear)));
   yearSel.classList.add('soft');
   yearSel.addEventListener('change', ()=> yearSel.classList.remove('soft'));
 
-  // Metrics sorted by EU value for initial year
   const byYear = allRows.filter(d=>d.Year===curYear);
   const metrics = Array.from(new Set(byYear.map(d=>d.Metric)));
   const euVal = Object.fromEntries(metrics.map(m => {
@@ -211,11 +166,9 @@ function init(rows){
   }));
   categories = metrics.slice().sort((a,b)=> d3.descending(euVal[a], euVal[b]));
 
-  // chart height / rules / labels
+  // static scaffolding
   const rowsHeight = (categories.length-1)*rowGap;
-  const cuesOffset = rowsHeight + 78;
-  const axisOffset = cuesOffset + 24;
-  const totalH = margin.top + margin.bottom + axisOffset + 40;
+  const totalH = margin.top + margin.bottom + (rowsHeight + 78 + 24) + 40;
   svg.attr("height", totalH);
 
   categories.forEach((lab,i)=>{
@@ -228,74 +181,72 @@ function init(rows){
   const lastRuleY = (i => rowY(i) + r + 38)(categories.length-1);
   g.append("line").attr("x1", x(5)).attr("x2", x(5)).attr("y1", 0).attr("y2", lastRuleY).attr("stroke", "#d6d6d6");
 
-  // cues below rows (no numeric axis)
   const cues = g.append("g").attr("class","axis-cues").attr("transform", `translate(0,${rowsHeight + 78})`);
   cues.append("text").attr("class","low").attr("x", x(1.2)).attr("text-anchor","start").text("← Lower trust");
   cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
   cues.append("text").attr("class","high").attr("x", x(7.5)).attr("text-anchor","end").text("Higher trust →");
 
-  // first render
+  // dots
   points = buildPoints(byYear);
   beeswarm(points);
   drawDots();
 
-  // country select (EU first, then A–Z)
+  // country list
   const allCountries = Array.from(new Set(byYear.map(d=>d.Country))).filter(Boolean);
   const ordered = ["European Union", ...allCountries.filter(c => c !== "European Union").sort((a,b)=>a.localeCompare(b))];
-  ordered.forEach(c => sel.add(new Option(c, c)));
+  ordered.forEach(c => countrySel.add(new Option(c, c)));
 
   // handlers
   yearSel.addEventListener("change", ()=>{
     const y = +yearSel.value;
     if (y === curYear) return;
 
-    // cache previous layout and (if selected) previous country per-row points
+    // prev point map for smooth morph
     const prevMap = new Map(points.map(p=>[p.id, {x:p.x, y:p.y}]));
-    const prevCountry = selected;
-    const prevCountryPts = prevCountry ? getCountryRowPoints(prevMap, prevCountry) : null;
+    const prevByCountry = {};
+    selectedCountries.forEach(c => prevByCountry[c] = getCountryRowPoints(prevMap, c));
 
     curYear = y;
-    updateYear(allRows.filter(d=>d.Year===curYear), prevMap, prevCountry, prevCountryPts);
+    updateYear(allRows.filter(d=>d.Year===curYear), prevMap, prevByCountry);
   });
 
-  sel.addEventListener("change", ()=>{
-    selected = sel.value;
-    clearBtn.hidden = !selected;
-    if (selected){ applyFade(selected); drawHighlight(selected, true); }
-    else { applyFade(""); clearHighlight(); }
+  countrySel.addEventListener("change", ()=>{
+    const choice = countrySel.value;
+    if (!choice) return;
+    if (selectedCountries.includes(choice)){ countrySel.value=""; return; }
+    if (selectedCountries.length >= 2){ alert("You can select up to two countries."); countrySel.value=""; return; }
+
+    selectedCountries.push(choice); // keep existing ones
+    updateCountryDisplay();
+    renderSelectedLayers(true); // add (don’t clear) new line(s)
+    countrySel.value = "";
   });
 
-  clearBtn.addEventListener("click", ()=>{
-    sel.value = ""; selected = ""; clearBtn.hidden = true; applyFade(""); clearHighlight();
-  });
+  clearBtn.addEventListener("click", ()=>{ selectedCountries=[]; updateCountryDisplay(); applyFade(new Set()); clearLayers(); });
 }
 
-/* ---------- building & layout ---------- */
+/* select label */
+function updateCountryDisplay(){
+  clearBtn.hidden = selectedCountries.length === 0;
+  countryDisplay.textContent = selectedCountries.length ? selectedCountries.join(", ") : "Select a country";
+  countryDisplay.disabled = true; countryDisplay.selected = true; countryDisplay.hidden = !selectedCountries.length;
+}
+
+/* build/layout */
 function buildPoints(rows){
   const pts=[];
   categories.forEach((cat,i)=>{
     rows.filter(d=>d.Metric===cat).forEach(d=>{
-      pts.push({
-        id:`${d.Country}-${cat}`,
-        Country:d.Country,
-        Metric:cat,
-        value:d.Score,
-        x:x(d.Score),
-        y:rowY(i)
-      });
+      pts.push({ id:`${d.Country}-${cat}`, Country:d.Country, Metric:cat, value:d.Score, x:x(d.Score), y:rowY(i) });
     });
   });
   return pts;
 }
-
 function beeswarm(pts, prevMap){
   categories.forEach((cat,i)=>{
     const rowPts = pts.filter(p=>p.Metric===cat);
     if (prevMap){
-      rowPts.forEach(p=>{
-        const pr = prevMap.get(p.id);
-        if (pr){ p.x = pr.x; p.y = pr.y; }
-      });
+      rowPts.forEach(p=>{ const pr=prevMap.get(p.id); if(pr){ p.x=pr.x; p.y=pr.y; }});
     }
     const sim = d3.forceSimulation(rowPts)
       .alpha(0.9)
@@ -307,32 +258,26 @@ function beeswarm(pts, prevMap){
   });
 }
 
-/* ---------- drawing ---------- */
+/* dots + hover (disabled when selections active) */
 function drawDots(){
   const selDots = dotsG.selectAll("circle").data(points, d=>d.id);
-
   selDots.join(
     enter => enter.append("circle")
-      .attr("r", r)
-      .attr("cx", d=>d.x)
-      .attr("cy", d=>d.y)
+      .attr("r", r).attr("cx", d=>d.x).attr("cy", d=>d.y)
       .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
-      .attr("fill", d => color(d.value))
-      .attr("opacity", 1),
-    update => update,
-    exit => exit.remove()
+      .attr("fill", d => color(d.value)).attr("opacity", 1),
+    update => update, exit => exit.remove()
   )
-  .on("mouseenter", (e,d)=>{ showTip(e,d); if(!selected){ applyFade(d.Country); drawHighlight(d.Country, false); } })
-  .on("mousemove",  (e,d)=>{ showTip(e,d); })
-  .on("mouseleave", (e,d)=>{ hideTip(); if(!selected){ applyFade(""); clearHighlight(); } });
+  .on("mouseenter", (e,d)=>{ if(!selectedCountries.length){ showTip(e,d); applyFade(new Set([d.Country])); drawPreview(layers.A.g, layers.A.labelG, d.Country, ""); } })
+  .on("mousemove",  (e,d)=>{ if(!selectedCountries.length){ showTip(e,d); }})
+  .on("mouseleave", ()=>{ if(!selectedCountries.length){ hideTip(); applyFade(new Set()); clearLayer(layers.A); }});
 }
 
-/* helpers for highlight morph */
+/* helpers */
 function getCountryRowPoints(mapOrPoints, country){
   if (mapOrPoints instanceof Map){
     return categories.map(cat=>{
-      const id = `${country}-${cat}`;
-      const p = mapOrPoints.get(id);
+      const id = `${country}-${cat}`; const p = mapOrPoints.get(id);
       return p ? {x:p.x, y:rowY(categories.indexOf(cat))} : null;
     }).filter(Boolean);
   } else {
@@ -340,7 +285,8 @@ function getCountryRowPoints(mapOrPoints, country){
   }
 }
 
-function updateYear(rowsForYear, prevMap, prevCountry, prevCountryPts){
+/* year update: morph BOTH layers without dropping either */
+function updateYear(rowsForYear, prevMap, prevByCountry){
   const newPts = buildPoints(rowsForYear);
   beeswarm(newPts, prevMap);
   points = newPts;
@@ -353,141 +299,122 @@ function updateYear(rowsForYear, prevMap, prevCountry, prevCountryPts){
         .attr("r", r).attr("cx", d=>d.x).attr("cy", d=>d.y)
         .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
         .attr("fill", d => color(d.value))
-        .attr("opacity", selected ? (d => d.Country===selected ? 1 : 0.2) : 1),
-      update => update,
-      exit => exit.remove()
+        .attr("opacity", selectedCountries.length ? (d => selectedCountries.includes(d.Country) ? 1 : 0.2) : 1),
+      update => update, exit => exit.remove()
     )
     .transition(t)
-    .attr("cx", d=>d.x).attr("cy", d=>d.y)
-    .attr("fill", d => color(d.value))
-    .attr("opacity", selected ? (d => d.Country===selected ? 1 : 0.2) : 1);
+    .attr("cx", d=>d.x).attr("cy", d=>d.y).attr("fill", d => color(d.value))
+    .attr("opacity", selectedCountries.length ? (d => selectedCountries.includes(d.Country) ? 1 : 0.2) : 1);
 
-  drawDots(); // rebind events
+  drawDots();
 
-  if (selected){
-    const nextPts = getCountryRowPoints(points, selected);
-    if (prevCountry && prevCountry === selected && prevCountryPts && prevCountryPts.length){
-      animateHighlightFromTo(prevCountryPts, nextPts, t.duration());
-    }else{
-      drawHighlight(selected, false);
-    }
-  } else {
-    applyFade("");
-    clearHighlight();
+  if (selectedCountries.length){
+    applyFade(new Set(selectedCountries));
+    // morph each existing layer independently
+    ["A","B"].forEach((slot,i)=>{
+      const country = selectedCountries[i];
+      if (!country) { clearLayer(layers[slot]); return; }
+      const prevPts = prevByCountry && prevByCountry[country];
+      const nextPts = getCountryRowPoints(points, country);
+      if (prevPts && prevPts.length){
+        morphLayer(layers[slot], prevPts, nextPts, slot==="B"); // B = blue style
+      }else{
+        drawLayer(layers[slot], nextPts, slot==="B");
+      }
+      // update moving label
+      drawLabel(layers[slot].labelG, country, slot==="B" ? -48 : -28);
+    });
+  }else{
+    applyFade(new Set());
+    clearLayers();
   }
 }
 
-function animateHighlightFromTo(prevPts, nextPts, duration){
-  hiG.selectAll("*").remove();
+/* selection: render both layers but NEVER clear the other one */
+function renderSelectedLayers(animate){
+  applyFade(new Set(selectedCountries));
+  // slot mapping
+  const slots = { A: selectedCountries[0] || null, B: selectedCountries[1] || null };
 
-  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
-
-  // Path starts at previous geometry
-  const path = hiG.append("path")
-    .attr("class","highlight")
-    .attr("d", line(prevPts));
-
-  // Morph to new geometry
-  path.transition().duration(duration).ease(d3.easeCubicInOut)
-    .attrTween("d", function(){
-      const n = Math.min(prevPts.length, nextPts.length);
-      const iFuncs = [];
-      for (let i=0;i<n;i++){
-        iFuncs.push({
-          x: d3.interpolateNumber(prevPts[i].x, nextPts[i].x),
-          y: d3.interpolateNumber(prevPts[i].y, nextPts[i].y)
-        });
-      }
-      return function(t){
-        const cur = iFuncs.map(f=>({x:f.x(t), y:f.y(t)}));
-        return line(cur);
-      };
-    });
-
-  // Pins: start at prev, move to next
-  hiG.selectAll("circle.highlight-pin")
-    .data(nextPts, (d,i)=>i)
-    .enter()
-    .append("circle")
-    .attr("class","highlight-pin")
-    .attr("r", r+2)
-    .attr("cx", (d,i)=> prevPts[i] ? prevPts[i].x : d.x)
-    .attr("cy", (d,i)=> prevPts[i] ? prevPts[i].y : d.y)
-    .attr("fill","none")
-    .transition().duration(duration).ease(d3.easeCubicInOut)
-    .attr("cx", d=>d.x).attr("cy", d=>d.y);
-
-  drawSelectedName(selected);
-  applyFade(selected);
+  ["A","B"].forEach((slot,i)=>{
+    const country = slots[slot];
+    if(!country){ clearLayer(layers[slot]); return; }
+    const pts = getCountryRowPoints(points, country);
+    drawLayer(layers[slot], pts, slot==="B", animate);
+    drawLabel(layers[slot].labelG, country, slot==="B" ? -48 : -28);
+  });
 }
 
-/* ----- selected-country label ----- */
-function drawSelectedName(country){
-  nameG.selectAll("*").remove();
-  if (!country) return;
+/* layer draw/morph helpers */
+function drawPreview(gLine, gLabel, country, suffixClass){
+  const pts = getCountryRowPoints(points, country);
+  drawLayer({g:gLine,labelG:gLabel}, pts, false, true, suffixClass);
+}
 
+function drawLayer(layer, pts, isSecond=false, animate=false){
+  const cls = isSecond ? "second" : "";
+  layer.g.selectAll("*").remove();
+
+  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
+  const path = layer.g.append("path").attr("class",`highlight ${cls}`).attr("d", line(pts));
+  if (animate){
+    const L = path.node().getTotalLength();
+    path.attr("stroke-dasharray", `${L} ${L}`).attr("stroke-dashoffset", L)
+        .transition().duration(1000).ease(d3.easeCubicInOut).attr("stroke-dashoffset", 0);
+  }
+  layer.g.selectAll(null).data(pts).enter().append("circle")
+    .attr("class",`highlight-pin ${cls}`).attr("r", r+2).attr("cx", d=>d.x).attr("cy", d=>d.y).attr("fill","none");
+}
+
+function morphLayer(layer, prevPts, nextPts, isSecond=false){
+  const cls = isSecond ? "second" : "";
+  layer.g.selectAll("*").remove();
+  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
+
+  const path = layer.g.append("path").attr("class",`highlight ${cls}`).attr("d", line(prevPts));
+  path.transition().duration(600).ease(d3.easeCubicInOut)
+    .attrTween("d", function(){
+      const n = Math.min(prevPts.length, nextPts.length);
+      const I = [];
+      for (let i=0;i<n;i++){ I.push({x:d3.interpolateNumber(prevPts[i].x,nextPts[i].x), y:d3.interpolateNumber(prevPts[i].y,nextPts[i].y)}); }
+      return t => line(I.map(f=>({x:f.x(t), y:f.y(t)})));
+    });
+
+  layer.g.selectAll(null).data(nextPts,(d,i)=>i).enter().append("circle")
+    .attr("class",`highlight-pin ${cls}`).attr("r", r+2)
+    .attr("cx",(d,i)=>prevPts[i]?prevPts[i].x:d.x).attr("cy",(d,i)=>prevPts[i]?prevPts[i].y:d.y)
+    .attr("fill","none").transition().duration(600).ease(d3.easeCubicInOut)
+    .attr("cx",d=>d.x).attr("cy",d=>d.y);
+}
+
+function drawLabel(labelG, country, yOffset){
+  labelG.selectAll("*").remove();
   const firstCat = categories[0];
   const pt = points.find(p=>p.Country===country && p.Metric===firstCat);
   if (!pt) return;
 
-  const label = country === "European Union" ? "European Union" : country;
-  const meas = nameG.append("text").attr("font-weight",800).attr("font-size",18).text(label);
+  const label = country==="European Union" ? "European Union" : country;
+  const meas = labelG.append("text").attr("font-weight",800).attr("font-size",18).text(label);
   const wText = meas.node().getBBox().width; meas.remove();
   const iso = (FLAG_CODE[country] || "").toLowerCase();
   const wFlag = iso ? 18 : 0, pad = iso ? 6 : 0;
   const total = wFlag + pad + wText;
-
   const baseX = pt.x - total/2;
-  const baseY = rowY(0) - 28;
+  const baseY = rowY(0) + yOffset;
 
-  nameG.append("foreignObject")
-    .attr("class","name-fo")
-    .attr("x", baseX).attr("y", baseY-12)
-    .attr("width", total).attr("height", 26)
-    .html(`
-      <div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
-        ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
-        <span>${label}</span>
-      </div>
-    `);
+  labelG.append("foreignObject")
+    .attr("class","name-fo").attr("x", baseX).attr("y", baseY-12).attr("width", total).attr("height", 26)
+    .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
+             ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
+             <span>${label}</span>
+           </div>`);
 }
 
-function drawHighlight(country, animate=false){
-  hiG.selectAll("*").remove();
+function clearLayer(layer){ layer.g.selectAll("*").remove(); layer.labelG.selectAll("*").remove(); }
+function clearLayers(){ clearLayer(layers.A); clearLayer(layers.B); }
 
-  const cPts = categories.map(cat => points.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
-  if (!cPts.length) { drawSelectedName(""); return; }
-
-  const line = d3.line().x(d=>d.x).y(d=>d.y).curve(d3.curveCatmullRom.alpha(0.8));
-  const path = hiG.append("path").attr("class","highlight").attr("d", line(cPts));
-
-  if (animate){
-    const L = path.node().getTotalLength();
-    path.attr("stroke-dasharray", `${L} ${L}`)
-        .attr("stroke-dashoffset", L)
-        .transition().duration(1000).ease(d3.easeCubicInOut)
-        .attr("stroke-dashoffset", 0);
-  }
-
-  hiG.selectAll(null)
-    .data(cPts)
-    .enter()
-    .append("circle")
-    .attr("class","highlight-pin")
-    .attr("r", r+2)
-    .attr("cx", d=>d.x)
-    .attr("cy", d=>d.y)
-    .attr("fill","none");
-
-  drawSelectedName(country);
-  applyFade(country);
-}
-
-function clearHighlight(){
-  hiG.selectAll("*").remove();
-  nameG.selectAll("*").remove();
-  applyFade("");
-}
+/* preview-only path used on hover when no selections */
+function drawPreview(){ /* implemented above via drawPreview(g,label,country) */ }
 </script>
 </body>
 </html>

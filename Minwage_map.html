@@ -47,6 +47,20 @@
     display:flex;align-items:center;justify-content:center;
     margin-bottom:4px;
   }
+  
+  .flagline img{
+  width:18px;
+  height:12px;
+  align-items:center;
+  object-fit:cover;
+  border-radius:2px;
+
+  /* subtle halo so white edges don’t disappear */
+  background:#fff; /* fills any transparent pixels */
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.18),   /* crisp hairline border */
+    0 1px 3px rgba(0,0,0,.10);   /* soft outer glow */
+}
   .flagline img{ width:18px;height:12px;object-fit:cover;border-radius:2px }
 
   svg.tiny{display:block;width:100%;height:auto}
@@ -59,7 +73,17 @@
   }
   .tt-wrap{display:flex;flex-direction:column;gap:6px}
   .tt-row{display:flex;align-items:center;gap:8px}
-  .tt-flag{width:30px;height:20px;object-fit:cover;border-radius:3px}
+.tt-flag{
+  width:30px;
+  height:20px;
+  object-fit:cover;
+  border-radius:3px;
+
+  background:#fff;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.18),
+    0 2px 6px rgba(0,0,0,.12);
+}
   .tt-country{font-weight:600;font-size:14px;color:#111}
   .tt-year{font-weight:800;font-size:18px;color:#222}
   .tt-value{font-weight:900;font-size:34px;color:#000;line-height:1.05}

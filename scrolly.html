@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scrollytelling Builder (Compose → Generate → Preview)</title>
+<style>
+  :root{
+    --maxw: 1100px;
+    --pad: 16px;
+    --muted:#6b7280;
+    --primary:#2b59ff;
+  }
+  html,body{margin:0;background:#f6f7fb;color:#0f172a;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{background:#fff;border-bottom:1px solid #e5e7eb}
+  .header-inner{max-width:var(--maxw);margin:0 auto;display:flex;gap:10px;padding:10px var(--pad);align-items:center;justify-content:space-between}
+  h1{font-size:18px;margin:0}
+
+  /* Tabs */
+  .tabs{display:flex;gap:6px}
+  .tab-btn{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}
+  .tab-btn.active{background:#111827;color:#fff;border-color:#111827}
+  .tab{display:none}
+  .tab.active{display:block}
+
+  .container{max-width:var(--maxw);margin:20px auto;padding:0 var(--pad)}
+
+  /* Table */
+  table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+  thead th{background:#fafafa;font-weight:600;color:#374151;text-align:left;padding:10px;border-bottom:1px solid #e5e7eb}
+  tbody td{padding:10px;border-top:1px solid #f1f5f9;vertical-align:top}
+  select, textarea, input[type="text"]{
+    width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:8px;padding:8px;background:#fff;font:inherit
+  }
+  textarea{min-height:70px;resize:vertical}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+  .btn{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn.danger{border-color:#ef4444;color:#ef4444;background:#fff}
+
+  /* Output code box */
+  .codebox{margin-top:12px;background:#0b1020;color:#d1d5db;border-radius:12px;padding:12px;overflow:auto;border:1px solid #111827;}
+  .codebox textarea{all:unset;display:block;width:100%;min-height:240px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#e5e7eb;white-space:pre}
+
+  /* Preview */
+  .preview-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
+  .preview{width:100%;height:72vh;border:0}
+
+  .row-actions{display:flex;gap:6px}
+  .muted{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>Scrollytelling Builder</h1>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="compose">Compose</button>
+      <button class="tab-btn" data-tab="preview">Preview</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- COMPOSE TAB -->
+  <section class="tab active" id="compose">
+    <div class="muted" style="margin:6px 0 10px">
+      3 columns: <b>Type</b> • <b>Content</b> • <b>Extra</b>. “Scrolly text” attaches to the last media (“image link” or “embed code”).
+    </div>
+
+    <table id="entryTable" aria-label="scrollytelling rows">
+      <thead>
+        <tr>
+          <th style="width:165px">Type</th>
+          <th>Content</th>
+          <th style="width:220px">Extra (heading size, alt/credit, etc.)</th>
+          <th style="width:90px">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="controls">
+      <button class="btn" id="addRowBtn">+ Add row</button>
+      <button class="btn danger" id="clearBtn">Clear all</button>
+      <button class="btn primary" id="genBtn">Generate HTML</button>
+    </div>
+
+    <div class="codebox" id="codebox" hidden>
+      <div class="muted" style="margin-bottom:8px">Generated HTML</div>
+      <textarea id="output" spellcheck="false"></textarea>
+    </div>
+  </section>
+
+  <!-- PREVIEW TAB -->
+  <section class="tab" id="preview">
+    <div class="muted" style="margin:6px 0 10px">Live preview of the generated HTML</div>
+    <div class="preview-wrap">
+      <iframe id="previewFrame" class="preview" title="Scrollytelling Preview"></iframe>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='preview'){
+      document.getElementById('previewFrame').srcdoc = document.getElementById('output').value || '';
+    }
+  });
+});
+
+/* ---------- Row management ---------- */
+const tbody = document.getElementById('tbody');
+const TYPES = ["text","heading","scrolly text","image link","embed code"];
+
+function addRow(prefill={}){
+  const tr = document.createElement('tr');
+
+  const tdType = document.createElement('td');
+  const sel = document.createElement('select');
+  TYPES.forEach(t=>{ const opt=document.createElement('option'); opt.value=t; opt.textContent=t; sel.appendChild(opt); });
+  sel.value = prefill.type || 'text';
+  tdType.appendChild(sel);
+
+  const tdContent = document.createElement('td');
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Enter content: text / URL / embed code';
+  ta.value = prefill.content || '';
+  tdContent.appendChild(ta);
+
+  const tdExtra = document.createElement('td');
+  const extra = document.createElement('input');
+  extra.type='text'; extra.placeholder='Optional: h2/h3, alt text, credit...'; extra.value=prefill.extra||'';
+  tdExtra.appendChild(extra);
+
+  const tdAct = document.createElement('td');
+  const del = document.createElement('button'); del.className='btn danger'; del.textContent='Delete'; del.addEventListener('click', ()=> tr.remove());
+  const actions=document.createElement('div'); actions.className='row-actions'; actions.appendChild(del); tdAct.appendChild(actions);
+
+  tr.appendChild(tdType); tr.appendChild(tdContent); tr.appendChild(tdExtra); tr.appendChild(tdAct);
+  tbody.appendChild(tr);
+}
+
+document.getElementById('addRowBtn').addEventListener('click', ()=> addRow());
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('Remove all rows?')) tbody.innerHTML='';
+});
+
+/* Starter rows (optional) */
+addRow({type:'heading', content:'My Story', extra:'h2'});
+addRow({type:'text', content:'Intro paragraph goes here…'});
+addRow({type:'image link', content:'https://picsum.photos/id/1015/1200/800', extra:'Glacier Lake (Photo)'});
+addRow({type:'scrolly text', content:'A sentence that appears over the image while scrolling.'});
+
+/* ---------- Generate HTML ---------- */
+const genBtn = document.getElementById('genBtn');
+const codebox = document.getElementById('codebox');
+const output = document.getElementById('output');
+
+function escHTML(s){ return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function escapeClosingScript(s){ return s.replace(/<\/script/gi, '<\\/script'); } // keep builder alive
+
+genBtn.addEventListener('click', ()=>{
+  const rows = [...tbody.querySelectorAll('tr')].map(tr=>({
+    type: tr.querySelector('select').value,
+    content: tr.querySelector('textarea').value.trim(),
+    extra: tr.querySelector('input').value.trim()
+  }));
+
+  // Build: normal text/headings → simple .wrap blocks.
+  // Media (image/embed) → one sticky overlay + a stack of .step markers that update overlay text.
+  let htmlSections = [];
+  let pendingSteps = [];
+
+  function pushNormalText(text){ htmlSections.push(`<div class="wrap"><p>${escHTML(text)}</p></div>`); }
+  function pushHeading(text, level){
+    const tag = /^h[1-6]$/i.test(level) ? level.toLowerCase() : 'h2';
+    htmlSections.push(`<div class="wrap"><${tag}>${escHTML(text)}</${tag}></div>`);
+  }
+
+  function emitMedia(type, content, extra){
+    // Create section with single overlay and an empty steps list (filled from pendingSteps)
+    const alt = extra ? escHTML(extra) : 'Image';
+    const mediaInner = (type==='image link')
+      ? `<img src="${escHTML(content)}" alt="${alt}">`
+      : escapeClosingScript(content);
+
+    const stepsHTML = pendingSteps.length
+      ? pendingSteps.map(s=>`<div class="step" data-text="${escHTML(s)}"></div>`).join("")
+      : `<div class="step" data-text=""></div>`; // ensure at least one step to reveal overlay
+
+    const section = `
+<section class="scrolly">
+  <div class="media">${mediaInner}</div>
+  <div class="overlay"><div class="card"><p></p></div></div>
+  <div class="steps">
+    ${stepsHTML}
+  </div>
+</section>`;
+    htmlSections.push(section);
+    pendingSteps = [];
+  }
+
+  rows.forEach(row=>{
+    const t=row.type.toLowerCase();
+    if(t==='text'){ pushNormalText(row.content); }
+    else if(t==='heading'){ pushHeading(row.content, row.extra); }
+    else if(t==='scrolly text'){ pendingSteps.push(row.content); }
+    else if(t==='image link'){ emitMedia('image link', row.content, row.extra); }
+    else if(t==='embed code'){ emitMedia('embed code', row.content, null); }
+  });
+
+  // Trailing scrolly text with no media → just output as normal text
+  if(pendingSteps.length){
+    pendingSteps.forEach(s=> pushNormalText(s));
+    pendingSteps = [];
+  }
+
+  // Full page shell with reliable scrolly logic
+  const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scrollytelling Page</title>
+<style>
+  :root{ --maxw: 900px; --pad: 24px; }
+  html,body{margin:0;background:#ffffff;color:#111;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:var(--pad)}
+  .wrap p{margin:1.1rem 0}
+  .wrap h1,.wrap h2,.wrap h3,.wrap h4{margin:1.6rem 0 0.8rem}
+
+  /* Scrolly layout */
+  .scrolly{position:relative; min-height:200vh;}
+  .scrolly .media{
+    position:sticky; top:0; height:100vh; overflow:hidden;
+    z-index:1;
+  }
+  .scrolly .media img, .scrolly .media iframe{width:100%;height:100%;object-fit:cover;border:0}
+
+  .overlay{
+    position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; padding:var(--pad);
+    z-index:2;
+  }
+  .overlay .card{
+    max-width:720px;background:rgba(255,255,255,.85); backdrop-filter: blur(3px);
+    padding:18px 20px;border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+    opacity:0; transform:translateY(14px); transition:opacity .4s ease, transform .4s ease;
+  }
+  .overlay .card.show{ opacity:1; transform:translateY(0) }
+
+  .steps{position:relative; z-index:0;}
+  .step{min-height:85vh;}
+</style>
+</head>
+<body>
+${htmlSections.join("\n\n")}
+<script>
+// For each scrolly section: update ONE sticky overlay as steps enter view
+document.querySelectorAll('.scrolly').forEach(sec=>{
+  const overlayCard = sec.querySelector('.overlay .card');
+  const overlayP = overlayCard.querySelector('p');
+  const steps = sec.querySelectorAll('.step');
+
+  // Initialize with first step (if any)
+  const getText = el => el.getAttribute('data-text') || '';
+  function setOverlay(text){
+    overlayP.textContent = text;
+    overlayCard.classList.toggle('show', text !== '');
+  }
+  setOverlay(steps[0] ? getText(steps[0]) : '');
+
+  const io = new IntersectionObserver((entries)=>{
+    // pick the most visible step that is intersecting
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        setOverlay(getText(entry.target));
+      }
+    });
+  }, { root: null, threshold: 0.55 });
+
+  steps.forEach(s=> io.observe(s));
+});
+
+// Datawrapper auto-height (if present)
+!function(){window.addEventListener("message",function(a){
+ if(void 0!==a.data["datawrapper-height"]){
+  var e=document.querySelectorAll("iframe");
+  for(var t in a.data["datawrapper-height"]) for(var r,i=0;r=e[i];i++)
+   if(r.contentWindow===a.source){r.style.height=a.data["datawrapper-height"][t]+"px"}
+ }})}();
+<\/script>
+</body>
+</html>`;
+
+  codebox.hidden = false;
+  output.value = fullHTML;
+
+  // refresh preview if visible
+  if(document.querySelector('.tab-btn[data-tab="preview"]').classList.contains('active')){
+    document.getElementById('previewFrame').srcdoc = fullHTML;
+  }
+});
+</script>
+
+</body>
+</html>

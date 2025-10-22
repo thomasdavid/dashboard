@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Minimum wages in Europe since 2010</title>
+<style>
+  :root{
+    --gap:10px;
+    --tile-w:118px;
+    --tile-h:92px;
+    --line:#c54d5c;
+    --fill:#c54d5c20;
+  }
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff}
+
+  /* No borders/frames anywhere */
+  .canvas{
+    width:min(1280px,98vw);
+    margin:14px auto 24px;
+    position:relative;
+    padding:10px;           /* breathing room on the left/top */
+    box-sizing:border-box;
+  }
+
+  .card{
+    position:absolute;
+    width:var(--tile-w);
+    height:var(--tile-h);
+    box-sizing:border-box;
+    transition:opacity .12s ease-in-out;
+  }
+  /* fade others by 10% (your value here is .50; kept untouched) */
+  .faded{opacity:.50 !important;}
+
+  /* tile header: FLAG ONLY, centered */
+  .flagline{
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:4px;
+  }
+  .flagline img{ width:18px;height:12px;object-fit:cover;border-radius:2px }
+
+  svg.tiny{display:block;width:100%;height:auto}
+  .tickLabel{font-size:9px; fill:#9a9a9a}
+
+  /* Tooltip: top-left corner; no frame/background */
+  .tooltip{
+    position:absolute; left:0; top:0; z-index:3;
+    background:transparent; border:none; border-radius:0; box-shadow:none;
+    display:none; pointer-events:none;
+  }
+  .tt-wrap{display:flex;flex-direction:column;gap:6px}
+  .tt-row{display:flex;align-items:center;gap:8px}
+  .tt-flag{width:30px;height:20px;object-fit:cover;border-radius:3px}
+  .tt-country{font-weight:600;font-size:14px;color:#111}
+  .tt-year{font-weight:800;font-size:18px;color:#222}
+  .tt-value{font-weight:900;font-size:34px;color:#000;line-height:1.05}
+</style>
+</head>
+<body>
+  <h2>Minimum wages in Europe since 2010</h2>
+  
+<div class="canvas" id="grid">
+  <!-- fixed-position tooltip at very top-left -->
+  <div id="tooltip" class="tooltip" aria-live="polite">
+    <div class="tt-wrap">
+      <div class="tt-row">
+        <img id="tt-flag" class="tt-flag" alt="">
+        <div id="tt-country" class="tt-country"></div>
+      </div>
+      <div id="tt-year" class="tt-year"></div>
+      <div id="tt-value" class="tt-value"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+/* ===== Data (will be replaced by CSV) ===== */
+let columns = [];                    // month labels from CSV
+const dataByCountry = new Map();     // Map(name -> [{year,label,value},...])
+
+/* ===== Grid positions (with extra top row) ===== */
+const gridMap = [
+  {code:"SE",name:"Sweden",row:-1,col:4},{code:"FI",name:"Finland",row:-1,col:5},
+  {code:"DK",name:"Denmark",row:0,col:3},{code:"EE",name:"Estonia",row:0,col:6},
+  {code:"IE",name:"Ireland",row:1,col:0},{code:"NL",name:"Netherlands",row:1,col:2},
+  {code:"DE",name:"Germany",row:1,col:3},{code:"PL",name:"Poland",row:1,col:4},
+  {code:"LT",name:"Lithuania",row:1,col:5},{code:"LV",name:"Latvia",row:1,col:6},
+  {code:"BE",name:"Belgium",row:2,col:2},{code:"LU",name:"Luxembourg",row:2,col:3},
+  {code:"CZ",name:"Czechia",row:2,col:4},{code:"SK",name:"Slovakia",row:2,col:5},
+  {code:"FR",name:"France",row:3,col:2},{code:"AT",name:"Austria",row:3,col:4},
+  {code:"HU",name:"Hungary",row:3,col:5},{code:"RO",name:"Romania",row:3,col:6},
+  {code:"PT",name:"Portugal",row:4,col:0},{code:"ES",name:"Spain",row:4,col:1},
+  {code:"IT",name:"Italy",row:4,col:3},{code:"SI",name:"Slovenia",row:4,col:4},
+  {code:"HR",name:"Croatia",row:4,col:5},{code:"BG",name:"Bulgaria",row:4,col:6},
+  {code:"EL",name:"Greece",row:4,col:7},{code:"MT",name:"Malta",row:5,col:3},
+  {code:"CY",name:"Cyprus",row:5,col:7}
+];
+
+/* ===== Layout helpers ===== */
+const TOP_BUFFER_ROWS = 1;
+const get = k => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(k));
+const gap = () => get('--gap'), w=()=>get('--tile-w'), h=()=>get('--tile-h');
+const cellPos = (row,col)=>({left:gap()+col*(w()+gap()), top:gap()+(row+TOP_BUFFER_ROWS)*(h()+gap())});
+
+const gridEl = document.getElementById('grid');
+(function sizeCanvas(){
+  const maxRow = Math.max(...gridMap.map(d=>d.row));
+  const maxCol = Math.max(...gridMap.map(d=>d.col));
+  gridEl.style.minWidth  = gap()+(maxCol+1)*(w()+gap())+gap()+'px';
+  gridEl.style.minHeight = gap()+(maxRow+1+TOP_BUFFER_ROWS)*(h()+gap())+gap()+'px';
+})();
+
+/* ===== Tooltip API (fixed top-left) ===== */
+const tooltip=document.getElementById('tooltip');
+const ttFlag=document.getElementById('tt-flag');
+const ttCountry=document.getElementById('tt-country');
+const ttYear=document.getElementById('tt-year');
+const ttValue=document.getElementById('tt-value');
+
+function showTooltip(){ tooltip.style.display='block'; }
+function hideTooltip(){ tooltip.style.display='none'; ttFlag.src=''; ttCountry.textContent=''; ttYear.textContent=''; ttValue.textContent=''; }
+function updateTooltip(code,name,label,value){
+  const iso=code.toLowerCase();
+  let src=`https://flagcdn.com/w20/${iso}.png`;
+  if(iso==='el')src='https://flagcdn.com/w20/gr.png';
+  if(iso==='gr')src='https://flagcdn.com/w20/el.png';
+  ttFlag.src=src; ttFlag.alt=`${name} flag`;
+  ttCountry.textContent=name;
+  ttYear.textContent=String(label);
+  // euros, no decimals
+  ttValue.textContent = (value==null||isNaN(value)) ? '—' :
+    new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(value) + ' €';
+}
+
+/* ===== Central fade/sticky helpers (unchanged) ===== */
+let sticky=false, stickyCard=null, stickyIdx=null;
+const POINT_TOL=9;
+
+function focusOnly(cardEl){
+  d3.selectAll('.card').classed('faded', true);
+  d3.select(cardEl).classed('faded', false);
+}
+function clearFocus(){ d3.selectAll('.card').classed('faded', false); }
+function hideAllDots(){ d3.selectAll('.hover-dot').style('display','none'); }
+function clearSticky(){ sticky=false; stickyCard=null; stickyIdx=null; clearFocus(); hideTooltip(); hideAllDots(); }
+
+/* ===== Build tiles (headers) ===== */
+const layer=d3.select('#grid');
+const cards=layer.selectAll('.card').data(gridMap,d=>d.code).enter().append('div')
+  .attr('class','card')
+  .style('left',d=>cellPos(d.row,d.col).left+'px')
+  .style('top', d=>cellPos(d.row,d.col).top +'px');
+
+cards.each(function(d){
+  const iso=d.code.toLowerCase();
+  const header=d3.select(this).append('div').attr('class','flagline');
+  header.append('img')
+    .attr('alt', d.name + ' flag')
+    .attr('loading','lazy')
+    .attr('src', `https://flagcdn.com/w20/${iso}.png`)
+    .on('error', function(){ if(iso==='el') this.src='https://flagcdn.com/w20/gr.png'; if(iso==='gr') this.src='https://flagcdn.com/w20/el.png'; });
+});
+
+/* ===== Load CSV and draw charts (only addition) ===== */
+const RAW_CSV = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/minwage.csv";
+
+d3.csv(RAW_CSV).then(raw=>{
+  columns = raw.columns.filter(c=>c!=="Country");
+
+  // Build map Country -> series (label/value pairs)
+  raw.forEach(row=>{
+    const name=row.Country;
+    const arr = columns.map(lbl=>{
+      const v=row[lbl];
+      const val = (v==='-'||v===''||v==null) ? null : +v;
+      return {year: lbl, value: val}; // keep property 'year' used by existing handlers
+    });
+    dataByCountry.set(name, arr);
+  });
+
+  // Global Y max for consistent scale
+  let globalMax = 0;
+  dataByCountry.forEach(arr=>{
+    arr.forEach(p=>{ if(p.value!=null && p.value>globalMax) globalMax=p.value; });
+  });
+  if(globalMax<=0) globalMax=1;
+
+  // Scales (matching original usage, but built from CSV)
+  const Wsvg=w(), Hsvg=h()-22, M={t:4,r:6,b:14,l:6};
+  const innerW=Wsvg-M.l-M.r, innerH=Hsvg-M.t-M.b;
+  const x=d3.scaleLinear().domain([0, columns.length-1]).range([0,innerW]);
+  const y=d3.scaleLinear().domain([0, globalMax]).nice().range([innerH,0]);
+  const line=d3.line().x((d,i)=>x(i)).y(d=>y(d.value)).curve(d3.curveMonotoneX);
+  const area=d3.area().x((d,i)=>x(i)).y0(y(0)).y1(d=>y(d.value)).curve(d3.curveMonotoneX);
+
+  // Draw each chart (keeping your interaction code intact)
+  cards.each(function(country){
+    const series = dataByCountry.get(country.name) || columns.map(lbl=>({year:lbl,value:null}));
+    const cardEl=this;
+
+    const svg=d3.select(this).append('svg')
+      .attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`)
+      .attr('preserveAspectRatio','xMinYMin meet');
+    const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
+    g.append('line').attr('x1',0).attr('x2',innerW).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#e3e3e3');
+
+    g.append('path').attr('d',area(series)).attr('fill','var(--fill)');
+    g.append('path').attr('d',line(series)).attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round');
+
+    // Last valid point marker (if any)
+    const lastIdx = [...series].map((d,i)=>({d,i})).reverse().find(o=>o.d.value!=null)?.i ?? null;
+    if(lastIdx!=null){
+      g.append('circle').attr('cx',x(lastIdx)).attr('cy',y(series[lastIdx].value)).attr('r',2.6).attr('fill','var(--line)');
+    }
+
+    const dot=g.append('circle').attr('class','hover-dot').attr('r',4).attr('fill','red').style('display','none');
+
+    // Helper to find nearest valid index
+    function nearestValidIndex(idx){
+      if(series[idx] && series[idx].value!=null) return idx;
+      let L=idx-1, R=idx+1;
+      while(L>=0 || R<series.length){
+        if(L>=0 && series[L].value!=null) return L;
+        if(R<series.length && series[R].value!=null) return R;
+        L--; R++;
+      }
+      return null;
+    }
+
+    // overlay for interactions (unchanged structure)
+    g.append('rect').attr('width',innerW).attr('height',innerH).attr('fill','transparent')
+      .on('mousemove',function(event){
+        if(sticky) return;
+        const [mx]=d3.pointer(event,this);
+        let idx=Math.round(x.invert(mx));
+        idx=Math.max(0,Math.min(series.length-1,idx));
+        const valid=nearestValidIndex(idx);
+        if(valid==null) return;
+
+        const pt=series[valid];
+        focusOnly(cardEl);
+        hideAllDots();
+        dot.style('display','block').attr('cx',x(valid)).attr('cy',y(pt.value));
+        updateTooltip(country.code, country.name, pt.year, pt.value);
+        showTooltip();
+      })
+      .on('mouseenter',function(){ if(!sticky) focusOnly(cardEl); })
+      .on('mouseleave',function(){
+        if(sticky && stickyCard===cardEl) return;
+        if(!sticky){ clearFocus(); hideTooltip(); }
+        dot.style('display','none');
+      })
+      .on('click',function(event){
+        const [mx,my]=d3.pointer(event,this);
+        let idx=Math.round(x.invert(mx));
+        idx=Math.max(0,Math.min(series.length-1,idx));
+        const valid=nearestValidIndex(idx);
+        if(valid==null){ clearSticky(); return; }
+
+        const px=x(valid), py=y(series[valid].value);
+        const dist=Math.hypot(mx-px, my-py);
+
+        if(dist <= POINT_TOL){
+          sticky=true; stickyCard=cardEl; stickyIdx=valid;
+          focusOnly(cardEl);
+          hideAllDots();
+          dot.style('display','block').attr('cx',px).attr('cy',py);
+          const pt=series[valid];
+          updateTooltip(country.code, country.name, pt.year, pt.value);
+          showTooltip();
+        }else{
+          clearSticky();
+        }
+      });
+
+    // also fade when hovering the tile (header area)
+    d3.select(this)
+      .on('mouseenter', ()=>{ if(!sticky) focusOnly(cardEl); })
+      .on('mouseleave', ()=>{ if(!sticky) clearFocus(); });
+  });
+});
+
+/* Click outside tiles clears sticky */
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.card')) clearSticky();
+});
+
+/* Keep layout on resize */
+window.addEventListener('resize',()=>{
+  const pos=d=>({left:gap()+d.col*(w()+gap()), top:gap()+(d.row+TOP_BUFFER_ROWS)*(h()+gap())});
+  d3.selectAll('.card').style('left',d=>pos(d).left+'px').style('top',d=>pos(d).top+'px');
+});
+</script>
+</body>
+</html>

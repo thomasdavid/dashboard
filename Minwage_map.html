@@ -66,11 +66,23 @@
   svg.tiny{display:block;width:100%;height:auto}
   .tickLabel{font-size:9px; fill:#9a9a9a}
 
-  .tooltip{
-    position:absolute; left:0; top:0; z-index:3;
-    background:transparent; border:none; border-radius:0; box-shadow:none;
-    display:none; pointer-events:none;
-  }
+.tooltip{
+  position:absolute;
+  left:14px;          /* ← move it a bit from the top-left */
+  top:20px;           /* adjust to taste */
+  z-index:3;
+  background:transparent;
+  border:yes;
+  border-radius:1;
+  box-shadow:yes;
+  display:none;
+  pointer-events:none;
+
+  /* 40% bigger + keep growth from the top-left corner */
+  transform: scale(1.4);
+  transform-origin: top left;
+}
+
   .tt-wrap{display:flex;flex-direction:column;gap:6px}
   .tt-row{display:flex;align-items:center;gap:8px}
 .tt-flag{

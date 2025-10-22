@@ -9,18 +9,28 @@
     --gap:10px;
     --tile-w:118px;
     --tile-h:92px;
-    --line:#c54d5c;
-    --fill:#c54d5c20;
+    --line:#0B3D56;      /* will be changed by JS per dataset */
+    --fill:rgba(11,61,86,.12);
   }
   html,body{height:100%}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff}
 
-  /* No borders/frames anywhere */
+  h2{max-width:1280px;margin:16px auto 6px;padding:0 10px}
+
+  .toolbar{
+    max-width:1280px;margin:0 auto 6px;padding:0 10px;display:flex;gap:8px
+  }
+  .btn{
+    border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 10px;
+    cursor:pointer;font-size:14px
+  }
+  .btn.active{background:#111827;color:#fff;border-color:#111827}
+
   .canvas{
     width:min(1280px,98vw);
-    margin:14px auto 24px;
+    margin:8px auto 24px;
     position:relative;
-    padding:10px;           /* breathing room on the left/top */
+    padding:10px;
     box-sizing:border-box;
   }
 
@@ -31,10 +41,8 @@
     box-sizing:border-box;
     transition:opacity .12s ease-in-out;
   }
-  /* fade others by 10% (your value here is .50; kept untouched) */
   .faded{opacity:.50 !important;}
 
-  /* tile header: FLAG ONLY, centered */
   .flagline{
     display:flex;align-items:center;justify-content:center;
     margin-bottom:4px;
@@ -44,7 +52,6 @@
   svg.tiny{display:block;width:100%;height:auto}
   .tickLabel{font-size:9px; fill:#9a9a9a}
 
-  /* Tooltip: top-left corner; no frame/background */
   .tooltip{
     position:absolute; left:0; top:0; z-index:3;
     background:transparent; border:none; border-radius:0; box-shadow:none;
@@ -59,8 +66,14 @@
 </style>
 </head>
 <body>
-  <h2>Minimum wages in Europe since 2010</h2>
-  
+  <h2>Minimum wages and inflation in Europe since 2015</h2>
+
+  <!-- dataset toggle -->
+  <div class="toolbar">
+    <button id="btnWage"      class="btn active">Minimum wage</button>
+    <button id="btnInflation" class="btn">Inflation (2015=100)</button>
+  </div>
+
 <div class="canvas" id="grid">
   <!-- fixed-position tooltip at very top-left -->
   <div id="tooltip" class="tooltip" aria-live="polite">
@@ -77,11 +90,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
-/* ===== Data (will be replaced by CSV) ===== */
-let columns = [];                    // month labels from CSV
-const dataByCountry = new Map();     // Map(name -> [{year,label,value},...])
+/* ===== New: handle two datasets via Type column ===== */
+let columns = []; // month labels
+const dataByType = new Map(); // Map(type -> Map(country -> series))
+const maxByType = new Map();  // Map(type -> global max)
 
-/* ===== Grid positions (with extra top row) ===== */
+const TYPES = {
+  wage: 'Minimum wage',
+  infl: 'Inflation (2015=100)'
+};
+let currentType = TYPES.wage;
+
+/* ===== Grid positions ===== */
 const gridMap = [
   {code:"SE",name:"Sweden",row:-1,col:4},{code:"FI",name:"Finland",row:-1,col:5},
   {code:"DK",name:"Denmark",row:0,col:3},{code:"EE",name:"Estonia",row:0,col:6},
@@ -113,7 +133,7 @@ const gridEl = document.getElementById('grid');
   gridEl.style.minHeight = gap()+(maxRow+1+TOP_BUFFER_ROWS)*(h()+gap())+gap()+'px';
 })();
 
-/* ===== Tooltip API (fixed top-left) ===== */
+/* ===== Tooltip ===== */
 const tooltip=document.getElementById('tooltip');
 const ttFlag=document.getElementById('tt-flag');
 const ttCountry=document.getElementById('tt-country');
@@ -130,19 +150,19 @@ function updateTooltip(code,name,label,value){
   ttFlag.src=src; ttFlag.alt=`${name} flag`;
   ttCountry.textContent=name;
   ttYear.textContent=String(label);
-  // euros, no decimals
-  ttValue.textContent = (value==null||isNaN(value)) ? '—' :
-    new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(value) + ' €';
+
+  const formatted = (value==null||isNaN(value)) ? '—'
+    : new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(value);
+
+  // Show € only for Minimum wage, plain index for Inflation
+  ttValue.textContent = currentType === TYPES.wage ? (formatted + ' €') : formatted;
 }
 
-/* ===== Central fade/sticky helpers (unchanged) ===== */
+/* ===== Fade & sticky ===== */
 let sticky=false, stickyCard=null, stickyIdx=null;
 const POINT_TOL=9;
 
-function focusOnly(cardEl){
-  d3.selectAll('.card').classed('faded', true);
-  d3.select(cardEl).classed('faded', false);
-}
+function focusOnly(cardEl){ d3.selectAll('.card').classed('faded', true); d3.select(cardEl).classed('faded', false); }
 function clearFocus(){ d3.selectAll('.card').classed('faded', false); }
 function hideAllDots(){ d3.selectAll('.hover-dot').style('display','none'); }
 function clearSticky(){ sticky=false; stickyCard=null; stickyIdx=null; clearFocus(); hideTooltip(); hideAllDots(); }
@@ -164,62 +184,96 @@ cards.each(function(d){
     .on('error', function(){ if(iso==='el') this.src='https://flagcdn.com/w20/gr.png'; if(iso==='gr') this.src='https://flagcdn.com/w20/el.png'; });
 });
 
-/* ===== Load CSV and draw charts (only addition) ===== */
+/* ===== CSV load ===== */
 const RAW_CSV = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/minwage.csv";
 
-d3.csv(RAW_CSV).then(raw=>{
-  columns = raw.columns.filter(c=>c!=="Country");
+// Keep only months from Jan 2015+
+const CUTOFF = new Date(2015, 0, 1);
 
-  // Build map Country -> series (label/value pairs)
+// Parse labels like "Jan 10", "Jan 2015", "January 2015", or "2015-01"
+function parseMonthLabel(lbl){
+  const s = String(lbl).trim();
+  const mm = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+  // "Jan 10" or "January 2015"
+  let m = s.match(/^([A-Za-z]{3,})(?:[a-z]+)?\s+(\d{2,4})$/);
+  if(m){
+    const month = mm[m[1].slice(0,3).toLowerCase()];
+    let year = +m[2]; if(year < 100) year += 2000;
+    return new Date(year, month, 1);
+  }
+
+  // "2015-01" or "2015/1"
+  m = s.match(/^(\d{4})[-/](\d{1,2})$/);
+  if(m) return new Date(+m[1], +m[2]-1, 1);
+
+  return null; // unparseable
+}
+
+
+d3.csv(RAW_CSV).then(raw=>{
+  // columns: Country + Type + months...
+columns = raw.columns
+  .filter(c => c !== "Country" && c !== "Type")
+  .filter(lbl => {
+    const d = parseMonthLabel(lbl);
+    return d && d >= CUTOFF;
+  });
+
+
+  // Build maps per type
+  const typesInFile = new Set(raw.map(r=>r.Type));
+  typesInFile.forEach(t=> dataByType.set(t, new Map()));
+
   raw.forEach(row=>{
-    const name=row.Country;
+    const type = row.Type;
+    const name = row.Country;
     const arr = columns.map(lbl=>{
       const v=row[lbl];
       const val = (v==='-'||v===''||v==null) ? null : +v;
-      return {year: lbl, value: val}; // keep property 'year' used by existing handlers
+      return {year: lbl, value: val};
     });
-    dataByCountry.set(name, arr);
+    dataByType.get(type).set(name, arr);
   });
 
-  // Global Y max for consistent scale
-  let globalMax = 0;
-  dataByCountry.forEach(arr=>{
-    arr.forEach(p=>{ if(p.value!=null && p.value>globalMax) globalMax=p.value; });
+  // Global max per type
+  dataByType.forEach((map,type)=>{
+    let m=0;
+    map.forEach(arr=>arr.forEach(p=>{ if(p.value!=null && p.value>m) m=p.value; }));
+    maxByType.set(type, m>0?m:1);
   });
-  if(globalMax<=0) globalMax=1;
 
-  // Scales (matching original usage, but built from CSV)
-  const Wsvg=w(), Hsvg=h()-22, M={t:4,r:6,b:14,l:6};
-  const innerW=Wsvg-M.l-M.r, innerH=Hsvg-M.t-M.b;
-  const x=d3.scaleLinear().domain([0, columns.length-1]).range([0,innerW]);
-  const y=d3.scaleLinear().domain([0, globalMax]).nice().range([innerH,0]);
-  const line=d3.line().x((d,i)=>x(i)).y(d=>y(d.value)).curve(d3.curveMonotoneX);
-  const area=d3.area().x((d,i)=>x(i)).y0(y(0)).y1(d=>y(d.value)).curve(d3.curveMonotoneX);
+  initCharts();
+});
 
-  // Draw each chart (keeping your interaction code intact)
+function getSeries(countryName){
+  const m = dataByType.get(currentType);
+  if(!m) return columns.map(lbl=>({year:lbl,value:null}));
+  return m.get(countryName) || columns.map(lbl=>({year:lbl,value:null}));
+}
+
+/* ===== Charts ===== */
+let x,y,line,area;  // scales and generators (will be reset on render)
+const Wsvg=w(), Hsvg=h()-22, M={t:4,r:6,b:14,l:6};
+const innerW=Wsvg-M.l-M.r, innerH=Hsvg-M.t-M.b;
+
+function initCharts(){
+  // create per-card svg & interaction once
   cards.each(function(country){
-    const series = dataByCountry.get(country.name) || columns.map(lbl=>({year:lbl,value:null}));
     const cardEl=this;
-
     const svg=d3.select(this).append('svg')
       .attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`)
       .attr('preserveAspectRatio','xMinYMin meet');
     const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
-    g.append('line').attr('x1',0).attr('x2',innerW).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#e3e3e3');
+    g.append('line').attr('class','x0').attr('x1',0).attr('x2',innerW).attr('y1',0).attr('y2',0).attr('stroke','#e3e3e3');
 
-    g.append('path').attr('d',area(series)).attr('fill','var(--fill)');
-    g.append('path').attr('d',line(series)).attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round');
-
-    // Last valid point marker (if any)
-    const lastIdx = [...series].map((d,i)=>({d,i})).reverse().find(o=>o.d.value!=null)?.i ?? null;
-    if(lastIdx!=null){
-      g.append('circle').attr('cx',x(lastIdx)).attr('cy',y(series[lastIdx].value)).attr('r',2.6).attr('fill','var(--line)');
-    }
+    g.append('path').attr('class','area').attr('fill','var(--fill)');
+    g.append('path').attr('class','line').attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round');
+    g.append('circle').attr('class','last').attr('r',2.6).attr('fill','var(--line)').style('display','none');
 
     const dot=g.append('circle').attr('class','hover-dot').attr('r',4).attr('fill','red').style('display','none');
 
-    // Helper to find nearest valid index
-    function nearestValidIndex(idx){
+    function nearestValidIndex(series, idx){
       if(series[idx] && series[idx].value!=null) return idx;
       let L=idx-1, R=idx+1;
       while(L>=0 || R<series.length){
@@ -230,14 +284,14 @@ d3.csv(RAW_CSV).then(raw=>{
       return null;
     }
 
-    // overlay for interactions (unchanged structure)
     g.append('rect').attr('width',innerW).attr('height',innerH).attr('fill','transparent')
       .on('mousemove',function(event){
         if(sticky) return;
+        const series = getSeries(country.name);
         const [mx]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
         idx=Math.max(0,Math.min(series.length-1,idx));
-        const valid=nearestValidIndex(idx);
+        const valid=nearestValidIndex(series, idx);
         if(valid==null) return;
 
         const pt=series[valid];
@@ -254,20 +308,29 @@ d3.csv(RAW_CSV).then(raw=>{
         dot.style('display','none');
       })
       .on('click',function(event){
+        const series = getSeries(country.name);
         const [mx,my]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
         idx=Math.max(0,Math.min(series.length-1,idx));
-        const valid=nearestValidIndex(idx);
+        // nearest valid
+        let valid=idx;
+        if(series[valid]?.value==null){
+          valid=null;
+          for(let d=1; valid==null && (idx-d>=0 || idx+d<series.length); d++){
+            if(idx-d>=0 && series[idx-d].value!=null) valid=idx-d;
+            if(valid==null && idx+d<series.length && series[idx+d].value!=null) valid=idx+d;
+          }
+        }
         if(valid==null){ clearSticky(); return; }
-
         const px=x(valid), py=y(series[valid].value);
         const dist=Math.hypot(mx-px, my-py);
 
+        const dotSel = d3.select(cardEl).select('.hover-dot');
         if(dist <= POINT_TOL){
           sticky=true; stickyCard=cardEl; stickyIdx=valid;
           focusOnly(cardEl);
           hideAllDots();
-          dot.style('display','block').attr('cx',px).attr('cy',py);
+          dotSel.style('display','block').attr('cx',px).attr('cy',py);
           const pt=series[valid];
           updateTooltip(country.code, country.name, pt.year, pt.value);
           showTooltip();
@@ -276,17 +339,95 @@ d3.csv(RAW_CSV).then(raw=>{
         }
       });
 
-    // also fade when hovering the tile (header area)
     d3.select(this)
       .on('mouseenter', ()=>{ if(!sticky) focusOnly(cardEl); })
       .on('mouseleave', ()=>{ if(!sticky) clearFocus(); });
   });
+
+  renderType(currentType);
+}
+
+function applyTheme(){
+  if(currentType === TYPES.wage){
+    document.documentElement.style.setProperty('--line', '#0B3D56');
+    document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.12)');
+  }else{
+    document.documentElement.style.setProperty('--line', '#C35A08');
+    document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,.12)');
+  }
+}
+
+function renderType(type){
+  currentType = type;
+  clearSticky();
+  applyTheme();
+
+  // Use independent fixed scale for Inflation
+  const isInflation = (currentType === TYPES.infl);
+
+  // scales
+  x = d3.scaleLinear().domain([0, columns.length - 1]).range([0, innerW]);
+  y = d3.scaleLinear()
+        .domain(isInflation ? [70, 180] : [0, maxByType.get(currentType) || 1])  // 👈 fixed inflation range
+        .nice()
+        .range([innerH, 0]);
+
+  line = d3.line()
+           .x((d, i) => x(i))
+           .y(d => y(d.value))
+           .defined(d => d.value != null)
+           .curve(d3.curveMonotoneX);
+
+  area = d3.area()
+           .x((d, i) => x(i))
+           .y0(y(isInflation ? 70 : 0))
+           .y1(d => y(d.value))
+           .defined(d => d.value != null)
+           .curve(d3.curveMonotoneX);
+
+  // baseline at zero (or min for inflation)
+  const baseline = y(isInflation ? 70 : 0);
+  d3.selectAll('.x0').attr('y1', baseline).attr('y2', baseline);
+
+  // update each card
+  cards.each(function(country){
+    const series = getSeries(country.name);
+    const g = d3.select(this).select('g');
+
+    g.select('path.area').attr('d', area(series));
+    g.select('path.line').attr('d', line(series));
+
+    const lastIdx = [...series].map((d,i)=>({d,i}))
+      .reverse()
+      .find(o => o.d.value != null)?.i ?? null;
+
+    const last = g.select('circle.last');
+    if (lastIdx != null) {
+      last.style('display', null)
+          .attr('cx', x(lastIdx))
+          .attr('cy', y(series[lastIdx].value));
+    } else {
+      last.style('display', 'none');
+    }
+
+    g.select('.hover-dot').style('display', 'none');
+  });
+}
+
+/* Toggle buttons */
+document.getElementById('btnWage').addEventListener('click',()=>{
+  document.getElementById('btnWage').classList.add('active');
+  document.getElementById('btnInflation').classList.remove('active');
+  renderType(TYPES.wage);
+});
+document.getElementById('btnInflation').addEventListener('click',()=>{
+  document.getElementById('btnInflation').classList.add('active');
+  document.getElementById('btnWage').classList.remove('active');
+  renderType(TYPES.infl);
 });
 
 /* Click outside tiles clears sticky */
-document.addEventListener('click', (e)=>{
-  if(!e.target.closest('.card')) clearSticky();
-});
+document.addEventListener('click', (e)=>{ if(!e.target.closest('.card')) clearSticky(); });
 
 /* Keep layout on resize */
 window.addEventListener('resize',()=>{

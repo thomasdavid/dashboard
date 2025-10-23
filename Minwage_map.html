@@ -58,7 +58,7 @@
   /* Combination tooltip: smaller lines + bar swatches */
   .tooltip.combo .tt-value,
   .tooltip.combo .tt-sub{
-    font-size:12px; font-weight:800; line-height:1.25;
+    font-size:14px; font-weight:800; line-height:1.25;
     display:flex; align-items:center; gap:.5rem;
   }
   .swatch{
@@ -402,9 +402,7 @@ function applyTheme(){
  }else if(currentType === 'infl'){
   document.documentElement.style.setProperty('--line', '#C35A08');
   document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,.12)'); // light shade for inflation
-}
-
-  }else{ // combo uses explicit colors per line later
+}else{ // combo uses explicit colors per line later
     document.documentElement.style.setProperty('--line', '#0B3D56');
     document.documentElement.style.setProperty('--fill', 'rgba(0,0,0,0)');
   }
@@ -464,11 +462,9 @@ function renderType(nextKey){
       const g = d3.select(this).select('g');
 
       // area only for wage
-    // area for wage and inflation (none in combo path)
-g.select('path.area')
+      g.select('path.area')
   .style('opacity', (isWage || isInflation) ? 1 : 0)
   .attr('d', (isWage || isInflation) ? areaGen(series) : null);
-
 
       // main line
       g.select('path.line')

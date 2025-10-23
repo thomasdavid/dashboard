@@ -9,8 +9,10 @@
     --gap:10px;
     --tile-w:118px;
     --tile-h:92px;
-    --line:#0B3D56;             /* will be set by JS per tab */
-    --fill:rgba(11,61,86,.16);  /* wage area shading */
+
+    /* defaults (overridden per tab by JS) */
+    --line:#0B3D56;                /* wage line */
+    --fill:rgba(11,61,86,.16);     /* wage area shading */
   }
   html,body{height:100%}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff}
@@ -36,7 +38,7 @@
   svg.tiny{display:block;width:100%;height:auto}
   .tickLabel{font-size:9px; fill:#9a9a9a}
 
-  /* keep areas visible and non-interactive */
+  /* keep non-interactive areas clickable through */
   path.area, path.between{ pointer-events:none; opacity:1; }
 
   .tooltip{
@@ -52,6 +54,19 @@
   .tt-year{font-weight:800;font-size:18px;color:#222}
   .tt-value{font-weight:900;font-size:34px;color:#000;line-height:1.05}
   .tt-sub{font-weight:700;font-size:15px;color:#111}
+
+  /* Combination tooltip: smaller lines + bar swatches */
+  .tooltip.combo .tt-value,
+  .tooltip.combo .tt-sub{
+    font-size:12px; font-weight:800; line-height:1.25;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .swatch{
+    display:inline-block; width:22px; height:4px; border-radius:2px;
+    vertical-align:middle; box-shadow:0 0 0 1px rgba(0,0,0,.15)
+  }
+  .swatch.infl{background:#C35A08}
+  .swatch.reb{background:#0B3D56}
 </style>
 </head>
 <body>
@@ -79,34 +94,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
-/* ================= Data containers ================= */
-let columns = []; // month labels (Jan 2015+)
-const dataByType = new Map(); // Map(typeKeyLower -> Map(country -> series))
-const maxByType  = new Map(); // Map(typeKeyLower -> global max)
-
-const DISPLAY = {
+/* ===== Robust type names from CSV (case-insensitive contains) ===== */
+const TYPE_KEYS = {
+  wage:   null, // will be detected
+  infl:   null,
+  reb:    null
+};
+const TYPES_UI = {
   wage: 'Minimum wage',
   infl: 'Inflation (2015=100)',
-  comb: 'Combination'
+  combo: 'Combination'
 };
-let currentDisplay = DISPLAY.wage;
+let currentType = 'wage'; // internal key, not CSV string
 
-/* Type keys we’ll recognise (lower-case prefixes) */
-const TYPE_PREFIXES = {
-  wage: 'minimum wage',
-  infl: 'inflation',
-  reb : 'rebased'
-};
-function normType(t){ return (t||'').toLowerCase().trim(); }
-function findTypeKey(prefix){
-  prefix = prefix.toLowerCase();
-  for(const k of dataByType.keys()){
-    if(k.startsWith(prefix)) return k;
-  }
-  return null;
-}
+/* ===== Data structures ===== */
+let columns = []; // month labels kept after Jan 2015 filter
+const dataByType = new Map(); // Map(csvTypeString -> Map(country -> series))
+const maxByType  = new Map(); // Map(csvTypeString -> global max)
 
-/* ================= Grid positions ================= */
+/* ===== EU grid positions ===== */
 const gridMap = [
   {code:"SE",name:"Sweden",row:-1,col:4},{code:"FI",name:"Finland",row:-1,col:5},
   {code:"DK",name:"Denmark",row:0,col:3},{code:"EE",name:"Estonia",row:0,col:6},
@@ -124,7 +130,7 @@ const gridMap = [
   {code:"CY",name:"Cyprus",row:5,col:7}
 ];
 
-/* ================= Layout helpers ================= */
+/* ===== Layout helpers ===== */
 const TOP_BUFFER_ROWS = 1;
 const get = k => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(k));
 const gap = () => get('--gap'), w=()=>get('--tile-w'), h=()=>get('--tile-h');
@@ -138,17 +144,37 @@ const gridEl = document.getElementById('grid');
   gridEl.style.minHeight = gap()+(maxRow+1+TOP_BUFFER_ROWS)*(h()+gap())+gap()+'px';
 })();
 
-/* ================= Tooltip ================= */
+/* ===== Tooltip ===== */
 const tooltip=document.getElementById('tooltip');
 const ttFlag=document.getElementById('tt-flag');
 const ttCountry=document.getElementById('tt-country');
 const ttYear=document.getElementById('tt-year');
 const ttValue=document.getElementById('tt-value');
-const ttSub  =document.getElementById('tt-sub');
+const ttSub=document.getElementById('tt-sub');
 
 function showTooltip(){ tooltip.style.display='block'; }
-function hideTooltip(){ tooltip.style.display='none'; ttFlag.src=''; ttCountry.textContent=''; ttYear.textContent=''; ttValue.textContent=''; ttSub.textContent=''; }
-function updateTooltip(code,name,label,primary,secondary){
+function hideTooltip(){ tooltip.style.display='none'; ttFlag.src=''; ttCountry.textContent=''; ttYear.textContent=''; ttValue.textContent=''; ttSub.textContent=''; tooltip.classList.remove('combo'); }
+
+function updateTooltipSingle(code,name,label,value,isWage){
+  const iso=code.toLowerCase();
+  let src=`https://flagcdn.com/w20/${iso}.png`;
+  if(iso==='el')src='https://flagcdn.com/w20/gr.png';
+  if(iso==='gr')src='https://flagcdn.com/w20/el.png';
+  ttFlag.src=src; ttFlag.alt=`${name} flag`;
+  ttCountry.textContent=name;
+  ttYear.textContent=String(label);
+
+  const formatted = (value==null||isNaN(value)) ? '—'
+    : new Intl.NumberFormat('en-GB',{maximumFractionDigits:0}).format(value);
+
+  ttValue.textContent = isWage ? (formatted + ' €') : formatted;
+  ttSub.textContent = '';
+  tooltip.classList.remove('combo');
+}
+
+const swatch = (cls) => `<span class="swatch ${cls}"></span>`;
+
+function updateTooltipCombo(code,name,label,inflVal,rebVal){
   const iso=code.toLowerCase();
   let src=`https://flagcdn.com/w20/${iso}.png`;
   if(iso==='el')src='https://flagcdn.com/w20/gr.png';
@@ -158,30 +184,22 @@ function updateTooltip(code,name,label,primary,secondary){
   ttYear.textContent=String(label);
 
   const fmt = v => (v==null||isNaN(v)) ? '—' :
-    new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(v);
+    new Intl.NumberFormat('en-GB',{maximumFractionDigits:0}).format(v);
 
-  if(currentDisplay === DISPLAY.wage){
-    ttValue.textContent = fmt(primary) + ' €';
-    ttSub.textContent = '';
-  }else if(currentDisplay === DISPLAY.infl){
-    ttValue.textContent = fmt(primary);
-    ttSub.textContent = '';
-  }else{ // Combination
-    ttValue.textContent = `Inflation: ${fmt(primary)}`;
-    ttSub.textContent   = `Rebased MW: ${fmt(secondary)}`;
-  }
+  ttValue.innerHTML = `${swatch('infl')}Inflation index: ${fmt(inflVal)}`;
+  ttSub.innerHTML   = `${swatch('reb')}Minimum wage index: ${fmt(rebVal)}`;
+  tooltip.classList.add('combo');
 }
 
-/* ================= Fade & sticky ================= */
+/* ===== Fade & sticky ===== */
 let sticky=false, stickyCard=null, stickyIdx=null;
 const POINT_TOL=9;
-
 function focusOnly(cardEl){ d3.selectAll('.card').classed('faded', true); d3.select(cardEl).classed('faded', false); }
 function clearFocus(){ d3.selectAll('.card').classed('faded', false); }
 function hideAllDots(){ d3.selectAll('.hover-dot').style('display','none'); }
 function clearSticky(){ sticky=false; stickyCard=null; stickyIdx=null; clearFocus(); hideTooltip(); hideAllDots(); }
 
-/* ================= Build tiles (headers) ================= */
+/* ===== Build tiles (headers) ===== */
 const layer=d3.select('#grid');
 const cards=layer.selectAll('.card').data(gridMap,d=>d.code).enter().append('div')
   .attr('class','card')
@@ -198,121 +216,102 @@ cards.each(function(d){
     .on('error', function(){ if(iso==='el') this.src='https://flagcdn.com/w20/gr.png'; if(iso==='gr') this.src='https://flagcdn.com/w20/el.png'; });
 });
 
-/* ================= CSV load ================= */
+/* ===== CSV load (filter to Jan 2015+) ===== */
 const RAW_CSV = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/minwage.csv";
 const CUTOFF = new Date(2015, 0, 1);
-
 function parseMonthLabel(lbl){
   const s = String(lbl).trim();
   const mm = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
   let m = s.match(/^([A-Za-z]{3,})(?:[a-z]+)?\s+(\d{2,4})$/);
-  if(m){ const month = mm[m[1].slice(0,3).toLowerCase()]; let year = +m[2]; if(year<100) year += 2000; return new Date(year,month,1); }
-  m = s.match(/^(\d{4})[-/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1);
+  if(m){ const month = mm[m[1].slice(0,3).toLowerCase()]; let year = +m[2]; if(year<100) year += 2000; return new Date(year, month, 1); }
+  m = s.match(/^(\d{4})[-/](\d{1,2})$/);
+  if(m) return new Date(+m[1], +m[2]-1, 1);
   return null;
 }
 
 d3.csv(RAW_CSV).then(raw=>{
-  // filter month columns to Jan 2015+
   columns = raw.columns
     .filter(c => c !== "Country" && c !== "Type")
     .filter(lbl => { const d = parseMonthLabel(lbl); return d && d >= CUTOFF; });
 
-  // Build maps keyed by lower-case Type
-  const typesInFile = new Set(raw.map(r=>normType(r.Type)));
-  typesInFile.forEach(t=> dataByType.set(t, new Map()));
+  // Discover CSV "Type" labels robustly
+  const uniqueTypes = [...new Set(raw.map(r => String(r.Type || '').trim()))];
+  const norm = s => s.toLowerCase();
+  TYPE_KEYS.wage = uniqueTypes.find(t => norm(t).includes('minimum') && norm(t).includes('wage')) || uniqueTypes[0];
+  TYPE_KEYS.infl = uniqueTypes.find(t => norm(t).includes('inflation')) || uniqueTypes[0];
+  TYPE_KEYS.reb  = uniqueTypes.find(t => norm(t).includes('rebased')) || null; // may be missing
+
+  // prepare maps for each present type
+  uniqueTypes.forEach(t => dataByType.set(t, new Map()));
 
   raw.forEach(row=>{
-    const typeKey = normType(row.Type);
-    const name = row.Country;
+    const type=row.Type, name=row.Country;
     const arr = columns.map(lbl=>{
       const v=row[lbl];
       const val = (v==='-'||v===''||v==null) ? null : +v;
       return {year: lbl, value: val};
     });
-    dataByType.get(typeKey).set(name, arr);
+    dataByType.get(type).set(name, arr);
   });
 
-  // Global max per type (for wage scaling)
-  dataByType.forEach((map,typeKey)=>{
+  // global max per type (for wage/inflation tabs)
+  dataByType.forEach((map,type)=>{
     let m=0;
     map.forEach(arr=>arr.forEach(p=>{ if(p.value!=null && p.value>m) m=p.value; }));
-    maxByType.set(typeKey, m>0?m:1);
+    maxByType.set(type, m>0?m:1);
   });
 
   initCharts();
 });
 
-/* Helpers to fetch series by display tab */
-function getSeries(countryName){
-  if(currentDisplay === DISPLAY.comb){
-    const inflKey = findTypeKey(TYPE_PREFIXES.infl);
-    const rebKey  = findTypeKey(TYPE_PREFIXES.reb);
-    const infl = inflKey ? (dataByType.get(inflKey).get(countryName) || columns.map(lbl=>({year:lbl,value:null}))) : columns.map(lbl=>({year:lbl,value:null}));
-    const reb  = rebKey  ? (dataByType.get(rebKey ).get(countryName) || columns.map(lbl=>({year:lbl,value:null}))) : columns.map(lbl=>({year:lbl,value:null}));
-    return {infl, reb};
-  }else{
-    const key = currentDisplay===DISPLAY.wage ? findTypeKey(TYPE_PREFIXES.wage) : findTypeKey(TYPE_PREFIXES.infl);
-    if(!key) return columns.map(lbl=>({year:lbl,value:null}));
-    return dataByType.get(key).get(countryName) || columns.map(lbl=>({year:lbl,value:null}));
-  }
+/* Helpers to fetch series by internal key */
+function getSeriesByKey(key, countryName){
+  const typeStr =
+    key==='wage' ? TYPE_KEYS.wage :
+    key==='infl' ? TYPE_KEYS.infl : TYPE_KEYS.reb;
+  if(!typeStr) return columns.map(lbl=>({year:lbl,value:null}));
+  const m = dataByType.get(typeStr);
+  return m?.get(countryName) || columns.map(lbl=>({year:lbl,value:null}));
+}
+function getSeriesAll(countryName){
+  const infl = getSeriesByKey('infl', countryName);
+  const reb  = getSeriesByKey('reb',  countryName);
+  const wage = getSeriesByKey('wage', countryName);
+  return { infl, reb, wage };
 }
 
-/* ================= Charts ================= */
+/* ===== Charts ===== */
 let x,y,line,area;
 const Wsvg=w(), Hsvg=h()-22, M={t:4,r:6,b:14,l:6};
 const innerW=Wsvg-M.l-M.r, innerH=Hsvg-M.t-M.b;
 
-function nearestValidIndex(series, idx){
-  if(series[idx] && series[idx].value!=null) return idx;
-  let L=idx-1, R=idx+1;
-  while(L>=0 || R<series.length){
-    if(L>=0 && series[L].value!=null) return L;
-    if(R<series.length && series[R].value!=null) return R;
-    L--; R++;
-  }
-  return null;
-}
-
-/* Animate a stroke from hidden to visible (used ONLY in Combo) */
-function pathReveal(selection, ms){
-  selection.each(function(){
-    const el = d3.select(this);
-    const node = this;
-    const d = el.attr('d');
-    if(!d || d.trim()===''){ el.style('display','none'); return; }
-
-    // ensure visible in DOM but hidden along the path
-    el.style('display', null).style('opacity', 1);
-
-    let len = 0;
-    try { len = node.getTotalLength(); } catch(e){ return; }
-    if(!isFinite(len) || len <= 0) return;
-
-    el.attr('stroke-dasharray', `${len} ${len}`)
-      .attr('stroke-dashoffset', len)
-      .transition().duration(ms).ease(d3.easeCubicOut)
-      .attr('stroke-dashoffset', 0);
-  });
-}
-
 function initCharts(){
   cards.each(function(country){
     const cardEl=this;
-    const svg=d3.select(this).append('svg').attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`).attr('preserveAspectRatio','xMinYMin meet');
+    const svg=d3.select(this).append('svg')
+      .attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`)
+      .attr('preserveAspectRatio','xMinYMin meet');
     const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
+
     g.append('line').attr('class','x0').attr('x1',0).attr('x2',innerW).attr('y1',0).attr('y2',0).attr('stroke','#e3e3e3');
-
-    /* wage single-series area/line */
-    g.append('path').attr('class','area').attr('fill','var(--fill)');
-    g.append('path').attr('class','line').attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round');
-
-    /* COMBO: between area + two lines (initially hidden) */
-    g.append('path').attr('class','between').attr('fill','rgba(0,0,0,.05)').style('display','none');
-    g.append('path').attr('class','line-infl').attr('fill','none').attr('stroke','#C35A08').attr('stroke-width',2.2).attr('stroke-linecap','round').style('display','none');
-    g.append('path').attr('class','line-reb') .attr('fill','none').attr('stroke','#0B3D56').attr('stroke-width',2.2).attr('stroke-linecap','round').style('display','none');
-
+    g.append('path').attr('class','area').attr('fill','var(--fill)');              // wage area
+    g.append('path').attr('class','line').attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round'); // main (or infl in combo)
+    g.append('path').attr('class','line2').attr('fill','none').attr('stroke-width',2).attr('stroke-linecap','round'); // rebased in combo
+    g.append('path').attr('class','between').attr('fill','rgba(0,0,0,.045)').style('opacity',0); // between area
     g.append('circle').attr('class','last').attr('r',2.6).attr('fill','var(--line)').style('display','none');
+
     const dot=g.append('circle').attr('class','hover-dot').attr('r',4).attr('fill','red').style('display','none');
+
+    function nearestValidIndex(series, idx){
+      if(series[idx] && series[idx].value!=null) return idx;
+      let L=idx-1, R=idx+1;
+      while(L>=0 || R<series.length){
+        if(L>=0 && series[L].value!=null) return L;
+        if(R<series.length && series[R].value!=null) return R;
+        L--; R++;
+      }
+      return null;
+    }
 
     g.append('rect').attr('width',innerW).attr('height',innerH).attr('fill','transparent')
       .on('mousemove',function(event){
@@ -320,28 +319,25 @@ function initCharts(){
         const [mx]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
         idx=Math.max(0,Math.min(columns.length-1,idx));
-        const label = columns[idx];
 
-        if(currentDisplay === DISPLAY.comb){
-          const {infl, reb} = getSeries(country.name);
-          const vi = nearestValidIndex(infl, idx);
-          const vr = nearestValidIndex(reb,  idx);
-          const valInfl = vi!=null ? infl[vi].value : null;
-          const valReb  = vr!=null ? reb[vr].value  : null;
-
-          const yy = (vi!=null ? y(valInfl) : (vr!=null ? y(valReb) : innerH/2));
-          focusOnly(cardEl); hideAllDots();
-          dot.style('display','block').attr('cx',x(idx)).attr('cy', yy);
-          updateTooltip(country.code, country.name, label, valInfl, valReb);
-          showTooltip();
-        }else{
-          const series = getSeries(country.name);
+        if(currentType !== 'combo'){
+          const series = getSeriesByKey(currentType, country.name);
           const valid=nearestValidIndex(series, idx);
           if(valid==null) return;
           const pt=series[valid];
           focusOnly(cardEl); hideAllDots();
           dot.style('display','block').attr('cx',x(valid)).attr('cy',y(pt.value));
-          updateTooltip(country.code, country.name, pt.year, pt.value);
+          updateTooltipSingle(country.code, country.name, pt.year, pt.value, currentType==='wage');
+          showTooltip();
+        }else{
+          const { infl, reb } = getSeriesAll(country.name);
+          const label = infl[idx]?.year || reb[idx]?.year || '';
+          const iv = infl[idx]?.value ?? null;
+          const rv = reb[idx]?.value ?? null;
+          focusOnly(cardEl); hideAllDots();
+          const v = (iv!=null) ? iv : rv;
+          if(v!=null) dot.style('display','block').attr('cx',x(idx)).attr('cy',y(v));
+          updateTooltipCombo(country.code, country.name, label, iv, rv);
           showTooltip();
         }
       })
@@ -355,41 +351,38 @@ function initCharts(){
         const [mx,my]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
         idx=Math.max(0,Math.min(columns.length-1,idx));
-        const px=x(idx);
 
-        if(currentDisplay === DISPLAY.comb){
-          const {infl, reb} = getSeries(country.name);
-          const vi = nearestValidIndex(infl, idx);
-          const vr = nearestValidIndex(reb,  idx);
-          const valInfl = vi!=null ? infl[vi].value : null;
-          const valReb  = vr!=null ? reb[vr].value  : null;
-
-          const yy = (vi!=null ? y(valInfl) : (vr!=null ? y(valReb) : innerH/2));
-          const dist=Math.hypot(mx-px, my-yy);
-          if(dist <= POINT_TOL){
-            sticky=true; stickyCard=this.parentNode.parentNode; stickyIdx=idx;
-            focusOnly(stickyCard); hideAllDots();
-            d3.select(stickyCard).select('.hover-dot').style('display','block').attr('cx',px).attr('cy',yy);
-            updateTooltip(country.code, country.name, columns[idx], valInfl, valReb);
-            showTooltip();
-          }else{
-            clearSticky();
-          }
-        }else{
-          const series = getSeries(country.name);
-          const valid = nearestValidIndex(series, idx);
+        if(currentType !== 'combo'){
+          const series = getSeriesByKey(currentType, country.name);
+          const valid=nearestValidIndex(series, idx);
           if(valid==null){ clearSticky(); return; }
-          const py=y(series[valid].value);
+          const px=x(valid), py=y(series[valid].value);
+          const dist=Math.hypot(mx-px, my-py);
+          const dotSel = d3.select(cardEl).select('.hover-dot');
+          if(dist <= POINT_TOL){
+            sticky=true; stickyCard=cardEl; stickyIdx=valid;
+            focusOnly(cardEl); hideAllDots();
+            dotSel.style('display','block').attr('cx',px).attr('cy',py);
+            const pt=series[valid];
+            updateTooltipSingle(country.code, country.name, pt.year, pt.value, currentType==='wage');
+            showTooltip();
+          }else{ clearSticky(); }
+        }else{
+          const { infl, reb } = getSeriesAll(country.name);
+          const iv = infl[idx]?.value ?? null;
+          const rv = reb[idx]?.value ?? null;
+          const v = (iv!=null) ? iv : rv;
+          if(v==null){ clearSticky(); return; }
+          const px=x(idx), py=y(v);
           const dist=Math.hypot(mx-px, my-py);
           if(dist <= POINT_TOL){
-            sticky=true; stickyCard=this.parentNode.parentNode; stickyIdx=valid;
-            focusOnly(stickyCard); hideAllDots();
-            d3.select(stickyCard).select('.hover-dot').style('display','block').attr('cx',px).attr('cy',py);
-            updateTooltip(country.code, country.name, series[valid].year, series[valid].value);
+            sticky=true; stickyCard=cardEl; stickyIdx=idx;
+            focusOnly(cardEl); hideAllDots();
+            d3.select(cardEl).select('.hover-dot').style('display','block').attr('cx',px).attr('cy',py);
+            const label = infl[idx]?.year || reb[idx]?.year || '';
+            updateTooltipCombo(country.code, country.name, label, iv, rv);
             showTooltip();
-          }else{
-            clearSticky();
-          }
+          }else{ clearSticky(); }
         }
       });
 
@@ -398,151 +391,200 @@ function initCharts(){
       .on('mouseleave', ()=>{ if(!sticky) clearFocus(); });
   });
 
-  renderTab(currentDisplay);
+  renderType('wage');
 }
 
-/* Theme for non-combo tabs */
+/* Theme per tab */
 function applyTheme(){
-  if(currentDisplay === DISPLAY.wage){
+  if(currentType === 'wage'){
     document.documentElement.style.setProperty('--line', '#0B3D56');
-    document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.16)');  // wage area shading
-  }else if(currentDisplay === DISPLAY.infl){
+    document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.16)');
+  }else if(currentType === 'infl'){
     document.documentElement.style.setProperty('--line', '#C35A08');
-    document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,.12)');
+    document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,0)'); // none
+  }else{ // combo uses explicit colors per line later
+    document.documentElement.style.setProperty('--line', '#0B3D56');
+    document.documentElement.style.setProperty('--fill', 'rgba(0,0,0,0)');
   }
 }
 
-/* ================= Render per tab ================= */
-function renderTab(display){
-  currentDisplay = display;
+/* Build polygon path between two series where both have values */
+function makeBetweenPath(a, b){
+  const n = Math.min(a.length, b.length);
+  let top = [], bot = [];
+  for(let i=0;i<n;i++){
+    const av = a[i].value, bv = b[i].value;
+    if(av!=null && bv!=null){
+      top.push([x(i), y(av)]);
+      bot.push([x(i), y(bv)]);
+    }
+  }
+  if(top.length < 2) return null;
+  // keep order: top forward, bot backward
+  return "M" + top.map(p=>p.join(",")).join("L") +
+         "L" + bot.reverse().map(p=>p.join(",")).join("L") + "Z";
+}
+
+/* Render per tab */
+function renderType(nextKey){
+  currentType = nextKey; // 'wage' | 'infl' | 'combo'
   clearSticky();
   applyTheme();
+  tooltip.classList.toggle('combo', currentType==='combo');
 
-  const isInfl = (currentDisplay === DISPLAY.infl);
-  const isWage = (currentDisplay === DISPLAY.wage);
-  const isComb = (currentDisplay === DISPLAY.comb);
+  const isInflation = (currentType === 'infl');
+  const isWage      = (currentType === 'wage');
+  const isCombo     = (currentType === 'combo');
 
+  // X scale
   x = d3.scaleLinear().domain([0, columns.length - 1]).range([0, innerW]);
-  const wageKey = findTypeKey(TYPE_PREFIXES.wage);
-  const wageMax = wageKey ? (maxByType.get(wageKey) || 1) : 1;
 
-  /* y-scale per tab:
-     - Combo: 95 → 450
-     - Inflation: 70 → 200
-     - Wage: 0 → wageMax
-  */
-  const yDomain = isComb ? [95, 450]
-                : isInfl ? [70, 200]
-                : [0, wageMax];
-  y = d3.scaleLinear().domain(yDomain).nice().range([innerH, 0]);
+  // Y scale
+  if(isCombo){
+    y = d3.scaleLinear().domain([95, 340]).range([innerH, 0]);  // requested fixed range
+  }else if(isInflation){
+    y = d3.scaleLinear().domain([70, 180]).nice().range([innerH, 0]);
+  }else{
+    const maxW = maxByType.get(TYPE_KEYS.wage) || 1;
+    y = d3.scaleLinear().domain([0, maxW]).nice().range([innerH, 0]);
+  }
 
-  const lineGen = d3.line().x((d,i)=>x(i)).y(d=>y(d.value)).defined(d=>d.value!=null).curve(d3.curveMonotoneX);
-  const areaGen = d3.area()
-    .x((d,i)=>x(i))
-    .y0(y(isInfl ? 70 : 0))  // (Combo doesn't draw single-series area)
-    .y1(d=>y(d.value))
-    .defined(d=>d.value!=null)
-    .curve(d3.curveMonotoneX);
-
-  const baseline = y(isInfl ? 70 : isComb ? 95 : 0);
+  const baseline = y(isInflation ? 70 : 0);
   d3.selectAll('.x0').attr('y1', baseline).attr('y2', baseline);
 
-  cards.each(function(country){
-    const g = d3.select(this).select('g');
+  const lineGen = d3.line().x((d,i)=>x(i)).y(d=>y(d.value)).defined(d=>d.value!=null).curve(d3.curveMonotoneX);
+  const areaGen = d3.area().x((d,i)=>x(i)).y0(y(isInflation ? 70 : 0)).y1(d=>y(d.value)).defined(d=>d.value!=null).curve(d3.curveMonotoneX);
 
-    if(isComb){
-      // hide single-series visuals
-      g.select('path.area').style('display','none');
-      g.select('path.line').style('display','none');
-      g.select('circle.last').style('display','none');
+  if(!isCombo){
+    // Wage or Inflation (NO animation here)
+    cards.each(function(country){
+      const series = getSeriesByKey(currentType, country.name);
+      const g = d3.select(this).select('g');
 
-      const {infl, reb} = getSeries(country.name);
-
-      // between fill where BOTH exist
-      const both = columns.map((lbl,i) => {
-        const a = infl[i]?.value, b = reb[i]?.value;
-        return (a==null || b==null) ? null : {i, a, b};
-      }).filter(d => d);
-
-      if(both.length){
-        const areaBetween = d3.area()
-          .x(d => x(d.i))
-          .y0(d => y(d.a))
-          .y1(d => y(d.b))
-          .curve(d3.curveMonotoneX);
-        g.select('path.between')
-          .style('display', null)
-          .attr('d', areaBetween(both));
-      }else{
-        g.select('path.between').style('display','none');
-      }
-
-      // set paths BUT keep them hidden until animation starts
-      const dInfl = lineGen(infl);
-      const dReb  = lineGen(reb);
-
-      const pInfl = g.select('path.line-infl')
-        .attr('d', dInfl || null)
-        .style('display', 'none');   // start hidden
-
-      const pReb  = g.select('path.line-reb')
-        .attr('d', dReb  || null)
-        .style('display', 'none');   // start hidden
-
-      // animate only in Combo: Inflation first, then Rebased
-      if (dInfl) pathReveal(pInfl, 1000);
-      if (dReb)  setTimeout(()=> pathReveal(pReb, 1000), dInfl ? 1000 : 0);
-
-      g.select('.hover-dot').style('display', 'none');
-
-    }else{
-      // NON-COMBO: show single series; hide combo artifacts; NO animation here
-      g.select('path.line-infl').style('display','none');
-      g.select('path.line-reb').style('display','none');
-      g.select('path.between').style('display','none');
-
-      const series = getSeries(country.name);
-      const dArea  = areaGen(series);
-      const dLine  = lineGen(series);
-
+      // area only for wage
       g.select('path.area')
-        .style('display', null)          // force visible
-        .attr('fill','var(--fill)')      // use current theme
-        .attr('d', dArea || null);
+        .style('opacity', isWage ? 1 : 0)
+        .attr('d', isWage ? areaGen(series) : null);
 
+      // main line
       g.select('path.line')
-        .style('display', null)
-        .attr('stroke','var(--line)')
-        .attr('d', dLine || null);
+        .style('stroke', isWage ? '#0B3D56' : '#C35A08')
+        .attr('stroke-dasharray', null).attr('stroke-dashoffset', null)
+        .attr('d', lineGen(series));
 
-      // last point marker
+      // clear combo artifacts
+      g.select('path.line2').attr('d', null).attr('stroke-dasharray', null).attr('stroke-dashoffset', null);
+      g.select('path.between').style('opacity',0).attr('d', null);
+
+      // last dot for single series
       const lastIdx = [...series].map((d,i)=>({d,i})).reverse().find(o=>o.d.value!=null)?.i ?? null;
       const last = g.select('circle.last');
-      if (lastIdx != null) {
-        last.style('display', null).attr('cx', x(lastIdx)).attr('cy', y(series[lastIdx].value));
-      } else {
-        last.style('display', 'none');
-      }
+      if (lastIdx != null) last.style('display', null).attr('cx', x(lastIdx)).attr('cy', y(series[lastIdx].value));
+      else last.style('display','none');
 
-      g.select('.hover-dot').style('display', 'none');
+      g.select('.hover-dot').style('display','none');
+    });
+    return;
+  }
+
+  // Combination tab: two lines animate, then between-shade appears last
+  cards.each(function(country){
+    const g = d3.select(this).select('g');
+    const { infl, reb } = getSeriesAll(country.name);
+
+    // hide wage area; reset between
+    const between = g.select('path.between').style('opacity',0).attr('d', null);
+    g.select('path.area').style('opacity',0).attr('d', null);
+
+    const lineInfl = g.select('path.line').style('stroke','#C35A08');
+    const lineReb  = g.select('path.line2').style('stroke','#0B3D56');
+
+    const d1 = lineGen(infl);
+    const d2 = lineGen(reb);
+
+    // Draw initial paths so we can measure length; they can be null if series is all-null
+    lineInfl.attr('d', d1 || null);
+    lineReb .attr('d', d2 || null);
+
+    function pathLength(sel){
+      const node = sel.node();
+      try{
+        return (node && sel.attr('d')) ? node.getTotalLength() : 0;
+      }catch(e){ return 0; }
     }
+    const L1 = pathLength(lineInfl);
+    const L2 = pathLength(lineReb);
+
+    // Prepare stroke-dash for animation only if path exists
+    if(L1>0){
+      lineInfl.interrupt().attr('stroke-dasharray', `${L1} ${L1}`).attr('stroke-dashoffset', L1);
+    }else{
+      lineInfl.attr('stroke-dasharray', null).attr('stroke-dashoffset', null);
+    }
+    if(L2>0){
+      lineReb.interrupt().attr('stroke-dasharray', `${L2} ${L2}`).attr('stroke-dashoffset', L2);
+    }else{
+      lineReb.attr('stroke-dasharray', null).attr('stroke-dashoffset', null);
+    }
+
+    const dur = 1000;
+
+    const showBetween = ()=>{
+      // Only shade if we truly have both lines with some overlap
+      const poly = makeBetweenPath(infl, reb);
+      if(poly){
+        between.attr('d', poly)
+               .lower()                 // behind lines but above baseline
+               .transition().duration(200).style('opacity',1);
+      }
+    };
+
+    const animateReb = ()=>{
+      if(L2>0){
+        lineReb.transition().duration(dur).attr('stroke-dashoffset', 0).on('end', showBetween);
+      }else{
+        // No rebased line → no between area
+        showBetween(); // will no-op since poly is null
+      }
+    };
+
+    if(L1>0){
+      lineInfl.transition().duration(dur).attr('stroke-dashoffset', 0).on('end', animateReb);
+    }else{
+      // If inflation is missing (unlikely), try animating rebased directly
+      animateReb();
+    }
+
+    // hide last-dot in combo
+    g.select('circle.last').style('display','none');
+    g.select('.hover-dot').style('display','none');
   });
 }
 
-/* ================= Buttons ================= */
-const btnW = document.getElementById('btnWage');
-const btnI = document.getElementById('btnInflation');
-const btnC = document.getElementById('btnCombo');
+/* Buttons */
+document.getElementById('btnWage').addEventListener('click',()=>{
+  document.getElementById('btnWage').classList.add('active');
+  document.getElementById('btnInflation').classList.remove('active');
+  document.getElementById('btnCombo').classList.remove('active');
+  renderType('wage');
+});
+document.getElementById('btnInflation').addEventListener('click',()=>{
+  document.getElementById('btnInflation').classList.add('active');
+  document.getElementById('btnWage').classList.remove('active');
+  document.getElementById('btnCombo').classList.remove('active');
+  renderType('infl');
+});
+document.getElementById('btnCombo').addEventListener('click',()=>{
+  document.getElementById('btnCombo').classList.add('active');
+  document.getElementById('btnWage').classList.remove('active');
+  document.getElementById('btnInflation').classList.remove('active');
+  renderType('combo');
+});
 
-function setActive(b){ [btnW,btnI,btnC].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }
-btnW.addEventListener('click',()=>{ setActive(btnW); renderTab(DISPLAY.wage); });
-btnI.addEventListener('click',()=>{ setActive(btnI); renderTab(DISPLAY.infl); });
-btnC.addEventListener('click',()=>{ setActive(btnC); renderTab(DISPLAY.comb); });
-
-/* Clear sticky on outside click */
+/* Click outside tiles clears sticky */
 document.addEventListener('click', (e)=>{ if(!e.target.closest('.card')) clearSticky(); });
 
-/* Reposition on resize */
+/* Keep layout on resize */
 window.addEventListener('resize',()=>{
   const pos=d=>({left:gap()+d.col*(w()+gap()), top:gap()+(d.row+TOP_BUFFER_ROWS)*(h()+gap())});
   d3.selectAll('.card').style('left',d=>pos(d).left+'px').style('top',d=>pos(d).top+'px');

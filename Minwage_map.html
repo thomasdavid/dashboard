@@ -3,115 +3,67 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Minimum wages in Europe since 2010</title>
+<title>Minimum wages and inflation in Europe since 2015</title>
 <style>
   :root{
     --gap:10px;
     --tile-w:118px;
     --tile-h:92px;
-    --line:#0B3D56;      /* will be changed by JS per dataset */
-    --fill:rgba(11,61,86,.12);
+    --line:#0B3D56;             /* will be set by JS per tab */
+    --fill:rgba(11,61,86,.16);  /* wage area shading */
   }
   html,body{height:100%}
   body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#fff}
 
   h2{max-width:1280px;margin:16px auto 6px;padding:0 10px}
 
-  .toolbar{
-    max-width:1280px;margin:0 auto 6px;padding:0 10px;display:flex;gap:8px
-  }
-  .btn{
-    border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 10px;
-    cursor:pointer;font-size:14px
-  }
+  .toolbar{max-width:1280px;margin:0 auto 6px;padding:0 10px;display:flex;gap:8px}
+  .btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px}
   .btn.active{background:#111827;color:#fff;border-color:#111827}
 
-  .canvas{
-    width:min(1280px,98vw);
-    margin:8px auto 24px;
-    position:relative;
-    padding:10px;
-    box-sizing:border-box;
-  }
+  .canvas{width:min(1280px,98vw);margin:8px auto 24px;position:relative;padding:10px;box-sizing:border-box;}
 
-  .card{
-    position:absolute;
-    width:var(--tile-w);
-    height:var(--tile-h);
-    box-sizing:border-box;
-    transition:opacity .12s ease-in-out;
-  }
+  .card{position:absolute;width:var(--tile-w);height:var(--tile-h);box-sizing:border-box;transition:opacity .12s ease-in-out;}
   .faded{opacity:.50 !important;}
 
-  .flagline{
-    display:flex;align-items:center;justify-content:center;
-    margin-bottom:4px;
-  }
-  
+  .flagline{display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
   .flagline img{
-  width:18px;
-  height:12px;
-  align-items:center;
-  object-fit:cover;
-  border-radius:2px;
-
-  /* subtle halo so white edges don’t disappear */
-  background:#fff; /* fills any transparent pixels */
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,.18),   /* crisp hairline border */
-    0 1px 3px rgba(0,0,0,.10);   /* soft outer glow */
-}
-  .flagline img{ width:18px;height:12px;object-fit:cover;border-radius:2px }
+    width:18px;height:12px;object-fit:cover;border-radius:2px;
+    background:#fff; /* fills transparent pixels */
+    box-shadow:0 0 0 1px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.10); /* subtle halo */
+  }
 
   svg.tiny{display:block;width:100%;height:auto}
   .tickLabel{font-size:9px; fill:#9a9a9a}
 
-.tooltip{
-  position:absolute;
-  left:14px;          /* ← move it a bit from the top-left */
-  top:20px;           /* adjust to taste */
-  z-index:3;
-  background:transparent;
-  border:yes;
-  border-radius:1;
-  box-shadow:yes;
-  display:none;
-  pointer-events:none;
+  /* keep areas visible and non-interactive */
+  path.area, path.between{ pointer-events:none; opacity:1; }
 
-  /* 40% bigger + keep growth from the top-left corner */
-  transform: scale(1.4);
-  transform-origin: top left;
-}
-
+  .tooltip{
+    position:absolute; left:14px; top:20px; z-index:3;
+    background:transparent; border:none; border-radius:0; box-shadow:none;
+    display:none; pointer-events:none;
+    transform: scale(1.4); transform-origin: top left; /* 40% larger */
+  }
   .tt-wrap{display:flex;flex-direction:column;gap:6px}
   .tt-row{display:flex;align-items:center;gap:8px}
-.tt-flag{
-  width:30px;
-  height:20px;
-  object-fit:cover;
-  border-radius:3px;
-
-  background:#fff;
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,.18),
-    0 2px 6px rgba(0,0,0,.12);
-}
+  .tt-flag{width:30px;height:20px;object-fit:cover;border-radius:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.12);}
   .tt-country{font-weight:600;font-size:14px;color:#111}
   .tt-year{font-weight:800;font-size:18px;color:#222}
   .tt-value{font-weight:900;font-size:34px;color:#000;line-height:1.05}
+  .tt-sub{font-weight:700;font-size:15px;color:#111}
 </style>
 </head>
 <body>
   <h2>Minimum wages and inflation in Europe since 2015</h2>
 
-  <!-- dataset toggle -->
   <div class="toolbar">
     <button id="btnWage"      class="btn active">Minimum wage</button>
     <button id="btnInflation" class="btn">Inflation (2015=100)</button>
+    <button id="btnCombo"     class="btn">Combination</button>
   </div>
 
 <div class="canvas" id="grid">
-  <!-- fixed-position tooltip at very top-left -->
   <div id="tooltip" class="tooltip" aria-live="polite">
     <div class="tt-wrap">
       <div class="tt-row">
@@ -120,24 +72,41 @@
       </div>
       <div id="tt-year" class="tt-year"></div>
       <div id="tt-value" class="tt-value"></div>
+      <div id="tt-sub" class="tt-sub"></div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
-/* ===== New: handle two datasets via Type column ===== */
-let columns = []; // month labels
-const dataByType = new Map(); // Map(type -> Map(country -> series))
-const maxByType = new Map();  // Map(type -> global max)
+/* ================= Data containers ================= */
+let columns = []; // month labels (Jan 2015+)
+const dataByType = new Map(); // Map(typeKeyLower -> Map(country -> series))
+const maxByType  = new Map(); // Map(typeKeyLower -> global max)
 
-const TYPES = {
+const DISPLAY = {
   wage: 'Minimum wage',
-  infl: 'Inflation (2015=100)'
+  infl: 'Inflation (2015=100)',
+  comb: 'Combination'
 };
-let currentType = TYPES.wage;
+let currentDisplay = DISPLAY.wage;
 
-/* ===== Grid positions ===== */
+/* Type keys we’ll recognise (lower-case prefixes) */
+const TYPE_PREFIXES = {
+  wage: 'minimum wage',
+  infl: 'inflation',
+  reb : 'rebased'
+};
+function normType(t){ return (t||'').toLowerCase().trim(); }
+function findTypeKey(prefix){
+  prefix = prefix.toLowerCase();
+  for(const k of dataByType.keys()){
+    if(k.startsWith(prefix)) return k;
+  }
+  return null;
+}
+
+/* ================= Grid positions ================= */
 const gridMap = [
   {code:"SE",name:"Sweden",row:-1,col:4},{code:"FI",name:"Finland",row:-1,col:5},
   {code:"DK",name:"Denmark",row:0,col:3},{code:"EE",name:"Estonia",row:0,col:6},
@@ -155,7 +124,7 @@ const gridMap = [
   {code:"CY",name:"Cyprus",row:5,col:7}
 ];
 
-/* ===== Layout helpers ===== */
+/* ================= Layout helpers ================= */
 const TOP_BUFFER_ROWS = 1;
 const get = k => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(k));
 const gap = () => get('--gap'), w=()=>get('--tile-w'), h=()=>get('--tile-h');
@@ -169,16 +138,17 @@ const gridEl = document.getElementById('grid');
   gridEl.style.minHeight = gap()+(maxRow+1+TOP_BUFFER_ROWS)*(h()+gap())+gap()+'px';
 })();
 
-/* ===== Tooltip ===== */
+/* ================= Tooltip ================= */
 const tooltip=document.getElementById('tooltip');
 const ttFlag=document.getElementById('tt-flag');
 const ttCountry=document.getElementById('tt-country');
 const ttYear=document.getElementById('tt-year');
 const ttValue=document.getElementById('tt-value');
+const ttSub  =document.getElementById('tt-sub');
 
 function showTooltip(){ tooltip.style.display='block'; }
-function hideTooltip(){ tooltip.style.display='none'; ttFlag.src=''; ttCountry.textContent=''; ttYear.textContent=''; ttValue.textContent=''; }
-function updateTooltip(code,name,label,value){
+function hideTooltip(){ tooltip.style.display='none'; ttFlag.src=''; ttCountry.textContent=''; ttYear.textContent=''; ttValue.textContent=''; ttSub.textContent=''; }
+function updateTooltip(code,name,label,primary,secondary){
   const iso=code.toLowerCase();
   let src=`https://flagcdn.com/w20/${iso}.png`;
   if(iso==='el')src='https://flagcdn.com/w20/gr.png';
@@ -187,14 +157,22 @@ function updateTooltip(code,name,label,value){
   ttCountry.textContent=name;
   ttYear.textContent=String(label);
 
-  const formatted = (value==null||isNaN(value)) ? '—'
-    : new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(value);
+  const fmt = v => (v==null||isNaN(v)) ? '—' :
+    new Intl.NumberFormat('en-GB',{maximumFractionDigits:0,minimumFractionDigits:0}).format(v);
 
-  // Show € only for Minimum wage, plain index for Inflation
-  ttValue.textContent = currentType === TYPES.wage ? (formatted + ' €') : formatted;
+  if(currentDisplay === DISPLAY.wage){
+    ttValue.textContent = fmt(primary) + ' €';
+    ttSub.textContent = '';
+  }else if(currentDisplay === DISPLAY.infl){
+    ttValue.textContent = fmt(primary);
+    ttSub.textContent = '';
+  }else{ // Combination
+    ttValue.textContent = `Inflation: ${fmt(primary)}`;
+    ttSub.textContent   = `Rebased MW: ${fmt(secondary)}`;
+  }
 }
 
-/* ===== Fade & sticky ===== */
+/* ================= Fade & sticky ================= */
 let sticky=false, stickyCard=null, stickyIdx=null;
 const POINT_TOL=9;
 
@@ -203,7 +181,7 @@ function clearFocus(){ d3.selectAll('.card').classed('faded', false); }
 function hideAllDots(){ d3.selectAll('.hover-dot').style('display','none'); }
 function clearSticky(){ sticky=false; stickyCard=null; stickyIdx=null; clearFocus(); hideTooltip(); hideAllDots(); }
 
-/* ===== Build tiles (headers) ===== */
+/* ================= Build tiles (headers) ================= */
 const layer=d3.select('#grid');
 const cards=layer.selectAll('.card').data(gridMap,d=>d.code).enter().append('div')
   .attr('class','card')
@@ -220,122 +198,152 @@ cards.each(function(d){
     .on('error', function(){ if(iso==='el') this.src='https://flagcdn.com/w20/gr.png'; if(iso==='gr') this.src='https://flagcdn.com/w20/el.png'; });
 });
 
-/* ===== CSV load ===== */
+/* ================= CSV load ================= */
 const RAW_CSV = "https://raw.githubusercontent.com/thomasdavid/dashboard/main/minwage.csv";
-
-// Keep only months from Jan 2015+
 const CUTOFF = new Date(2015, 0, 1);
 
-// Parse labels like "Jan 10", "Jan 2015", "January 2015", or "2015-01"
 function parseMonthLabel(lbl){
   const s = String(lbl).trim();
   const mm = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-
-  // "Jan 10" or "January 2015"
   let m = s.match(/^([A-Za-z]{3,})(?:[a-z]+)?\s+(\d{2,4})$/);
-  if(m){
-    const month = mm[m[1].slice(0,3).toLowerCase()];
-    let year = +m[2]; if(year < 100) year += 2000;
-    return new Date(year, month, 1);
-  }
-
-  // "2015-01" or "2015/1"
-  m = s.match(/^(\d{4})[-/](\d{1,2})$/);
-  if(m) return new Date(+m[1], +m[2]-1, 1);
-
-  return null; // unparseable
+  if(m){ const month = mm[m[1].slice(0,3).toLowerCase()]; let year = +m[2]; if(year<100) year += 2000; return new Date(year,month,1); }
+  m = s.match(/^(\d{4})[-/](\d{1,2})$/); if(m) return new Date(+m[1], +m[2]-1, 1);
+  return null;
 }
 
-
 d3.csv(RAW_CSV).then(raw=>{
-  // columns: Country + Type + months...
-columns = raw.columns
-  .filter(c => c !== "Country" && c !== "Type")
-  .filter(lbl => {
-    const d = parseMonthLabel(lbl);
-    return d && d >= CUTOFF;
-  });
+  // filter month columns to Jan 2015+
+  columns = raw.columns
+    .filter(c => c !== "Country" && c !== "Type")
+    .filter(lbl => { const d = parseMonthLabel(lbl); return d && d >= CUTOFF; });
 
-
-  // Build maps per type
-  const typesInFile = new Set(raw.map(r=>r.Type));
+  // Build maps keyed by lower-case Type
+  const typesInFile = new Set(raw.map(r=>normType(r.Type)));
   typesInFile.forEach(t=> dataByType.set(t, new Map()));
 
   raw.forEach(row=>{
-    const type = row.Type;
+    const typeKey = normType(row.Type);
     const name = row.Country;
     const arr = columns.map(lbl=>{
       const v=row[lbl];
       const val = (v==='-'||v===''||v==null) ? null : +v;
       return {year: lbl, value: val};
     });
-    dataByType.get(type).set(name, arr);
+    dataByType.get(typeKey).set(name, arr);
   });
 
-  // Global max per type
-  dataByType.forEach((map,type)=>{
+  // Global max per type (for wage scaling)
+  dataByType.forEach((map,typeKey)=>{
     let m=0;
     map.forEach(arr=>arr.forEach(p=>{ if(p.value!=null && p.value>m) m=p.value; }));
-    maxByType.set(type, m>0?m:1);
+    maxByType.set(typeKey, m>0?m:1);
   });
 
   initCharts();
 });
 
+/* Helpers to fetch series by display tab */
 function getSeries(countryName){
-  const m = dataByType.get(currentType);
-  if(!m) return columns.map(lbl=>({year:lbl,value:null}));
-  return m.get(countryName) || columns.map(lbl=>({year:lbl,value:null}));
+  if(currentDisplay === DISPLAY.comb){
+    const inflKey = findTypeKey(TYPE_PREFIXES.infl);
+    const rebKey  = findTypeKey(TYPE_PREFIXES.reb);
+    const infl = inflKey ? (dataByType.get(inflKey).get(countryName) || columns.map(lbl=>({year:lbl,value:null}))) : columns.map(lbl=>({year:lbl,value:null}));
+    const reb  = rebKey  ? (dataByType.get(rebKey ).get(countryName) || columns.map(lbl=>({year:lbl,value:null}))) : columns.map(lbl=>({year:lbl,value:null}));
+    return {infl, reb};
+  }else{
+    const key = currentDisplay===DISPLAY.wage ? findTypeKey(TYPE_PREFIXES.wage) : findTypeKey(TYPE_PREFIXES.infl);
+    if(!key) return columns.map(lbl=>({year:lbl,value:null}));
+    return dataByType.get(key).get(countryName) || columns.map(lbl=>({year:lbl,value:null}));
+  }
 }
 
-/* ===== Charts ===== */
-let x,y,line,area;  // scales and generators (will be reset on render)
+/* ================= Charts ================= */
+let x,y,line,area;
 const Wsvg=w(), Hsvg=h()-22, M={t:4,r:6,b:14,l:6};
 const innerW=Wsvg-M.l-M.r, innerH=Hsvg-M.t-M.b;
 
+function nearestValidIndex(series, idx){
+  if(series[idx] && series[idx].value!=null) return idx;
+  let L=idx-1, R=idx+1;
+  while(L>=0 || R<series.length){
+    if(L>=0 && series[L].value!=null) return L;
+    if(R<series.length && series[R].value!=null) return R;
+    L--; R++;
+  }
+  return null;
+}
+
+/* Animate a stroke from hidden to visible (used ONLY in Combo) */
+function pathReveal(selection, ms){
+  selection.each(function(){
+    const el = d3.select(this);
+    const node = this;
+    const d = el.attr('d');
+    if(!d || d.trim()===''){ el.style('display','none'); return; }
+
+    // ensure visible in DOM but hidden along the path
+    el.style('display', null).style('opacity', 1);
+
+    let len = 0;
+    try { len = node.getTotalLength(); } catch(e){ return; }
+    if(!isFinite(len) || len <= 0) return;
+
+    el.attr('stroke-dasharray', `${len} ${len}`)
+      .attr('stroke-dashoffset', len)
+      .transition().duration(ms).ease(d3.easeCubicOut)
+      .attr('stroke-dashoffset', 0);
+  });
+}
+
 function initCharts(){
-  // create per-card svg & interaction once
   cards.each(function(country){
     const cardEl=this;
-    const svg=d3.select(this).append('svg')
-      .attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`)
-      .attr('preserveAspectRatio','xMinYMin meet');
+    const svg=d3.select(this).append('svg').attr('class','tiny').attr('viewBox',`0 0 ${Wsvg} ${Hsvg}`).attr('preserveAspectRatio','xMinYMin meet');
     const g=svg.append('g').attr('transform',`translate(${M.l},${M.t})`);
     g.append('line').attr('class','x0').attr('x1',0).attr('x2',innerW).attr('y1',0).attr('y2',0).attr('stroke','#e3e3e3');
 
+    /* wage single-series area/line */
     g.append('path').attr('class','area').attr('fill','var(--fill)');
     g.append('path').attr('class','line').attr('fill','none').attr('stroke','var(--line)').attr('stroke-width',2).attr('stroke-linecap','round');
+
+    /* COMBO: between area + two lines (initially hidden) */
+    g.append('path').attr('class','between').attr('fill','rgba(0,0,0,.05)').style('display','none');
+    g.append('path').attr('class','line-infl').attr('fill','none').attr('stroke','#C35A08').attr('stroke-width',2.2).attr('stroke-linecap','round').style('display','none');
+    g.append('path').attr('class','line-reb') .attr('fill','none').attr('stroke','#0B3D56').attr('stroke-width',2.2).attr('stroke-linecap','round').style('display','none');
+
     g.append('circle').attr('class','last').attr('r',2.6).attr('fill','var(--line)').style('display','none');
-
     const dot=g.append('circle').attr('class','hover-dot').attr('r',4).attr('fill','red').style('display','none');
-
-    function nearestValidIndex(series, idx){
-      if(series[idx] && series[idx].value!=null) return idx;
-      let L=idx-1, R=idx+1;
-      while(L>=0 || R<series.length){
-        if(L>=0 && series[L].value!=null) return L;
-        if(R<series.length && series[R].value!=null) return R;
-        L--; R++;
-      }
-      return null;
-    }
 
     g.append('rect').attr('width',innerW).attr('height',innerH).attr('fill','transparent')
       .on('mousemove',function(event){
         if(sticky) return;
-        const series = getSeries(country.name);
         const [mx]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
-        idx=Math.max(0,Math.min(series.length-1,idx));
-        const valid=nearestValidIndex(series, idx);
-        if(valid==null) return;
+        idx=Math.max(0,Math.min(columns.length-1,idx));
+        const label = columns[idx];
 
-        const pt=series[valid];
-        focusOnly(cardEl);
-        hideAllDots();
-        dot.style('display','block').attr('cx',x(valid)).attr('cy',y(pt.value));
-        updateTooltip(country.code, country.name, pt.year, pt.value);
-        showTooltip();
+        if(currentDisplay === DISPLAY.comb){
+          const {infl, reb} = getSeries(country.name);
+          const vi = nearestValidIndex(infl, idx);
+          const vr = nearestValidIndex(reb,  idx);
+          const valInfl = vi!=null ? infl[vi].value : null;
+          const valReb  = vr!=null ? reb[vr].value  : null;
+
+          const yy = (vi!=null ? y(valInfl) : (vr!=null ? y(valReb) : innerH/2));
+          focusOnly(cardEl); hideAllDots();
+          dot.style('display','block').attr('cx',x(idx)).attr('cy', yy);
+          updateTooltip(country.code, country.name, label, valInfl, valReb);
+          showTooltip();
+        }else{
+          const series = getSeries(country.name);
+          const valid=nearestValidIndex(series, idx);
+          if(valid==null) return;
+          const pt=series[valid];
+          focusOnly(cardEl); hideAllDots();
+          dot.style('display','block').attr('cx',x(valid)).attr('cy',y(pt.value));
+          updateTooltip(country.code, country.name, pt.year, pt.value);
+          showTooltip();
+        }
       })
       .on('mouseenter',function(){ if(!sticky) focusOnly(cardEl); })
       .on('mouseleave',function(){
@@ -344,34 +352,44 @@ function initCharts(){
         dot.style('display','none');
       })
       .on('click',function(event){
-        const series = getSeries(country.name);
         const [mx,my]=d3.pointer(event,this);
         let idx=Math.round(x.invert(mx));
-        idx=Math.max(0,Math.min(series.length-1,idx));
-        // nearest valid
-        let valid=idx;
-        if(series[valid]?.value==null){
-          valid=null;
-          for(let d=1; valid==null && (idx-d>=0 || idx+d<series.length); d++){
-            if(idx-d>=0 && series[idx-d].value!=null) valid=idx-d;
-            if(valid==null && idx+d<series.length && series[idx+d].value!=null) valid=idx+d;
-          }
-        }
-        if(valid==null){ clearSticky(); return; }
-        const px=x(valid), py=y(series[valid].value);
-        const dist=Math.hypot(mx-px, my-py);
+        idx=Math.max(0,Math.min(columns.length-1,idx));
+        const px=x(idx);
 
-        const dotSel = d3.select(cardEl).select('.hover-dot');
-        if(dist <= POINT_TOL){
-          sticky=true; stickyCard=cardEl; stickyIdx=valid;
-          focusOnly(cardEl);
-          hideAllDots();
-          dotSel.style('display','block').attr('cx',px).attr('cy',py);
-          const pt=series[valid];
-          updateTooltip(country.code, country.name, pt.year, pt.value);
-          showTooltip();
+        if(currentDisplay === DISPLAY.comb){
+          const {infl, reb} = getSeries(country.name);
+          const vi = nearestValidIndex(infl, idx);
+          const vr = nearestValidIndex(reb,  idx);
+          const valInfl = vi!=null ? infl[vi].value : null;
+          const valReb  = vr!=null ? reb[vr].value  : null;
+
+          const yy = (vi!=null ? y(valInfl) : (vr!=null ? y(valReb) : innerH/2));
+          const dist=Math.hypot(mx-px, my-yy);
+          if(dist <= POINT_TOL){
+            sticky=true; stickyCard=this.parentNode.parentNode; stickyIdx=idx;
+            focusOnly(stickyCard); hideAllDots();
+            d3.select(stickyCard).select('.hover-dot').style('display','block').attr('cx',px).attr('cy',yy);
+            updateTooltip(country.code, country.name, columns[idx], valInfl, valReb);
+            showTooltip();
+          }else{
+            clearSticky();
+          }
         }else{
-          clearSticky();
+          const series = getSeries(country.name);
+          const valid = nearestValidIndex(series, idx);
+          if(valid==null){ clearSticky(); return; }
+          const py=y(series[valid].value);
+          const dist=Math.hypot(mx-px, my-py);
+          if(dist <= POINT_TOL){
+            sticky=true; stickyCard=this.parentNode.parentNode; stickyIdx=valid;
+            focusOnly(stickyCard); hideAllDots();
+            d3.select(stickyCard).select('.hover-dot').style('display','block').attr('cx',px).attr('cy',py);
+            updateTooltip(country.code, country.name, series[valid].year, series[valid].value);
+            showTooltip();
+          }else{
+            clearSticky();
+          }
         }
       });
 
@@ -380,92 +398,151 @@ function initCharts(){
       .on('mouseleave', ()=>{ if(!sticky) clearFocus(); });
   });
 
-  renderType(currentType);
+  renderTab(currentDisplay);
 }
 
+/* Theme for non-combo tabs */
 function applyTheme(){
-  if(currentType === TYPES.wage){
+  if(currentDisplay === DISPLAY.wage){
     document.documentElement.style.setProperty('--line', '#0B3D56');
-    document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.12)');
-  }else{
+    document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.16)');  // wage area shading
+  }else if(currentDisplay === DISPLAY.infl){
     document.documentElement.style.setProperty('--line', '#C35A08');
     document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,.12)');
   }
 }
 
-function renderType(type){
-  currentType = type;
+/* ================= Render per tab ================= */
+function renderTab(display){
+  currentDisplay = display;
   clearSticky();
   applyTheme();
 
-  // Use independent fixed scale for Inflation
-  const isInflation = (currentType === TYPES.infl);
+  const isInfl = (currentDisplay === DISPLAY.infl);
+  const isWage = (currentDisplay === DISPLAY.wage);
+  const isComb = (currentDisplay === DISPLAY.comb);
 
-  // scales
   x = d3.scaleLinear().domain([0, columns.length - 1]).range([0, innerW]);
-  y = d3.scaleLinear()
-        .domain(isInflation ? [70, 180] : [0, maxByType.get(currentType) || 1])  // 👈 fixed inflation range
-        .nice()
-        .range([innerH, 0]);
+  const wageKey = findTypeKey(TYPE_PREFIXES.wage);
+  const wageMax = wageKey ? (maxByType.get(wageKey) || 1) : 1;
 
-  line = d3.line()
-           .x((d, i) => x(i))
-           .y(d => y(d.value))
-           .defined(d => d.value != null)
-           .curve(d3.curveMonotoneX);
+  /* y-scale per tab:
+     - Combo: 95 → 450
+     - Inflation: 70 → 200
+     - Wage: 0 → wageMax
+  */
+  const yDomain = isComb ? [95, 450]
+                : isInfl ? [70, 200]
+                : [0, wageMax];
+  y = d3.scaleLinear().domain(yDomain).nice().range([innerH, 0]);
 
-  area = d3.area()
-           .x((d, i) => x(i))
-           .y0(y(isInflation ? 70 : 0))
-           .y1(d => y(d.value))
-           .defined(d => d.value != null)
-           .curve(d3.curveMonotoneX);
+  const lineGen = d3.line().x((d,i)=>x(i)).y(d=>y(d.value)).defined(d=>d.value!=null).curve(d3.curveMonotoneX);
+  const areaGen = d3.area()
+    .x((d,i)=>x(i))
+    .y0(y(isInfl ? 70 : 0))  // (Combo doesn't draw single-series area)
+    .y1(d=>y(d.value))
+    .defined(d=>d.value!=null)
+    .curve(d3.curveMonotoneX);
 
-  // baseline at zero (or min for inflation)
-  const baseline = y(isInflation ? 70 : 0);
+  const baseline = y(isInfl ? 70 : isComb ? 95 : 0);
   d3.selectAll('.x0').attr('y1', baseline).attr('y2', baseline);
 
-  // update each card
   cards.each(function(country){
-    const series = getSeries(country.name);
     const g = d3.select(this).select('g');
 
-    g.select('path.area').attr('d', area(series));
-    g.select('path.line').attr('d', line(series));
+    if(isComb){
+      // hide single-series visuals
+      g.select('path.area').style('display','none');
+      g.select('path.line').style('display','none');
+      g.select('circle.last').style('display','none');
 
-    const lastIdx = [...series].map((d,i)=>({d,i}))
-      .reverse()
-      .find(o => o.d.value != null)?.i ?? null;
+      const {infl, reb} = getSeries(country.name);
 
-    const last = g.select('circle.last');
-    if (lastIdx != null) {
-      last.style('display', null)
-          .attr('cx', x(lastIdx))
-          .attr('cy', y(series[lastIdx].value));
-    } else {
-      last.style('display', 'none');
+      // between fill where BOTH exist
+      const both = columns.map((lbl,i) => {
+        const a = infl[i]?.value, b = reb[i]?.value;
+        return (a==null || b==null) ? null : {i, a, b};
+      }).filter(d => d);
+
+      if(both.length){
+        const areaBetween = d3.area()
+          .x(d => x(d.i))
+          .y0(d => y(d.a))
+          .y1(d => y(d.b))
+          .curve(d3.curveMonotoneX);
+        g.select('path.between')
+          .style('display', null)
+          .attr('d', areaBetween(both));
+      }else{
+        g.select('path.between').style('display','none');
+      }
+
+      // set paths BUT keep them hidden until animation starts
+      const dInfl = lineGen(infl);
+      const dReb  = lineGen(reb);
+
+      const pInfl = g.select('path.line-infl')
+        .attr('d', dInfl || null)
+        .style('display', 'none');   // start hidden
+
+      const pReb  = g.select('path.line-reb')
+        .attr('d', dReb  || null)
+        .style('display', 'none');   // start hidden
+
+      // animate only in Combo: Inflation first, then Rebased
+      if (dInfl) pathReveal(pInfl, 1000);
+      if (dReb)  setTimeout(()=> pathReveal(pReb, 1000), dInfl ? 1000 : 0);
+
+      g.select('.hover-dot').style('display', 'none');
+
+    }else{
+      // NON-COMBO: show single series; hide combo artifacts; NO animation here
+      g.select('path.line-infl').style('display','none');
+      g.select('path.line-reb').style('display','none');
+      g.select('path.between').style('display','none');
+
+      const series = getSeries(country.name);
+      const dArea  = areaGen(series);
+      const dLine  = lineGen(series);
+
+      g.select('path.area')
+        .style('display', null)          // force visible
+        .attr('fill','var(--fill)')      // use current theme
+        .attr('d', dArea || null);
+
+      g.select('path.line')
+        .style('display', null)
+        .attr('stroke','var(--line)')
+        .attr('d', dLine || null);
+
+      // last point marker
+      const lastIdx = [...series].map((d,i)=>({d,i})).reverse().find(o=>o.d.value!=null)?.i ?? null;
+      const last = g.select('circle.last');
+      if (lastIdx != null) {
+        last.style('display', null).attr('cx', x(lastIdx)).attr('cy', y(series[lastIdx].value));
+      } else {
+        last.style('display', 'none');
+      }
+
+      g.select('.hover-dot').style('display', 'none');
     }
-
-    g.select('.hover-dot').style('display', 'none');
   });
 }
 
-/* Toggle buttons */
-document.getElementById('btnWage').addEventListener('click',()=>{
-  document.getElementById('btnWage').classList.add('active');
-  document.getElementById('btnInflation').classList.remove('active');
-  renderType(TYPES.wage);
-});
-document.getElementById('btnInflation').addEventListener('click',()=>{
-  document.getElementById('btnInflation').classList.add('active');
-  document.getElementById('btnWage').classList.remove('active');
-  renderType(TYPES.infl);
-});
+/* ================= Buttons ================= */
+const btnW = document.getElementById('btnWage');
+const btnI = document.getElementById('btnInflation');
+const btnC = document.getElementById('btnCombo');
 
-/* Click outside tiles clears sticky */
+function setActive(b){ [btnW,btnI,btnC].forEach(x=>x.classList.remove('active')); b.classList.add('active'); }
+btnW.addEventListener('click',()=>{ setActive(btnW); renderTab(DISPLAY.wage); });
+btnI.addEventListener('click',()=>{ setActive(btnI); renderTab(DISPLAY.infl); });
+btnC.addEventListener('click',()=>{ setActive(btnC); renderTab(DISPLAY.comb); });
+
+/* Clear sticky on outside click */
 document.addEventListener('click', (e)=>{ if(!e.target.closest('.card')) clearSticky(); });
 
-/* Keep layout on resize */
+/* Reposition on resize */
 window.addEventListener('resize',()=>{
   const pos=d=>({left:gap()+d.col*(w()+gap()), top:gap()+(d.row+TOP_BUFFER_ROWS)*(h()+gap())});
   d3.selectAll('.card').style('left',d=>pos(d).left+'px').style('top',d=>pos(d).top+'px');

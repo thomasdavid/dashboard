@@ -399,9 +399,11 @@ function applyTheme(){
   if(currentType === 'wage'){
     document.documentElement.style.setProperty('--line', '#0B3D56');
     document.documentElement.style.setProperty('--fill', 'rgba(11,61,86,.16)');
-  }else if(currentType === 'infl'){
-    document.documentElement.style.setProperty('--line', '#C35A08');
-    document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,0)'); // none
+ }else if(currentType === 'infl'){
+  document.documentElement.style.setProperty('--line', '#C35A08');
+  document.documentElement.style.setProperty('--fill', 'rgba(195,90,8,.12)'); // light shade for inflation
+}
+
   }else{ // combo uses explicit colors per line later
     document.documentElement.style.setProperty('--line', '#0B3D56');
     document.documentElement.style.setProperty('--fill', 'rgba(0,0,0,0)');
@@ -462,9 +464,11 @@ function renderType(nextKey){
       const g = d3.select(this).select('g');
 
       // area only for wage
-      g.select('path.area')
-        .style('opacity', isWage ? 1 : 0)
-        .attr('d', isWage ? areaGen(series) : null);
+    // area for wage and inflation (none in combo path)
+g.select('path.area')
+  .style('opacity', (isWage || isInflation) ? 1 : 0)
+  .attr('d', (isWage || isInflation) ? areaGen(series) : null);
+
 
       // main line
       g.select('path.line')

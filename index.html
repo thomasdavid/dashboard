@@ -66,163 +66,156 @@
 
 <!-- Arrow JS as an ES module -->
 <script type="module">
-import { tableFromIPC } from 'https://cdn.jsdelivr.net/npm/apache-arrow@14.0.2/esm/index.min.js';
+/* -------- High-level config -------- */
+const FEATHER_URL_INPUT = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/EWCS_combined_narrow.feather';
 
-const logEl = document.getElementById('log');
-const log = (m) => { logEl.textContent += m + '\\n'; };
+/* UI helpers */
+const logEl = document.getElementById('log') ?? (() => {
+  const d = document.createElement('div'); d.id='log'; d.style='font:12px/1.4 monospace;color:#9aa4b2;margin-top:6px;white-space:pre-wrap';
+  document.querySelector('.card')?.appendChild(d); return d;
+})();
+const log = (m)=>{ logEl.textContent += m + '\n'; };
 
-let ARROW_TABLE = null;   // the full Arrow table
-let currentSurvey = null;
-
-function numAwareSort(a,b){
-  const na=Number(a), nb=Number(b);
-  const an=!Number.isNaN(na), bn=!Number.isNaN(nb);
-  return an&&bn?na-nb:String(a).localeCompare(String(b));
-}
-
-async function getFeatherBuffer(){
-  const f = document.getElementById('localFeather');
-  if (f.files && f.files[0]) {
-    log('Reading local Feather…');
-    return new Uint8Array(await f.files[0].arrayBuffer());
+/* Try Arrow ESM first, then UMD fallback */
+async function loadArrow() {
+  // 1) ESM path
+  try {
+    log('Loading Arrow (ESM)…');
+    const mod = await import('https://cdn.jsdelivr.net/npm/apache-arrow@14.0.2/esm/index.min.js');
+    if (mod?.tableFromIPC) {
+      log('Arrow ESM loaded.');
+      return { tableFromIPC: mod.tableFromIPC };
+    }
+    log('Arrow ESM has no exports, trying UMD…');
+  } catch (e) {
+    log('Arrow ESM failed: ' + (e?.message || e) + ' — trying UMD…');
   }
-  const url = document.getElementById('remoteUrl').value.trim();
-  if(!url) throw new Error('No Feather URL provided.');
-  log('Fetching Feather…');
-  const r = await fetch(url, {cache:'no-store'});
-  if (!r.ok) throw new Error(\`Feather HTTP \${r.status} \${r.statusText}\`);
-  return new Uint8Array(await r.arrayBuffer());
-}
 
-function colToArray(table, name){
-  const c = table.getChild(name);
-  if(!c) return [];
-  return c.toArray(); // typed array (numbers) or array of strings
-}
-
-async function loadTable(){
-  const buf = await getFeatherBuffer();
-  ARROW_TABLE = tableFromIPC(buf);
-  log('Feather loaded. Rows: ' + ARROW_TABLE.numRows);
-}
-
-function distinct(arr){
-  return [...new Set(arr.filter(x=>x!==null && x!==undefined))];
-}
-
-function subsetByMask(table, mask){
-  // Build a tiny filtered object (only columns we need) to avoid copying full table
-  const cols = {};
-  for (const colName of ['survey','question','country','value']) {
-    const col = table.getChild(colName);
-    if (!col) continue;
-    const src = col.toArray();
-    const out = [];
-    for (let i=0;i<src.length;i++) if (mask[i]) out.push(src[i]);
-    cols[colName]=out;
-  }
-  return cols; // {survey:[…], question:[…], country:[…], value:[…]}
-}
-
-function buildMaskForSurvey(table, surveyVal){
-  const s = table.getChild('survey').toArray();
-  const mask = new Array(s.length);
-  for (let i=0;i<s.length;i++) mask[i] = (s[i]===surveyVal);
-  return mask;
-}
-
-function loadSurveysUI(){
-  const surveys = distinct(colToArray(ARROW_TABLE,'survey')).sort();
-  const el = document.getElementById('surveys');
-  el.innerHTML='';
-  surveys.forEach((s,i)=>{
-    const b=document.createElement('button');
-    b.textContent=s;
-    if(i===0){ b.classList.add('active'); currentSurvey=s; }
-    b.onclick=()=>{ currentSurvey=s; [...el.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); loadQuestionsUI(); };
-    el.appendChild(b);
+  // 2) UMD fallback
+  await new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/apache-arrow@14.0.2/bundles/arrow.es2015.min.js';
+    s.onload = resolve; s.onerror = ()=>reject(new Error('Failed to load Arrow UMD'));
+    document.head.appendChild(s);
   });
-  loadQuestionsUI();
+  const api = window.arrow;
+  if (!api?.tableFromIPC) throw new Error('Arrow UMD loaded but tableFromIPC missing');
+  log('Arrow UMD loaded.');
+  return { tableFromIPC: api.tableFromIPC };
 }
 
-function loadQuestionsUI(){
-  if(!currentSurvey) return;
-  const mask = buildMaskForSurvey(ARROW_TABLE, currentSurvey);
-  const qCol = ARROW_TABLE.getChild('question').toArray();
-  const qs = distinct(qCol.filter((_,i)=>mask[i])).sort();
-  const elQ = document.getElementById('question');
-  elQ.innerHTML='';
-  qs.forEach((q,i)=>{ const o=document.createElement('option'); o.value=q; o.textContent=q; if(i===0) o.selected=true; elQ.appendChild(o); });
-  drawChart(); // first render
-  elQ.onchange = drawChart;
-}
+/* Tiny helpers */
+function distinct(a){ return [...new Set(a.filter(x=>x!==null && x!==undefined))]; }
+function numAwareSort(a,b){ const na=+a, nb=+b; return (!Number.isNaN(na)&&!Number.isNaN(nb)) ? na-nb : String(a).localeCompare(String(b)); }
 
-function drawChart(){
-  const question = document.getElementById('question').value;
-  const minPerc = parseFloat(document.getElementById('minPerc').value)||0;
+/* Main */
+(async () => {
+  try {
+    document.getElementById('remoteUrl').value = FEATHER_URL_INPUT;
 
-  // Filter rows by current survey + question
-  const surveyMask = buildMaskForSurvey(ARROW_TABLE, currentSurvey);
-  const qCol = ARROW_TABLE.getChild('question').toArray();
-  for (let i=0;i<surveyMask.length;i++) surveyMask[i] = surveyMask[i] && (qCol[i]===question);
+    const { tableFromIPC } = await loadArrow();
 
-  const small = subsetByMask(ARROW_TABLE, surveyMask); // {survey,question,country,value}
+    async function getFeatherBuffer(){
+      const file = document.getElementById('localFeather').files?.[0];
+      if (file){ log('Reading local Feather…'); return new Uint8Array(await file.arrayBuffer()); }
+      const url = document.getElementById('remoteUrl').value.trim();
+      log('Fetching Feather…'); const r = await fetch(url, {cache:'no-store'});
+      if (!r.ok) throw new Error(`Feather HTTP ${r.status} ${r.statusText}`);
+      return new Uint8Array(await r.arrayBuffer());
+    }
 
-  // Build counts by (country, value)
-  const key = (c,v)=>c+'\\u0001'+v;
-  const counts = new Map();
-  const n = small.country.length;
-  for (let i=0;i<n;i++){
-    const c = String(small.country[i]);
-    const v = small.value[i] == null ? 'NA' : String(small.value[i]);
-    const k = key(c,v);
-    counts.set(k, (counts.get(k)||0)+1);
-  }
-  const countries = distinct(small.country.map(String)).sort(numAwareSort);
-  const values = distinct(small.value.map(v=>v==null?'NA':String(v))).sort(numAwareSort);
+    async function loadAll(){
+      logEl.textContent = '';
+      const buf = await getFeatherBuffer();
+      const table = tableFromIPC(buf);
+      log(`Feather loaded. Rows: ${table.numRows}`);
 
-  // Percent by country
-  const totalByCountry = new Map();
-  countries.forEach(c=>{
-    let t=0;
-    values.forEach(v=>{ t += counts.get(key(c,v))||0; });
-    totalByCountry.set(c,t||1);
-  });
+      // Build controls
+      const col = name => table.getChild(name)?.toArray() ?? [];
+      const surveys = distinct(col('survey')).sort();
+      const surveysBox = document.getElementById('surveys');
+      surveysBox.innerHTML='';
+      let currentSurvey = surveys[0];
 
-  const series = values.map(v=>({
-    name:v,
-    data:countries.map(c=>{
-      const pct = 100*(counts.get(key(c,v))||0)/totalByCountry.get(c);
-      return pct <= minPerc ? 0 : pct;
-    })
-  }));
+      const addSurveyBtn = (s, active=false) => {
+        const b = document.createElement('button');
+        b.textContent=s; if(active) b.classList.add('active');
+        b.onclick = ()=>{ [...surveysBox.children].forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentSurvey=s; refresh(); };
+        surveysBox.appendChild(b);
+      };
+      surveys.forEach((s,i)=>addSurveyBtn(s, i===0));
 
-  Highcharts.chart('chart',{
-    chart:{ type:'bar', backgroundColor:'transparent' },
-    title:{ text:`${currentSurvey} • ${question} — Distribution by country`, style:{color:'#eef2f8'} },
-    xAxis:{ categories:countries, labels:{ style:{color:'#eef2f8'} } },
-    yAxis:{ min:0, max:100, title:{ text:'Percent', style:{color:'#eef2f8'} }, labels:{ format:'{value}%', style:{color:'#eef2f8'} } },
-    legend:{ itemStyle:{color:'#eef2f8'} },
-    tooltip:{ pointFormatter(){ return `<b>${this.series.name}</b>: ${this.y.toFixed(1)}%`; } },
-    plotOptions:{ series:{ stacking:'percent' } },
-    credits:{ enabled:false }, exporting:{ enabled:false },
-    series
-  });
-}
+      const qSelect = document.getElementById('question');
 
-document.getElementById('loadBtn').addEventListener('click', async ()=>{
-  try{
-    logEl.textContent='';
-    await loadTable();
-    loadSurveysUI();
-  }catch(e){
-    log('Error: ' + (e.message || e));
+      function refresh(){
+        // questions for survey
+        const sArr = col('survey'), qArr = col('question');
+        const mask = sArr.map((sv,i)=>sv===currentSurvey);
+        const qs = distinct(qArr.filter((q,i)=>mask[i])).sort();
+        qSelect.innerHTML=''; qs.forEach((q,i)=>{ const o=document.createElement('option'); o.value=q; o.textContent=q; if(i===0) o.selected=true; qSelect.appendChild(o); });
+        draw();
+      }
+
+      function draw(){
+        const question = qSelect.value;
+        const sArr = col('survey'), qArr = col('question'), cArr = col('country'), vArr = col('value');
+
+        // filter
+        const rows = [];
+        for (let i=0;i<table.numRows;i++){
+          if (sArr[i]===currentSurvey && qArr[i]===question){
+            rows.push([String(cArr[i]), vArr[i]==null?'NA':String(vArr[i])]);
+          }
+        }
+
+        // counts and % by country
+        const countries = distinct(rows.map(r=>r[0])).sort(numAwareSort);
+        const values    = distinct(rows.map(r=>r[1])).sort(numAwareSort);
+        const counts = new Map(); const key = (c,v)=>c+'\u0001'+v;
+        rows.forEach(([c,v])=>counts.set(key(c,v),(counts.get(key(c,v))||0)+1));
+        const totals = new Map(countries.map(c=>[c,0]));
+        countries.forEach(c=> values.forEach(v=> totals.set(c, totals.get(c)+(counts.get(key(c,v))||0)) ));
+
+        const minPerc = parseFloat(document.getElementById('minPerc').value)||0;
+        const series = values.map(v=>({
+          name:v,
+          data:countries.map(c=>{
+            const pct = 100 * (counts.get(key(c,v))||0) / (totals.get(c)||1);
+            return pct <= minPerc ? 0 : pct;
+          })
+        }));
+
+        Highcharts.chart('chart',{
+          chart:{ type:'bar', backgroundColor:'transparent' },
+          title:{ text:`${currentSurvey} • ${question} — Distribution by country`, style:{color:'#eef2f8'} },
+          xAxis:{ categories:countries, labels:{ style:{color:'#eef2f8'} } },
+          yAxis:{ min:0, max:100, title:{ text:'Percent', style:{color:'#eef2f8'} }, labels:{ format:'{value}%', style:{color:'#eef2f8'} } },
+          legend:{ itemStyle:{color:'#eef2f8'} },
+          tooltip:{ pointFormatter(){ return `<b>${this.series.name}</b>: ${this.y.toFixed(1)}%`; } },
+          plotOptions:{ series:{ stacking:'percent' } },
+          credits:{ enabled:false }, exporting:{ enabled:false },
+          series
+        });
+      }
+
+      qSelect.onchange = ()=>draw();
+      document.getElementById('limitCountries').onchange = ()=>draw();
+      document.getElementById('minPerc').onchange = ()=>draw();
+      refresh();
+    }
+
+    // Hook the button
+    document.getElementById('loadBtn').onclick = ()=>loadAll();
+    // Auto-load
+    document.getElementById('loadBtn').click();
+
+  } catch(e) {
+    log('Fatal error: ' + (e?.message || e));
     console.error(e);
   }
-});
-
-// Auto-load on open
-document.getElementById('loadBtn').click();
+})();
 </script>
+
 </body>
 </html>
+

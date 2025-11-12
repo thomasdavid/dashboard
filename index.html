@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>EWCS Dashboard (DuckDB-Wasm from your GitHub)</title>
+<title>EWCS Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- Highcharts for the stacked bar -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <style>
   :root{--bg:#0c1022;--panel:#12193a;--muted:#9aa4b2;--text:#eef2f8;--accent:#3b82f6}
@@ -29,8 +28,8 @@
 <div class="wrap">
   <div class="grid">
     <div class="card">
-      <label>Parquet source (remote optional)</label>
-      <input id="remoteUrl" type="text" value="https://raw.githubusercontent.com/thomasdavid/dashboard/main/EWCS_combined_narrow.parquet">
+      <label>Parquet source (remote in this repo)</label>
+      <input id="remoteUrl" type="text" value="./EWCS_combined_narrow.parquet">
       <div style="margin:8px 0;text-align:center">— or —</div>
       <input id="localParquet" type="file" accept=".parquet" />
       <div id="log"></div>
@@ -66,11 +65,13 @@
 </div>
 
 <script type="module">
-/* DuckDB-Wasm files hosted in YOUR GitHub repo */
-const DUCKDB_JS   = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-browser.js';
-const DUCKDB_WASM = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-mvp.wasm';
-const DUCKDB_WORK = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-browser-mvp.worker.js';
+/* Same-origin DuckDB-Wasm (GitHub Pages) */
+const DUCKDB_JS   = './vendor/duckdb-wasm/duckdb-browser.js';
+const DUCKDB_WASM = './vendor/duckdb-wasm/duckdb-mvp.wasm';
+const DUCKDB_WORK = './vendor/duckdb-wasm/duckdb-browser-mvp.worker.js';
 
+/* Default Parquet (same repo). You can overwrite via the input or file picker. */
+const DEFAULT_PARQUET = './EWCS_combined_narrow.parquet';
 
 const logEl = document.getElementById('log');
 const log = (m) => { logEl.textContent += m + '\n'; };
@@ -84,9 +85,10 @@ function sortNumAware(a,b){
 }
 
 async function bootDuckDB() {
-  log('Loading DuckDB from your GitHub…');
+  log('Loading DuckDB (same-origin)…');
   const mod = await import(DUCKDB_JS);
-  const worker = new Worker(DUCKDB_WORK, { type: 'module' }); // worker file is ESM-friendly
+  // Worker must be same-origin; plain worker file is fine
+  const worker = new Worker(DUCKDB_WORK);
   const logger = new mod.ConsoleLogger();
   db = new mod.AsyncDuckDB(logger, worker);
   await db.instantiate(DUCKDB_WASM, DUCKDB_WORK);
@@ -99,9 +101,9 @@ async function getParquetBuffer() {
   if (fileInput.files && fileInput.files[0]) {
     log('Reading local Parquet…');
     return new Uint8Array(await fileInput.files[0].arrayBuffer());
-  }
+    }
   const url = (document.getElementById('remoteUrl').value || DEFAULT_PARQUET).trim();
-  log('Fetching Parquet from GitHub…');
+  log('Fetching Parquet…');
   const r = await fetch(url, {cache:'no-store'});
   if (!r.ok) throw new Error(`Parquet HTTP ${r.status} ${r.statusText}`);
   return new Uint8Array(await r.arrayBuffer());
@@ -119,19 +121,19 @@ async function loadSurveys() {
     WHERE survey IS NOT NULL ORDER BY 1
   `);
   const surveys = rs.toArray().map(r=>r[0]);
-  const elSurveys = document.getElementById('surveys');
-  elSurveys.innerHTML='';
+  const el = document.getElementById('surveys');
+  el.innerHTML='';
   surveys.forEach((s,i)=>{
     const b=document.createElement('button');
     b.textContent=s;
     if(i===0){ b.classList.add('active'); currentSurvey=s; }
     b.onclick=async()=>{
       currentSurvey=s;
-      [...elSurveys.children].forEach(x=>x.classList.remove('active'));
+      [...el.children].forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
       await loadQuestions();
     };
-    elSurveys.appendChild(b);
+    el.appendChild(b);
   });
   await loadQuestions();
 }
@@ -219,6 +221,11 @@ document.getElementById('loadBtn').addEventListener('click', async ()=>{
 // Auto-load on open
 document.getElementById('remoteUrl').value = DEFAULT_PARQUET;
 document.getElementById('loadBtn').click();
+
+/* Friendly hint if not on GitHub Pages */
+if (!location.hostname.endsWith('github.io')) {
+  log('Hint: for Worker to load reliably, open this page from GitHub Pages (same-origin).');
+}
 </script>
 </body>
 </html>

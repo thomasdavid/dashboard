@@ -86,12 +86,27 @@ function sortNumAware(a,b){
 
 async function bootDuckDB() {
   log('Loading DuckDB (same-origin)…');
+
+  // Import and normalize the API (handles default vs named export)
   const mod = await import(DUCKDB_JS);
-  // Worker must be same-origin; plain worker file is fine
+  const duckdb = mod?.default ?? mod?.duckdb ?? mod;
+
+  // Safety check (optional but handy when debugging)
+  if (!duckdb.AsyncDuckDB) {
+    throw new Error(
+      'DuckDB API not found. Keys: ' + Object.keys(duckdb || {}).join(', ')
+    );
+  }
+
+  // Classic worker is correct for the mvp bundle
   const worker = new Worker(DUCKDB_WORK);
-  const logger = new mod.ConsoleLogger();
-  db = new mod.AsyncDuckDB(logger, worker);
+
+  // ConsoleLogger is available on both export styles
+  const logger = new duckdb.ConsoleLogger();
+
+  const db = new duckdb.AsyncDuckDB(logger, worker);
   await db.instantiate(DUCKDB_WASM, DUCKDB_WORK);
+
   conn = await db.connect();
   log('DuckDB ready.');
 }
@@ -229,4 +244,5 @@ if (!location.hostname.endsWith('github.io')) {
 </script>
 </body>
 </html>
+
 

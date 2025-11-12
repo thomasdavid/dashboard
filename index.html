@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>EWCS Dashboard (DuckDB-Wasm from your GitHub)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Highcharts for the stacked bar -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<style>
+  :root{--bg:#0c1022;--panel:#12193a;--muted:#9aa4b2;--text:#eef2f8;--accent:#3b82f6}
+  *{box-sizing:border-box}body{margin:0;color:var(--text);background:#0e1530;font:14px/1.45 system-ui,Segoe UI,Roboto,Arial}
+  header{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  h1{margin:0;font-size:18px}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px}
+  .grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  select,button,input[type="text"]{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#0f1837;color:var(--text)}
+  button{cursor:pointer;background:#18235a}button:hover{background:#203072}
+  .survey-buttons{display:flex;flex-wrap:wrap;gap:8px}
+  .survey-buttons button{width:auto;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:#162258}
+  .survey-buttons button.active{background:var(--accent);color:#fff;border-color:transparent}
+  #log{font-size:12px;color:var(--muted);white-space:pre-wrap;margin-top:6px}
+</style>
+</head>
+<body>
+<header><h1>EWCS Dashboard</h1></header>
+
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <label>Parquet source (remote optional)</label>
+      <input id="remoteUrl" type="text" value="https://raw.githubusercontent.com/thomasdavid/dashboard/main/EWCS_combined_narrow.parquet">
+      <div style="margin:8px 0;text-align:center">— or —</div>
+      <input id="localParquet" type="file" accept=".parquet" />
+      <div id="log"></div>
+    </div>
+    <div class="card">
+      <label>Surveys</label>
+      <div class="survey-buttons" id="surveys"></div>
+    </div>
+    <div class="card">
+      <label for="question">Question</label>
+      <select id="question"></select>
+    </div>
+  </div>
+  <div style="margin-top:12px" class="grid">
+    <div class="card"><label>&nbsp;</label><button id="loadBtn">Load / Reload</button></div>
+    <div class="card">
+      <label for="limitCountries">Max countries</label>
+      <select id="limitCountries">
+        <option value="9999" selected>All</option>
+        <option value="30">30</option><option value="25">25</option>
+        <option value="20">20</option><option value="15">15</option>
+      </select>
+    </div>
+    <div class="card">
+      <label for="minPerc">Hide slices ≤ (%)</label>
+      <select id="minPerc">
+        <option value="0" selected>0</option><option value="0.5">0.5</option>
+        <option value="1">1</option><option value="2">2</option><option value="5">5</option>
+      </select>
+    </div>
+  </div>
+  <div id="chart" style="height:900px;margin-top:18px"></div>
+</div>
+
+<script type="module">
+/* DuckDB-Wasm files hosted in YOUR GitHub repo */
+const DUCKDB_JS   = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-browser.js';
+const DUCKDB_WASM = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-mvp.wasm';
+const DUCKDB_WORK = 'https://cdn.jsdelivr.net/gh/thomasdavid/dashboard/vendor/duckdb-wasm/duckdb-browser-mvp.worker.js';
+
+
+const logEl = document.getElementById('log');
+const log = (m) => { logEl.textContent += m + '\n'; };
+
+let db, conn, VFS_NAME = 'data.parquet';
+let currentSurvey = null;
+
+function sortNumAware(a,b){
+  const na=Number(a), nb=Number(b), an=!Number.isNaN(na), bn=!Number.isNaN(nb);
+  return an&&bn?na-nb:String(a).localeCompare(String(b));
+}
+
+async function bootDuckDB() {
+  log('Loading DuckDB from your GitHub…');
+  const mod = await import(DUCKDB_JS);
+  const worker = new Worker(DUCKDB_WORK, { type: 'module' }); // worker file is ESM-friendly
+  const logger = new mod.ConsoleLogger();
+  db = new mod.AsyncDuckDB(logger, worker);
+  await db.instantiate(DUCKDB_WASM, DUCKDB_WORK);
+  conn = await db.connect();
+  log('DuckDB ready.');
+}
+
+async function getParquetBuffer() {
+  const fileInput = document.getElementById('localParquet');
+  if (fileInput.files && fileInput.files[0]) {
+    log('Reading local Parquet…');
+    return new Uint8Array(await fileInput.files[0].arrayBuffer());
+  }
+  const url = (document.getElementById('remoteUrl').value || DEFAULT_PARQUET).trim();
+  log('Fetching Parquet from GitHub…');
+  const r = await fetch(url, {cache:'no-store'});
+  if (!r.ok) throw new Error(`Parquet HTTP ${r.status} ${r.statusText}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+async function registerParquet(buf) {
+  await db.registerFileBuffer(VFS_NAME, buf);
+  const n = await conn.query(`SELECT COUNT(*) FROM read_parquet('${VFS_NAME}')`);
+  log(`Rows: ${n.get(0,0)}`);
+}
+
+async function loadSurveys() {
+  const rs = await conn.query(`
+    SELECT DISTINCT survey FROM read_parquet('${VFS_NAME}')
+    WHERE survey IS NOT NULL ORDER BY 1
+  `);
+  const surveys = rs.toArray().map(r=>r[0]);
+  const elSurveys = document.getElementById('surveys');
+  elSurveys.innerHTML='';
+  surveys.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.textContent=s;
+    if(i===0){ b.classList.add('active'); currentSurvey=s; }
+    b.onclick=async()=>{
+      currentSurvey=s;
+      [...elSurveys.children].forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      await loadQuestions();
+    };
+    elSurveys.appendChild(b);
+  });
+  await loadQuestions();
+}
+
+async function loadQuestions() {
+  if(!currentSurvey) return;
+  const rs = await conn.query(`
+    SELECT DISTINCT question
+    FROM read_parquet('${VFS_NAME}')
+    WHERE survey='${currentSurvey.replaceAll("'","''")}'
+      AND question IS NOT NULL
+    ORDER BY 1
+  `);
+  const qs = rs.toArray().map(r=>r[0]);
+  const elQ=document.getElementById('question');
+  elQ.innerHTML='';
+  qs.forEach((q,i)=>{
+    const o=document.createElement('option'); o.value=q; o.textContent=q;
+    if(i===0) o.selected=true; elQ.appendChild(o);
+  });
+  await drawChart();
+  elQ.onchange=drawChart;
+}
+
+async function drawChart() {
+  const question = document.getElementById('question').value;
+  const limit = parseInt(document.getElementById('limitCountries').value,10)||9999;
+  const minPerc = parseFloat(document.getElementById('minPerc').value)||0;
+
+  const sql = `
+    WITH base AS (
+      SELECT country, value
+      FROM read_parquet('${VFS_NAME}')
+      WHERE survey='${currentSurvey.replaceAll("'","''")}'
+        AND question='${question.replaceAll("'","''")}'
+        AND country IS NOT NULL AND value IS NOT NULL
+    ),
+    agg AS (SELECT country, value, COUNT(*) n FROM base GROUP BY country, value),
+    pct AS (SELECT country, value, 100.0*n/NULLIF(SUM(n) OVER(PARTITION BY country),0) pct FROM agg)
+    SELECT country, value, pct FROM pct ORDER BY country, value
+    LIMIT ${Math.max(limit*50, 100000)}
+  `;
+  const res = await conn.query(sql);
+  const rows = res.toArray().map(r=>({country:String(r[0]), value:r[1]??'NA', pct:r[2]??0}));
+
+  const countries=[...new Set(rows.map(r=>r.country))].sort(sortNumAware);
+  const values=[...new Set(rows.map(r=>r.value))].sort(sortNumAware);
+
+  const map=new Map(countries.map(c=>[c,{}]));
+  rows.forEach(r=>{ map.get(r.country)[r.value]=r.pct; });
+
+  const series = values.map(v=>({
+    name:String(v),
+    data:countries.map(c=>{
+      const p = map.get(c)[v]??0;
+      return p <= minPerc ? 0 : p;
+    })
+  }));
+
+  Highcharts.chart('chart',{
+    chart:{ type:'bar', backgroundColor:'transparent' },
+    title:{ text:`${currentSurvey} • ${question} — Distribution by country`, style:{color:'#eef2f8'} },
+    xAxis:{ categories:countries, labels:{ style:{color:'#eef2f8'} } },
+    yAxis:{ min:0, title:{ text:'Percent', style:{color:'#eef2f8'} }, labels:{ format:'{value}%', style:{color:'#eef2f8'} } },
+    legend:{ itemStyle:{color:'#eef2f8'} },
+    tooltip:{ pointFormatter(){ return `<b>${this.series.name}</b>: ${this.y.toFixed(1)}%`; } },
+    plotOptions:{ series:{ stacking:'percent' } },
+    credits:{ enabled:false }, exporting:{ enabled:false }
+  });
+}
+
+document.getElementById('loadBtn').addEventListener('click', async ()=>{
+  try{
+    logEl.textContent='';
+    if(!db) await bootDuckDB();
+    const buf = await getParquetBuffer();
+    await registerParquet(buf);
+    await loadSurveys();
+  }catch(e){
+    log('Error: ' + (e.message || e));
+    console.error(e);
+  }
+});
+
+// Auto-load on open
+document.getElementById('remoteUrl').value = DEFAULT_PARQUET;
+document.getElementById('loadBtn').click();
+</script>
+</body>
+</html>

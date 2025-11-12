@@ -65,12 +65,13 @@
 </div>
 
 <script type="module">
-/* Same-origin DuckDB-Wasm (GitHub Pages) */
-const DUCKDB_JS   = './vendor/duckdb-wasm/duckdb-browser.mjs';
+/* Same-origin assets on GitHub Pages */
+const DUCKDB_MJS  = './vendor/duckdb-wasm/duckdb-browser.mjs';   // ESM (preferred)
+const DUCKDB_UMD  = './vendor/duckdb-wasm/duckdb-browser.js';    // UMD (fallback, exposes window.duckdb)
 const DUCKDB_WASM = './vendor/duckdb-wasm/duckdb-mvp.wasm';
 const DUCKDB_WORK = './vendor/duckdb-wasm/duckdb-browser-mvp.worker.js';
 
-/* Default Parquet (same repo). You can overwrite via the input or file picker. */
+/* Default Parquet in the repo (you also have the file picker in the UI) */
 const DEFAULT_PARQUET = './EWCS_combined_narrow.parquet';
 
 const logEl = document.getElementById('log');
@@ -84,29 +85,55 @@ function sortNumAware(a,b){
   return an&&bn?na-nb:String(a).localeCompare(String(b));
 }
 
-async function bootDuckDB() {
-  log('Loading DuckDB (same-origin)…');
+function loadScript(src){
+  return new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = ()=>resolve();
+    s.onerror = ()=>reject(new Error('Failed to load '+src));
+    document.head.appendChild(s);
+  });
+}
 
-  // Import and normalize the API (handles default vs named export)
-  const mod = await import(DUCKDB_JS);
-  const duckdb = mod?.default ?? mod?.duckdb ?? mod;
-
-  // Safety check (optional but handy when debugging)
-  if (!duckdb.AsyncDuckDB) {
-    throw new Error(
-      'DuckDB API not found. Keys: ' + Object.keys(duckdb || {}).join(', ')
-    );
+/** Try ESM first; if it’s empty or errors, fall back to UMD global window.duckdb */
+async function getDuckDBAPI() {
+  // 1) ESM attempt
+  try {
+    log('Loading DuckDB ESM…');
+    const mod = await import(DUCKDB_MJS);
+    const api = mod?.default ?? mod?.duckdb ?? mod;
+    if (api && (api.AsyncDuckDB || (api.duckdb && api.duckdb.AsyncDuckDB))) {
+      // Some builds nest under api.duckdb
+      const use = api.AsyncDuckDB ? api : api.duckdb;
+      log('DuckDB ESM loaded.');
+      return use;
+    }
+    log('ESM has no exports; trying UMD…');
+  } catch (e) {
+    log('ESM import failed; trying UMD… (' + (e?.message || e) + ')');
   }
 
-  // Classic worker is correct for the mvp bundle
-  const worker = new Worker(DUCKDB_WORK);
+  // 2) UMD fallback
+  await loadScript(DUCKDB_UMD);
+  const g = window;
+  const api = g.duckdb || g.DuckDB || g.DUCKDB || g['duckdb'];
+  if (!api || !api.AsyncDuckDB) {
+    throw new Error('UMD fallback failed: window.duckdb not found.');
+  }
+  log('DuckDB UMD loaded.');
+  return api;
+}
 
-  // ConsoleLogger is available on both export styles
+async function bootDuckDB() {
+  const duckdb = await getDuckDBAPI();
+
+  // Classic worker for mvp bundle (same-origin)
+  const worker = new Worker(DUCKDB_WORK);
   const logger = new duckdb.ConsoleLogger();
 
-  const db = new duckdb.AsyncDuckDB(logger, worker);
+  db = new duckdb.AsyncDuckDB(logger, worker);
   await db.instantiate(DUCKDB_WASM, DUCKDB_WORK);
-
   conn = await db.connect();
   log('DuckDB ready.');
 }
@@ -116,7 +143,7 @@ async function getParquetBuffer() {
   if (fileInput.files && fileInput.files[0]) {
     log('Reading local Parquet…');
     return new Uint8Array(await fileInput.files[0].arrayBuffer());
-    }
+  }
   const url = (document.getElementById('remoteUrl').value || DEFAULT_PARQUET).trim();
   log('Fetching Parquet…');
   const r = await fetch(url, {cache:'no-store'});
@@ -187,7 +214,7 @@ async function drawChart() {
         AND country IS NOT NULL AND value IS NOT NULL
     ),
     agg AS (SELECT country, value, COUNT(*) n FROM base GROUP BY country, value),
-    pct AS (SELECT country, value, 100.0*n/NULLIF(SUM(n) OVER(PARTITION BY country),0) pct FROM agg)
+    pct AS (SELECT country, value, 100.0*n/NULLIF(SUM(n) OVER (PARTITION BY country),0) pct FROM agg)
     SELECT country, value, pct FROM pct ORDER BY country, value
     LIMIT ${Math.max(limit*50, 100000)}
   `;
@@ -233,16 +260,19 @@ document.getElementById('loadBtn').addEventListener('click', async ()=>{
   }
 });
 
-// Auto-load on open
+// Auto-load
 document.getElementById('remoteUrl').value = DEFAULT_PARQUET;
 document.getElementById('loadBtn').click();
 
-/* Friendly hint if not on GitHub Pages */
+// Friendly hint
 if (!location.hostname.endsWith('github.io')) {
-  log('Hint: for Worker to load reliably, open this page from GitHub Pages (same-origin).');
+  log('Hint: run from GitHub Pages (same-origin) for Worker to load cleanly.');
 }
+
+
 </script>
 </body>
 </html>
+
 
 

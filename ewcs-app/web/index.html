@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>EWCS Dashboard (API)</title>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body{font:14px system-ui;margin:0;background:#0f1530;color:#eef2f8}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    select,button{padding:8px 10px;border-radius:8px;border:1px solid #3b3f6b;background:#12193a;color:#eef2f8}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="row">
+    <select id="survey"></select>
+    <select id="question"></select>
+    <select id="weight">
+      <option value="none">none</option>
+      <option value="w4">w4</option>
+      <option value="w5" selected>w5</option>
+    </select>
+    <input id="mult" type="number" step="0.1" min="0.1" value="1.0" style="width:90px">
+    <button id="run">Run</button>
+    <span id="msg"></span>
+  </div>
+  <div id="chart" style="height:900px"></div>
+</div>
+<script>
+const API = location.origin.includes('localhost') ? 'http://localhost:8000' : 'https://<your-api-host>';
+
+async function loadSurveys(){
+  const r = await fetch(`${API}/surveys`); const j = await r.json();
+  const s = document.getElementById('survey');
+  s.innerHTML = j.surveys.map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+
+async function loadQuestions(){
+  const survey = document.getElementById('survey').value;
+  const r = await fetch(`${API}/questions/${survey}`); const j = await r.json();
+  const q = document.getElementById('question');
+  q.innerHTML = j.questions.map(x=>`<option value="${x}">${x}</option>`).join('');
+}
+
+async function runQuery(){
+  document.getElementById('msg').textContent = '…';
+  const payload = {
+    survey: document.getElementById('survey').value,
+    question: document.getElementById('question').value,
+    weight_set: document.getElementById('weight').value,
+    global_mult: parseFloat(document.getElementById('mult').value)||1.0
+  };
+  const r = await fetch(`${API}/weighted`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json();
+  document.getElementById('msg').textContent = '';
+
+  const rows = j.rows;
+  const countries = [...new Set(rows.map(d=>d.country))].sort((a,b)=>a.localeCompare(b));
+  const values = [...new Set(rows.map(d=>d.value))].sort((a,b)=> {
+    const na=+a, nb=+b; return (!isNaN(na)&&!isNaN(nb))? (na-nb): a.localeCompare(b);
+  });
+
+  const grid = new Map();
+  rows.forEach(d=>{
+    const k = d.country+'|'+d.value;
+    grid.set(k, d.pct);
+  });
+
+  const series = values.map(v=>({
+    name: v,
+    data: countries.map(c => grid.get(c+'|'+v) || 0)
+  }));
+
+  Highcharts.chart('chart',{
+    chart:{ type:'bar', backgroundColor:'transparent' },
+    title:{ text:`${j.survey} • ${j.question} — ${j.weight_set}` },
+    xAxis:{ categories:countries, labels:{ style:{color:'#eef2f8'} } },
+    yAxis:{ min:0, max:100, title:{ text:'Percent', style:{color:'#eef2f8'} }, labels:{ format:'{value}%' } },
+    legend:{ itemStyle:{color:'#eef2f8'} },
+    plotOptions:{ series:{ stacking:'percent' } },
+    credits:{ enabled:false },
+    series
+  });
+}
+
+document.getElementById('survey').addEventListener('change', loadQuestions);
+document.getElementById('run').addEventListener('click', runQuery);
+
+loadSurveys().then(loadQuestions).then(runQuery);
+</script>
+</body>
+</html>

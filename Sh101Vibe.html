@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1000"> 
+    <meta name="viewport" content="width=1000, user-scalable=no"> 
     <title>SH-101 Vibe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -25,6 +25,21 @@
             align-items: center;
             min-height: 1vh;
             min-width: 1000px;
+            touch-action: none; /* Prevent zooming/scrolling on mobile during interaction */
+        }
+
+        /* Start Overlay */
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(31, 41, 55, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            backdrop-filter: blur(5px);
         }
 
         /* Knob Styles */
@@ -175,6 +190,15 @@
 </head>
 <body>
 
+    <!-- Start Overlay for Mobile Audio -->
+    <div id="start-overlay">
+        <div class="text-2xl font-bold mb-4 tracking-widest">SH-101 VIBE</div>
+        <button id="startBtn" class="px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded shadow-lg text-xl transition transform active:scale-95">
+            TAP TO START
+        </button>
+        <div class="mt-4 text-xs text-gray-400">Enable Audio Engine</div>
+    </div>
+
     <!-- Main Synth Case -->
     <div class="synth-case flex flex-col relative">
         
@@ -254,28 +278,24 @@
                 <div class="section-header">VCF</div>
                 <div class="flex justify-center gap-[10px] w-full py-2">
                     <div class="flex flex-col items-center">
-                        <!-- Freq ~300 (8oc) -->
                         <div class="knob-container knob-red" id="cutoff-knob" data-min="0" data-max="12000" data-step="10" data-value="300">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">Freq</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- Res ~10 (10oc) -->
                         <div class="knob-container knob-red" id="res-knob" data-min="0" data-max="25" data-step="0.1" data-value="10">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">Res</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- Env ~3000 (2oc) -->
                         <div class="knob-container knob-red" id="envMod-knob" data-min="0" data-max="5000" data-step="10" data-value="3000">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">Env</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- Dec ~0.6 (11oc) -->
                         <div class="knob-container knob-red" id="vcfDec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.6">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
@@ -289,28 +309,24 @@
                 <div class="section-header">ENV</div>
                 <div class="flex justify-center gap-[10px] w-full py-2">
                     <div class="flex flex-col items-center">
-                        <!-- A ~0.01 (8oc) -->
                         <div class="knob-container knob-red" id="att-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.01">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">A</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- D ~0.6 (11oc) -->
                         <div class="knob-container knob-red" id="dec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.6">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">D</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- S ~0.7 (2oc) -->
                         <div class="knob-container knob-red" id="sus-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.7">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="knob-label">S</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- R ~0.2 (8oc) -->
                         <div class="knob-container knob-red" id="rel-knob" data-min="0.001" data-max="3" data-step="0.01" data-value="0.2">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
@@ -344,14 +360,12 @@
                         <label class="text-[10px] text-gray-400 font-bold uppercase mt-1">Glide</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- Dist ~25 -->
                         <div class="knob-container" id="dist-knob" data-min="0" data-max="100" data-step="1" data-value="25" style="--knob-size: 36px;">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <label class="text-[10px] text-gray-400 font-bold uppercase mt-1">Dist</label>
                     </div>
                     <div class="flex flex-col items-center">
-                        <!-- Verb ~0.3 -->
                         <div class="knob-container" id="verb-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.3" style="--knob-size: 36px;">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
@@ -361,7 +375,6 @@
 
                 <div class="flex gap-4 items-center">
                      <label class="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Tempo</label>
-                     <!-- Tempo 140 -->
                      <input type="range" id="seqTempo" min="40" max="200" value="140" class="w-32 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                      <span id="tempoDisplay" class="text-sm font-mono text-green-400 w-8 text-right">140</span>
                 </div>
@@ -443,37 +456,47 @@
     let vcoSaw, vcoSquare, vcoSub, vcoNoise, mixSaw, mixSquare, mixSub, mixNoise, filter, vca, masterGain;
     let distortion, reverb, dryGain, wetGain, reverbGain;
     
-    // STATE - MATCHING NEW IMAGE (image_3b42a1.png)
+    // STATE
     let settings = {
         lfoRate: 14, pw: 25, 
         range: 0.4, 
         mix: { saw: 0.15, square: 0.25, sub: 0.55, noise: 0.12 },
-        filter: { freq: 00, res: 10, envMod: 1130, dec: 0.6 }, // Low Freq, High Env
-        env: { a: 0.01, d: 0.6, s: 0.7, r: 0.9 }, // Snappy Decay, High Sustain, Short Release
+        filter: { freq: 10, res: 10, envMod: 300, dec: 0.6 }, 
+        env: { a: 0.01, d: 0.6, s: 0.7, r: 0.2 }, 
         glide: 0.05,
-        dist: 5, // 25% distortion
-        verb: 0.3 // 30% reverb
+        dist: 25, 
+        verb: 0.3 
     };
 
     async function initAudio() {
         if(hasStarted) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
+        
+        // Mobile audio fix: Resume context if suspended
+        if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
+        }
+        
         hasStarted = true;
 
+        // Master
         masterGain = audioCtx.createGain();
         masterGain.gain.value = 0.3; 
         masterGain.connect(audioCtx.destination);
 
+        // Reverb
         reverb = audioCtx.createConvolver();
         reverb.buffer = createReverbImpulse(2.0); 
         reverbGain = audioCtx.createGain();
         reverbGain.gain.value = 0;
         
+        // Distortion
         distortion = audioCtx.createWaveShaper();
         distortion.curve = makeDistortionCurve(0);
         distortion.oversample = '4x';
 
+        // Chain
         vca = audioCtx.createGain();
         vca.gain.value = 0;
         
@@ -526,10 +549,13 @@
         return curve;
     }
 
-    const startEngine = () => { initAudio(); };
-    window.addEventListener('click', startEngine, { once: true });
-    window.addEventListener('keydown', startEngine, { once: true });
+    // Start Button Handler
+    document.getElementById('startBtn').addEventListener('click', () => {
+        initAudio();
+        document.getElementById('start-overlay').style.display = 'none';
+    });
 
+    // Spacebar Handler
     window.addEventListener('keydown', (e) => {
         if(e.code === "Space") {
             e.preventDefault();
@@ -628,31 +654,31 @@
 
     // --- SEQUENCER (32 Steps - Acid/Squarepusher Style - A Minor) ---
     let sequencerNotes = [
-        {step: 0, note: 9, length: 0.5}, // A (low)
+        {step: 0, note: 9, length: 0.5}, 
         {step: 0.5, note: 9, length: 0.5},
         {step: 2, note: 9, length: 0.5},
-        {step: 2.5, note: 0, length: 0.5}, // C (high)
+        {step: 2.5, note: 0, length: 0.5}, 
         {step: 4, note: 9, length: 0.25},
         {step: 4.25, note: 9, length: 0.25},
-        {step: 5, note: 2, length: 0.5}, // D
+        {step: 5, note: 2, length: 0.5}, 
         {step: 6, note: 9, length: 0.5},
         {step: 8, note: 9, length: 0.5},
-        {step: 8.5, note: 7, length: 0.5}, // G
-        {step: 10, note: 5, length: 0.5}, // F
+        {step: 8.5, note: 7, length: 0.5}, 
+        {step: 10, note: 5, length: 0.5}, 
         {step: 12, note: 9, length: 0.5},
-        {step: 14, note: 4, length: 0.5}, // E
+        {step: 14, note: 4, length: 0.5}, 
         {step: 16, note: 9, length: 0.5},
-        {step: 16.5, note: 0, length: 0.5}, // C (High)
+        {step: 16.5, note: 0, length: 0.5}, 
         {step: 18, note: 9, length: 0.5},
-        {step: 20, note: 2, length: 0.5}, // D
-        {step: 20.5, note: 4, length: 0.5}, // E
-        {step: 22, note: 5, length: 0.5}, // F
+        {step: 20, note: 2, length: 0.5}, 
+        {step: 20.5, note: 4, length: 0.5}, 
+        {step: 22, note: 5, length: 0.5}, 
         {step: 24, note: 9, length: 0.5},
         {step: 26, note: 9, length: 0.25},
-        {step: 26.25, note: 0, length: 0.5}, // C (High)
+        {step: 26.25, note: 0, length: 0.5}, 
         {step: 28, note: 9, length: 0.5},
-        {step: 30, note: 7, length: 0.5}, // G
-        {step: 31, note: 4, length: 1}, // E
+        {step: 30, note: 7, length: 0.5}, 
+        {step: 31, note: 4, length: 1}, 
     ];
     
     let seqIsPlaying = false;
@@ -665,7 +691,7 @@
     const canvas = document.getElementById('pianoRoll');
     const ctx = canvas.getContext('2d');
     const NUM_ROWS = 12; 
-    const NUM_COLS = 32; // 32 Step Grid
+    const NUM_COLS = 32; 
 
     function resizeCanvas() {
         const rect = canvas.parentElement.getBoundingClientRect();

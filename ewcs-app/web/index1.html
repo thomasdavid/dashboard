@@ -68,7 +68,6 @@
   .tab.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
   .tab svg { width: 18px; height: 18px; fill: currentColor; }
 
-  /* Increased Height for Bar Chart container */
   #chart-container { width: 100%; min-height: 600px; margin-bottom: 1rem; border: 1px solid #eee; border-radius: 4px; }
   #chart-notes { margin-top: 0.5rem; font-size: 0.85rem; color: var(--warning); line-height: 1.4; }
   #status { margin-top: 1rem; font-size: 0.9rem; color: var(--grey); min-height: 1.5em; }
@@ -113,9 +112,9 @@
   <footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8"></footer>
 
 <script>
-  const API_BASE = ""; // This makes requests relative to the current domain
+  // --- CONFIGURATION ---
+  const API_BASE = ""; // Relative path for production
   const DEFAULT_WEIGHT = "w4";
-  // Default Trend Settings
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
   
@@ -140,9 +139,28 @@
   function setStatus(msg, isError = false) { els.status.textContent = msg; els.status.className = isError ? 'error' : ''; }
   async function fetchJson(url) { const r = await fetch(url); if(!r.ok) throw new Error(r.statusText); return await r.json(); }
   
+  // --- ROBUST COUNTRY MAPPING ---
   function getCountryKey(name) {
-    const map = { "United Kingdom": "gb", "Great Britain": "gb", "Greece": "gr", "Germany": "de", "France": "fr", "Italy": "it", "Spain": "es", "Czech Republic": "cz" };
-    return map[name] || name.substring(0, 2).toLowerCase();
+    if (!name) return null;
+    const n = name.trim();
+    // Full map for European countries to ISO 2-letter codes
+    const isoMap = {
+      "Albania": "al", "Austria": "at", "Belgium": "be", "Bulgaria": "bg",
+      "Bosnia and Herzegovina": "ba", "Croatia": "hr", "Cyprus": "cy",
+      "Czech Republic": "cz", "Czechia": "cz", "Denmark": "dk", "Estonia": "ee",
+      "Finland": "fi", "France": "fr", "Germany": "de", "Germany (West)": "de", "Germany (East)": "de",
+      "Greece": "gr", "Hungary": "hu", "Iceland": "is", "Ireland": "ie", "Italy": "it",
+      "Latvia": "lv", "Lithuania": "lt", "Luxembourg": "lu", "Malta": "mt",
+      "Montenegro": "me", "Netherlands": "nl", "North Macedonia": "mk", "Macedonia": "mk",
+      "Norway": "no", "Poland": "pl", "Portugal": "pt", "Romania": "ro",
+      "Serbia": "rs", "Slovakia": "sk", "Slovenia": "si", "Spain": "es",
+      "Sweden": "se", "Switzerland": "ch", "Turkey": "tr", "United Kingdom": "gb",
+      "Great Britain": "gb", "Kosovo": "xk"
+    };
+    
+    if (isoMap[n]) return isoMap[n];
+    // Fallback: first 2 chars lower case
+    return n.substring(0, 2).toLowerCase();
   }
 
   // --- DATA PROCESSING ---
@@ -192,12 +210,29 @@
     currentData = resp.rows || [];
     
     // Update Map Response Dropdown
-    const resps = [...new Set(currentData.map(r=>r.value_label))].sort();
-    els.response.innerHTML = resps.map(r=>`<option value="${r}" selected>${r}</option>`).join('');
+    updateResponseDropdown();
     
     renderChart();
     setStatus("");
   };
+
+  function updateResponseDropdown() {
+    const resps = [...new Set(currentData.map(r=>r.value_label))].sort();
+    els.response.innerHTML = "";
+    
+    resps.forEach((r, index) => {
+      const opt = document.createElement("option");
+      opt.value = r; 
+      opt.textContent = r;
+      // SMART DEFAULT: If in Map view, select only first item. Else all.
+      if (currentView === 'map') {
+        if (index === 0) opt.selected = true;
+      } else {
+        opt.selected = true;
+      }
+      els.response.appendChild(opt);
+    });
+  }
 
   els.question.addEventListener('change', loadStdData);
   els.weight.addEventListener('change', loadStdData);
@@ -215,24 +250,18 @@
     els.tWeight.innerHTML = '<option value="">Select...</option>' + ws.map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
     if(ws.some(w=>w.id===DEFAULT_WEIGHT)) els.tWeight.value=DEFAULT_WEIGHT;
 
-    // Apply Defaults: Find "Job Satisfaction" or use 1st available
     let defaultQ = Array.from(els.tQuestion.options).find(o => o.text.toLowerCase().includes(TREND_DEFAULT_Q.toLowerCase()));
+    if(!defaultQ && els.tQuestion.options.length > 1) defaultQ = els.tQuestion.options[1];
     
-    // Fallback: if specific default not found, use first item
-    if(!defaultQ && els.tQuestion.options.length > 1) {
-        defaultQ = els.tQuestion.options[1];
-    }
-
     if(defaultQ) {
       els.tQuestion.value = defaultQ.value;
-      await loadTrendOptions(true); // Load options and apply response defaults
+      await loadTrendOptions(true);
     }
   }
 
   async function loadTrendOptions(applyDefaults = false) {
     if(!els.tQuestion.value) return;
     setStatus("Loading trend options...");
-    // Use EWCSR4 as proxy for response list
     const url = `${API_BASE}/weighted?survey=EWCSR4&question=${encodeURIComponent(els.tQuestion.value)}&weight=${DEFAULT_WEIGHT}`;
     const resp = await fetchJson(url);
     const rows = resp.rows || [];
@@ -244,20 +273,11 @@
     els.tCountry.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
 
     if(applyDefaults) {
-      // Select default responses
       let hasSelection = false;
       Array.from(els.tResponse.options).forEach(opt => {
-        if(TREND_DEFAULT_RESPS.some(d => opt.text.toLowerCase().includes(d.toLowerCase()))) {
-            opt.selected = true;
-            hasSelection = true;
-        }
+        if(TREND_DEFAULT_RESPS.some(d => opt.text.toLowerCase().includes(d.toLowerCase()))) { opt.selected = true; hasSelection = true; }
       });
-      // Fallback: select first response if default not found
-      if (!hasSelection && els.tResponse.options.length > 0) {
-          els.tResponse.options[0].selected = true;
-      }
-
-      // Select a subset of countries (e.g. first 10)
+      if (!hasSelection && els.tResponse.options.length > 0) els.tResponse.options[0].selected = true;
       Array.from(els.tCountry.options).slice(0, 10).forEach(opt => opt.selected = true);
       loadTrendData();
     }
@@ -308,7 +328,6 @@
     const answers = [...new Set(currentData.map(r=>r.value_label))];
     checkLowBase(countries, c => currentData.find(r => r.country_label === c));
 
-    // Increased base height + larger multiplier per country
     Highcharts.chart(els.container, {
       chart: { type: 'bar', height: Math.max(800, countries.length * 40) },
       title: { text: getTitle() },
@@ -406,7 +425,15 @@
     els.stdControls.classList.toggle('hidden', v === 'trend');
     els.trendControls.classList.toggle('hidden', v !== 'trend');
     els.mapControls.classList.toggle('hidden', v !== 'map');
-    if(v === 'trend') initTrend(); else renderChart();
+    if(v === 'trend') initTrend(); 
+    else {
+      // If switching TO map view, reset response selection to single default
+      if(v === 'map' && els.response.options.length > 1) {
+         Array.from(els.response.options).forEach((o, i) => o.selected = (i === 0));
+         // No need to call loadStdData, just re-render the chart with new selection
+      }
+      renderChart();
+    }
   }
 
   els.tabs.forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));

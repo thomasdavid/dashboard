@@ -68,7 +68,7 @@
   .tab.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
   .tab svg { width: 18px; height: 18px; fill: currentColor; }
 
-  #chart-container { width: 100%; min-height: 600px; margin-bottom: 1rem; border: 1px solid #eee; border-radius: 4px; }
+  #chart-container { width: 100%; min-height: 800px; margin-bottom: 1rem; border: 1px solid #eee; border-radius: 4px; }
   #chart-notes { margin-top: 0.5rem; font-size: 0.85rem; color: var(--warning); line-height: 1.4; }
   #status { margin-top: 1rem; font-size: 0.9rem; color: var(--grey); min-height: 1.5em; }
   #status.error { color: #dc2626; }
@@ -112,14 +112,61 @@
   <footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8"></footer>
 
 <script>
-  // --- CONFIGURATION ---
-  const API_BASE = ""; // Relative path for production
+  const API_BASE = ""; 
   const DEFAULT_WEIGHT = "w4";
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
   
-  const barPalette = { 6: ['#355582', '#416ea8', '#6f90c0', '#66bb6a', '#4d853d', '#005F2F'] };
-  const barColor = (i, n) => (barPalette[6])[i % 6];
+  // --- COLOR LOGIC ---
+  // Interpolates between two hex colors
+  function interpolateColor(color1, color2, factor) {
+    if (arguments.length < 3) { factor = 0.5; }
+    var result = result || "#";
+    var r1 = parseInt(color1.substring(1, 3), 16);
+    var g1 = parseInt(color1.substring(3, 5), 16);
+    var b1 = parseInt(color1.substring(5, 7), 16);
+    var r2 = parseInt(color2.substring(1, 3), 16);
+    var g2 = parseInt(color2.substring(3, 5), 16);
+    var b2 = parseInt(color2.substring(5, 7), 16);
+    var r = Math.round(r1 + factor * (r2 - r1));
+    var g = Math.round(g1 + factor * (g2 - g1));
+    var b = Math.round(b1 + factor * (b2 - b1));
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  // Generates Diverging Palette: Blue -> (Grey) -> Green
+  function generateDivergingPalette(n) {
+    const blueStart = "#355582"; // Dark Blue
+    const blueEnd   = "#A0B0CA"; // Light Blue
+    const greenStart= "#A0DCA0"; // Light Green
+    const greenEnd  = "#005F2F"; // Dark Green
+    const grey      = "#D3D3D3";
+    
+    const colors = [];
+    const mid = Math.floor(n / 2);
+    const isOdd = n % 2 !== 0;
+    
+    // Blues (First Half)
+    for (let i = 0; i < mid; i++) {
+        // Avoid division by zero if mid=1
+        const factor = mid > 1 ? i / (mid - 1) : 0; 
+        colors.push(interpolateColor(blueStart, blueEnd, factor));
+    }
+    
+    // Grey (Middle)
+    if (isOdd) {
+        colors.push(grey);
+    }
+    
+    // Greens (Second Half)
+    for (let i = 0; i < mid; i++) {
+        const factor = mid > 1 ? i / (mid - 1) : 0;
+        colors.push(interpolateColor(greenStart, greenEnd, factor));
+    }
+    
+    return colors;
+  }
+
 
   const els = {
     survey: document.getElementById('survey-select'), question: document.getElementById('question-select'),
@@ -139,11 +186,9 @@
   function setStatus(msg, isError = false) { els.status.textContent = msg; els.status.className = isError ? 'error' : ''; }
   async function fetchJson(url) { const r = await fetch(url); if(!r.ok) throw new Error(r.statusText); return await r.json(); }
   
-  // --- ROBUST COUNTRY MAPPING ---
   function getCountryKey(name) {
     if (!name) return null;
     const n = name.trim();
-    // Full map for European countries to ISO 2-letter codes
     const isoMap = {
       "Albania": "al", "Austria": "at", "Belgium": "be", "Bulgaria": "bg",
       "Bosnia and Herzegovina": "ba", "Croatia": "hr", "Cyprus": "cy",
@@ -157,13 +202,9 @@
       "Sweden": "se", "Switzerland": "ch", "Turkey": "tr", "United Kingdom": "gb",
       "Great Britain": "gb", "Kosovo": "xk"
     };
-    
-    if (isoMap[n]) return isoMap[n];
-    // Fallback: first 2 chars lower case
-    return n.substring(0, 2).toLowerCase();
+    return isoMap[n] || n.substring(0, 2).toLowerCase();
   }
 
-  // --- DATA PROCESSING ---
   function computeIndex(rows) {
     const byC = {}; rows.forEach(r => { if(!byC[r.country_label]) byC[r.country_label]=[]; byC[r.country_label].push(r); });
     const out = [];
@@ -175,7 +216,6 @@
     return out;
   }
 
-  // --- INITIALIZATION ---
   async function init() {
     try {
       const data = await fetchJson(`${API_BASE}/surveys`);
@@ -184,7 +224,6 @@
     } catch(e) { setStatus("API Error", true); }
   }
 
-  // --- STANDARD VIEW ---
   els.survey.addEventListener('change', async () => {
     if(!els.survey.value) return;
     setStatus("Loading meta...");
@@ -209,9 +248,7 @@
     const resp = await fetchJson(url);
     currentData = resp.rows || [];
     
-    // Update Map Response Dropdown
     updateResponseDropdown();
-    
     renderChart();
     setStatus("");
   };
@@ -219,17 +256,9 @@
   function updateResponseDropdown() {
     const resps = [...new Set(currentData.map(r=>r.value_label))].sort();
     els.response.innerHTML = "";
-    
     resps.forEach((r, index) => {
-      const opt = document.createElement("option");
-      opt.value = r; 
-      opt.textContent = r;
-      // SMART DEFAULT: If in Map view, select only first item. Else all.
-      if (currentView === 'map') {
-        if (index === 0) opt.selected = true;
-      } else {
-        opt.selected = true;
-      }
+      const opt = document.createElement("option"); opt.value = r; opt.textContent = r;
+      if (currentView === 'map') { if (index === 0) opt.selected = true; } else { opt.selected = true; }
       els.response.appendChild(opt);
     });
   }
@@ -255,11 +284,11 @@
     
     if(defaultQ) {
       els.tQuestion.value = defaultQ.value;
-      await loadTrendOptions(true);
+      await loadTrendOptions(true); // Initial load with hardcoded defaults
     }
   }
 
-  async function loadTrendOptions(applyDefaults = false) {
+  async function loadTrendOptions(isInitial = false) {
     if(!els.tQuestion.value) return;
     setStatus("Loading trend options...");
     const url = `${API_BASE}/weighted?survey=EWCSR4&question=${encodeURIComponent(els.tQuestion.value)}&weight=${DEFAULT_WEIGHT}`;
@@ -272,13 +301,19 @@
     els.tResponse.innerHTML = responses.map(r => `<option value="${r}">${r}</option>`).join('');
     els.tCountry.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
 
-    if(applyDefaults) {
+    if(isInitial) {
+      // "Job Satisfaction" logic
       let hasSelection = false;
       Array.from(els.tResponse.options).forEach(opt => {
         if(TREND_DEFAULT_RESPS.some(d => opt.text.toLowerCase().includes(d.toLowerCase()))) { opt.selected = true; hasSelection = true; }
       });
       if (!hasSelection && els.tResponse.options.length > 0) els.tResponse.options[0].selected = true;
       Array.from(els.tCountry.options).slice(0, 10).forEach(opt => opt.selected = true);
+      loadTrendData();
+    } else {
+      // User Changed Question Logic: Select First Response + All Countries
+      if (els.tResponse.options.length > 0) els.tResponse.options[0].selected = true;
+      Array.from(els.tCountry.options).forEach(opt => opt.selected = true);
       loadTrendData();
     }
     setStatus("");
@@ -328,6 +363,9 @@
     const answers = [...new Set(currentData.map(r=>r.value_label))];
     checkLowBase(countries, c => currentData.find(r => r.country_label === c));
 
+    // Use Dynamic Palette
+    const colors = generateDivergingPalette(answers.length);
+
     Highcharts.chart(els.container, {
       chart: { type: 'bar', height: Math.max(800, countries.length * 40) },
       title: { text: getTitle() },
@@ -335,7 +373,11 @@
       yAxis: { title: { text: '%' } },
       plotOptions: { series: { stacking: 'normal' } },
       tooltip: { pointFormatter: function() { return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y.toFixed(1)}%<br/>(N=${this.count}, Total=${this.total_count})<br/>`; } },
-      series: answers.map((ans, i) => ({ name: ans, color: barColor(i, answers.length), data: countries.map(c => { const r = currentData.find(x=>x.country_label===c && x.value_label===ans); return r ? { y:r.pct, count:r.count, total_count:r.total_count } : null; }) })),
+      series: answers.map((ans, i) => ({ 
+        name: ans, 
+        color: colors[i % colors.length], 
+        data: countries.map(c => { const r = currentData.find(x=>x.country_label===c && x.value_label===ans); return r ? { y:r.pct, count:r.count, total_count:r.total_count } : null; }) 
+      })),
       credits: { enabled: false }
     });
   }
@@ -427,10 +469,8 @@
     els.mapControls.classList.toggle('hidden', v !== 'map');
     if(v === 'trend') initTrend(); 
     else {
-      // If switching TO map view, reset response selection to single default
       if(v === 'map' && els.response.options.length > 1) {
          Array.from(els.response.options).forEach((o, i) => o.selected = (i === 0));
-         // No need to call loadStdData, just re-render the chart with new selection
       }
       renderChart();
     }

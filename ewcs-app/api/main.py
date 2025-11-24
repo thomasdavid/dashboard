@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from typing import List, Optional, Any
+import os
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from .settings import ALLOWED_ORIGINS
 from .service_duckdb import (
@@ -17,6 +19,10 @@ from .service_duckdb import (
 
 app = FastAPI(title="EWCS prototype API")
 
+# ---------------------------------------------------------------------------
+# CORS
+# ---------------------------------------------------------------------------
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -25,7 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Models ---
+# ---------------------------------------------------------------------------
+# Models
+# ---------------------------------------------------------------------------
+
 class Survey(BaseModel):
     id: str
     label: str
@@ -60,7 +69,22 @@ class TrendPoint(BaseModel):
     count: int
     total_count: int
 
-# --- Endpoints ---
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/")
+async def read_index():
+    # Serves the index1.html from the sibling 'web' folder
+    # Structure:
+    # dashboard/
+    #   ewcs-app/
+    #     api/main.py
+    #     web/index1.html
+    file_path = os.path.join(os.path.dirname(__file__), "../web/index1.html")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Index file not found")
+    return FileResponse(file_path)
 
 @app.get("/surveys", response_model=List[Survey])
 def get_surveys():

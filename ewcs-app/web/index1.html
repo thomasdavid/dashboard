@@ -39,7 +39,7 @@
 
   .controls-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
     background: #f9fafb;
@@ -50,9 +50,9 @@
   }
 
   label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--grey); }
-  select { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px; font: inherit; background-color: #fff; }
+  select, input[type="number"] { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px; font: inherit; background-color: #fff; }
   select[multiple] { height: 100px; }
-  select:focus { border-color: var(--blue); outline: none; }
+  select:focus, input:focus { border-color: var(--blue); outline: none; }
 
   .toggle-wrapper { display: flex; align-items: center; gap: 10px; padding-bottom: 5px; }
   .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
@@ -91,7 +91,19 @@
     <div><label>1. Select Survey</label><select id="survey-select"><option value="">Loading...</option></select></div>
     <div><label>2. Select Question</label><select id="question-select"><option value="">Select a survey first...</option></select></div>
     <div><label>3. Select Weight</label><select id="weight-select"><option value="">Select a survey first...</option></select></div>
-    <div id="mode-toggle-box"><label>Display Mode</label><div class="toggle-wrapper"><label class="switch"><input type="checkbox" id="mode-toggle"><span class="slider"></span></label><span id="mode-label" class="mode-label">Proportions</span></div></div>
+    
+    <div id="mode-toggle-box">
+        <label>Display Mode</label>
+        <div class="toggle-wrapper">
+            <label class="switch"><input type="checkbox" id="mode-toggle"><span class="slider"></span></label>
+            <span id="mode-label" class="mode-label">Proportions</span>
+        </div>
+    </div>
+
+    <div>
+        <label for="threshold-input">Low Base Threshold</label>
+        <input type="number" id="threshold-input" value="300" min="0" step="50">
+    </div>
   </div>
 
   <div id="trend-controls" class="controls-row hidden">
@@ -99,6 +111,11 @@
     <div><label>2. Select Weight</label><select id="t-weight-select"><option value="">Select...</option></select></div>
     <div><label>3. Response (Multi)</label><select id="t-response-select" multiple><option value="">Select Question first...</option></select></div>
     <div><label>4. Country (Multi)</label><select id="t-country-select" multiple><option value="">Loading...</option></select></div>
+    
+    <div>
+        <label for="t-threshold-input">Low Base Threshold</label>
+        <input type="number" id="t-threshold-input" value="300" min="0" step="50">
+    </div>
   </div>
 
   <div id="map-controls" class="controls-row hidden" style="padding: 1rem; margin-bottom: 1rem;">
@@ -109,7 +126,9 @@
   <div id="chart-container"></div>
   <div id="chart-notes"></div>
 
-  <footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8"></footer>
+  <footer>
+    <img src="https://raw.githubusercontent.com/thomasdavid/dashboard/main/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8">
+  </footer>
 
 <script>
   const API_BASE = ""; 
@@ -118,7 +137,6 @@
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
   
   // --- COLOR LOGIC ---
-  // Interpolates between two hex colors
   function interpolateColor(color1, color2, factor) {
     if (arguments.length < 3) { factor = 0.5; }
     var result = result || "#";
@@ -134,39 +152,30 @@
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
-  // Generates Diverging Palette: Blue -> (Grey) -> Green
   function generateDivergingPalette(n) {
-    const blueStart = "#355582"; // Dark Blue
-    const blueEnd   = "#A0B0CA"; // Light Blue
-    const greenStart= "#A0DCA0"; // Light Green
-    const greenEnd  = "#005F2F"; // Dark Green
+    const blueStart = "#355582"; 
+    const blueEnd   = "#A0B0CA";
+    const greenStart= "#A0DCA0"; 
+    const greenEnd  = "#005F2F"; 
     const grey      = "#D3D3D3";
     
     const colors = [];
     const mid = Math.floor(n / 2);
     const isOdd = n % 2 !== 0;
     
-    // Blues (First Half)
     for (let i = 0; i < mid; i++) {
-        // Avoid division by zero if mid=1
         const factor = mid > 1 ? i / (mid - 1) : 0; 
         colors.push(interpolateColor(blueStart, blueEnd, factor));
     }
     
-    // Grey (Middle)
-    if (isOdd) {
-        colors.push(grey);
-    }
+    if (isOdd) colors.push(grey);
     
-    // Greens (Second Half)
     for (let i = 0; i < mid; i++) {
         const factor = mid > 1 ? i / (mid - 1) : 0;
         colors.push(interpolateColor(greenStart, greenEnd, factor));
     }
-    
     return colors;
   }
-
 
   const els = {
     survey: document.getElementById('survey-select'), question: document.getElementById('question-select'),
@@ -177,11 +186,17 @@
     tQuestion: document.getElementById('t-question-select'), tWeight: document.getElementById('t-weight-select'),
     tResponse: document.getElementById('t-response-select'), tCountry: document.getElementById('t-country-select'),
     status: document.getElementById('status'), notes: document.getElementById('chart-notes'),
-    tabs: document.querySelectorAll('.tab'), container: 'chart-container'
+    tabs: document.querySelectorAll('.tab'), container: 'chart-container',
+    // New Threshold Inputs
+    threshold: document.getElementById('threshold-input'),
+    tThreshold: document.getElementById('t-threshold-input')
   };
 
   let currentData = [], currentView = 'bar', chartMode = 'proportion', chartInstance = null;
   let trendInitDone = false;
+  // Track trend data for re-rendering when threshold changes
+  let lastTrendData = null; 
+  let lastTrendLabel = "";
 
   function setStatus(msg, isError = false) { els.status.textContent = msg; els.status.className = isError ? 'error' : ''; }
   async function fetchJson(url) { const r = await fetch(url); if(!r.ok) throw new Error(r.statusText); return await r.json(); }
@@ -247,7 +262,6 @@
     const url = `${API_BASE}/weighted?survey=${els.survey.value}&question=${encodeURIComponent(els.question.value)}&weight=${els.weight.value}`;
     const resp = await fetchJson(url);
     currentData = resp.rows || [];
-    
     updateResponseDropdown();
     renderChart();
     setStatus("");
@@ -267,12 +281,14 @@
   els.weight.addEventListener('change', loadStdData);
   els.response.addEventListener('change', () => { if(currentView==='map') renderChart(); });
   els.modeToggle.addEventListener('change', () => { chartMode = els.modeToggle.checked ? 'index' : 'proportion'; els.modeLabel.textContent = chartMode==='index'?'Index':'Proportions'; renderChart(); });
+  
+  // Redraw standard chart when threshold changes
+  els.threshold.addEventListener('change', renderChart);
 
   // --- TREND VIEW ---
   async function initTrend() {
     if(trendInitDone) return;
     trendInitDone = true;
-    
     const qs = await fetchJson(`${API_BASE}/questions/longitudinal`);
     els.tQuestion.innerHTML = '<option value="">Select...</option>' + qs.map(q=>`<option value="${q.id}">${q.label}</option>`).join('');
     const ws = await fetchJson(`${API_BASE}/weights/EWCSR4`);
@@ -281,10 +297,9 @@
 
     let defaultQ = Array.from(els.tQuestion.options).find(o => o.text.toLowerCase().includes(TREND_DEFAULT_Q.toLowerCase()));
     if(!defaultQ && els.tQuestion.options.length > 1) defaultQ = els.tQuestion.options[1];
-    
     if(defaultQ) {
       els.tQuestion.value = defaultQ.value;
-      await loadTrendOptions(true); // Initial load with hardcoded defaults
+      await loadTrendOptions(true);
     }
   }
 
@@ -302,7 +317,6 @@
     els.tCountry.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
 
     if(isInitial) {
-      // "Job Satisfaction" logic
       let hasSelection = false;
       Array.from(els.tResponse.options).forEach(opt => {
         if(TREND_DEFAULT_RESPS.some(d => opt.text.toLowerCase().includes(d.toLowerCase()))) { opt.selected = true; hasSelection = true; }
@@ -311,7 +325,6 @@
       Array.from(els.tCountry.options).slice(0, 10).forEach(opt => opt.selected = true);
       loadTrendData();
     } else {
-      // User Changed Question Logic: Select First Response + All Countries
       if (els.tResponse.options.length > 0) els.tResponse.options[0].selected = true;
       Array.from(els.tCountry.options).forEach(opt => opt.selected = true);
       loadTrendData();
@@ -333,21 +346,29 @@
     cs.forEach(c=>url+=`&countries=${encodeURIComponent(c)}`);
     
     const data = await fetchJson(url);
-    drawTrendChart(data, rs.join(", "));
+    lastTrendData = data; // Store for threshold updates
+    lastTrendLabel = rs.join(", ");
+    drawTrendChart(data, lastTrendLabel);
     setStatus("");
   }
 
   els.tResponse.addEventListener('change', loadTrendData);
   els.tCountry.addEventListener('change', loadTrendData);
+  
+  // Redraw trend when threshold changes
+  els.tThreshold.addEventListener('change', () => {
+    if(lastTrendData) drawTrendChart(lastTrendData, lastTrendLabel);
+  });
 
   // --- CHART RENDERING ---
-  function checkLowBase(countries, getDataFn) {
+  function checkLowBase(countries, getDataFn, thresholdInput) {
+    const limit = parseInt(thresholdInput.value) || 300;
     const low = [];
     countries.forEach(c => {
       const d = getDataFn(c);
-      if (d && d.total_count < 300) low.push(`${c} (N=${d.total_count})`);
+      if (d && d.total_count < limit) low.push(`${c} (N=${d.total_count})`);
     });
-    els.notes.innerHTML = low.length ? `<b>Note:</b> Low base size (<300): ${low.join(', ')}.` : "";
+    els.notes.innerHTML = low.length ? `<b>Note:</b> Low base size (<${limit}): ${low.join(', ')}.` : "";
   }
 
   function renderChart() {
@@ -361,9 +382,9 @@
     els.mapControls.classList.add('hidden');
     const countries = [...new Set(currentData.map(r=>r.country_label))];
     const answers = [...new Set(currentData.map(r=>r.value_label))];
-    checkLowBase(countries, c => currentData.find(r => r.country_label === c));
+    
+    checkLowBase(countries, c => currentData.find(r => r.country_label === c), els.threshold);
 
-    // Use Dynamic Palette
     const colors = generateDivergingPalette(answers.length);
 
     Highcharts.chart(els.container, {
@@ -385,7 +406,7 @@
   function drawIndex() {
     els.mapControls.classList.add('hidden');
     const data = computeIndex(currentData).sort((a,b)=>b.index-a.index);
-    checkLowBase(data.map(d=>d.country_label), c=>data.find(d=>d.country_label===c));
+    checkLowBase(data.map(d=>d.country_label), c=>data.find(d=>d.country_label===c), els.threshold);
 
     Highcharts.chart(els.container, {
       chart: { type: 'column', height: 600 },
@@ -405,7 +426,7 @@
       const idx = computeIndex(currentData);
       data = idx.map(r => ({ 'hc-key': getCountryKey(r.country_label), value: r.index, name: r.country_label, total_count: r.total_count }));
       subtitle = "Index (Weighted Mean)";
-      checkLowBase(idx.map(r=>r.country_label), c=>idx.find(r=>r.country_label===c));
+      checkLowBase(idx.map(r=>r.country_label), c=>idx.find(r=>r.country_label===c), els.threshold);
     } else {
       const sel = Array.from(els.response.selectedOptions).map(o=>o.value);
       const countries = [...new Set(currentData.map(r=>r.country_label))];
@@ -416,7 +437,7 @@
         return { 'hc-key': getCountryKey(c), value: total, name: c, total_count: totCount };
       });
       subtitle = `Responses: ${sel.join(", ")}`;
-      checkLowBase(countries, c=>data.find(d=>d.name===c));
+      checkLowBase(countries, c=>data.find(d=>d.name===c), els.threshold);
     }
 
     Highcharts.mapChart(els.container, {
@@ -434,11 +455,12 @@
   function drawTrendChart(data, label) {
     const countries = [...new Set(data.map(d=>d.country))].sort();
     const years = [...new Set(data.map(d=>d.year))].sort();
+    const limit = parseInt(els.tThreshold.value) || 300;
     
-    const lowPoints = data.filter(d => d.total_count < 300);
+    const lowPoints = data.filter(d => d.total_count < limit);
     if(lowPoints.length) {
       const lowCs = [...new Set(lowPoints.map(d=>`${d.country} (${d.year})`))];
-      els.notes.innerHTML = `<b>Note:</b> Low base size (<300) in: ${lowCs.join(', ')}.`;
+      els.notes.innerHTML = `<b>Note:</b> Low base size (<${limit}): ${lowCs.join(', ')}.`;
     } else {
       els.notes.innerHTML = "";
     }

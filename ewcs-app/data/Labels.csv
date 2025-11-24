@@ -1,0 +1,330 @@
+﻿Survey,Question Number,Variable,Question,Short
+EWCSR2,11a,q11c1,What does your remuneration include? Basic fixed salary/wage,Basic salary
+EWCSR2,11b,q11c2,What does your remuneration include? Piece rate or productivity payments,Piece / productivity pay
+EWCSR2,11c,q11c3,What does your remuneration include? Extra payments for additional hours of work,Overtime pay
+EWCSR2,11d,q11c4,"What does your remuneration include? Extra payments compensating for special working hours, such as nightwork, weekend work",Night / weekend pay
+EWCSR2,11e,q11c5,What does your remuneration include? Extra payments compensating for poor working conditions,Hazard / conditions pay
+EWCSR2,11f,q11c6,What does your remuneration include? Other,Other pay components
+EWCSR2,12,q12r,"How many hours do you usually work per week, in your main job?",Weekly work hours
+EWCSR2,13,q13r,How many minutes per day do you normally spend traveling from home to work and back in total?,Daily commuting time
+EWCSR2,14a,q14a_n,"How often are you exposed at work to: Vibrations from hand tools, machinery, etc.?",Exposure: vibrations
+EWCSR2,14b,q14b_n,How often are you exposed at work to: Noise so loud that you would have to raise your voice to talk to people?,Exposure: loud noise
+EWCSR2,14c,q14c_n,How often are you exposed at work to: High temperature which makes you perspire even when not working?,Exposure: high temperature
+EWCSR2,14d,q14d_n,How often are you exposed at work to: Low temperatures whether indoors or outdoors?,Exposure: low temperature
+EWCSR2,14e,q14e_n,"How often are you exposed at work to: Breathing in vapours, fumes, dust, or dangerous substances such as chemicals, infectious materials, etc.?",Exposure: fumes / dust
+EWCSR2,14f,q14f,How often are you exposed at work to: Handling or touching dangerous products or substances?,Exposure: dangerous substances
+EWCSR2,14g,q14g,"How often are you exposed at work to: Radiation such as X rays, radioactive radiation, welding light, laser beams?",Exposure: radiation
+EWCSR2,16a,q15a_n,How often does your main paid job involve: Painful or tiring positions?,Physical strain
+EWCSR2,16b,q15b_n,How often does your main paid job involve: Carrying or moving heavy loads?,Heavy lifting
+EWCSR2,16c,q15c,How often does your main paid job involve: Short repetitive tasks of less than 10 minutes?,Short repetitive tasks
+EWCSR2,16d,q15d,How often does your main paid job involve: Repetitive hand or arm movements?,Repetitive movements
+EWCSR2,16e,q15e,How often does your main paid job involve: Wearing personal protective equipment?,Use of PPE
+EWCSR2,16f,q15f,"How often does your main paid job involve: Working with computers: PC's, network, mainframe?",Computer work
+EWCSR2,16g,q15g,How often does your main paid job involve: Working at very high speed?,High-speed work
+EWCSR2,16h,q15h,How often does your main paid job involve: Working to tight deadlines?,Tight deadlines
+EWCSR2,16i,q15i,How often does your main paid job involve: Dealing directly with people who are not employees at your workplace?,Dealing with the public
+EWCSR2,16j,q15j,How often does your main paid job involve: Working at home?,Working from home
+EWCSR2,16k,q16,"Would you say you are very well informed... about the risks resulting from the use of materials, instruments or products which you handle in your job?",Awareness of job risks
+EWCSR2,17a,q17c1,"Which, if any, of the following working conditions can you adjust personally: The temperature?",Can adjust temperature
+EWCSR2,17b,q17c2,"Which, if any, of the following working conditions can you adjust personally: The lighting?",Can adjust lighting
+EWCSR2,17c,q17c3,"Which, if any, of the following working conditions can you adjust personally: The ventilation?",Can adjust ventilation
+EWCSR2,17d,q17c4,"Which, if any, of the following working conditions can you adjust personally: The position of your desk, bench or workstation?",Can adjust workstation
+EWCSR2,17e,q17c5,"Which, if any, of the following working conditions can you adjust personally: The position of your seat?",Can adjust seat
+EWCSR2,17f,q17c6,"Which, if any, of the following working conditions can you adjust personally: The instrument(s) or equipment you use?",Can adjust equipment
+EWCSR2,18,q18ar,"Normally, how many times a month do you typically work at night, say for at least 2 hours between 10.00pm and 05.00am?",Night work frequency
+EWCSR2,19b,q18br,How many times a month do you typically work on Sundays?,Sunday work
+EWCSR2,19c,q18cr,How many times a month do you typically work on Saturdays?,Saturday work
+EWCSR2,19,q19_n,"Do you work shifts (that is sometimes working mornings, sometimes afternoons or sometimes nights) or irregular hours, or not?",Shift / irregular work
+EWCSR2,20a,q20a,For each of the following statements please answer Yes or No: You can get assistance from colleagues if required?,Help from colleagues
+EWCSR2,20b,q20b,For each of the following statements please answer Yes or No: You can take your break when you wish?,Flexible breaks
+EWCSR2,20c,q20c,For each of the following statements please answer Yes or No: You are free to decide when to take holidays or days off?,Control over time off
+EWCSR2,20d,q20d,For each of the following statements please answer Yes or No: You have fixed starting and finishing times every day?,Fixed working hours
+EWCSR2,20e,q20e,For each of the following statements please answer Yes or No: You have enough time to get the job done?,Enough time
+EWCSR2,20f,q20f,For each of the following statements please answer Yes or No: You have a secure job?,Job security
+EWCSR2,21a,q21a,"On the whole, is your pace of work dependent, or not on: The work done by colleagues?",Pace depends on colleagues
+EWCSR2,21b,q21b,"On the whole, is your pace of work dependent, or not on: Direct demands from people such as customers, passengers, pupils, patients etc.?",Pace depends on clients
+EWCSR2,21c,q21c,"On the whole, is your pace of work dependent, or not on: Production norms?",Pace depends on targets
+EWCSR2,21d,q21d,"On the whole, is your pace of work dependent, or not on: Automatic speed of a machine or moving of a product?",Pace depends on machines
+EWCSR2,21e,q21e,"On the whole, is your pace of work dependent, or not on: The direct control of your boss?",Pace depends on boss
+EWCSR2,22a,q24a,"Are you able, or not, to choose or change: Your order of tasks?",Control over task order
+EWCSR2,22b,q24b,"Are you able, or not, to choose or change: Your methods of work?",Control over work methods
+EWCSR2,22c,q24c,"Are you able, or not, to choose or change: Your speed or rate of work?",Control over work speed
+EWCSR2,23a,q23a,"Does your main paid job involve, or not: Meeting precise quality standards?",Must meet quality standards
+EWCSR2,23b,q23b,"Does your main paid job involve, or not: Assessing the quality of your own work?",Self-assessment
+EWCSR2,23c,q23c,"Does your main paid job involve, or not: Solving unforeseen problems on your work?",Problem solving
+EWCSR2,23d,q23d,"Does your main paid job involve, or not: Deciding, possibly with colleagues, on departmental issues such as the division of tasks, staff replacement, production objectives, timetables, etc.?",Participation in decisions
+EWCSR2,23e,q23e,"Does your main paid job involve, or not: Rotating tasks between yourself and colleagues?",Task rotation
+EWCSR2,23f,q23f,"Does your main paid job involve, or not: Monotonous tasks?",Monotonous work
+EWCSR2,23g,q23g,"Does your main paid job involve, or not: Complex tasks?",Complex work
+EWCSR2,23h,q23h,"Does your main paid job involve, or not: Learning new things?",Learning on the job
+EWCSR2,24,q24,How well do you think your skills match the demands imposed on you by your job?,Skills–job match
+EWCSR2,25,q25r,"Over the last 12 months, have you undergone training paid for or provided by your employer to improve your skills or not?",Employer training
+EWCSR2,26a,q26a_n,"Over the past 12 months, have you, or not: Had a frank discussion with your boss about your work performance?",Performance discussion
+EWCSR2,26b,q26b_n,"Over the past 12 months, have you, or not: Been consulted about changes in the Organisation of work and/or your working conditions?",Consultation on changes
+EWCSR2,26c,q26c,"Over the past 12 months, have you, or not: Discussed work-related problems with your boss?",Discussed problems with boss
+EWCSR2,26d,q26d,"Over the past 12 months, have you, or not: Discussed work-related problems with your colleagues?",Discussed problems with colleagues
+EWCSR2,26e,q26e,"Over the past 12 months, have you, or not: Discussed work-related problems with employee representative?",Discussed problems with reps
+EWCSR2,27a,q27a,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Physical violence?",Workplace violence
+EWCSR2,27b,q27b,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Intimidation?",Workplace intimidation
+EWCSR2,27c,q27c,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Sexual discrimination?",Sexual discrimination
+EWCSR2,27d,q27d,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Unwanted sexual attention?",Sexual harassment
+EWCSR2,27e,q27e,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Age discrimination?",Age discrimination
+EWCSR2,27f,q27f,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Race discrimination?",Race discrimination
+EWCSR2,27g,q27g,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Disability discrimination?",Disability discrimination
+EWCSR2,27h,q27h,"Over the past 12 months, when at work, have you, or have you not, been subjected to: Nationality discrimination?",Nationality discrimination
+EWCSR2,28,q28,"At your workplace, would you say that men and women have equal opportunities or not?",Gender equality
+EWCSR2,29,q29,Is your immediate boss a man or a woman?,Boss gender
+EWCSR2,30a,q30a_n,"Over and above any statutory requirements, does your company/employer additionally provide for: Sick child leave?",Sick child leave
+EWCSR2,30b,q30b_n,"Over and above any statutory requirements, does your company/employer additionally provide for: Maternity leave?",Maternity leave
+EWCSR2,30c,q30c_n,"Over and above any statutory requirements, does your company/employer additionally provide for: Parental leave?",Parental leave
+EWCSR2,30d,q30d_n,"Over and above any statutory requirements, does your company/employer additionally provide for: Child Day Care?",Childcare provision
+EWCSR2,31,q31_n,"Do you think your health and safety is at risk because of your work, or not?",Health & safety risk
+EWCSR2,32,q32r,"Over the past 12 months, how many days, if any, were you absent due to health problems caused by your main job?",Sick leave days
+EWCSR2,33,q33_n,"Over the past 5 years, have you changed your job in order to seek a healthier or less dangerous job, or not?",Changed job for health
+EWCSR2,34a,q34c02,"Does your work affect your health, or not? (IF YES): Ear problems",Health impact: hearing
+EWCSR2,34b,q34c03,"Does your work affect your health, or not? (IF YES): Eye problems",Health impact: vision
+EWCSR2,34c,q34c04,"Does your work affect your health, or not? (IF YES): Skin problems",Health impact: skin
+EWCSR2,34d,q34c05,"Does your work affect your health, or not? (IF YES): Backache",Health impact: back
+EWCSR2,34e,q34c06,"Does your work affect your health, or not? (IF YES): Headaches",Health impact: headaches
+EWCSR2,34f,q34c07,"Does your work affect your health, or not? (IF YES): Stomach ache",Health impact: stomach
+EWCSR2,34g,q34c08,"Does your work affect your health, or not? (IF YES): Muscular pain in arms or legs",Health impact: muscular pain
+EWCSR2,34h,q34c09,"Does your work affect your health, or not? (IF YES): Respiratory difficulties",Health impact: breathing
+EWCSR2,34i,q34c10,"Does your work affect your health, or not? (IF YES): Stress",Health impact: stress
+EWCSR2,34j,q34c11,"Does your work affect your health, or not? (IF YES): Overall fatigue",Health impact: fatigue
+EWCSR2,34k,q34c12,"Does your work affect your health, or not? (IF YES): Sleeping problems",Health impact: sleep
+EWCSR2,34l,q34c13,"Does your work affect your health, or not? (IF YES): Allergies",Health impact: allergies
+EWCSR2,34m,q34c14,"Does your work affect your health, or not? (IF YES): Heart disease",Health impact: heart
+EWCSR1,1,a10_1,"When at work, are you exposed to: Noise so loud that you would have to raise your voice to talk to people?",Exposure: Loud Noise
+EWCSR1,2,a10_2,"When at work, are you exposed to: Bad weather conditions such as rain, wind, snow?",Exposure: Bad Weather
+EWCSR1,3,a10_3,"When at work, are you exposed to: Heat or cold either indoor or outdoor?",Exposure: Heat/Cold
+EWCSR1,4,a10_4,"When at work, are you exposed to: Breathing in vapours, fumes, dust or dangerous substances?",Exposure: Vapours/Fumes
+EWCSR1,5,a10_5,"When at work, are you exposed to: Handling and/or touching dangerous substances or materials?",Exposure: Dangerous Substances
+EWCSR1,6,a11_1,Does your work involve: Painful or tiring positions?,Ergonomics: Painful Positions
+EWCSR1,7,a11_2,Does your work involve: Carrying or moving heavy loads?,Ergonomics: Heavy Loads
+EWCSR1,8,a11_3,Does your work involve: Working at a very high speed?,Pace: High Speed
+EWCSR1,9,a11_4,Does your work involve: Working to tight deadlines?,Pace: Tight Deadlines
+EWCSR1,10,a11_5,Does your work involve: Carrying out short repetitive tasks?,Task Repetition
+EWCSR1,11,a11_6,Does your work involve: Using computer equipment?,Computer Use
+EWCSR1,12,a11_7,Does your work involve: Working at night?,Night Work
+EWCSR1,13a,a12_1,Do you have the possibility to choose or change: your order of tasks or your methods of work?,Autonomy: Tasks/Methods
+EWCSR1,13b,a12_2,Do you have the possibility to choose or change: your speed or rate of work?,Autonomy: Work Speed
+EWCSR1,14a,q13_1,In order to carry out your work do you have: clear and adequate information?,Resource: Information
+EWCSR1,14b,q13_2,In order to carry out your work do you have: sufficient training and experience?,Resource: Training/Exp
+EWCSR1,14c,q13_3,In order to carry out your work do you have: appropriate machines and tools?,Resource: Tools
+EWCSR1,14d,q13_4,In order to carry out your work do you have: appropriate premises and furniture?,Resource: Premises
+EWCSR1,14e,q13_5,In order to carry out your work do you have: sufficient support from superiors or colleagues?,Resource: Support
+EWCSR1,15,a14,Do your wages or income depend on your work rate?,Income: Rate Dependency
+EWCSR1,16,a16,Do you think your health or safety is at risk because of your work?,Health/Safety Risk Perception
+EWCSR1,17,a25,Over the past 10 years have you changed job in order to seek a healthier or safer work?,Job Change for Health
+EWCSR1,18,a2r,How many hours do you usually work per day?,Daily Working Hours
+EWCSR1,19,a3r,How many hours do you usually work per week?,Weekly Working Hours
+EWCSR3,Q.2a,q2r,What is your main paid job? Please give me your job title.,What is your main paid job? Please give me your job title.
+EWCSR3,Q.3a,q2d,How many years have you been in your company or organisation?,How many years have you been in your company or organisation?
+EWCSR3,Q.4a, Employed,"Are you mainly: Self-employed (with/without employees), Employed, or Other?",Are you mainly: Self-employed (with/without employees)
+EWCSR3,Q.4b, fixed term contract,"Is it: On an unlimited permanent contract, fixed term contract, temporary agency contract, apprenticeship, or other?",Is it: On an unlimited permanent contract
+EWCSR3,Q.4c,q4i_y,What is the exact duration of the contract in number of years and months?,What is the exact duration of the contract in number of years and months?
+EWCSR3,Q.5,q5,What is the main activity of the company or organisation where you work?,What is the main activity of the company or organisation where you work?
+EWCSR3,Q.6, State-owned company,"Are you working in: National or local government services, State-owned company, Another company/business, or Other?",Are you working in: National or local government services
+EWCSR3,Q.7,q7,How many people in total work in the local unit of the establishment where you work?,How many people in total work in the local unit of the establishment where you work?
+EWCSR3,Q.8,q8,"How many people work under your supervision, for whom pay increases, bonuses or promotion depend directly on you?",How many people work under your supervision for whom promotion or pay increase depends on you?
+EWCSR3,Q.9, do you have any other paid job?,"Besides your main paid job, do you have any other paid job?",Besides your main paid job
+EWCSR3,Q.11.1,q11a_n,"Are you exposed at work to: Vibrations from hand tools, machinery, etc.?",Vibrations from hand tools machinery etc
+EWCSR3,Q.11.2,q11b_n,Are you exposed at work to: Noise so loud that you would have to raise your voice to talk to people?,Noise so loud you must raise your voice
+EWCSR3,Q.11.3,q11c_n,Are you exposed at work to: High temperatures which make you perspire even when not working?,High temperatures causing perspiration
+EWCSR3,Q.11.4,q11d_n,Are you exposed at work to: Low temperatures whether indoors or outdoors?,Low temperatures indoors or outdoors
+EWCSR3,Q.11.5,q11e_n,"Are you exposed at work to: Breathing in vapours, fumes, dust, or dangerous substances such as chemicals, infectious materials, etc.?",Vapours fumes dust or dangerous substances
+EWCSR3,Q.11.6,q11f_n,Are you exposed at work to: Handling or touching dangerous products or substances?,Handling dangerous products or substances
+EWCSR3,Q.11.7,q11g_n,"Are you exposed at work to: Radiation such as X-rays, radioactive radiation, welding light, laser beams?",Radiation such as x-rays lasers etc
+EWCSR3,Q.12.1,q12a_n,Does your main paid job involve: Painful or tiring positions?,Painful or tiring positions
+EWCSR3,Q.12.2,q12b_n,Does your main paid job involve: Carrying or moving heavy loads?,Carrying or moving heavy loads
+EWCSR3,Q.12.3,q12c_n,Does your main paid job involve: Repetitive hand or arm movements?,Repetitive hand or arm movements
+EWCSR3,Q.12.4,q12d_n,"Does your main paid job involve: Working with computers: PCs, network, mainframe?",Working with computers
+EWCSR3,Q.12.5,q12e_n,Does your main paid job involve: Teleworking from home with a PC?,Teleworking from home
+EWCSR3,Q.12.6,q12f_n,"Does your main paid job involve: Working at home (home being your normal workplace), excluding teleworking?",Working at home normally
+EWCSR3,Q.12.7,q12g_n,"Does your main paid job involve: Dealing directly with people who are not employees at your workplace such as customers, passengers, pupils, patients, etc?",Dealing directly with people
+EWCSR3,Q.12.8,q12h_n,Does your main paid job involve: Wearing personal protective equipment?,Wearing personal protective equipment
+EWCSR3,Q.13,q13_n,"Would you say you are very well informed... about the risks resulting from the use of materials, instruments or products which you handle in your job?",Well informed about risks from materials or instruments
+EWCSR3,Q.14,q14_n,"How many hours do you usually work per week, in your main paid job?",How many hours do you usually work per week?
+EWCSR3,Q.15,q15_n,"In total, how many minutes per day do you normally spend travelling from home to work and back?",Minutes per day travelling home to work
+EWCSR3,Q.16a,q16a_n,"Normally, how many times a month do you work at night, say for at least 2 hours between 10.00 pm and 05.00 am?",Night work frequency
+EWCSR3,Q.16b,q16b_n,"And how many times a month do you work in the evening, for at least 2 hours between 6pm and 10pm?",Evening work frequency
+EWCSR3,Q.16c,q16c_n,And how many times a month do you work on Sundays?,Sunday work
+EWCSR3,Q.16d,q16d_n,And how many times a month do you work on Saturdays?,Saturday work
+EWCSR3,Q.16e,q16e_n,And how many times a month do you work more than 10 hours a day?,Work more than 10 hours a day
+EWCSR3,Q.17a,q17a_n,Do you work part-time?,Do you work part-time?
+EWCSR3,Q.17b,q17b_n,"Would you like to work: More hours, Less hours, or The same number of hours?",Would you like to work more or fewer hours?
+EWCSR3,Q.18a.1,q16a_a,Do you work: The same number of hours every day?,Same number of hours every day
+EWCSR3,Q.18a.2,q16a_b,Do you work: The same number of days every week?,Same number of days every week
+EWCSR3,Q.18a.3,q16a_c,Do you work: Fixed starting and finishing times?,Fixed starting and finishing times
+EWCSR3,Q.18a.4,q16a_d,Do you work: In the daytime?,Work during the daytime
+EWCSR3,Q.18b,q16a_e,Do you work shifts?,Do you work shifts?
+EWCSR3,Q.18c,q16a_f,"Do you work: Split shifts, Permanent night/afternoon/morning, Alternating shifts, or Other?",Type of shifts
+EWCSR3,Q.19a,q19a_n,"Usually, how many times a month do your scheduled working times change?",How often do working times change?
+EWCSR3,Q.19b,q19b_n,"Usually, how many days in advance do you know of a change?",How many days notice of changes?
+EWCSR3,Q.20,q20_n,"In general, do your working hours fit in with your family or social commitments outside work very well, fairly well, not very well or not at all well?",Do your working hours fit family life?
+EWCSR3,Q.21a,q21a_n,"Please tell me, does your job involve short repetitive tasks of less than: 5 seconds / 30 seconds / 1 minute / 5 minutes / 10 minutes?",Short repetitive tasks
+EWCSR3,Q.21b.1,q20b_a,Does your job involve: Working at very high speed?,Working at very high speed
+EWCSR3,Q.21b.2,q20b_b,Does your job involve: Working to tight deadlines?,Working to tight deadlines
+EWCSR3,Q.22.1,q21a,"Is your pace of work dependent, or not, on: The work done by colleagues?",Pace dependent on colleagues
+EWCSR3,Q.22.2,q21b,"Is your pace of work dependent, or not, on: Direct demands from people such as customers, passengers, pupils, patients, etc.?",Pace dependent on customers
+EWCSR3,Q.22.3,q21c,"Is your pace of work dependent, or not, on: Numerical production targets?",Pace dependent on targets
+EWCSR3,Q.22.4,q21d,"Is your pace of work dependent, or not, on: Automatic speed of a machine or movement of a product?",Pace dependent on machine speed
+EWCSR3,Q.22.5,q21e,"Is your pace of work dependent, or not, on: The direct control of your boss?",Pace dependent on boss
+EWCSR3,Q.23a,q22a,How often do you have to interrupt a task you are doing in order to take on an unforeseen task?,Interrupting tasks
+EWCSR3,Q.23b,q22b,"Are these interruptions mainly due to: Nature of work, bad organisation, requests from colleagues/superiors/external, machines, bad design, etc.?",Causes of interruptions
+EWCSR3,Q.23c,q22c,"For your work, are these interruptions: disruptive, without consequences, positive?",Are these interruptions disruptive?
+EWCSR3,Q.24.1,q23a,"Generally, does your main paid job involve: Meeting precise quality standards?",Meeting precise quality standards
+EWCSR3,Q.24.2,q23b,"Generally, does your main paid job involve: Assessing yourself the quality of your own work?",Assessing quality of own work
+EWCSR3,Q.24.3,q23c,"Generally, does your main paid job involve: Solving unforeseen problems on your own?",Solving unforeseen problems on your own
+EWCSR3,Q.24.4,q23d,"Generally, does your main paid job involve: Monotonous tasks?",Monotonous tasks
+EWCSR3,Q.24.5,q23e,"Generally, does your main paid job involve: Complex tasks?",Complex tasks
+EWCSR3,Q.24.6,q23f,"Generally, does your main paid job involve: Learning new things?",Learning new things
+EWCSR3,Q.25,q24,"Are you able, or not, to choose or change: Your order of tasks / Your methods of work / Your speed or rate of work?",Control over tasks and methods
+EWCSR3,Q.26.1,q25a,"For each of the following statements, please answer yes or no: You can get assistance from colleagues if you ask for it?",Get assistance from colleagues
+EWCSR3,Q.26.2,q25b,"For each of the following statements, please answer yes or no: You can take your break when you wish?",Take breaks when you wish
+EWCSR3,Q.26.3,q25c,"For each of the following statements, please answer yes or no: You are free to decide when to take holidays or days off?",Take holidays when you want
+EWCSR3,Q.26.4,q25d,"For each of the following statements, please answer yes or no: You can influence your working hours?",Influence working hours
+EWCSR3,Q.26.5,q25e,"For each of the following statements, please answer yes or no: You have enough time to get the job done?",Enough time to get job done
+EWCSR3,Q.26.6,q25f,"For each of the following statements, please answer yes or no: You have access to a telephone for private calls?",Access to telephone for private calls
+EWCSR3,Q.27a,q26a,"In your job, do you have responsibility or not for: Production planning / Staffing / Working times and shifts?",Responsibility for planning staffing working times
+EWCSR3,Q.27b,q26b,"Does your job involve, or not: Rotating tasks between yourself and colleagues / Doing all or part of your work in a team?",Rotating tasks teamwork
+EWCSR3,Q.28,q27,How well do you think your skills match the demands imposed on you by your job?,How well do your skills match job demands?
+EWCSR3,Q.29,q28,"Over the past 12 months, have you undergone training paid for or provided by your employer... to improve your skills or not?",Training paid by employer
+EWCSR3,Q.30a,q29a,"Within your workplace, are you able to discuss: Your working conditions in general / the organisation of your work when changes take place?",Able to discuss working conditions
+EWCSR3,Q.30b,q29b,"Do these exchanges of views take place: With colleagues, superiors, staff representatives, outside experts, on a regular basis, on a formal basis?",Exchanges of views with colleagues/q30b
+EWCSR3,Q.30c,q29c,"And, do these exchanges of views lead to improvements: At your own personal workplace / In your office or factory / In the organisation as a whole?",Do these exchanges lead to improvements?
+EWCSR3,Q.31,q30,"Over the past 12 months, have you, or have you not, been subjected at work to: Physical violence, Intimidation, Sexual discrimination, Unwanted sexual attention, Age discrimination, Discrimination linked to nationality/ethnicity/disability/sexual orientation?",Personally subjected to violence/discrimination
+EWCSR3,Q.32,q31,"In the establishment where you work, are you aware of the existence of: Physical violence, Intimidation, Discrimination (various types)?",Aware of existence of violence/discrimination
+EWCSR3,Q.33,q33_n,Is your immediate boss a man or a woman?,Is your immediate boss a man or a woman?
+EWCSR3,Q.34,q32,"Do you think your health or safety is at risk because of your work, or not?",Health or safety at risk
+EWCSR3,Q.35,q33,"Does your work affect your health, or not? (IF YES) How does it affect your health? (Hearing, vision, skin, backache, headaches, stomach, muscular pains, stress, fatigue, etc.)",Does your work affect your health?
+EWCSR3,Q.36a,q34a,"In your main paid job, how many days over the past 12 months were you absent due to an accident at work?",Absent due to accident
+EWCSR3,Q.36b,q34b,And due to health problems caused by your work?,Absent due to work-related health problem
+EWCSR3,Q.36c,q34c,And due to other health problems?,Absent due to other health problem
+EWCSR3,Q.37,q36,Do you think you will be able to do the same job you are doing now when you are 60 years old?,Can you do same job at age 60?
+EWCSR3,Q.38,q35,"On the whole, are you very satisfied, fairly satisfied, not very satisfied or not at all satisfied with working conditions in your main paid job?",Overall satisfaction with working conditions
+EWCSR4,Q2a,q2a,What is your main paid job? Please give me your job title.,What is your main paid job? Please give me your job title.
+EWCSR4,Q2b,q2b,How old were you when you stopped your full-time education?,How old were you when you stopped your full-time education?
+EWCSR4,Q2c,q3a,"Are you mainly: Self-employed (with/without employees), Employed, or Other?",Are you mainly: Self-employed (with/without employees)
+EWCSR4,Q3a,q3c,"(If Employed) Is it: On an unlimited permanent contract, fixed term contract, temporary employment agency contract, apprenticeship, or other?",(If Employed) Is it: permanent / fixed term / agency / apprenticeship / other?
+EWCSR4,Q3b,q3d_2,(If Fixed Term) What is the exact duration of the contract in number of years and months?,(If fixed term) Exact duration of the contract (years
+EWCSR4,Q4,q4,What is the main activity of the company or organisation where you work?,What is the main activity of the company or organisation where you work?
+EWCSR4,Q5,q5,"Are you working in: Public sector, Private sector, Joint private-public organisation, Not for profit sector, or Other?",Sector of employment (public/private/joint/non-profit/other)
+EWCSR4,Q6,q6,How many people in total work in the local unit of the establishment where you work?,How many people work in your local unit?
+EWCSR4,Q7,q7,"How many people work under your supervision, for whom pay increases, bonuses or promotion depend directly on you?",How many people work under your supervision?
+EWCSR4,Q8a,q2d,How many years have you been in your company or organisation?,How many years in your organisation?
+EWCSR4,Q8b,q3b_n,How many years have you been in your present main job?,How many years in your present main job?
+EWCSR4,Q9a,q9a,"Besides your main paid job, do you have any other paid job?",Besides your main job
+EWCSR4,Q9b,q9b,"(If Yes) Is it: Regular, Occasional, or Seasonal?",(If yes) Regular
+EWCSR4,Q9c,,(If Regular) How many hours a week?,(If regular) How many hours per week?
+EWCSR4,Q10a,q10a,"Are you exposed at work to: Vibrations from hand tools, machinery, etc.?",Exposure to vibration
+EWCSR4,Q10b,q10b,Are you exposed at work to: Noise so loud that you would have to raise your voice to talk to people?,Exposure to loud noise
+EWCSR4,Q10c,q10c,Are you exposed at work to: High temperatures which make you perspire even when not working?,Exposure to high temperatures
+EWCSR4,Q10d,q10d,Are you exposed at work to: Low temperatures whether indoors or outdoors?,Exposure to low temperatures
+EWCSR4,Q10e,q10e,"Are you exposed at work to: Breathing in smoke, fumes (such as welding or exhaust fumes), powder or dust (such as wood dust or mineral dust) etc.?",Exposure to smoke
+EWCSR4,Q10f,q10f,Are you exposed at work to: Breathing in vapours such as solvents and thinners?,Exposure to vapours (solvents
+EWCSR4,Q10g,q10g,Are you exposed at work to: Handling or being in direct contact with chemical products or substances?,Contact with chemical products or substances
+EWCSR4,Q10h,q10h,"Are you exposed at work to: Radiation such as X-rays, radioactive radiation, welding light, laser beams?",Exposure to radiation (X-rays
+EWCSR4,Q10i,q10i,Are you exposed at work to: Tobacco smoke from other people?,Exposure to tobacco smoke at work
+EWCSR4,Q10j,q10j,"Are you exposed at work to: Handling or being in direct contact with materials which can be infectious, such as waste, bodily fluids, laboratory materials, etc.?",Contact with infectious materials
+EWCSR4,Q11a,q11a,Does your main paid job involve: Tiring or painful positions?,Tiring or painful positions
+EWCSR4,Q11b,q11b,Does your main paid job involve: Lifting or moving people?,Lifting or moving people
+EWCSR4,Q11c,q11c,Does your main paid job involve: Carrying or moving heavy loads?,Carrying or moving heavy loads
+EWCSR4,Q11d,q11d,Does your main paid job involve: Standing?,Standing
+EWCSR4,Q11e,q11e,Does your main paid job involve: Repetitive hand or arm movements?,Repetitive hand or arm movements
+EWCSR4,Q11f,q11f,"Does your main paid job involve: Working with computers: PCs, network, mainframe?",Working with computers
+EWCSR4,Q11g,q11g,Does your main paid job involve: Using the internet / email for professional purposes?,Using internet/email for work
+EWCSR4,Q11h,q11h,Does your main paid job involve: Teleworking from home with a PC?,Teleworking from home
+EWCSR4,Q11i,q11i,"Does your main paid job involve: Working at home (home being your normal workplace), excluding teleworking?",Working at home (excluding telework)
+EWCSR4,Q11j,q11j,"Does your main paid job involve: Dealing directly with people who are not employees at your workplace such as customers, passengers, pupils, patients, etc.?",Dealing directly with customers/passengers/patients
+EWCSR4,Q11k,q11k,Does your main paid job involve: Wearing personal protective equipment?,Wearing personal protective equipment
+EWCSR4,Q12,q12,"Regarding the health and safety risks related to the performance of your job, how well informed would you say you are?",How well informed about health and safety risks
+EWCSR4,Q13,q8a,"How many hours do you usually work per week, in your main paid job?",Hours worked per week
+EWCSR4,Q14,q8b,How many days per week do you usually work in your main paid job?,Days worked per week
+EWCSR4,Q15,q9d,"In total, how many minutes per day do you normally spend travelling from home to work and back?",Minutes spent commuting per day
+EWCSR4,Q16a,q10a_1,"Normally, how many times a month do you work at night, for at least 2 hours between 10.00 pm and 05.00 am?",Night work frequency
+EWCSR4,Q16b,q10b_1,"And how many times a month do you work in the evening, for at least 2 hours between 6.00 pm and 10.00 pm?",Evening work frequency
+EWCSR4,Q16c,q10c_1,And how many times a month do you work on Sundays?,Sunday work frequency
+EWCSR4,Q16d,q10d_1,And how many times a month do you work on Saturdays?,Saturday work frequency
+EWCSR4,Q16e,q10e_1,And how many times a month do you work more than 10 hours a day?,Work more than 10 hours/day
+EWCSR4,Q17a,q11_1,Do you work part-time?,Do you work part-time?
+EWCSR4,Q17b,q11_2,"(If Part-time) Would you like to work: More hours, Less hours, or The same number of hours?",Would you like more/less/same hours?
+EWCSR4,Q18a,q16a_a,Do you work: The same number of hours every day?,Same number of hours every day
+EWCSR4,Q18b,q16a_b,Do you work: The same number of days every week?,Same number of days every week
+EWCSR4,Q18c,q16a_c,Do you work: The same number of hours every week?,Same number of hours every week
+EWCSR4,Q18d,q16a_d,Do you work: Fixed starting and finishing times?,Fixed starting and finishing times
+EWCSR4,Q18e,q16a_e,Do you work: In shifts?,Do you work shifts?
+EWCSR4,Q19,q16a_f,"(If Shifts) Do you work: Split shifts, Permanent (night/afternoon/morning), Alternating, or Other?",Type of shift pattern
+EWCSR4,Q20a,q22a,How often do you have to interrupt a task you are doing in order to take on an unforeseen task?,How often you interrupt tasks
+EWCSR4,Q20b,q22b,"(If interruptions occur) For your work, are these interruptions: Disruptive, Without consequences, or Positive?",Are interruptions disruptive/neutral/positive
+EWCSR4,Q21a,q20a_a,"Please tell me, does your job involve short repetitive tasks of less than 1 minute?",Short repetitive tasks (<1 min)
+EWCSR4,Q21b,q20a_b,(If Yes) If you do have to repeat the same task... do you repeat the same movements?,Repetition of same movements
+EWCSR4,Q22a,q20b_a,Does your job involve: Working at very high speed?,Working at very high speed
+EWCSR4,Q22b,q20b_b,Does your job involve: Working to tight deadlines?,Working to tight deadlines
+EWCSR4,Q23a,q21a,"On the whole, is your pace of work dependent on: The work done by colleagues?",Pace dependent on colleagues
+EWCSR4,Q23b,q21b,"On the whole, is your pace of work dependent on: Direct demands from people such as customers, passengers, pupils, patients, etc.?",Pace dependent on direct demands from people
+EWCSR4,Q23c,q21c,"On the whole, is your pace of work dependent on: Numerical production targets or performance targets?",Pace dependent on numerical/performance targets
+EWCSR4,Q23d,q21d,"On the whole, is your pace of work dependent on: Automatic speed of a machine or movement of a product?",Pace dependent on automatic speed of a machine/product
+EWCSR4,Q23e,q21e,"On the whole, is your pace of work dependent on: The direct control of your boss?",Pace dependent on direct control of your boss
+EWCSR4,Q24a,q23a,"Generally, does your main paid job involve: Meeting precise quality standards?",Meeting precise quality standards
+EWCSR4,Q24b,q23b,"Generally, does your main paid job involve: Assessing yourself the quality of your own work?",Assessing quality of own work
+EWCSR4,Q24c,q23c,"Generally, does your main paid job involve: Solving unforeseen problems on your own?",Solving unforeseen problems
+EWCSR4,Q24d,q23d,"Generally, does your main paid job involve: Monotonous tasks?",Monotonous tasks
+EWCSR4,Q24e,q23e,"Generally, does your main paid job involve: Complex tasks?",Complex tasks
+EWCSR4,Q24f,q23f,"Generally, does your main paid job involve: Learning new things?",Learning new things
+EWCSR4,Q25a,q24a,Are you able to choose or change: Your order of tasks?,Able to choose order of tasks
+EWCSR4,Q25b,q24b,Are you able to choose or change: Your methods of work?,Able to choose methods of work
+EWCSR4,Q25c,q24c,Are you able to choose or change: Your speed or rate of work?,Able to choose speed/rate of work
+EWCSR4,Q26a,q25a,"For each of the following statements, please answer Yes or No: You can get assistance from colleagues if you ask for it?",Can get assistance from colleagues
+EWCSR4,Q26b,q25b,"For each of the following statements, please answer Yes or No: You can take a break when you wish?",Can take break when you want
+EWCSR4,Q26c,q25c,"For each of the following statements, please answer Yes or No: You are free to decide when to take holidays or days off?",Can decide holidays/days off
+EWCSR4,Q26d,q25d,"For each of the following statements, please answer Yes or No: You can influence your working hours?",Can influence your working hours
+EWCSR4,Q26e,q25e,"For each of the following statements, please answer Yes or No: You have enough time to get the job done?",Have enough time to get job done
+EWCSR4,Q26f,q25f,"For each of the following statements, please answer Yes or No: You know what is expected of you at work?",Know what is expected of you
+EWCSR4,Q26g,q25g,"For each of the following statements, please answer Yes or No: Your job requires that you hide your feelings?",Job requires hiding feelings
+EWCSR4,Q26h,q25h,"For each of the following statements, please answer Yes or No: You have access to a telephone for private calls?",Access to telephone for private calls
+EWCSR4,Q27,q25,How well do you think your skills match the demands imposed on you by your job?,Skills match job demands
+EWCSR4,Q28a,q26,"Over the past 12 months, have you undergone training paid for or provided by your employer... to improve your skills?",Employer-paid training
+EWCSR4,Q28b,,(If Yes) How many days?,Number of training days
+EWCSR4,Q29a,q27,"Over the past 12 months, have you, or not: Undergone any other training (paid for by yourself)?",Training paid by yourself
+EWCSR4,Q29b,q28,"Over the past 12 months, have you, or not: Learned new things on the job (learning by doing)?",Learning by doing on the job
+EWCSR4,Q30a,q29_1,"Within your workplace, are you able to discuss: Your working conditions in general?",Able to discuss working conditions
+EWCSR4,Q30b,q29_2,"Within your workplace, are you able to discuss: The organisation of your work when changes take place?",Able to discuss organisation of work
+EWCSR4,Q31,q30,"In general, do your working hours fit in with your family or social commitments outside work?",Working hours fit family/social life
+EWCSR4,Q32a,q29a,Over the past 12 months... have you been subjected to: Physical violence from people from your workplace?,Physical violence from people at work
+EWCSR4,Q32b,q29b,Over the past 12 months... have you been subjected to: Physical violence from other people?,Physical violence from other people
+EWCSR4,Q32c,q29c,Over the past 12 months... have you been subjected to: Threats of physical violence?,Threats of physical violence
+EWCSR4,Q32d,q29d,Over the past 12 months... have you been subjected to: Intimidation (bullying/mobbing)?,Intimidation/bullying/mobbing
+EWCSR4,Q32e,q29e,Over the past 12 months... have you been subjected to: Sexual discrimination?,Sexual discrimination
+EWCSR4,Q32f,q29f,Over the past 12 months... have you been subjected to: Unwanted sexual attention?,Unwanted sexual attention
+EWCSR4,Q32g,q29g,Over the past 12 months... have you been subjected to: Age discrimination?,Age discrimination
+EWCSR4,Q32h,q29h,Over the past 12 months... have you been subjected to: Discrimination linked to nationality?,Nationality discrimination
+EWCSR4,Q32i,q29i,Over the past 12 months... have you been subjected to: Discrimination linked to ethnic background?,Ethnic discrimination
+EWCSR4,Q32j,q29j,Over the past 12 months... have you been subjected to: Discrimination linked to religion?,Religious discrimination
+EWCSR4,Q32k,q29k,Over the past 12 months... have you been subjected to: Discrimination linked to disability?,Disability discrimination
+EWCSR4,Q32l,q29l,Over the past 12 months... have you been subjected to: Discrimination linked to sexual orientation?,Sexual orientation discrimination
+EWCSR4,Q33,q32,Do you think your health or safety is at risk because of your work?,Health or safety at risk because of your work
+EWCSR4,Q34a,q33a,Does your work affect your health? (IF YES) Hearing problems?,Health affected: Hearing problems
+EWCSR4,Q34b,q33b,Does your work affect your health? (IF YES) Problems with your vision?,Health affected: Vision problems
+EWCSR4,Q34c,q33c,Does your work affect your health? (IF YES) Skin problems?,Health affected: Skin problems
+EWCSR4,Q34d,q33d,Does your work affect your health? (IF YES) Backache?,Health affected: Backache
+EWCSR4,Q34e,q33e,Does your work affect your health? (IF YES) Headaches?,Health affected: Headaches
+EWCSR4,Q34f,q33f,Does your work affect your health? (IF YES) Stomach ache?,Health affected: Stomach ache
+EWCSR4,Q34g,q33g,"Does your work affect your health? (IF YES) Muscular pains in shoulders, neck and/or upper limbs?",Health affected: Muscular pain (upper body)
+EWCSR4,Q34h,q33h,Does your work affect your health? (IF YES) Muscular pains in lower limbs?,Health affected: Muscular pain (lower body)
+EWCSR4,Q34i,q33i,Does your work affect your health? (IF YES) Respiratory difficulties?,Health affected: Respiratory difficulties
+EWCSR4,Q34j,q33j,Does your work affect your health? (IF YES) Heart disease?,Health affected: Heart disease
+EWCSR4,Q34k,q33k,Does your work affect your health? (IF YES) Injury (accident)?,Health affected: Injury/accident
+EWCSR4,Q34l,q33l,Does your work affect your health? (IF YES) Stress?,Health affected: Stress
+EWCSR4,Q34m,q33m,Does your work affect your health? (IF YES) Overall fatigue?,Health affected: Overall fatigue
+EWCSR4,Q34n,q33n,Does your work affect your health? (IF YES) Sleeping problems?,Health affected: Sleeping problems
+EWCSR4,Q34o,q33o,Does your work affect your health? (IF YES) Allergies?,Health affected: Allergies
+EWCSR4,Q34p,q33p,Does your work affect your health? (IF YES) Anxiety?,Health affected: Anxiety
+EWCSR4,Q34q,q33q,Does your work affect your health? (IF YES) Irritability?,Health affected: Irritability
+EWCSR4,Q34r,q33r,Does your work affect your health? (IF YES) Other?,Health affected: Other
+EWCSR4,Q35a,q34a,"In your main paid job, how many days over the past 12 months were you absent due to: An accident at work?",Absence: accident at work
+EWCSR4,Q35b,q34b,"In your main paid job, how many days over the past 12 months were you absent due to: Health problems caused by your work?",Absence: work-related health problems
+EWCSR4,Q35c,q34c,"In your main paid job, how many days over the past 12 months were you absent due to: Other health problems?",Absence: other health problems
+EWCSR4,Q36,q34d_1,Over the past 12 months did you work when you were sick?,Worked while sick
+EWCSR4,Q37,q34e_1,"On the whole, are you very satisfied, satisfied, not very satisfied or not at all satisfied with working conditions in your main paid job?",Satisfaction with working conditions
+EWCSR4,Q38,q35,Do you think you will be able to do the same job you are doing now when you are 60 years old?,Able to do same job at 60

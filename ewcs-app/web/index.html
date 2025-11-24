@@ -1,96 +1,638 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>EWCS Dashboard (API)</title>
+  <meta charset="utf-8" />
+  <title>EWCS prototype dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://code.highcharts.com/highcharts.js"></script>
+
   <style>
-    body{font:14px system-ui;margin:0;background:#0f1530;color:#eef2f8}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    select,button{padding:8px 10px;border-radius:8px;border:1px solid #3b3f6b;background:#12193a;color:#eef2f8}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    :root{
+      --bg:#050816;
+      --panel:#0b1120;
+      --panel-soft:#111827;
+      --border:#1f2933;
+      --accent1:#2563eb;
+      --accent2:#34d399;
+      --muted:#9ca3af;
+      --danger:#f97373;
+      --text:#e5e7eb;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      padding:18px;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#020617 35%,#020617 100%);
+      color:var(--text);
+    }
+    h1{
+      margin:0 0 10px;
+      font-size:20px;
+      font-weight:600;
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:16px;
+    }
+    #layout{
+      max-width:1180px;
+      margin:0 auto;
+    }
+    #controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .card{
+      background:var(--panel);
+      border-radius:12px;
+      border:1px solid var(--border);
+      padding:10px 12px;
+      min-width:220px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      box-shadow:0 10px 30px rgba(15,23,42,.7);
+    }
+    label{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+    }
+    select{
+      background:var(--panel-soft);
+      color:var(--text);
+      border:1px solid #1f2937;
+      border-radius:8px;
+      padding:7px 9px;
+      font-size:13px;
+      outline:none;
+    }
+    select:focus{
+      border-color:var(--accent1);
+      box-shadow:0 0 0 1px rgba(37,99,235,.65);
+    }
+    #status{
+      margin-top:4px;
+      font-size:11px;
+      min-height:1.4em;
+      color:var(--muted);
+    }
+    #status.error{ color:var(--danger); }
+
+    #chart-container{
+      margin-top:6px;
+      background:var(--panel);
+      border-radius:18px;
+      border:1px solid var(--border);
+      padding:14px 16px 18px;
+      box-shadow:0 18px 55px rgba(15,23,42,.9);
+    }
+    #chart{
+      height:460px;
+      width:100%;
+    }
+
+    #debug-panel{
+      margin-top:18px;
+      background:var(--panel-soft);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.35);
+      padding:10px 12px;
+    }
+    #debug-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      margin-bottom:6px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    #log{
+      font-family:ui-monospace,Menlo,Consolas,monospace;
+      font-size:11px;
+      background:#020617;
+      border-radius:8px;
+      border:1px solid rgba(148,163,184,.35);
+      padding:6px 8px;
+      white-space:pre-wrap;
+      max-height:110px;
+      overflow:auto;
+      color:#9ca3af;
+      margin-bottom:8px;
+    }
+    #sanity-wrapper{
+      max-height:170px;
+      overflow:auto;
+      border-radius:8px;
+      border:1px solid rgba(31,41,55,.85);
+    }
+    #sanity-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:11px;
+    }
+    #sanity-table thead{
+      background:#020617;
+      position:sticky;
+      top:0;
+    }
+    #sanity-table th,
+    #sanity-table td{
+      padding:4px 6px;
+      border-bottom:1px solid rgba(31,41,55,.85);
+    }
+    #sanity-table th{
+      text-align:left;
+      font-weight:600;
+      color:#9ca3af;
+    }
+
+    /* Toggle switch */
+    .mode-wrapper{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:2px;
+    }
+    .switch{
+      position:relative;
+      display:inline-block;
+      width:42px;
+      height:22px;
+    }
+    .switch input{display:none;}
+    .slider{
+      position:absolute;
+      cursor:pointer;
+      top:0; left:0; right:0; bottom:0;
+      background-color:#4b5563;
+      transition:.25s;
+      border-radius:22px;
+    }
+    .slider:before{
+      position:absolute;
+      content:"";
+      height:18px;
+      width:18px;
+      left:2px;
+      bottom:2px;
+      background-color:white;
+      transition:.25s;
+      border-radius:50%;
+    }
+    input:checked + .slider{
+      background-color:var(--accent1);
+    }
+    input:checked + .slider:before{
+      transform:translateX(20px);
+    }
+    #mode-label{
+      font-size:12px;
+      color:var(--muted);
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="row">
-    <select id="survey"></select>
-    <select id="question"></select>
-    <select id="weight">
-      <option value="none">none</option>
-      <option value="w4">w4</option>
-      <option value="w5" selected>w5</option>
-    </select>
-    <input id="mult" type="number" step="0.1" min="0.1" value="1.0" style="width:90px">
-    <button id="run">Run</button>
-    <span id="msg"></span>
+<div id="layout">
+  <h1>EWCS prototype dashboard</h1>
+  <div class="subtitle">Weighted country profiles · stacked proportions or index</div>
+
+  <div id="controls">
+    <div class="card">
+      <label for="survey-select">Survey</label>
+      <select id="survey-select">
+        <option value="">Loading…</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="question-select">Question</label>
+      <select id="question-select">
+        <option value="">Select a survey first…</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="weight-select">Weight</label>
+      <select id="weight-select">
+        <option value="">Select a survey first…</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="mode-toggle">Display</label>
+      <div class="mode-wrapper">
+        <label class="switch">
+          <input type="checkbox" id="mode-toggle">
+          <span class="slider"></span>
+        </label>
+        <span id="mode-label">Proportions</span>
+      </div>
+      <div id="status"></div>
+    </div>
   </div>
-  <div id="chart" style="height:900px"></div>
+
+  <div id="chart-container">
+    <div id="chart"></div>
+  </div>
+
+  <div id="debug-panel">
+    <div id="debug-header">
+      <span>Sanity check / weighted response</span>
+    </div>
+    <div id="log"></div>
+    <div id="sanity-wrapper">
+      <table id="sanity-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>country</th>
+            <th>country_label</th>
+            <th>value</th>
+            <th>value_label</th>
+            <th>pct</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 </div>
+
 <script>
-const API = location.origin.includes('localhost') ? 'http://localhost:8000' : 'https://<your-api-host>';
+  const API_BASE      = "http://127.0.0.1:8000";
 
-async function loadSurveys(){
-  const r = await fetch(`${API}/surveys`); const j = await r.json();
-  const s = document.getElementById('survey');
-  s.innerHTML = j.surveys.map(x=>`<option value="${x}">${x}</option>`).join('');
-}
+  const surveySelect   = document.getElementById('survey-select');
+  const questionSelect = document.getElementById('question-select');
+  const weightSelect   = document.getElementById('weight-select');
+  const statusEl       = document.getElementById('status');
+  const logEl          = document.getElementById('log');
+  const sanityBody     = document.querySelector('#sanity-table tbody');
+  const modeToggle     = document.getElementById('mode-toggle');
+  const modeLabel      = document.getElementById('mode-label');
 
-async function loadQuestions(){
-  const survey = document.getElementById('survey').value;
-  const r = await fetch(`${API}/questions/${survey}`); const j = await r.json();
-  const q = document.getElementById('question');
-  q.innerHTML = j.questions.map(x=>`<option value="${x}">${x}</option>`).join('');
-}
+  let chartMode = "proportion"; // "proportion" | "index"
 
-async function runQuery(){
-  document.getElementById('msg').textContent = '…';
-  const payload = {
-    survey: document.getElementById('survey').value,
-    question: document.getElementById('question').value,
-    weight_set: document.getElementById('weight').value,
-    global_mult: parseFloat(document.getElementById('mult').value)||1.0
-  };
-  const r = await fetch(`${API}/weighted`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
+  function log(msg, level="info") {
+    const t = new Date().toTimeString().slice(0,8);
+    logEl.textContent += `[${t}] ${msg}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+    if (level === "error") console.error(msg);
+  }
+
+  function setStatus(msg, isError=false) {
+    statusEl.textContent = msg || "";
+    statusEl.classList.toggle("error", !!isError);
+  }
+
+  async function fetchJson(url) {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    }
+    return await resp.json();
+  }
+
+  function mapSurveyList(surveys) {
+    if (!Array.isArray(surveys)) return [];
+    return surveys.map(s => {
+      if (typeof s === "string") return { id: s, label: s };
+      if (s.id       !== undefined) return { id: s.id,       label: s.label || s.id };
+      if (s.survey   !== undefined) return { id: s.survey,   label: s.label || s.survey };
+      if (s.name     !== undefined) return { id: s.name,     label: s.label || s.name };
+      return { id: String(s), label: String(s) };
+    });
+  }
+
+  function mapQuestionList(questions) {
+    if (!Array.isArray(questions)) return [];
+    return questions.map(q => {
+      const code  = q.variable || q.code || q.id || q.question || q.name;
+      const label = q.question_label || q.label || code;
+      return { variable: code, label };
+    }).filter(q => !!q.variable);
+  }
+
+  function mapWeightList(weights) {
+    if (!Array.isArray(weights)) return [];
+    return weights.map(w => {
+      if (typeof w === "string") return w;
+      return w.name || w.id || w.weight || "";
+    }).filter(Boolean);
+  }
+
+  async function loadSurveys() {
+    setStatus("Loading surveys…");
+    const surveysRaw = await fetchJson(`${API_BASE}/surveys`);
+    const surveys = mapSurveyList(surveysRaw);
+
+    surveySelect.innerHTML = "";
+    if (!surveys.length) {
+      surveySelect.innerHTML = '<option value="">No surveys found</option>';
+      setStatus("No surveys found.", true);
+      return;
+    }
+
+    surveySelect.insertAdjacentHTML("beforeend",
+      '<option value="">Select a survey…</option>');
+    for (const s of surveys) {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.label;
+      surveySelect.appendChild(opt);
+    }
+    setStatus("Select survey, question and weight.");
+  }
+
+  async function loadQuestionsAndWeights(surveyId) {
+    if (!surveyId) {
+      questionSelect.innerHTML = '<option value="">Select a survey first…</option>';
+      weightSelect.innerHTML   = '<option value="">Select a survey first…</option>';
+      return;
+    }
+
+    log(`GET ${API_BASE}/questions/${surveyId}`);
+    const qsRaw = await fetchJson(`${API_BASE}/questions/${encodeURIComponent(surveyId)}`);
+    const questions = mapQuestionList(qsRaw);
+
+    questionSelect.innerHTML = "";
+    if (!questions.length) {
+      questionSelect.innerHTML = '<option value="">No questions found</option>';
+    } else {
+      questionSelect.insertAdjacentHTML("beforeend",
+        '<option value="">Select a question…</option>');
+      for (const q of questions) {
+        const opt = document.createElement("option");
+        opt.value = q.variable;
+        opt.textContent = `${q.variable} – ${q.label}`;
+        opt.dataset.label = q.label;
+        questionSelect.appendChild(opt);
+      }
+    }
+
+    log(`GET ${API_BASE}/weights/${surveyId}`);
+    const wsRaw = await fetchJson(`${API_BASE}/weights/${encodeURIComponent(surveyId)}`);
+    const weights = mapWeightList(wsRaw);
+    weightSelect.innerHTML = "";
+    if (!weights.length) {
+      weightSelect.innerHTML = '<option value="">No weights found</option>';
+    } else {
+      weightSelect.insertAdjacentHTML("beforeend",
+        '<option value="">Select weight…</option>');
+      for (const w of weights) {
+        const opt = document.createElement("option");
+        opt.value = w;
+        opt.textContent = w;
+        weightSelect.appendChild(opt);
+      }
+    }
+
+    setStatus("Select question and weight.");
+  }
+
+  function renderSanityTable(rows) {
+    sanityBody.innerHTML = "";
+    if (!rows || !rows.length) return;
+
+    const maxRows = 50;
+    rows.slice(0, maxRows).forEach((r, idx) => {
+      const tr = document.createElement("tr");
+      const cells = [
+        idx + 1,
+        r.country,
+        r.country_label,
+        r.value,
+        r.value_label,
+        r.pct != null ? r.pct.toFixed(3) : ""
+      ];
+      cells.forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+      sanityBody.appendChild(tr);
+    });
+  }
+
+  function drawProportionChart(surveyId, questionCode, questionLabel, rows) {
+    if (!rows || !rows.length) {
+      Highcharts.chart('chart', { title:{ text:null }, series:[] });
+      setStatus("No data returned for this combination.", true);
+      return;
+    }
+
+    const countries = [...new Set(
+      rows.map(r => r.country_label || String(r.country))
+    )];
+
+    const valueKeys = [...new Set(
+      rows.map(r => r.value_label || String(r.value))
+    )];
+
+    const series = valueKeys.map(valueLabel => ({
+      name: valueLabel,
+      data: countries.map(countryLabel => {
+        const row = rows.find(r =>
+          (r.country_label || String(r.country)) === countryLabel &&
+          (r.value_label   || String(r.value))   === valueLabel
+        );
+        return row ? row.pct : 0;
+      })
+    }));
+
+    Highcharts.chart('chart', {
+      chart: {
+        type: 'bar',
+        backgroundColor: 'transparent',
+      },
+      title: {
+        text: `${surveyId} • ${questionCode} – ${questionLabel || ''}`,
+        style: { color:'#e5e7eb', fontSize:'13px' }
+      },
+      xAxis: {
+        categories: countries,
+        labels: { style:{ color:'#e5e7eb', fontSize:'11px' } }
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        title: { text:'Percent', style:{ color:'#e5e7eb' } },
+        labels:{ format:'{value}%', style:{ color:'#e5e7eb', fontSize:'11px' } }
+      },
+      legend: {
+        itemStyle:{ color:'#e5e7eb', fontSize:'11px' }
+      },
+      tooltip: {
+        pointFormatter: function () {
+          return `<span style="color:${this.color}">\u25CF</span> ` +
+                 `<b>${this.series.name}</b>: ${this.y.toFixed(2)}%<br/>`;
+        }
+      },
+      plotOptions: {
+        series: {
+          stacking: 'normal',
+          borderWidth:0
+        }
+      },
+      credits:{ enabled:false },
+      exporting:{ enabled:false },
+      series
+    });
+
+    setStatus("Chart updated.");
+  }
+
+  function computeIndex(rows) {
+    const byCountry = {};
+    rows.forEach(r => {
+      const c = r.country;
+      if (!byCountry[c]) byCountry[c] = [];
+      byCountry[c].push(r);
+    });
+
+    const out = [];
+    for (const [country, arr] of Object.entries(byCountry)) {
+      let sumProd = 0;
+      let sumW = 0;
+      arr.forEach(r => {
+        const w = r.pct;               // we can treat pct as relative weight
+        const v = parseFloat(r.value); // numeric value
+        if (!isNaN(v)) {
+          sumProd += v * w;
+          sumW += w;
+        }
+      });
+      const score = sumW > 0 ? sumProd / sumW : null;
+      out.push({ country: parseInt(country), country_label: arr[0].country_label, index: score });
+    }
+    return out;
+  }
+
+  function drawIndexChart(surveyId, questionCode, questionLabel, rows) {
+    const idxRows = computeIndex(rows);
+    if (!idxRows.length) {
+      Highcharts.chart('chart', { title:{ text:null }, series:[] });
+      setStatus("No data returned for this combination.", true);
+      return;
+    }
+
+    Highcharts.chart('chart', {
+      chart:{ type:'column', backgroundColor:'transparent' },
+      title:{
+        text:`${surveyId} • ${questionCode} – ${questionLabel || ''} (index)`,
+        style:{ color:'#e5e7eb', fontSize:'13px' }
+      },
+      xAxis:{
+        categories: idxRows.map(r => r.country_label || String(r.country)),
+        labels:{ style:{ color:'#e5e7eb', fontSize:'11px' } }
+      },
+      yAxis:{
+        title:{ text:'Weighted index', style:{ color:'#e5e7eb' } },
+        labels:{ style:{ color:'#e5e7eb', fontSize:'11px' } }
+      },
+      legend:{ enabled:false },
+      tooltip:{
+        pointFormatter:function(){
+          return `<span style="color:${this.color}">\u25CF</span> ` +
+                 `<b>${this.category}</b>: ${this.y.toFixed(3)}<br/>`;
+        }
+      },
+      series:[{
+        name:'Index',
+        data: idxRows.map(r => r.index)
+      }],
+      credits:{ enabled:false },
+      exporting:{ enabled:false }
+    });
+
+    setStatus("Chart updated.");
+  }
+
+  async function loadChart() {
+    const surveyId    = surveySelect.value;
+    const questionCode = questionSelect.value;
+    const weight      = weightSelect.value;
+
+    if (!surveyId || !questionCode || !weight) {
+      setStatus("Please select survey, question and weight.", true);
+      return;
+    }
+
+    const qOpt = questionSelect.selectedOptions[0];
+    const questionLabel = qOpt ? qOpt.dataset.label || qOpt.textContent : questionCode;
+
+    const url = `${API_BASE}/weighted` +
+      `?survey=${encodeURIComponent(surveyId)}` +
+      `&question=${encodeURIComponent(questionCode)}` +
+      `&weight=${encodeURIComponent(weight)}` +
+      `&max_countries=9999&min_pct=0`;
+
+    log(`GET ${url}`);
+    setStatus("Loading weighted data…");
+
+    try {
+      const resp = await fetchJson(url);
+      const rows = Array.isArray(resp) ? resp : (resp.rows || []);
+      const qLabel = resp.question_label || questionLabel;
+
+      log(`Weighted returned ${rows.length} rows for ${surveyId}/${questionCode}`);
+      renderSanityTable(rows);
+
+      if (chartMode === "index") {
+        drawIndexChart(surveyId, questionCode, qLabel, rows);
+      } else {
+        drawProportionChart(surveyId, questionCode, qLabel, rows);
+      }
+    } catch (err) {
+      setStatus("Error loading chart. See log below.", true);
+      log(`Error loadChart: ${err.message || err}`, "error");
+      renderSanityTable([]);
+      Highcharts.chart('chart', { title:{ text:null }, series:[] });
+    }
+  }
+
+  function maybeLoadChart() {
+    if (surveySelect.value && questionSelect.value && weightSelect.value) {
+      loadChart();
+    }
+  }
+
+  // Event wiring
+  surveySelect.addEventListener('change', async () => {
+    try {
+      await loadQuestionsAndWeights(surveySelect.value);
+      // do not auto-draw until user picks question/weight
+    } catch (err) {
+      setStatus("Error loading metadata. See log below.", true);
+      log(`Error loadQuestionsAndWeights: ${err.message || err}`, "error");
+    }
   });
-  const j = await r.json();
-  document.getElementById('msg').textContent = '';
 
-  const rows = j.rows;
-  const countries = [...new Set(rows.map(d=>d.country))].sort((a,b)=>a.localeCompare(b));
-  const values = [...new Set(rows.map(d=>d.value))].sort((a,b)=> {
-    const na=+a, nb=+b; return (!isNaN(na)&&!isNaN(nb))? (na-nb): a.localeCompare(b);
+  questionSelect.addEventListener('change', maybeLoadChart);
+  weightSelect.addEventListener('change',   maybeLoadChart);
+
+  modeToggle.addEventListener('change', () => {
+    chartMode = modeToggle.checked ? "index" : "proportion";
+    modeLabel.textContent = chartMode === "index" ? "Index" : "Proportions";
+    maybeLoadChart();  // redraw in new mode if selection ready
   });
 
-  const grid = new Map();
-  rows.forEach(d=>{
-    const k = d.country+'|'+d.value;
-    grid.set(k, d.pct);
-  });
-
-  const series = values.map(v=>({
-    name: v,
-    data: countries.map(c => grid.get(c+'|'+v) || 0)
-  }));
-
-  Highcharts.chart('chart',{
-    chart:{ type:'bar', backgroundColor:'transparent' },
-    title:{ text:`${j.survey} • ${j.question} — ${j.weight_set}` },
-    xAxis:{ categories:countries, labels:{ style:{color:'#eef2f8'} } },
-    yAxis:{ min:0, max:100, title:{ text:'Percent', style:{color:'#eef2f8'} }, labels:{ format:'{value}%' } },
-    legend:{ itemStyle:{color:'#eef2f8'} },
-    plotOptions:{ series:{ stacking:'percent' } },
-    credits:{ enabled:false },
-    series
-  });
-}
-
-document.getElementById('survey').addEventListener('change', loadQuestions);
-document.getElementById('run').addEventListener('click', runQuery);
-
-loadSurveys().then(loadQuestions).then(runQuery);
+  // Initialise
+  (async function init() {
+    try {
+      await loadSurveys();
+    } catch (err) {
+      setStatus("Error loading surveys. See log below.", true);
+      log(`Error loadSurveys: ${err.message || err}`, "error");
+    }
+  })();
 </script>
 </body>
 </html>

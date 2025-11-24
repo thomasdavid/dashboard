@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EWCS Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/maps/modules/map.js"></script>
+<script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue: #355582;
+    --grey: #9ca2a9;
+    --border: #d8d8d8;
+    --bg: #ffffff;
+    --text: #333333;
+    --warning: #d32f2f;
+    font-size: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 1.5rem auto;
+    max-width: 1100px;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  h1 { margin: 0 0 0.5rem; font-size: 1.5rem; font-weight: 600; color: var(--blue); }
+  .subtitle { color: var(--grey); margin-bottom: 2rem; font-size: 0.9rem; }
+
+  .controls-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    align-items: end;
+  }
+
+  label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--grey); }
+  select { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px; font: inherit; background-color: #fff; }
+  select[multiple] { height: 100px; }
+  select:focus { border-color: var(--blue); outline: none; }
+
+  .toggle-wrapper { display: flex; align-items: center; gap: 10px; padding-bottom: 5px; }
+  .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--blue); }
+  input:checked + .slider:before { transform: translateX(22px); }
+  .mode-label { font-weight: 600; font-size: 0.9rem; color: var(--blue); }
+
+  #tabs { display: flex; gap: 1.5rem; margin: 0 0 1rem; font-weight: 600; border-bottom: 1px solid #eee; }
+  .tab { display: flex; align-items: center; gap: 0.4rem; padding-bottom: 0.8rem; color: var(--grey); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
+  .tab svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* Increased Height for Bar Chart container */
+  #chart-container { width: 100%; min-height: 600px; margin-bottom: 1rem; border: 1px solid #eee; border-radius: 4px; }
+  #chart-notes { margin-top: 0.5rem; font-size: 0.85rem; color: var(--warning); line-height: 1.4; }
+  #status { margin-top: 1rem; font-size: 0.9rem; color: var(--grey); min-height: 1.5em; }
+  #status.error { color: #dc2626; }
+  footer { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+  <h1>EWCS Analytical Dashboard</h1>
+  <div class="subtitle">Weighted country profiles · Proportions, Indices, and Trends</div>
+
+  <div id="tabs">
+    <span class="tab active" data-view="bar"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="6" height="12"/><rect x="10" y="3" width="6" height="18"/><rect x="17" y="13" width="6" height="8"/></svg> Chart View</span>
+    <span class="tab" data-view="map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Map View</span>
+    <span class="tab" data-view="trend"><svg viewBox="0 0 24 24"><path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"/></svg> Trend</span>
+  </div>
+
+  <div id="std-controls" class="controls-row">
+    <div><label>1. Select Survey</label><select id="survey-select"><option value="">Loading...</option></select></div>
+    <div><label>2. Select Question</label><select id="question-select"><option value="">Select a survey first...</option></select></div>
+    <div><label>3. Select Weight</label><select id="weight-select"><option value="">Select a survey first...</option></select></div>
+    <div id="mode-toggle-box"><label>Display Mode</label><div class="toggle-wrapper"><label class="switch"><input type="checkbox" id="mode-toggle"><span class="slider"></span></label><span id="mode-label" class="mode-label">Proportions</span></div></div>
+  </div>
+
+  <div id="trend-controls" class="controls-row hidden">
+    <div><label>1. Select Question</label><select id="t-question-select"><option value="">Loading...</option></select></div>
+    <div><label>2. Select Weight</label><select id="t-weight-select"><option value="">Select...</option></select></div>
+    <div><label>3. Response (Multi)</label><select id="t-response-select" multiple><option value="">Select Question first...</option></select></div>
+    <div><label>4. Country (Multi)</label><select id="t-country-select" multiple><option value="">Loading...</option></select></div>
+  </div>
+
+  <div id="map-controls" class="controls-row hidden" style="padding: 1rem; margin-bottom: 1rem;">
+    <div><label>Select Response(s) (Multi)</label><select id="response-select" multiple></select></div>
+  </div>
+
+  <div id="status"></div>
+  <div id="chart-container"></div>
+  <div id="chart-notes"></div>
+
+  <footer><img src="https://www.eurofound.europa.eu/themes/custom/eurofound/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8"></footer>
+
+<script>
+  const API_BASE = ""; // This makes requests relative to the current domain
+  const DEFAULT_WEIGHT = "w4";
+  // Default Trend Settings
+  const TREND_DEFAULT_Q = "Job Satisfaction"; 
+  const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
+  
+  const barPalette = { 6: ['#355582', '#416ea8', '#6f90c0', '#66bb6a', '#4d853d', '#005F2F'] };
+  const barColor = (i, n) => (barPalette[6])[i % 6];
+
+  const els = {
+    survey: document.getElementById('survey-select'), question: document.getElementById('question-select'),
+    weight: document.getElementById('weight-select'), response: document.getElementById('response-select'),
+    modeToggle: document.getElementById('mode-toggle'), modeLabel: document.getElementById('mode-label'),
+    stdControls: document.getElementById('std-controls'), trendControls: document.getElementById('trend-controls'),
+    mapControls: document.getElementById('map-controls'),
+    tQuestion: document.getElementById('t-question-select'), tWeight: document.getElementById('t-weight-select'),
+    tResponse: document.getElementById('t-response-select'), tCountry: document.getElementById('t-country-select'),
+    status: document.getElementById('status'), notes: document.getElementById('chart-notes'),
+    tabs: document.querySelectorAll('.tab'), container: 'chart-container'
+  };
+
+  let currentData = [], currentView = 'bar', chartMode = 'proportion', chartInstance = null;
+  let trendInitDone = false;
+
+  function setStatus(msg, isError = false) { els.status.textContent = msg; els.status.className = isError ? 'error' : ''; }
+  async function fetchJson(url) { const r = await fetch(url); if(!r.ok) throw new Error(r.statusText); return await r.json(); }
+  
+  function getCountryKey(name) {
+    const map = { "United Kingdom": "gb", "Great Britain": "gb", "Greece": "gr", "Germany": "de", "France": "fr", "Italy": "it", "Spain": "es", "Czech Republic": "cz" };
+    return map[name] || name.substring(0, 2).toLowerCase();
+  }
+
+  // --- DATA PROCESSING ---
+  function computeIndex(rows) {
+    const byC = {}; rows.forEach(r => { if(!byC[r.country_label]) byC[r.country_label]=[]; byC[r.country_label].push(r); });
+    const out = [];
+    for(const [c, arr] of Object.entries(byC)) {
+      let sumProd=0, sumW=0;
+      arr.forEach(r => { const v=parseFloat(r.value); if(!isNaN(v)){ sumProd+=v*r.pct; sumW+=r.pct; } });
+      if(sumW>0) out.push({ country_label:c, index:sumProd/sumW, total_count: arr[0].total_count });
+    }
+    return out;
+  }
+
+  // --- INITIALIZATION ---
+  async function init() {
+    try {
+      const data = await fetchJson(`${API_BASE}/surveys`);
+      els.survey.innerHTML = '<option value="">Select...</option>' + data.map(s=>`<option value="${s.id}">${s.label}</option>`).join('');
+      setStatus("Ready.");
+    } catch(e) { setStatus("API Error", true); }
+  }
+
+  // --- STANDARD VIEW ---
+  els.survey.addEventListener('change', async () => {
+    if(!els.survey.value) return;
+    setStatus("Loading meta...");
+    const [qs, ws] = await Promise.all([
+      fetchJson(`${API_BASE}/questions/${els.survey.value}`),
+      fetchJson(`${API_BASE}/weights/${els.survey.value}`)
+    ]);
+    els.question.innerHTML = '<option value="">Select...</option>';
+    qs.forEach(q => {
+      const opt = document.createElement('option'); opt.value = q.id; opt.textContent = q.label; opt.dataset.desc = q.description||q.label;
+      els.question.appendChild(opt);
+    });
+    els.weight.innerHTML = '<option value="">Select...</option>' + ws.map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
+    if(ws.some(w=>w.id===DEFAULT_WEIGHT)) els.weight.value=DEFAULT_WEIGHT;
+    setStatus("Select question.");
+  });
+
+  const loadStdData = async () => {
+    if (!els.survey.value || !els.question.value || !els.weight.value) return;
+    setStatus("Fetching...");
+    const url = `${API_BASE}/weighted?survey=${els.survey.value}&question=${encodeURIComponent(els.question.value)}&weight=${els.weight.value}`;
+    const resp = await fetchJson(url);
+    currentData = resp.rows || [];
+    
+    // Update Map Response Dropdown
+    const resps = [...new Set(currentData.map(r=>r.value_label))].sort();
+    els.response.innerHTML = resps.map(r=>`<option value="${r}" selected>${r}</option>`).join('');
+    
+    renderChart();
+    setStatus("");
+  };
+
+  els.question.addEventListener('change', loadStdData);
+  els.weight.addEventListener('change', loadStdData);
+  els.response.addEventListener('change', () => { if(currentView==='map') renderChart(); });
+  els.modeToggle.addEventListener('change', () => { chartMode = els.modeToggle.checked ? 'index' : 'proportion'; els.modeLabel.textContent = chartMode==='index'?'Index':'Proportions'; renderChart(); });
+
+  // --- TREND VIEW ---
+  async function initTrend() {
+    if(trendInitDone) return;
+    trendInitDone = true;
+    
+    const qs = await fetchJson(`${API_BASE}/questions/longitudinal`);
+    els.tQuestion.innerHTML = '<option value="">Select...</option>' + qs.map(q=>`<option value="${q.id}">${q.label}</option>`).join('');
+    const ws = await fetchJson(`${API_BASE}/weights/EWCSR4`);
+    els.tWeight.innerHTML = '<option value="">Select...</option>' + ws.map(w=>`<option value="${w.id}">${w.label}</option>`).join('');
+    if(ws.some(w=>w.id===DEFAULT_WEIGHT)) els.tWeight.value=DEFAULT_WEIGHT;
+
+    // Apply Defaults: Find "Job Satisfaction" or use 1st available
+    let defaultQ = Array.from(els.tQuestion.options).find(o => o.text.toLowerCase().includes(TREND_DEFAULT_Q.toLowerCase()));
+    
+    // Fallback: if specific default not found, use first item
+    if(!defaultQ && els.tQuestion.options.length > 1) {
+        defaultQ = els.tQuestion.options[1];
+    }
+
+    if(defaultQ) {
+      els.tQuestion.value = defaultQ.value;
+      await loadTrendOptions(true); // Load options and apply response defaults
+    }
+  }
+
+  async function loadTrendOptions(applyDefaults = false) {
+    if(!els.tQuestion.value) return;
+    setStatus("Loading trend options...");
+    // Use EWCSR4 as proxy for response list
+    const url = `${API_BASE}/weighted?survey=EWCSR4&question=${encodeURIComponent(els.tQuestion.value)}&weight=${DEFAULT_WEIGHT}`;
+    const resp = await fetchJson(url);
+    const rows = resp.rows || [];
+    
+    const responses = [...new Set(rows.map(r => r.value_label))].sort();
+    const countries = [...new Set(rows.map(r => r.country_label))].sort();
+
+    els.tResponse.innerHTML = responses.map(r => `<option value="${r}">${r}</option>`).join('');
+    els.tCountry.innerHTML = countries.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    if(applyDefaults) {
+      // Select default responses
+      let hasSelection = false;
+      Array.from(els.tResponse.options).forEach(opt => {
+        if(TREND_DEFAULT_RESPS.some(d => opt.text.toLowerCase().includes(d.toLowerCase()))) {
+            opt.selected = true;
+            hasSelection = true;
+        }
+      });
+      // Fallback: select first response if default not found
+      if (!hasSelection && els.tResponse.options.length > 0) {
+          els.tResponse.options[0].selected = true;
+      }
+
+      // Select a subset of countries (e.g. first 10)
+      Array.from(els.tCountry.options).slice(0, 10).forEach(opt => opt.selected = true);
+      loadTrendData();
+    }
+    setStatus("");
+  }
+
+  els.tQuestion.addEventListener('change', () => loadTrendOptions(false));
+
+  async function loadTrendData() {
+    const q=els.tQuestion.value, w=els.tWeight.value;
+    const rs=Array.from(els.tResponse.selectedOptions).map(o=>o.value);
+    const cs=Array.from(els.tCountry.selectedOptions).map(o=>o.value);
+    if(!q||!w||!rs.length||!cs.length) return;
+    
+    setStatus("Loading trend data...");
+    let url = `${API_BASE}/trend?question=${encodeURIComponent(q)}&weight=${w}`;
+    rs.forEach(r=>url+=`&responses=${encodeURIComponent(r)}`); 
+    cs.forEach(c=>url+=`&countries=${encodeURIComponent(c)}`);
+    
+    const data = await fetchJson(url);
+    drawTrendChart(data, rs.join(", "));
+    setStatus("");
+  }
+
+  els.tResponse.addEventListener('change', loadTrendData);
+  els.tCountry.addEventListener('change', loadTrendData);
+
+  // --- CHART RENDERING ---
+  function checkLowBase(countries, getDataFn) {
+    const low = [];
+    countries.forEach(c => {
+      const d = getDataFn(c);
+      if (d && d.total_count < 300) low.push(`${c} (N=${d.total_count})`);
+    });
+    els.notes.innerHTML = low.length ? `<b>Note:</b> Low base size (<300): ${low.join(', ')}.` : "";
+  }
+
+  function renderChart() {
+    if(currentView==='bar') chartMode==='index' ? drawIndex() : drawBar();
+    else if(currentView==='map') drawMap();
+  }
+
+  function getTitle() { return els.question.options[els.question.selectedIndex]?.dataset.desc || ""; }
+
+  function drawBar() {
+    els.mapControls.classList.add('hidden');
+    const countries = [...new Set(currentData.map(r=>r.country_label))];
+    const answers = [...new Set(currentData.map(r=>r.value_label))];
+    checkLowBase(countries, c => currentData.find(r => r.country_label === c));
+
+    // Increased base height + larger multiplier per country
+    Highcharts.chart(els.container, {
+      chart: { type: 'bar', height: Math.max(800, countries.length * 40) },
+      title: { text: getTitle() },
+      xAxis: { categories: countries },
+      yAxis: { title: { text: '%' } },
+      plotOptions: { series: { stacking: 'normal' } },
+      tooltip: { pointFormatter: function() { return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y.toFixed(1)}%<br/>(N=${this.count}, Total=${this.total_count})<br/>`; } },
+      series: answers.map((ans, i) => ({ name: ans, color: barColor(i, answers.length), data: countries.map(c => { const r = currentData.find(x=>x.country_label===c && x.value_label===ans); return r ? { y:r.pct, count:r.count, total_count:r.total_count } : null; }) })),
+      credits: { enabled: false }
+    });
+  }
+
+  function drawIndex() {
+    els.mapControls.classList.add('hidden');
+    const data = computeIndex(currentData).sort((a,b)=>b.index-a.index);
+    checkLowBase(data.map(d=>d.country_label), c=>data.find(d=>d.country_label===c));
+
+    Highcharts.chart(els.container, {
+      chart: { type: 'column', height: 600 },
+      title: { text: getTitle() + " (Index)" },
+      xAxis: { categories: data.map(d=>d.country_label) },
+      yAxis: { title: { text: 'Mean' } },
+      series: [{ name: 'Index', color: '#355582', data: data.map(d => ({ y: d.index, total_count: d.total_count })) }],
+      tooltip: { pointFormatter: function() { return `<b>Index</b>: ${this.y.toFixed(1)}<br/>(Total N=${this.total_count})`; } },
+      credits: { enabled: false }
+    });
+  }
+
+  function drawMap() {
+    els.mapControls.classList.remove('hidden');
+    let data = [], subtitle = "";
+    if(chartMode==='index') {
+      const idx = computeIndex(currentData);
+      data = idx.map(r => ({ 'hc-key': getCountryKey(r.country_label), value: r.index, name: r.country_label, total_count: r.total_count }));
+      subtitle = "Index (Weighted Mean)";
+      checkLowBase(idx.map(r=>r.country_label), c=>idx.find(r=>r.country_label===c));
+    } else {
+      const sel = Array.from(els.response.selectedOptions).map(o=>o.value);
+      const countries = [...new Set(currentData.map(r=>r.country_label))];
+      data = countries.map(c => {
+        const rows = currentData.filter(r => r.country_label === c && sel.includes(r.value_label));
+        const total = rows.reduce((s, r) => s + r.pct, 0);
+        const totCount = rows.length ? rows[0].total_count : 0;
+        return { 'hc-key': getCountryKey(c), value: total, name: c, total_count: totCount };
+      });
+      subtitle = `Responses: ${sel.join(", ")}`;
+      checkLowBase(countries, c=>data.find(d=>d.name===c));
+    }
+
+    Highcharts.mapChart(els.container, {
+      chart: { map: 'custom/europe' },
+      title: { text: getTitle() },
+      subtitle: { text: subtitle },
+      mapNavigation: { enabled: true },
+      colorAxis: { min: Math.min(...data.map(d=>d.value)), max: Math.max(...data.map(d=>d.value)), stops: [[0,'#EFEFFF'],[0.5,'#355582'],[1,'#005F2F']] },
+      tooltip: { pointFormatter: function() { return `<b>${this.name}</b>: ${this.value.toFixed(1)}${chartMode==='proportion'?'%':''}<br/>(Total N=${this.total_count})`; } },
+      series: [{ data, name: 'Value', states: { hover: { color: '#BADA55' } } }],
+      credits: { enabled: false }
+    });
+  }
+
+  function drawTrendChart(data, label) {
+    const countries = [...new Set(data.map(d=>d.country))].sort();
+    const years = [...new Set(data.map(d=>d.year))].sort();
+    
+    const lowPoints = data.filter(d => d.total_count < 300);
+    if(lowPoints.length) {
+      const lowCs = [...new Set(lowPoints.map(d=>`${d.country} (${d.year})`))];
+      els.notes.innerHTML = `<b>Note:</b> Low base size (<300) in: ${lowCs.join(', ')}.`;
+    } else {
+      els.notes.innerHTML = "";
+    }
+
+    const series = countries.map(c => ({
+      name: c,
+      data: years.map(y => {
+        const d = data.find(x => x.country === c && x.year === y);
+        return d ? { y: d.value, count: d.count, total_count: d.total_count } : null;
+      })
+    }));
+
+    Highcharts.chart(els.container, {
+      title: { text: els.tQuestion.options[els.tQuestion.selectedIndex].text },
+      subtitle: { text: `Trend: ${label}` },
+      xAxis: { categories: years },
+      yAxis: { title: { text: '%' }, min: 0, max: 100 },
+      tooltip: { pointFormatter: function() { return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y.toFixed(1)}%<br/>(N=${this.count}, Total=${this.total_count})<br/>`; } },
+      series, credits: { enabled: false }
+    });
+  }
+
+  function setView(v) {
+    currentView = v;
+    els.tabs.forEach(t => t.classList.toggle('active', t.dataset.view === v));
+    els.stdControls.classList.toggle('hidden', v === 'trend');
+    els.trendControls.classList.toggle('hidden', v !== 'trend');
+    els.mapControls.classList.toggle('hidden', v !== 'map');
+    if(v === 'trend') initTrend(); else renderChart();
+  }
+
+  els.tabs.forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
+  init();
+</script>
+</body>
+</html>

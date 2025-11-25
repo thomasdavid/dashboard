@@ -69,29 +69,40 @@ print("--- DEBUG: Caching metadata...")
 _data_variables = set()
 _ecs_surveys = set()
 
+# Column Caches
+_cols_main_lower = set()
+_cols_main_map = {}
+_cols_ecs_lower = set()
+_cols_ecs_map = {}
+
 try:
-    # EWCS Vars
+    # EWCS Columns
     r = _con.execute("PRAGMA table_info(main_data)").fetchall()
-    cols = {x[1].lower() for x in r}
-    if 'question' in cols:
+    _cols_main_lower = {x[1].lower() for x in r}
+    _cols_main_map = {x[1].lower(): x[1] for x in r}
+    
+    if 'question' in _cols_main_lower:
         rows = _con.execute("SELECT DISTINCT question FROM main_data").fetchall()
         _data_variables.update({str(row[0]).lower() for row in rows})
     else:
-        _data_variables.update(cols)
+        _data_variables.update(_cols_main_lower)
         
-    # ECS Vars & Surveys
+    # ECS Columns & Surveys
     r_ecs = _con.execute("PRAGMA table_info(ecs_data)").fetchall()
-    ecs_cols = {x[1].lower() for x in r_ecs}
+    _cols_ecs_lower = {x[1].lower() for x in r_ecs}
+    _cols_ecs_map = {x[1].lower(): x[1] for x in r_ecs}
     
-    # Populate _ecs_surveys from data if possible
-    if 'survey' in ecs_cols:
+    if 'survey' in _cols_ecs_lower:
         s_rows = _con.execute("SELECT DISTINCT survey FROM ecs_data").fetchall()
         _ecs_surveys = {str(row[0]) for row in s_rows}
         print(f"--- DEBUG: ECS Surveys found in DB: {_ecs_surveys}")
         
-        if 'question' in ecs_cols:
+        if 'question' in _cols_ecs_lower:
              q_rows = _con.execute("SELECT DISTINCT question FROM ecs_data").fetchall()
              _data_variables.update({str(row[0]).lower() for row in q_rows})
+    
+    # If ECS table exists but survey column is missing, treat ECSR* keys as ECS manually
+    # (handled in _is_ecs)
 
 except Exception as e:
     print(f"!!! Metadata Cache Error: {e}")
@@ -148,7 +159,6 @@ def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
     return m if m else fetch(None)
 
 def _is_ecs(survey: str) -> bool:
-    # Check both the DB cache and the name pattern
     return survey in _ecs_surveys or survey.upper().startswith("ECSR")
 
 # ---------------------------------------------------------------------
@@ -174,30 +184,23 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
     except: return []
 
 def list_weights_for_survey(survey: str) -> List[str]:
-    # Fix: Check string pattern if _ecs_surveys is empty
     if _is_ecs(survey):
         return ["emp_wei", "est_wei"]
-    
     try:
-        r = _con.execute("PRAGMA table_info(main_data)").fetchall()
-        cols = [x[1] for x in r]
+        # Use cached EWCS cols
+        cols = _cols_main_map.values()
         return sorted([c for c in cols if c.lower().startswith('w') and c != 'wave'])
     except: return []
 
 def get_survey_categories(survey: str) -> List[str]:
     is_ecs = _is_ecs(survey)
-    table = "ecs_data" if is_ecs else "main_data"
+    table_cols = _cols_ecs_lower if is_ecs else _cols_main_lower
     candidates = ECS_CATEGORIES if is_ecs else EWCS_CATEGORIES
     
     valid = []
-    try:
-        # Check columns exist in table
-        t_info = _con.execute(f"PRAGMA table_info({table})").fetchall()
-        t_cols = {x[1].lower() for x in t_info}
-        for cat in candidates:
-            if cat.lower() in t_cols:
-                valid.append(cat)
-    except: pass
+    for cat in candidates:
+        if cat.lower() in table_cols:
+            valid.append(cat)
     return valid
 
 def weighted_pct(
@@ -213,6 +216,9 @@ def weighted_pct(
     # 1. Setup
     is_ecs = _is_ecs(survey)
     table = "ecs_data" if is_ecs else "main_data"
+    # Select correct column set for existence checks
+    cols_lower = _cols_ecs_lower if is_ecs else _cols_main_lower
+    cols_map = _cols_ecs_map if is_ecs else _cols_main_map
     
     # Resolve Label
     act_var, q_desc, orig_q = None, question, None
@@ -230,37 +236,35 @@ def weighted_pct(
     cat_sql = ""
     cat_p = []
     if category_group and category_value:
-        try:
-            # Check if cat col exists
-            _con.execute(f"SELECT {category_group} FROM {table} LIMIT 0")
-            # Using CAST handles both float and int columns
+        if category_group.lower() in cols_lower:
             cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
             cat_p = [int(category_value)]
-        except: pass
 
     # Query
-    try:
-        # Check Wide
-        _con.execute(f"SELECT \"{act_var}\" FROM {table} LIMIT 0")
-        sql = f"""
-            SELECT country, "{act_var}" as val, SUM({weight}) as w_sum, COUNT(*) as count
-            FROM {table} WHERE survey = ? AND "{act_var}" IS NOT NULL {cat_sql}
-            GROUP BY 1, 2
-        """
-        df = _con.execute(sql, [survey] + cat_p).fetchdf()
-    except:
-        # Try Long (Fix: Case-insensitive question match)
+    # Strategy A: Wide (Variable is a column in the target table)
+    if act_var.lower() in cols_lower:
+        col_name = cols_map[act_var.lower()]
+        try:
+            sql = f"""
+                SELECT country, "{col_name}" as val, SUM({weight}) as w_sum, COUNT(*) as count
+                FROM {table} WHERE survey = ? AND "{col_name}" IS NOT NULL {cat_sql}
+                GROUP BY 1, 2
+            """
+            df = _con.execute(sql, [survey] + cat_p).fetchdf()
+        except Exception as e:
+            print(f"Wide Query Failed: {e}")
+
+    # Strategy B: Long (Question is a value in 'question' column)
+    elif 'question' in cols_lower and 'value' in cols_lower:
         try:
             sql = f"""
                 SELECT country, value as val, SUM({weight}) as w_sum, COUNT(*) as count
-                FROM {table} 
-                WHERE survey = ? AND LOWER(question) = LOWER(?) AND value IS NOT NULL {cat_sql}
+                FROM {table} WHERE survey = ? AND LOWER(question) = LOWER(?) AND value IS NOT NULL {cat_sql}
                 GROUP BY 1, 2
             """
             df = _con.execute(sql, [survey, act_var] + cat_p).fetchdf()
         except Exception as e:
-             # print(f"Query failed: {e}")
-             pass
+            print(f"Long Query Failed: {e}")
 
     if df.empty: return [], q_desc
 
@@ -269,8 +273,7 @@ def weighted_pct(
     if not val_map and orig_q:
         val_map = _build_value_labels(survey, orig_q)
         if not val_map: val_map = _build_value_labels(survey, f"q{orig_q}")
-        if not val_map: val_map = _build_value_labels(survey, f"Q{orig_q}")
-
+    
     # Exclude non-response
     excl = ["dk", "dont know", "don't know", "na", "prefer not", "refusal", "no answer"]
     bad_vals = {v for v, l in val_map.items() if any(x in str(l).lower() for x in excl)}

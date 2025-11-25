@@ -217,6 +217,9 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
         return []
 
 def list_questions_for_survey(survey: str) -> List[Dict[str, Any]]:
+    """
+    Returns list of questions for a survey that exist in the data.
+    """
     q = """
         SELECT Variable, "Short", Question 
         FROM dashboard_labels
@@ -230,9 +233,9 @@ def list_questions_for_survey(survey: str) -> List[Dict[str, Any]]:
             var_code = r[0]
             if var_code and var_code.lower() in _data_variables:
                 valid_questions.append({
-                    "id": var_code,
-                    "label": r[1],
-                    "description": r[2]
+                    "id": var_code,      # ID is now the Variable Code (robust)
+                    "label": r[1],       # Label is Short text
+                    "description": r[2]  # Description is Full text
                 })
         return valid_questions
     except Exception:
@@ -299,7 +302,6 @@ def weighted_pct(
     
     if category_group and category_value:
         if category_group.lower() in _cols_main_lower:
-            # CAST to INTEGER handles float values (1.0) in the database
             cat_filter_sql = f" AND CAST({category_group} AS INTEGER) = ?"
             cat_params = [int(category_value)]
         else:
@@ -414,7 +416,7 @@ def get_trend_data(
     category_value: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     
-    # Resolve variable from short label (or use as is)
+    # Resolve variable from short label
     var_code = question_short
     try:
         res = _con.execute("""
@@ -426,7 +428,7 @@ def get_trend_data(
     except:
         pass
 
-    # Find surveys having this variable (filtered by actual data existence)
+    # Find surveys having this variable
     q = """
         SELECT DISTINCT Survey 
         FROM dashboard_labels 
@@ -474,4 +476,14 @@ def get_trend_data(
                 country_aggs[c_label]["total_count"] = row["total_count"]
         
         for c_label, agg in country_aggs.items():
-            if agg["total
+            if agg["total_count"] > 0: 
+                results.append({
+                    "survey": survey,
+                    "year": year,
+                    "country": c_label,
+                    "value": agg["value"],
+                    "count": agg["count"],
+                    "total_count": agg["total_count"]
+                })
+            
+    return results

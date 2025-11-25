@@ -13,6 +13,7 @@ from .service_duckdb import (
     list_questions_for_survey,
     list_longitudinal_questions,
     list_weights_for_survey,
+    get_survey_categories,  # NEW
     weighted_pct,
     get_trend_data
 )
@@ -38,6 +39,10 @@ class QuestionOut(BaseModel):
     description: Optional[str] = None
 
 class Weight(BaseModel):
+    id: str
+    label: str
+
+class CategoryInfo(BaseModel):
     id: str
     label: str
 
@@ -103,6 +108,15 @@ def get_weights(survey: str):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return [Weight(id=w, label=w) for w in weights]
 
+# NEW ENDPOINT: Get available categories for a survey
+@app.get("/categories/{survey}", response_model=List[CategoryInfo])
+def get_categories(survey: str):
+    try:
+        cats = get_survey_categories(survey)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return [CategoryInfo(id=c, label=c) for c in cats]
+
 @app.get("/weighted", response_model=WeightedResponse)
 def get_weighted(
     survey: str,
@@ -110,7 +124,6 @@ def get_weighted(
     weight: str,
     max_countries: int = 9999,
     min_pct: float = 0.0,
-    # NEW PARAMS
     category_group: Optional[str] = None,
     category_value: Optional[str] = None,
 ):
@@ -132,7 +145,6 @@ def get_trend(
     weight: str,
     responses: List[str] = Query(...),
     countries: Optional[List[str]] = Query(None),
-    # NEW PARAMS
     category_group: Optional[str] = Query(None),
     category_value: Optional[str] = Query(None),
 ):

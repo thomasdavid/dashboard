@@ -39,47 +39,23 @@ print(f"--- Loading DuckDB with data from: {DATA_FILE}")
 _con = duckdb.connect(database=":memory:")
 
 # 1. Load Main Data
-import glob
-data_pattern = str(DATA_FILE).replace("data.parquet", "split_*.parquet")
-
-print(f"--- Loading DuckDB with data pattern: {data_pattern}")
-
 _con.execute(f"""
     CREATE OR REPLACE VIEW main_data AS
-    SELECT * FROM read_parquet('{data_pattern}');
+    SELECT * FROM read_parquet('{DATA_FILE}');
 """)
 
-# --- CACHE AVAILABLE VARIABLES FOR FILTERING ---
-# This ensures we only show questions in the dropdown that actually have data.
-print("--- DEBUG: Caching available data variables...")
-_data_variables = set()
-
+# Cache columns
 try:
     _cols_info = _con.execute("PRAGMA table_info(main_data)").fetchall()
     _cols_main_lower = {row[1].lower() for row in _cols_info}
     _cols_map = {row[1].lower(): row[1] for row in _cols_info}
-
-    # Check if Long or Wide format
-    if 'question' in _cols_main_lower and 'value' in _cols_main_lower:
-        print("--- DEBUG: Dataset detected as LONG format. Scanning distinct questions...")
-        # Fetch all unique values from the 'question' column
-        # This might take a moment for very large datasets
-        rows = _con.execute("SELECT DISTINCT question FROM main_data").fetchall()
-        _data_variables = {str(r[0]).lower() for r in rows}
-    else:
-        print("--- DEBUG: Dataset detected as WIDE format.")
-        # In wide format, the column names are the variables
-        _data_variables = _cols_main_lower
-
-    print(f"--- DEBUG: Found {len(_data_variables)} active variables in the dataset.")
-
+    print(f"--- DEBUG: Loaded {len(_cols_main_lower)} columns in main_data.")
 except Exception as e:
-    print(f"!!! Error inspecting data variables: {e}")
+    print(f"!!! Error inspecting main_data columns: {e}")
     _cols_main_lower = set()
     _cols_map = {}
-# ------------------------------------------------
 
-# 2. Load Labels (Question Metadata)
+# 2. Load Labels
 print(f"--- Loading Labels from: {LABELS_FILE}")
 try:
     _con.execute(f"""
@@ -180,9 +156,6 @@ def list_surveys() -> List[Tuple[str, str]]:
         return []
 
 def list_longitudinal_questions() -> List[Dict[str, Any]]:
-    """
-    Returns questions that appear in more than one survey AND exist in the data.
-    """
     q = """
         SELECT 
             Variable, 
@@ -199,22 +172,20 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
         valid_questions = []
         for r in rows:
             var_code = r[0]
-            # FILTER: Only include if variable is in the data
-            if var_code and var_code.lower() in _data_variables:
+            if var_code and var_code.lower() in _cols_main_lower:
                 valid_questions.append({
                     "id": var_code,
                     "label": r[1],
                     "description": r[2]
                 })
+            # Also check if it exists in long format question list (optimization skipped for speed)
+            # For now, assuming if variable code matches, we are good.
         return valid_questions
     except Exception as e:
         print(f"Error listing longitudinal questions: {e}")
         return []
 
 def list_questions_for_survey(survey: str) -> List[Dict[str, Any]]:
-    """
-    Returns list of questions for a survey that exist in the data.
-    """
     q = """
         SELECT Variable, "Short", Question 
         FROM dashboard_labels
@@ -223,23 +194,11 @@ def list_questions_for_survey(survey: str) -> List[Dict[str, Any]]:
     """
     try:
         rows = _con.execute(q, [survey]).fetchall()
-        valid_questions = []
-        for r in rows:
-            var_code = r[0]
-            # FILTER: Only include if variable is in the data
-            if var_code and var_code.lower() in _data_variables:
-                valid_questions.append({
-                    "id": var_code,      # ID is now the Variable Code (robust)
-                    "label": r[1],       # Label is Short text
-                    "description": r[2]  # Description is Full text
-                })
-        return valid_questions
+        return [{"id": r[0], "label": r[1], "description": r[2]} for r in rows]
     except Exception:
         return []
 
 def list_weights_for_survey(survey: str) -> List[str]:
-    # Weights are always columns, even in Long format datasets usually
-    # We scan _cols_map for columns starting with 'w'
     all_cols = sorted([val for key, val in _cols_map.items()])
     return sorted([c for c in all_cols if c.lower().startswith('w') and c != 'wave'])
 
@@ -249,17 +208,16 @@ def weighted_pct(
     weight: str,
     max_countries: int = 9999,
     min_pct: float = 0.0,
+    category_group: Optional[str] = None,
+    category_value: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], str]:
     
     # 1. Resolve Labels
-    # If 'question' is a Variable code (from our updated dropdowns), lookup is fast.
-    # If it's a Short Label (legacy), we resolve it.
     actual_variable = None
     original_question_num = None
     q_label_text = question
 
     try:
-        # Check if input is a Variable Code first
         lookup_var_sql = """
             SELECT Variable, Question, "Question Number"
             FROM dashboard_labels 
@@ -273,7 +231,6 @@ def weighted_pct(
             q_label_text = res[1]
             original_question_num = str(res[2]) if res[2] else None
         else:
-            # Try matching "Short" label
             lookup_short_sql = """
                 SELECT Variable, Question, "Question Number"
                 FROM dashboard_labels 
@@ -294,6 +251,20 @@ def weighted_pct(
     # 2. Query Data
     df = pd.DataFrame()
     
+    # Build Category Filter
+    cat_filter_sql = ""
+    cat_params = []
+    
+    if category_group and category_value:
+        # Ensure column exists
+        if category_group.lower() in _cols_main_lower:
+            # Use CAST to INTEGER to handle float storage (1.0 -> 1)
+            cat_filter_sql = f" AND CAST({category_group} AS INTEGER) = ?"
+            cat_params = [int(category_value)]
+        else:
+            print(f"Warning: Category column {category_group} not found.")
+
+    # Wide Format
     if actual_variable.lower() in _cols_main_lower:
         col_name = _cols_map[actual_variable.lower()]
         sql = f"""
@@ -304,13 +275,16 @@ def weighted_pct(
                 COUNT(*) as count
             FROM main_data
             WHERE survey = ? AND "{col_name}" IS NOT NULL
+            {cat_filter_sql}
             GROUP BY 1, 2
         """
         try:
-            df = _con.execute(sql, [survey]).fetchdf()
-        except:
+            df = _con.execute(sql, [survey] + cat_params).fetchdf()
+        except Exception as e:
+            print(f"Query failed: {e}")
             pass 
 
+    # Long Format
     elif 'question' in _cols_main_lower and 'value' in _cols_main_lower:
         sql = f"""
             SELECT 
@@ -320,11 +294,13 @@ def weighted_pct(
                 COUNT(*) as count
             FROM main_data
             WHERE survey = ? AND question = ? AND value IS NOT NULL
+            {cat_filter_sql}
             GROUP BY 1, 2
         """
         try:
-            df = _con.execute(sql, [survey, actual_variable]).fetchdf()
-        except:
+            df = _con.execute(sql, [survey, actual_variable] + cat_params).fetchdf()
+        except Exception as e:
+            print(f"Query failed: {e}")
             pass
 
     if df.empty:
@@ -389,14 +365,15 @@ def weighted_pct(
     return rows, q_label_text
 
 def get_trend_data(
-    question_short: str, # Can be Short Label or Variable
+    question_short: str,
     weight: str,
     response_labels: List[str],
-    countries: Optional[List[str]] = None
+    countries: Optional[List[str]] = None,
+    category_group: Optional[str] = None,
+    category_value: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     
-    # Identify variable from Short Label (if passed) or use directly
-    # We need the Variable code to query the data
+    # Resolve variable from short label
     var_code = question_short
     try:
         res = _con.execute("""
@@ -408,7 +385,7 @@ def get_trend_data(
     except:
         pass
 
-    # Find all surveys that have this Variable
+    # Find surveys having this variable
     q = """
         SELECT DISTINCT Survey 
         FROM dashboard_labels 
@@ -423,7 +400,11 @@ def get_trend_data(
         year = SURVEY_YEARS.get(survey, survey)
         
         try:
-            rows, _ = weighted_pct(survey, var_code, weight)
+            rows, _ = weighted_pct(
+                survey, var_code, weight, 
+                category_group=category_group, 
+                category_value=category_value
+            )
         except:
             continue 
             

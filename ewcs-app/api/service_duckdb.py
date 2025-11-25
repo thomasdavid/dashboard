@@ -35,49 +35,35 @@ EWCS_CATEGORIES = ['agesex', 'isco']
 # Initialise DuckDB
 # ---------------------------------------------------------------------
 
-print(f"--- Initialising In-Memory Database...")
+print(f"--- Initialising DuckDB...")
 _con = duckdb.connect(database=":memory:")
 
-# 1. Load EWCS Data (Ingest into Memory)
+# 1. Load EWCS Data -> VIEW (Saves RAM)
 if os.path.exists(DATA_FILE):
-    print(f"--- Ingesting EWCS data from: {DATA_FILE}")
+    print(f"--- Linking EWCS data: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
 else:
     ewcs_path = str(DATA_FILE).replace("data.parquet", "split_*.parquet")
-    print(f"--- Ingesting EWCS split data from: {ewcs_path}")
+    print(f"--- Linking EWCS split data: {ewcs_path}")
 
 try:
-    # OPTIMIZATION: Use CREATE TABLE instead of VIEW to load data into RAM
-    _con.execute(f"CREATE OR REPLACE TABLE main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
-    
-    # OPTIMIZATION: Create Indices for faster filtering
-    print("--- Indexing EWCS data...")
-    cols = [r[1] for r in _con.execute("PRAGMA table_info(main_data)").fetchall()]
-    if 'survey' in cols: _con.execute("CREATE INDEX idx_ewcs_survey ON main_data(survey)")
-    if 'question' in cols: _con.execute("CREATE INDEX idx_ewcs_question ON main_data(question)")
-    
+    # USE VIEW: Reads from disk on demand. Slower query, but won't crash RAM.
+    _con.execute(f"CREATE OR REPLACE VIEW main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
 except Exception as e:
-    print(f"!!! Error loading EWCS data: {e}")
-    _con.execute("CREATE OR REPLACE TABLE main_data AS SELECT 1 as dummy")
+    print(f"!!! Error linking EWCS data: {e}")
+    _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# 2. Load ECS Data (Ingest into Memory)
+# 2. Load ECS Data -> VIEW (Saves RAM)
 if os.path.exists(ECS_DATA_FILE):
-    print(f"--- Ingesting ECS data from: {ECS_DATA_FILE}")
+    print(f"--- Linking ECS data: {ECS_DATA_FILE}")
     try:
-        _con.execute(f"CREATE OR REPLACE TABLE ecs_data AS SELECT * FROM read_parquet('{ECS_DATA_FILE}');")
-        
-        # OPTIMIZATION: Create Indices
-        print("--- Indexing ECS data...")
-        ecs_cols = [r[1] for r in _con.execute("PRAGMA table_info(ecs_data)").fetchall()]
-        if 'survey' in ecs_cols: _con.execute("CREATE INDEX idx_ecs_survey ON ecs_data(survey)")
-        if 'question' in ecs_cols: _con.execute("CREATE INDEX idx_ecs_question ON ecs_data(question)")
-        
+        _con.execute(f"CREATE OR REPLACE VIEW ecs_data AS SELECT * FROM read_parquet('{ECS_DATA_FILE}');")
     except Exception as e:
-        print(f"!!! Error loading ECS data: {e}")
-        _con.execute("CREATE OR REPLACE TABLE ecs_data AS SELECT 1 as dummy")
+        print(f"!!! Error linking ECS data: {e}")
+        _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
-    _con.execute("CREATE OR REPLACE TABLE ecs_data AS SELECT 1 as dummy")
+    _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 
 # --- CACHE METADATA ---
 print("--- DEBUG: Caching metadata...")
@@ -122,16 +108,16 @@ try:
 except Exception as e:
     print(f"!!! Metadata Cache Error: {e}")
 
-# 3. Labels (Load into Memory Tables)
+# 3. Labels -> TABLE (Small enough for RAM, speeds up UI)
 try:
     _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
     _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
     _con.execute("CREATE INDEX idx_labels_var ON dashboard_labels(Variable)")
 except: pass
 
+# 4. Response Labels -> TABLE (Small enough for RAM)
 try:
     _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
-    # Indexing response labels significantly speeds up the 'value_label' lookup
     _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")
 except: pass
 
@@ -139,21 +125,32 @@ except: pass
 # Country Map
 # ---------------------------------------------------------------------
 COUNTRY_MAP = {}
+GLOBAL_COUNTRY_MAP = {}
+
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
     if 'value' in cdf.columns and 'label' in cdf.columns:
+        has_survey = 'survey' in cdf.columns
         for _, row in cdf.iterrows():
-            try: COUNTRY_MAP[int(row["value"])] = row["label"]
+            try: 
+                val_id = int(row["value"])
+                lbl = row["label"]
+                GLOBAL_COUNTRY_MAP[val_id] = lbl
+                if has_survey and pd.notna(row['survey']):
+                    COUNTRY_MAP[(str(row['survey']).strip(), val_id)] = lbl
             except: continue
-except: pass
+except Exception as e:
+    print(f"!!! Error loading Country Map: {e}")
 
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
 
 def _map_country_label(survey: str, code: int) -> str:
-    return COUNTRY_MAP.get(code, str(code))
+    if (survey, code) in COUNTRY_MAP: return COUNTRY_MAP[(survey, code)]
+    if code in GLOBAL_COUNTRY_MAP: return GLOBAL_COUNTRY_MAP[code]
+    return str(code)
 
 def _normalize_val(val: Any) -> str:
     try:
@@ -171,7 +168,6 @@ def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
             wc += " AND survey = ?"
             p.append(srv)
         try:
-            # Query from memory table
             rows = _con.execute(f"SELECT value, value_label FROM response_labels WHERE {wc}", p).fetchall()
             return {_normalize_val(r[0]): r[1] for r in rows}
         except: return {}
@@ -231,7 +227,6 @@ def weighted_pct(
     category_value: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], str]:
     
-    # 1. Setup
     is_ecs = _is_ecs(survey)
     table = "ecs_data" if is_ecs else "main_data"
     cols_lower = _cols_ecs_lower if is_ecs else _cols_main_lower
@@ -256,7 +251,6 @@ def weighted_pct(
             cat_p = [int(category_value)]
 
     cntry_col = cols_map.get('country', 'country')
-
     survey_candidates = [survey]
     if survey in SURVEY_YEARS:
         y = SURVEY_YEARS[survey]
@@ -315,7 +309,7 @@ def weighted_pct(
     df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, int(x)))
     df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
     
-    # SORTING: By val (numeric)
+    # SORTING: Numeric val for consistency
     df = df.sort_values(["country_label", "val"])
     
     rows = []

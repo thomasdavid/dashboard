@@ -35,34 +35,49 @@ EWCS_CATEGORIES = ['agesex', 'isco']
 # Initialise DuckDB
 # ---------------------------------------------------------------------
 
-print(f"--- Loading DuckDB...")
+print(f"--- Initialising In-Memory Database...")
 _con = duckdb.connect(database=":memory:")
 
-# 1. Load EWCS Data
+# 1. Load EWCS Data (Ingest into Memory)
 if os.path.exists(DATA_FILE):
-    print(f"--- Loading EWCS data: {DATA_FILE}")
+    print(f"--- Ingesting EWCS data from: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
 else:
     ewcs_path = str(DATA_FILE).replace("data.parquet", "split_*.parquet")
-    print(f"--- Loading EWCS split: {ewcs_path}")
+    print(f"--- Ingesting EWCS split data from: {ewcs_path}")
 
 try:
-    _con.execute(f"CREATE OR REPLACE VIEW main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
+    # OPTIMIZATION: Use CREATE TABLE instead of VIEW to load data into RAM
+    _con.execute(f"CREATE OR REPLACE TABLE main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
+    
+    # OPTIMIZATION: Create Indices for faster filtering
+    print("--- Indexing EWCS data...")
+    cols = [r[1] for r in _con.execute("PRAGMA table_info(main_data)").fetchall()]
+    if 'survey' in cols: _con.execute("CREATE INDEX idx_ewcs_survey ON main_data(survey)")
+    if 'question' in cols: _con.execute("CREATE INDEX idx_ewcs_question ON main_data(question)")
+    
 except Exception as e:
     print(f"!!! Error loading EWCS data: {e}")
-    _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
+    _con.execute("CREATE OR REPLACE TABLE main_data AS SELECT 1 as dummy")
 
-# 2. Load ECS Data
+# 2. Load ECS Data (Ingest into Memory)
 if os.path.exists(ECS_DATA_FILE):
-    print(f"--- Loading ECS data: {ECS_DATA_FILE}")
+    print(f"--- Ingesting ECS data from: {ECS_DATA_FILE}")
     try:
-        _con.execute(f"CREATE OR REPLACE VIEW ecs_data AS SELECT * FROM read_parquet('{ECS_DATA_FILE}');")
+        _con.execute(f"CREATE OR REPLACE TABLE ecs_data AS SELECT * FROM read_parquet('{ECS_DATA_FILE}');")
+        
+        # OPTIMIZATION: Create Indices
+        print("--- Indexing ECS data...")
+        ecs_cols = [r[1] for r in _con.execute("PRAGMA table_info(ecs_data)").fetchall()]
+        if 'survey' in ecs_cols: _con.execute("CREATE INDEX idx_ecs_survey ON ecs_data(survey)")
+        if 'question' in ecs_cols: _con.execute("CREATE INDEX idx_ecs_question ON ecs_data(question)")
+        
     except Exception as e:
         print(f"!!! Error loading ECS data: {e}")
-        _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
+        _con.execute("CREATE OR REPLACE TABLE ecs_data AS SELECT 1 as dummy")
 else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
-    _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
+    _con.execute("CREATE OR REPLACE TABLE ecs_data AS SELECT 1 as dummy")
 
 # --- CACHE METADATA ---
 print("--- DEBUG: Caching metadata...")
@@ -107,62 +122,38 @@ try:
 except Exception as e:
     print(f"!!! Metadata Cache Error: {e}")
 
-# 3. Labels
+# 3. Labels (Load into Memory Tables)
 try:
-    _con.execute(f"CREATE OR REPLACE VIEW dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
+    _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
+    _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
+    _con.execute("CREATE INDEX idx_labels_var ON dashboard_labels(Variable)")
 except: pass
 
 try:
-    _con.execute(f"CREATE OR REPLACE VIEW response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
+    _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
+    # Indexing response labels significantly speeds up the 'value_label' lookup
+    _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")
 except: pass
 
 # ---------------------------------------------------------------------
-# Country Map (Survey-Aware)
+# Country Map
 # ---------------------------------------------------------------------
-COUNTRY_MAP = {}        # (Survey, ID) -> Label
-GLOBAL_COUNTRY_MAP = {} # ID -> Label (Fallback)
-
+COUNTRY_MAP = {}
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
-    
     if 'value' in cdf.columns and 'label' in cdf.columns:
-        has_survey = 'survey' in cdf.columns
-        
         for _, row in cdf.iterrows():
-            try:
-                val_id = int(row["value"])
-                lbl = row["label"]
-                
-                # Populate Global Map
-                GLOBAL_COUNTRY_MAP[val_id] = lbl
-                
-                # Populate Survey-Specific Map
-                if has_survey and pd.notna(row['survey']):
-                    srv = str(row['survey']).strip()
-                    COUNTRY_MAP[(srv, val_id)] = lbl
-            except: 
-                continue
-            
-    print(f"--- DEBUG: Loaded {len(COUNTRY_MAP)} specific and {len(GLOBAL_COUNTRY_MAP)} global country codes.")
-except Exception as e:
-    print(f"!!! Error loading Country Map: {e}")
+            try: COUNTRY_MAP[int(row["value"])] = row["label"]
+            except: continue
+except: pass
 
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
 
 def _map_country_label(survey: str, code: int) -> str:
-    # 1. Try specific survey map
-    if (survey, code) in COUNTRY_MAP:
-        return COUNTRY_MAP[(survey, code)]
-    
-    # 2. Try global map (fallback)
-    if code in GLOBAL_COUNTRY_MAP:
-        return GLOBAL_COUNTRY_MAP[code]
-        
-    # 3. Return code as string
-    return str(code)
+    return COUNTRY_MAP.get(code, str(code))
 
 def _normalize_val(val: Any) -> str:
     try:
@@ -180,6 +171,7 @@ def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
             wc += " AND survey = ?"
             p.append(srv)
         try:
+            # Query from memory table
             rows = _con.execute(f"SELECT value, value_label FROM response_labels WHERE {wc}", p).fetchall()
             return {_normalize_val(r[0]): r[1] for r in rows}
         except: return {}
@@ -264,7 +256,7 @@ def weighted_pct(
             cat_p = [int(category_value)]
 
     cntry_col = cols_map.get('country', 'country')
-    
+
     survey_candidates = [survey]
     if survey in SURVEY_YEARS:
         y = SURVEY_YEARS[survey]
@@ -273,7 +265,7 @@ def weighted_pct(
 
     for s_cand in survey_candidates:
         try:
-            # Wide
+            # Strategy A: Wide
             if act_var.lower() in cols_lower:
                 col_name = cols_map[act_var.lower()]
                 sql = f"""
@@ -284,7 +276,7 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand] + cat_p).fetchdf()
 
-            # Long
+            # Strategy B: Long
             elif 'question' in cols_lower and 'value' in cols_lower:
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST(value AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
@@ -320,9 +312,7 @@ def weighted_pct(
     
     if min_pct: df = df[df["pct"] >= min_pct]
     
-    # Use standard Country Map
     df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, int(x)))
-    
     df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
     
     # SORTING: By val (numeric)

@@ -19,10 +19,6 @@ from .service_duckdb import (
 
 app = FastAPI(title="EWCS prototype API")
 
-# ---------------------------------------------------------------------------
-# CORS
-# ---------------------------------------------------------------------------
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -31,10 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------------------------
-# Models
-# ---------------------------------------------------------------------------
-
+# --- Models ---
 class Survey(BaseModel):
     id: str
     label: str
@@ -69,18 +62,10 @@ class TrendPoint(BaseModel):
     count: int
     total_count: int
 
-# ---------------------------------------------------------------------------
-# Endpoints
-# ---------------------------------------------------------------------------
+# --- Endpoints ---
 
 @app.get("/")
 async def read_index():
-    # Serves the index1.html from the sibling 'web' folder
-    # Structure:
-    # dashboard/
-    #   ewcs-app/
-    #     api/main.py
-    #     web/index1.html
     file_path = os.path.join(os.path.dirname(__file__), "../web/index1.html")
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Index file not found")
@@ -125,9 +110,16 @@ def get_weighted(
     weight: str,
     max_countries: int = 9999,
     min_pct: float = 0.0,
+    # NEW PARAMS
+    category_group: Optional[str] = None,
+    category_value: Optional[str] = None,
 ):
     try:
-        rows, q_label = weighted_pct(survey, question, weight, max_countries, min_pct)
+        rows, q_label = weighted_pct(
+            survey, question, weight, 
+            max_countries, min_pct, 
+            category_group, category_value
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
@@ -139,10 +131,16 @@ def get_trend(
     question: str,
     weight: str,
     responses: List[str] = Query(...),
-    countries: Optional[List[str]] = Query(None)
+    countries: Optional[List[str]] = Query(None),
+    # NEW PARAMS
+    category_group: Optional[str] = Query(None),
+    category_value: Optional[str] = Query(None),
 ):
     try:
-        data = get_trend_data(question, weight, responses, countries)
+        data = get_trend_data(
+            question, weight, responses, countries,
+            category_group, category_value
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     return data

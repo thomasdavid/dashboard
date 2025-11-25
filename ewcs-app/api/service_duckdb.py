@@ -117,23 +117,34 @@ try:
 except: pass
 
 # ---------------------------------------------------------------------
-# Country Map
+# Country Map (Survey-Aware)
 # ---------------------------------------------------------------------
-COUNTRY_MAP = {}
+COUNTRY_MAP = {}        # (Survey, ID) -> Label
+GLOBAL_COUNTRY_MAP = {} # ID -> Label (Fallback)
+
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
     
-    # The user's file has 'value' and 'label'
     if 'value' in cdf.columns and 'label' in cdf.columns:
+        has_survey = 'survey' in cdf.columns
+        
         for _, row in cdf.iterrows():
-            try: 
-                # Map Integer Value -> Label (Full Name)
-                # We iterate all rows, so if ECSR2 adds new codes (32, 63), they get added to the global map.
-                COUNTRY_MAP[int(row["value"])] = row["label"]
-            except: continue
+            try:
+                val_id = int(row["value"])
+                lbl = row["label"]
+                
+                # Populate Global Map
+                GLOBAL_COUNTRY_MAP[val_id] = lbl
+                
+                # Populate Survey-Specific Map
+                if has_survey and pd.notna(row['survey']):
+                    srv = str(row['survey']).strip()
+                    COUNTRY_MAP[(srv, val_id)] = lbl
+            except: 
+                continue
             
-    print(f"--- DEBUG: Loaded {len(COUNTRY_MAP)} country codes.")
+    print(f"--- DEBUG: Loaded {len(COUNTRY_MAP)} specific and {len(GLOBAL_COUNTRY_MAP)} global country codes.")
 except Exception as e:
     print(f"!!! Error loading Country Map: {e}")
 
@@ -142,8 +153,16 @@ except Exception as e:
 # ---------------------------------------------------------------------
 
 def _map_country_label(survey: str, code: int) -> str:
-    # Just use the global map derived from country.csv
-    return COUNTRY_MAP.get(code, str(code))
+    # 1. Try specific survey map
+    if (survey, code) in COUNTRY_MAP:
+        return COUNTRY_MAP[(survey, code)]
+    
+    # 2. Try global map (fallback)
+    if code in GLOBAL_COUNTRY_MAP:
+        return GLOBAL_COUNTRY_MAP[code]
+        
+    # 3. Return code as string
+    return str(code)
 
 def _normalize_val(val: Any) -> str:
     try:
@@ -237,8 +256,6 @@ def weighted_pct(
 
     # 2. Build Query
     df = pd.DataFrame()
-    
-    # Category Filter
     cat_sql = ""
     cat_p = []
     if category_group and category_value:
@@ -247,7 +264,7 @@ def weighted_pct(
             cat_p = [int(category_value)]
 
     cntry_col = cols_map.get('country', 'country')
-
+    
     survey_candidates = [survey]
     if survey in SURVEY_YEARS:
         y = SURVEY_YEARS[survey]
@@ -256,10 +273,9 @@ def weighted_pct(
 
     for s_cand in survey_candidates:
         try:
-            # Strategy A: Wide
+            # Wide
             if act_var.lower() in cols_lower:
                 col_name = cols_map[act_var.lower()]
-                # Case numeric values to float for sorting
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST("{col_name}" AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
                     FROM {table} 
@@ -268,7 +284,7 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand] + cat_p).fetchdf()
 
-            # Strategy B: Long
+            # Long
             elif 'question' in cols_lower and 'value' in cols_lower:
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST(value AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
@@ -278,10 +294,8 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand, act_var] + cat_p).fetchdf()
             
-            if not df.empty:
-                break
-        except Exception:
-            pass
+            if not df.empty: break
+        except Exception: pass
 
     if df.empty: return [], q_desc
 
@@ -306,7 +320,7 @@ def weighted_pct(
     
     if min_pct: df = df[df["pct"] >= min_pct]
     
-    # Apply Country Labels from Global Map
+    # Use standard Country Map
     df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, int(x)))
     
     df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))

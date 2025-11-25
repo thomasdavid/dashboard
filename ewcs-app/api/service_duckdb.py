@@ -28,7 +28,6 @@ SURVEY_YEARS = {
     "ECSR1": 2004, "ECSR2": 2009, "ECSR3": 2013, "ECSR4": 2019
 }
 
-# Potential Category Columns in ECS
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
 EWCS_CATEGORIES = ['agesex', 'isco']
 
@@ -83,10 +82,12 @@ try:
     # ECS Vars & Surveys
     r_ecs = _con.execute("PRAGMA table_info(ecs_data)").fetchall()
     ecs_cols = {x[1].lower() for x in r_ecs}
+    
+    # Populate _ecs_surveys from data if possible
     if 'survey' in ecs_cols:
         s_rows = _con.execute("SELECT DISTINCT survey FROM ecs_data").fetchall()
         _ecs_surveys = {str(row[0]) for row in s_rows}
-        print(f"--- DEBUG: ECS Surveys found: {_ecs_surveys}")
+        print(f"--- DEBUG: ECS Surveys found in DB: {_ecs_surveys}")
         
         if 'question' in ecs_cols:
              q_rows = _con.execute("SELECT DISTINCT question FROM ecs_data").fetchall()
@@ -146,6 +147,10 @@ def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
     m = fetch(survey)
     return m if m else fetch(None)
 
+def _is_ecs(survey: str) -> bool:
+    # Check both the DB cache and the name pattern
+    return survey in _ecs_surveys or survey.upper().startswith("ECSR")
+
 # ---------------------------------------------------------------------
 # Logic
 # ---------------------------------------------------------------------
@@ -169,11 +174,10 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
     except: return []
 
 def list_weights_for_survey(survey: str) -> List[str]:
-    # Switch logic based on survey type
-    if survey in _ecs_surveys:
+    # Fix: Check string pattern if _ecs_surveys is empty
+    if _is_ecs(survey):
         return ["emp_wei", "est_wei"]
     
-    # EWCS Logic
     try:
         r = _con.execute("PRAGMA table_info(main_data)").fetchall()
         cols = [x[1] for x in r]
@@ -181,30 +185,19 @@ def list_weights_for_survey(survey: str) -> List[str]:
     except: return []
 
 def get_survey_categories(survey: str) -> List[str]:
-    """
-    Checks which category columns have valid data for the given survey.
-    """
-    table = "ecs_data" if survey in _ecs_surveys else "main_data"
-    candidates = ECS_CATEGORIES if survey in _ecs_surveys else EWCS_CATEGORIES
+    is_ecs = _is_ecs(survey)
+    table = "ecs_data" if is_ecs else "main_data"
+    candidates = ECS_CATEGORIES if is_ecs else EWCS_CATEGORIES
     
     valid = []
     try:
-        # Check if table exists first
-        _con.execute(f"SELECT 1 FROM {table} LIMIT 0")
-        
         # Check columns exist in table
         t_info = _con.execute(f"PRAGMA table_info({table})").fetchall()
         t_cols = {x[1].lower() for x in t_info}
-        
         for cat in candidates:
             if cat.lower() in t_cols:
-                # Optional: Check if non-null data exists for this survey
-                # This can be slow for large data, so we trust the column existence + survey filter
-                # sql = f"SELECT 1 FROM {table} WHERE survey = ? AND {cat} IS NOT NULL LIMIT 1"
-                # if _con.execute(sql, [survey]).fetchone():
                 valid.append(cat)
-    except:
-        pass
+    except: pass
     return valid
 
 def weighted_pct(
@@ -218,7 +211,7 @@ def weighted_pct(
 ) -> Tuple[List[Dict[str, Any]], str]:
     
     # 1. Setup
-    is_ecs = survey in _ecs_surveys
+    is_ecs = _is_ecs(survey)
     table = "ecs_data" if is_ecs else "main_data"
     
     # Resolve Label
@@ -240,6 +233,7 @@ def weighted_pct(
         try:
             # Check if cat col exists
             _con.execute(f"SELECT {category_group} FROM {table} LIMIT 0")
+            # Using CAST handles both float and int columns
             cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
             cat_p = [int(category_value)]
         except: pass
@@ -248,7 +242,6 @@ def weighted_pct(
     try:
         # Check Wide
         _con.execute(f"SELECT \"{act_var}\" FROM {table} LIMIT 0")
-        # Wide format query
         sql = f"""
             SELECT country, "{act_var}" as val, SUM({weight}) as w_sum, COUNT(*) as count
             FROM {table} WHERE survey = ? AND "{act_var}" IS NOT NULL {cat_sql}
@@ -256,15 +249,18 @@ def weighted_pct(
         """
         df = _con.execute(sql, [survey] + cat_p).fetchdf()
     except:
-        # Try Long
+        # Try Long (Fix: Case-insensitive question match)
         try:
             sql = f"""
                 SELECT country, value as val, SUM({weight}) as w_sum, COUNT(*) as count
-                FROM {table} WHERE survey = ? AND question = ? AND value IS NOT NULL {cat_sql}
+                FROM {table} 
+                WHERE survey = ? AND LOWER(question) = LOWER(?) AND value IS NOT NULL {cat_sql}
                 GROUP BY 1, 2
             """
             df = _con.execute(sql, [survey, act_var] + cat_p).fetchdf()
-        except: pass
+        except Exception as e:
+             # print(f"Query failed: {e}")
+             pass
 
     if df.empty: return [], q_desc
 
@@ -273,7 +269,8 @@ def weighted_pct(
     if not val_map and orig_q:
         val_map = _build_value_labels(survey, orig_q)
         if not val_map: val_map = _build_value_labels(survey, f"q{orig_q}")
-    
+        if not val_map: val_map = _build_value_labels(survey, f"Q{orig_q}")
+
     # Exclude non-response
     excl = ["dk", "dont know", "don't know", "na", "prefer not", "refusal", "no answer"]
     bad_vals = {v for v, l in val_map.items() if any(x in str(l).lower() for x in excl)}
@@ -305,14 +302,12 @@ def weighted_pct(
     return rows, q_desc
 
 def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=None):
-    # Resolve var
     var = q_short
     try:
         r = _con.execute("SELECT Variable FROM dashboard_labels WHERE \"Short\" = ? LIMIT 1", [q_short]).fetchone()
         if r: var = r[0]
     except: pass
     
-    # Find surveys
     surveys = []
     try:
         r = _con.execute("SELECT DISTINCT Survey FROM dashboard_labels WHERE Variable = ? ORDER BY 1", [var]).fetchall()

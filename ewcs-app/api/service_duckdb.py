@@ -123,17 +123,26 @@ COUNTRY_MAP = {}
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
+    
+    # The user's file has 'value' and 'label'
     if 'value' in cdf.columns and 'label' in cdf.columns:
         for _, row in cdf.iterrows():
-            try: COUNTRY_MAP[int(row["value"])] = row["label"]
+            try: 
+                # Map Integer Value -> Label (Full Name)
+                # We iterate all rows, so if ECSR2 adds new codes (32, 63), they get added to the global map.
+                COUNTRY_MAP[int(row["value"])] = row["label"]
             except: continue
-except: pass
+            
+    print(f"--- DEBUG: Loaded {len(COUNTRY_MAP)} country codes.")
+except Exception as e:
+    print(f"!!! Error loading Country Map: {e}")
 
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
 
 def _map_country_label(survey: str, code: int) -> str:
+    # Just use the global map derived from country.csv
     return COUNTRY_MAP.get(code, str(code))
 
 def _normalize_val(val: Any) -> str:
@@ -228,6 +237,8 @@ def weighted_pct(
 
     # 2. Build Query
     df = pd.DataFrame()
+    
+    # Category Filter
     cat_sql = ""
     cat_p = []
     if category_group and category_value:
@@ -236,7 +247,7 @@ def weighted_pct(
             cat_p = [int(category_value)]
 
     cntry_col = cols_map.get('country', 'country')
-    
+
     survey_candidates = [survey]
     if survey in SURVEY_YEARS:
         y = SURVEY_YEARS[survey]
@@ -245,9 +256,10 @@ def weighted_pct(
 
     for s_cand in survey_candidates:
         try:
+            # Strategy A: Wide
             if act_var.lower() in cols_lower:
                 col_name = cols_map[act_var.lower()]
-                # Cast val to FLOAT to ensure consistent sorting numerically
+                # Case numeric values to float for sorting
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST("{col_name}" AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
                     FROM {table} 
@@ -256,6 +268,7 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand] + cat_p).fetchdf()
 
+            # Strategy B: Long
             elif 'question' in cols_lower and 'value' in cols_lower:
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST(value AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
@@ -265,8 +278,10 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand, act_var] + cat_p).fetchdf()
             
-            if not df.empty: break
-        except Exception: pass
+            if not df.empty:
+                break
+        except Exception:
+            pass
 
     if df.empty: return [], q_desc
 
@@ -276,14 +291,6 @@ def weighted_pct(
         val_map = _build_value_labels(survey, orig_q)
         if not val_map: val_map = _build_value_labels(survey, f"q{orig_q}")
         if not val_map: val_map = _build_value_labels(survey, f"Q{orig_q}")
-
-    ecsr2_country_map = {}
-    if survey == "ECSR2":
-        try:
-            c_map = _build_value_labels("ECSR2", "Country")
-            if not c_map: c_map = _build_value_labels("ECSR2", "country2")
-            if c_map: ecsr2_country_map = {int(float(k)): v for k, v in c_map.items()}
-        except: pass
 
     # Exclude non-response
     excl = ["dk", "dont know", "don't know", "na", "prefer not", "refusal", "no answer"]
@@ -299,15 +306,12 @@ def weighted_pct(
     
     if min_pct: df = df[df["pct"] >= min_pct]
     
-    def map_country(c):
-        if survey == "ECSR2" and ecsr2_country_map:
-            return ecsr2_country_map.get(int(c), str(c))
-        return _map_country_label(survey, int(c))
-
-    df["country_label"] = df["country"].apply(map_country)
+    # Apply Country Labels from Global Map
+    df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, int(x)))
+    
     df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
     
-    # SORTING: Sort by 'val' (numeric) to keep legend order consistent
+    # SORTING: By val (numeric)
     df = df.sort_values(["country_label", "val"])
     
     rows = []

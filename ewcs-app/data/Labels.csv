@@ -479,122 +479,122 @@ ECSR1,er550,er550,How would you describe the quality of relationships between ma
 ECSR1,er551,er551,"Does your establishment face problems related to absenteeism, recruitment, or staff retention?",Staff-related problems (ER)
 ECSR1,er553,er553,About what proportion of employees are trade union members?,Trade union membership share
 ECSR1,er554,er554,Are you personally a member of a trade union?,Respondent trade union membership
-ECSR2,mm100,mm100,What is the type of your establishment?,Establishment type
-ECSR2,mm101,mm101,Are you the headquarters or a subsidiary site of a company or organisation?,Head office or branch
-ECSR2,mm102grp,mm102grp,How many employees work at this establishment?,Number of employees
-ECSR2,mm103,mm103,What proportion of employees in this establishment are women?,Female workforce share
-ECSR2,mm104,mm104,What proportion of jobs in your establishment are skilled jobs?,Skilled jobs share
-ECSR2,mm106a,mm106a,Do you employ staff on fixed-term contracts or temporary contracts?,Fixed-term / temporary staff
-ECSR2,mm106b,mm106b,Do you employ temporary agency workers?,Agency workers employed
-ECSR2,mm106c,mm106c,Do you employ freelancers or self-employed subcontractors?,Freelancers / subcontractors
-ECSR2,mm106d,mm106d,Do you employ none of these forms of staff?,No non-standard contracts
-ECSR2,mm107a,mm107a,Does your establishment have a problem of high absenteeism and/or sickness rate?,Absenteeism problem
-ECSR2,mm107b,mm107b,Does your establishment have difficulties in finding staff for skilled jobs?,Difficulty recruiting skilled staff
-ECSR2,mm107c,mm107c,Does your establishment have difficulties in finding staff for low skilled or unskilled jobs?,Difficulty recruiting low-skilled staff
-ECSR2,mm107d,mm107d,Does your establishment have difficulties in retaining staff?,Staff retention problems
-ECSR2,mm107e,mm107e,Does your establishment have a need to reduce staff levels?,Need to reduce workforce
-ECSR2,mm107f,mm107f,Does your establishment have problems of low motivation among staff?,Low staff motivation
-ECSR2,mm107g,mm107g,Does your establishment have any other problems concerning staff?,Other staff problems
-ECSR2,mm107h,mm107h,Does your establishment have none of these problems?,No staff problems
-ECSR2,mm108,mm108,Are working time agreements decided mainly at establishment level or higher level?,Level of working time agreements
-ECSR2,mm109,mm109,"On average, how many hours per week do employees in this establishment normally work (excluding overtime)?",Normal weekly working hours
-ECSR2,mm110,mm110,How would you describe the economic situation of your establishment?,Economic situation of establishment
-ECSR2,mm111,mm111,"Has the size of your workforce increased, decreased or remained the same over the last two years?",Change in workforce size
-ECSR2,mm112,mm112,Is this establishment part of the public or the private sector?,Public or private sector
-ECSR2,mm113,mm113,"Is the ownership of the establishment mainly public, private or mixed?",Ownership type
-ECSR2,mm114,mm114,Was this establishment already in existence before 1989/1991?,Established before 1989/91
-ECSR2,mm150a,mm150a,Does your establishment experience variations of workload within the same day?,Daily workload variations
-ECSR2,mm150b,mm150b,Does your establishment experience variations of workload from day to day within a normal working week?,Weekly workload variations
-ECSR2,mm150c,mm150c,"Does your establishment experience workload variations within a year, e.g. seasonal variations?",Seasonal workload variations
-ECSR2,mm151,mm151,Are these variations within a day or within a normal working week mostly foreseeable or not?,Foreseeability of short-term workload
-ECSR2,mm152a,mm152a,Which arrangements do you mostly use for coping with workload peaks within a day or within a normal working week: asking regular staff to work more hours?,Coping via overtime
-ECSR2,mm152b,mm152b,"Which arrangements do you mostly use for coping with workload peaks: employing staff on call, agency workers or freelancers?",Coping via agency or freelancers
-ECSR2,mm152c,mm152c,Which arrangements do you mostly use for coping with workload peaks: outsourcing tasks to other firms?,Coping via outsourcing
-ECSR2,mm152d,mm152d,Which arrangements do you mostly use for coping with workload peaks: employing part-time staff for peak hours or peak days?,Coping via part-time staff
-ECSR2,mm153,mm153,Are annual workload variations mostly foreseeable or not?,Foreseeability of annual workload
-ECSR2,mm154a,mm154a,Which arrangements do you mostly use for coping with workload peaks within a year: asking regular staff to work more hours?,Annual coping via overtime
-ECSR2,mm154c,mm154c,Which arrangements do you mostly use for coping with workload peaks within a year: employing additional staff with fixed-term contracts?,Annual coping via temporary staff
-ECSR2,mm200,mm200,Approximately what proportion of your employees work part-time in this establishment?,Share of part-time workers
-ECSR2,mm201a,mm201a,Some part-time employees have fixed working hours every day.,Fixed daily part-time hours
-ECSR2,mm201b,mm201b,Some part-time employees follow other fixed cycles.,Fixed cycles part-time
-ECSR2,mm201c,mm201c,Some part-time employees work flexible working hours which are fixed a few days or hours in advance.,Flexible part-time hours
-ECSR2,mm201d,mm201d,Other forms of part-time work are practised in this establishment.,Other part-time forms
-ECSR2,mm203,mm203,Did you introduce part-time work mainly to meet the economic or organisational needs of the establishment or mainly to meet employees’ wishes for shorter working hours?,Reason for introducing part-time
-ECSR2,mm204,mm204,About what proportion of your part-time employees are men?,Male part-time share
-ECSR2,mm205a,mm205a,Which groups are found among part-time staff: mothers with pre-school or school-age children?,Part-time mothers
-ECSR2,mm205b,mm205b,Which groups are found among part-time staff: women without children or mothers with grown-up children?,Part-time women without young children
-ECSR2,mm205c,mm205c,Which groups are found among part-time staff: fathers?,Part-time fathers
-ECSR2,mm205d,mm205d,"Which groups are found among part-time staff: people caring for elderly, ill or disabled family relatives?",Part-time carers
-ECSR2,mm207,mm207,Have any part-time employees changed to full-time work in the last 12 months?,Part-time to full-time transitions
-ECSR2,mm208,mm208,Have any full-time employees in skilled jobs changed to part-time?,Skilled full-time to part-time
-ECSR2,mm209,mm209,Have any full-time employees in unskilled jobs changed to part-time?,Unskilled full-time to part-time
-ECSR2,mm210,mm210,How would you assess the motivation of part-time workers compared to full-time workers?,Motivation of part-time workers
-ECSR2,mm211,mm211,How would you assess the promotion prospects of part-time workers compared to full-time workers?,Promotion prospects for part-time workers
-ECSR2,mm212,mm212,Does part-time work make work organisation easier or more difficult in this establishment?,Impact of part-time on work organisation
-ECSR2,mm250a,mm250a,Do employees in your establishment work at night between 10 p.m. and 6 a.m.?,Night work
-ECSR2,mm250b,mm250b,Do employees in your establishment work on Saturdays?,Saturday work
-ECSR2,mm250c,mm250c,Do employees in your establishment work on Sundays?,Sunday work
-ECSR2,mm251,mm251,Approximately what proportion of employees work at night?,Share working at night
-ECSR2,mm253,mm253,Approximately what proportion work on Saturdays?,Share working on Saturdays
-ECSR2,mm254,mm254,Approximately what proportion work on Sundays?,Share working on Sundays
-ECSR2,mm255,mm255,Do you employ staff with changing or irregular working hours?,Changing working hours
-ECSR2,mm256,mm256,Approximately what proportion have changing working hours?,Share with changing hours
-ECSR2,mm257,mm257,How much notice do employees usually get about changes in their working hours?,Notice period for schedule changes
-ECSR2,mm259,mm259,Has there been a change from shift to normal working hours in recent years?,Shift to normal hours transition
-ECSR2,mm300,mm300,"Does your establishment have flexible working time arrangements, such as working time accounts or flexitime?",Flexible working arrangements
-ECSR2,mm302,mm302,What proportion of employees use flexible working time arrangements?,Share using flexitime
-ECSR2,mm303b,mm303b,What were the reasons for introducing flexible working time arrangements: to make working hours more adaptable to variations in workloads?,Workload-driven flexitime
-ECSR2,mm303c,mm303c,What were the reasons for introducing flexible working time arrangements: to enable employees to better combine work and family or personal life?,Work–life motivated flexitime
-ECSR2,mm304c,mm304c,Has the introduction of flexible working time arrangements resulted in lower absenteeism?,Effect: absenteeism reduction
-ECSR2,mm305,mm305,Can employees accumulate working hours on individual working time accounts?,Accumulation of hours
-ECSR2,mm306a,mm306a,Are accumulated hours mainly used for full days off?,Use of accumulated hours: days off
-ECSR2,mm306b,mm306b,Are accumulated hours mainly used for longer periods of leave?,Use of accumulated hours: long leave
-ECSR2,mm350,mm350,Approximately what proportion of employees work overtime?,Share working overtime
-ECSR2,mm351,mm351,In what form does overtime work mainly take place in your establishment?,Forms of overtime work
-ECSR2,mm352,mm352,Approximately what proportion of employees work regular overtime?,Regular overtime share
-ECSR2,mm354,mm354,How are employees selected for overtime work?,Overtime worker selection
-ECSR2,mm355,mm355,Can employees refuse overtime work?,Refusal of overtime
-ECSR2,mm358,mm358,How is overtime usually compensated: paid or with time off?,Overtime compensation type
-ECSR2,mm400,mm400,Are there employees currently in parental leave?,Employees in parental leave
-ECSR2,mm401,mm401,Approximately how many men are currently in parental leave?,Men in parental leave
-ECSR2,mm402,mm402,What usually happens when employees return from parental leave?,Return after parental leave
-ECSR2,mm404,mm404,Does parental leave create problems for your establishment?,Problems with parental leave
-ECSR2,mm410a,mm410a,"Do you grant long-term leave if employees have to care for elderly, ill or disabled family members?",Long-term leave for care
-ECSR2,mm410b,mm410b,Do you grant long-term leave for further education?,Long-term leave for education
-ECSR2,mm450,mm450,Do you have employees aged 50 years or over?,Employees aged 50+
-ECSR2,mm451,mm451,Do you offer phased retirement?,Phased retirement availability
-ECSR2,mm452,mm452,Approximately what proportion use phased retirement?,Share in phased retirement
-ECSR2,mm453,mm453,Do you encourage phased retirement?,Encouragement of phased retirement
-ECSR2,mm457,mm457,Is early retirement possible in this establishment?,Early retirement possibility
-ECSR2,mm458,mm458,What is the basis for early retirement in your establishment?,Basis of early retirement
-ECSR2,mm459,mm459,Approximately what proportion make use of early retirement?,Share using early retirement
-ECSR2,mm500a,mm500a,Does your establishment offer company kindergarten or childcare facilities?,Company childcare
-ECSR2,mm500b,mm500b,Does your establishment offer professional help for childcare?,Childcare support services
-ECSR2,mm500c,mm500c,"Does your establishment offer professional help for household management, e.g. cleaning or shopping?",Household support services
-ECSR2,mm501,mm501,Do you see work-life balance as a task of the company?,Work-life balance responsibility
-ECSR2,mm600,mm600,Is there an employee representation body present in this establishment?,Employee representation present
-ECSR2,mm610,mm610,Is there a works council in this establishment?,Works council presence
-ECSR2,mm612,mm612,Is there a trade union representative in this establishment?,Trade union representative presence
-ECSR2,mm613,mm613,Is there one single trade union representative?,Single union representative
-ECSR2,mm700,mm700,Is the employee representative available for interview?,Employee representative interview availability
-ECSR2,mm702,mm702,Would you personally recommend the employee representative interview?,Recommendation of ER interview
-ECSR2,mm703,mm703,Is further contact with the employee representative possible?,Further contact with ER
-ECSR2,er101,er101,What type of employee representation body do you represent?,Type of employee representation
-ECSR2,er102,er102,What proportion of employees does your employee representation body represent?,Share of workforce represented
-ECSR2,er200,er200,Approximately what proportion of employees in this establishment work part-time?,Part-time share (ER)
-ECSR2,er201,er201,What were the main reasons for introducing part-time work?,Reasons for part-time (ER)
-ECSR2,er204,er204,Have any part-time workers changed to full-time work?,Part-time to full-time (ER)
-ECSR2,er205,er205,Have full-time workers changed to part-time in skilled jobs?,Skilled full-time to part-time (ER)
-ECSR2,er206,er206,Have full-time workers changed to part-time in unskilled jobs?,Unskilled full-time to part-time (ER)
-ECSR2,er207,er207,How would you describe the climate for changes from full-time to part-time?,Climate for part-time transitions
-ECSR2,er208,er208,Has the employee representation been consulted over changes from full-time to part-time?,Consultation on part-time changes
-ECSR2,er210,er210,How do you assess the motivation of part-time workers?,Motivation of part-time workers (ER)
-ECSR2,er211,er211,How do you assess their promotion prospects?,Promotion prospects for part-time workers (ER)
-ECSR2,er212,er212,Does part-time work make work organisation easier or more difficult?,Impact of part-time (ER)
-ECSR2,er250a,er250a,Do employees work at night between 10 p.m. and 6 a.m.?,Night work (ER)
-ECSR2,er250b,er250b,Do employees work on Saturdays?,Saturday work (ER)
-ECSR2,er250c,er250c,Do employees work on Sundays?,Sunday work (ER)
-ECSR2,er255,er255,Do employees have changing working hours?,Changing working hours (ER)
+ECSR2,ER104,ER104,Roughly what proportion of the employee representatives at this establishment belongs to a trade union?,Union membership among ER
+ECSR2,ER107,ER107,Roughly what proportion of employees at this establishment are members of a trade union?,Union membership workforce
+ECSR2,ER151_1,ER151_1,Employees support the work of the employee representation?,Employee support for ER
+ECSR2,ER151_2,ER151_2,Employees rarely express interest in the outcome of consultations or negotiations?,Low employee interest
+ECSR2,ER151_3,ER151_3,The relationship between management and employee representation can best be defined as hostile?,Hostile labour relations
+ECSR2,ER151_4,ER151_4,Management and employee representation make sincere efforts to solve common problems?,Cooperative labour relations
+ECSR2,ER200_1,ER200_1,The economic and financial situation of the establishment?,Economic information provided
+ECSR2,ER200_2,ER200_2,The employment situation?,Employment situation information
+ECSR2,ER200_3,ER200_3,The number of overtime hours?,Overtime information
+ECSR2,ER202,ER202,If you think about the business information you get from the employer?,Business information supply
+ECSR2,ER203,ER203,Do you usually receive the information timely and unrequested?,Timely information
+ECSR2,ER204,ER204,Is the disclosed business information normally sufficiently detailed?,Detail of information
+ECSR2,ER260,ER260,"In the last 12 months, have there been instances of industrial action in your establishment?",Industrial action
+ECSR2,ER263a,ER263a,"Was this industrial action part of a broader campaign on the national, regional or sectoral level?",Action part of campaign
+ECSR2,ER350,ER350,Are there any performance related elements of pay for staff other than the top management?,Performance pay (non-management)
+ECSR2,ER401,ER401,If you now think about the work forms or working time regimes which currently do not apply?,Potential working time changes
+ECSR2,ER501,ER501,How many years of experience do you have as employee representative in the establishment?,Experience of ER
+ECSR2,ER502,ER502,Do you represent the whole workforce in this establishment or a specific part of the staff only?,Scope of representation
+ECSR2,ER503,ER503,Roughly what proportion of the employees in this establishment do you represent?,Represented workforce share
+ECSR2,ER504,ER504,May we contact you again later if we should have any additional questions?,Re-contact permission
+ECSR2,MM100,MM100,May I first of all check: Is the establishment at this address a single independent company?,Independent company
+ECSR2,MM101,MM101,Is it the headquarters or is it a subsidiary site?,Headquarters or subsidiary
+ECSR2,MM103,MM103,"Total number of employees increased, decreased or stayed about the same over the past 3 years?",Employment change
+ECSR2,MM104,MM104,Does this establishment belong to the public sector?,Public sector
+ECSR2,MM106,MM106,Is this establishment predominantly or exclusively...?,Predominantly public/private
+ECSR2,MM150_1,MM150_1,The acquisition of another organisation?,Acquisition
+ECSR2,MM150_2,MM150_2,A takeover by another organization?,Takeover
+ECSR2,MM150_3,MM150_3,A merger?,Merger
+ECSR2,MM150_4,MM150_4,A relocation?,Relocation
+ECSR2,MM150_5,MM150_5,A demerger?,Demerger
+ECSR2,MM157_1,MM157_1,High absenteeism and or high sickness rate?,Absenteeism problem
+ECSR2,MM157_2,MM157_2,Difficulties in finding staff for skilled jobs?,Difficulty recruiting skilled staff
+ECSR2,MM157_3,MM157_3,Difficulties in finding staff for low skilled or unskilled jobs?,Difficulty recruiting low-skilled staff
+ECSR2,MM157_4,MM157_4,Difficulties in retaining staff?,Retention difficulties
+ECSR2,MM157_5,MM157_5,A need to reduce staff levels?,Need to downsize
+ECSR2,MM157_6,MM157_6,Low motivation of staff?,Low staff motivation
+ECSR2,MM157_7,MM157_7,Other problems?,Other staff problems
+ECSR2,MM158_1,MM158_1,Within the same day?,Daily workload variation
+ECSR2,MM158_2,MM158_2,From day to day within a normal working week?,Weekly workload variation
+ECSR2,MM158_3,MM158_3,"Within a year, e.g. seasonal variations?",Seasonal workload variation
+ECSR2,MM159,MM159,Are these variations of the workload mostly foreseeable or not?,Foreseeability of workload
+ECSR2,MM200_1,MM200_1,At night between 11 p.m. and 6 a.m.?,Night work
+ECSR2,MM200_2,MM200_2,On Saturdays?,Saturday work
+ECSR2,MM200_3,MM200_3,On Sundays?,Sunday work
+ECSR2,MM201,MM201,Do any of your employees work in a shift system or a comparable working time regime?,Shift work
+ECSR2,MM250,MM250,Approximately what proportion of your employees work part-time?,Part-time share
+ECSR2,MM250X,MM250X,Could you please give me a rough estimate by means of the following categories,Part-time share (bands)
+ECSR2,MM250XN,MM250XN,Could you please give me a rough estimate by means of the following categories,Part-time share (bands)
+ECSR2,MM252_1,MM252_1,Some fixed hours every day?,Fixed daily part-time
+ECSR2,MM252_2,MM252_2,"Other fixed cycles, e.g. some fixed days of the week in full-time, the other days off?",Fixed cycle part-time
+ECSR2,MM252_3,MM252_3,Flexible working hours which are fixed in advance according to the establishments needs?,Flexible part-time
+ECSR2,MM252_4,MM252_4,Other forms of part-time work?,Other part-time forms
+ECSR2,MM254,MM254,Do any of your part-time workers usually work less than 15 hours per week?,Very short part-time
+ECSR2,MM256,MM256,Any of your staff in highly qualified positions or in positions with a supervisory role part-time?,Managers part-time
+ECSR2,MM257,MM257,Are these very few exceptional cases only?,Rare cases only
+ECSR2,MM300,MM300,Does your establishment offer employees the possibility to adapt?,Adaptable working hours
+ECSR2,MM302,MM302,Roughly what proportion of the employees is entitled to make use of flexible working hours?,Eligibility for flexitime
+ECSR2,MM302X,MM302X,Could you please give me a rough estimate by means of the following categories,Flexitime eligibility (bands)
+ECSR2,MM302XN,MM302XN,Could you please give me a rough estimate by means of the following categories,Flexitime eligibility (bands)
+ECSR2,MM303,MM303,Does this system of flexible working hours allow employees to accumulate hours?,Hour accumulation
+ECSR2,MM304,MM304,Is it possible for employees to use accumulated hours for full days off?,Full days off using hours
+ECSR2,MM305,MM305,Does your flexible working hours system allow employees to accumulate hours?,Hours accumulation possibility
+ECSR2,MM350,MM350,Roughly what proportion of your employees has worked any overtime in the past 12 months?,Overtime participation
+ECSR2,MM350X,MM350X,Could you please give me a rough estimate by means of the following categories,Overtime share (bands)
+ECSR2,MM350XN,MM350XN,Could you please give me a rough estimate by means of the following categories,Overtime share (bands)
+ECSR2,MM351,MM351,How is overtime work normally compensated?,Overtime compensation
+ECSR2,MM400_1,MM400_1,Temporary agency workers?,Temporary agency workers
+ECSR2,MM400_2,MM400_2,Staff with fixed-term contracts?,Fixed-term staff
+ECSR2,MM400_3,MM400_3,Freelancers?,Freelancers
+ECSR2,MM401,MM401,About how many temporary agency workers are currently working in this establishment?,Number of agency workers
+ECSR2,MM401X,MM401X,Could you please give me a rough estimate by means of the following categories,Agency workers (bands)
+ECSR2,MM401XN,MM401XN,Could you please give me a rough estimate by means of the following categories,Agency workers (bands)
+ECSR2,MM402,MM402,About what proportion of your employees is holding a fixed-term contract?,Fixed-term contracts share
+ECSR2,MM402X,MM402X,Could you please give me a rough estimate by means of the following categories,Fixed-term share (bands)
+ECSR2,MM402XN,MM402XN,Could you please give me a rough estimate by means of the following categories,Fixed-term share (bands)
+ECSR2,MM403,MM403,How many temporary staff whose fixed-term contracts expired in the past 12 months got a further contract?,Renewed fixed-term contracts
+ECSR2,MM450,MM450,What proportion of your employees is covered by a collective wage agreement?,Collective agreement coverage
+ECSR2,MM450X,MM450X,Could you please give me a rough estimate by means of the following categories,Collective coverage (bands)
+ECSR2,MM450XN,MM450XN,Could you please give me a rough estimate by means of the following categories,Collective coverage (bands)
+ECSR2,MM451,MM451,Is this collective agreement negotiated at the establishment or company level or at a higher level?,Level of negotiation
+ECSR2,MM452,MM452,Is it possible to derogate from this higher level collective agreement under certain circumstances?,Derogation possible
+ECSR2,MM454,MM454,Employees receive specific elements of pay that depend on the performance of the individual?,Individual performance pay
+ECSR2,MM455,MM455,What proportion of your workforce receives specific elements of pay that depend on the performance?,Performance pay share
+ECSR2,MM455X,MM455X,Could you please give me a rough estimate by means of the following categories,Performance pay share (bands)
+ECSR2,MM455XN,MM455XN,Could you please give me a rough estimate by means of the following categories,Performance pay share (bands)
+ECSR2,MM456,MM456,What proportion of your workforce receives specific elements of pay that depend on the performance?,Performance pay share
+ECSR2,MM456X,MM456X,Could you please give me a rough estimate by means of the following categories,Performance pay share (bands)
+ECSR2,MM456XN,MM456XN,Could you please give me a rough estimate by means of the following categories,Performance pay share (bands)
+ECSR2,MM458,MM458,Are these profit sharing schemes determined by the management only or are they negotiated?,Profit sharing governance
+ECSR2,MM459_1,MM459_1,To increase productivity / Why are you applying profit sharing schemes?,Profit sharing: productivity
+ECSR2,MM459_2,MM459_2,To increase the motivation of our staff?,Profit sharing: motivation
+ECSR2,MM459_3,MM459_3,To attract and keep well qualified staff?,Profit sharing: recruitment/retention
+ECSR2,MM459_4,MM459_4,To increase active employee participation in the improvement of work processes or products?,Profit sharing: participation
+ECSR2,MM459_5,MM459_5,In order to reduce the wage costs in times of low order volume?,Profit sharing: cost reduction
+ECSR2,MM459_6,MM459_6,Why are you applying profit sharing schemes?,Profit sharing: other reasons
+ECSR2,MM460,MM460,Is there any profit sharing scheme offered in this establishment?,Profit sharing
+ECSR2,MM461,MM461,Is this offered to all employees or is it offered to employees in specific positions only?,Scope of profit sharing
+ECSR2,MM463,MM463,Is there any share ownership scheme offered in this establishment?,Employee share ownership
+ECSR2,MM464,MM464,Is this offered to all employees of your workforce or is it offered to employees in specific positions?,Scope of share ownership
+ECSR2,MM550,MM550,About what proportion of your employees is female?,Female workforce share
+ECSR2,MM550X,MM550X,Could you please give me a rough estimate by means of the following categories,Female share (bands)
+ECSR2,MM550XN,MM550XN,Could you please give me a rough estimate by means of the following categories,Female share (bands)
+ECSR2,MM553,MM553,Approximately what proportion of your employees work in high-skilled jobs?,High-skilled jobs share
+ECSR2,MM553X,MM553X,Could you please give me a rough estimate by means of the following categories,High-skilled jobs share (bands)
+ECSR2,MM553XN,MM553XN,Could you please give me a rough estimate by means of the following categories,High-skilled jobs share (bands)
+ECSR2,MM558,MM558,Is work in teams an important characteristic of the work organisation in your establishment?,Team-based work
+ECSR2,MM559,MM559,If you think about the tasks to be performed by the teams?,Team task structure
+ECSR2,MM561,MM561,Is the need for further training periodically checked in a systematic way in your establishment?,Systematic training needs assessment
+ECSR2,MM562_1,MM562_1,Permanent employees in skilled or high-skilled positions?,Training: skilled permanent staff
+ECSR2,MM562_2,MM562_2,Permanent employees in low-skilled or unskilled positions?,Training: low-skilled staff
+ECSR2,MM562_3,MM562_3,Employees with fixed-term contracts?,Training: fixed-term staff
+ECSR2,MM562_4,MM562_4,Older employees?,Training: older employees
+ECSR2,MM563new,MM563new,Have any of your employees been given time off in order to undergo further training?,Time off for training
+ECSR2,MM564_1,MM564_1,The vocational adjustment of new employees?,Training: new employees
+ECSR2,MM564_2,MM564_2,To prepare employees for new tasks?,Training for new tasks
+ECSR2,MM564_3,MM564_3,Training after long absence?,Training after absence
 ECSR2,er257,er257,Has there been a change from shift to normal hours?,Shift to normal hours (ER)
 ECSR2,er300,er300,Are flexible working time arrangements available in this establishment?,Flexible working arrangements (ER)
 ECSR2,er350,er350,Do employees work overtime?,Overtime work (ER)

@@ -12,6 +12,7 @@ import os
 
 from .settings import (
     DATA_FILE,
+    ECS_DATA_FILE,
     LABELS_FILE,
     RESPONSE_META_FILE,
     COUNTRY_FILE,
@@ -22,112 +23,99 @@ from .settings import (
 # ---------------------------------------------------------------------
 
 SURVEY_YEARS = {
-    "EWCSR1": 1991,
-    "EWCSR2": 1995,
-    "EWCSR3": 2000,
-    "EWCSR4": 2005,
-    "EWCSR5": 2010,
-    "EWCSR6": 2015,
-    "EWCS2021": 2021,
-    "COVID": 2020
+    "EWCSR1": 1991, "EWCSR2": 1995, "EWCSR3": 2000, "EWCSR4": 2005,
+    "EWCSR5": 2010, "EWCSR6": 2015, "EWCS2021": 2021, "COVID": 2020,
+    "ECSR1": 2004, "ECSR2": 2009, "ECSR3": 2013, "ECSR4": 2019
 }
+
+# Potential Category Columns in ECS
+ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
+EWCS_CATEGORIES = ['agesex', 'isco']
 
 # ---------------------------------------------------------------------
 # Initialise DuckDB
 # ---------------------------------------------------------------------
 
-print(f"--- Loading DuckDB with data from: {DATA_FILE}")
+print(f"--- Loading DuckDB...")
 _con = duckdb.connect(database=":memory:")
 
-# 1. Load Main Data (Handle Single vs Split Files)
+# 1. Load EWCS Data
 if os.path.exists(DATA_FILE):
-    print(f"--- Found single data file: {DATA_FILE}")
-    load_path = str(DATA_FILE)
+    print(f"--- Loading EWCS data: {DATA_FILE}")
+    ewcs_path = str(DATA_FILE)
 else:
-    # Production/Render environment with split files
-    load_path = str(DATA_FILE).replace("data.parquet", "split_*.parquet")
-    print(f"--- Single file not found. Trying split pattern: {load_path}")
+    ewcs_path = str(DATA_FILE).replace("data.parquet", "split_*.parquet")
+    print(f"--- Loading EWCS split: {ewcs_path}")
 
 try:
-    _con.execute(f"""
-        CREATE OR REPLACE VIEW main_data AS
-        SELECT * FROM read_parquet('{load_path}');
-    """)
+    _con.execute(f"CREATE OR REPLACE VIEW main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
 except Exception as e:
-    print(f"!!! CRITICAL ERROR loading data: {e}")
-    # Prevent crash on load, create dummy table
+    print(f"!!! Error loading EWCS data: {e}")
     _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# --- CACHE AVAILABLE VARIABLES FOR FILTERING ---
-print("--- DEBUG: Caching available data variables...")
+# 2. Load ECS Data
+if os.path.exists(ECS_DATA_FILE):
+    print(f"--- Loading ECS data: {ECS_DATA_FILE}")
+    try:
+        _con.execute(f"CREATE OR REPLACE VIEW ecs_data AS SELECT * FROM read_parquet('{ECS_DATA_FILE}');")
+    except Exception as e:
+        print(f"!!! Error loading ECS data: {e}")
+        _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
+else:
+    print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
+    _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
+
+# --- CACHE METADATA ---
+print("--- DEBUG: Caching metadata...")
 _data_variables = set()
+_ecs_surveys = set()
 
 try:
-    _cols_info = _con.execute("PRAGMA table_info(main_data)").fetchall()
-    _cols_main_lower = {row[1].lower() for row in _cols_info}
-    _cols_map = {row[1].lower(): row[1] for row in _cols_info}
-
-    # Check if Long or Wide format
-    if 'question' in _cols_main_lower and 'value' in _cols_main_lower:
-        print("--- DEBUG: Dataset detected as LONG format. Scanning distinct questions...")
-        # Fetch all unique values from the 'question' column
+    # EWCS Vars
+    r = _con.execute("PRAGMA table_info(main_data)").fetchall()
+    cols = {x[1].lower() for x in r}
+    if 'question' in cols:
         rows = _con.execute("SELECT DISTINCT question FROM main_data").fetchall()
-        _data_variables = {str(r[0]).lower() for r in rows}
+        _data_variables.update({str(row[0]).lower() for row in rows})
     else:
-        print("--- DEBUG: Dataset detected as WIDE format.")
-        _data_variables = _cols_main_lower
-
-    print(f"--- DEBUG: Found {len(_data_variables)} active variables in the dataset.")
+        _data_variables.update(cols)
+        
+    # ECS Vars & Surveys
+    r_ecs = _con.execute("PRAGMA table_info(ecs_data)").fetchall()
+    ecs_cols = {x[1].lower() for x in r_ecs}
+    if 'survey' in ecs_cols:
+        s_rows = _con.execute("SELECT DISTINCT survey FROM ecs_data").fetchall()
+        _ecs_surveys = {str(row[0]) for row in s_rows}
+        print(f"--- DEBUG: ECS Surveys found: {_ecs_surveys}")
+        
+        if 'question' in ecs_cols:
+             q_rows = _con.execute("SELECT DISTINCT question FROM ecs_data").fetchall()
+             _data_variables.update({str(row[0]).lower() for row in q_rows})
 
 except Exception as e:
-    print(f"!!! Error inspecting data variables: {e}")
-    _cols_main_lower = set()
-    _cols_map = {}
-# ------------------------------------------------
+    print(f"!!! Metadata Cache Error: {e}")
 
-# 2. Load Labels (Question Metadata)
-print(f"--- Loading Labels from: {LABELS_FILE}")
+# 3. Labels
 try:
-    _con.execute(f"""
-        CREATE OR REPLACE VIEW dashboard_labels AS
-        SELECT 
-            TRIM(Survey) AS Survey,
-            "Question Number",
-            Variable,
-            Question,
-            "Short"
-        FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);
-    """)
-except Exception as e:
-    print(f"!!! Error loading Labels.csv: {e}")
+    _con.execute(f"CREATE OR REPLACE VIEW dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
+except: pass
 
-# 3. Load Response Labels
-print(f"--- Loading Response Labels from: {RESPONSE_META_FILE}")
 try:
-    _con.execute(f"""
-        CREATE OR REPLACE VIEW response_labels AS
-        SELECT * FROM read_parquet('{RESPONSE_META_FILE}');
-    """)
-except Exception as e:
-    print(f"!!! Error loading response_labels: {e}")
+    _con.execute(f"CREATE OR REPLACE VIEW response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
+except: pass
 
 # ---------------------------------------------------------------------
-# Country Map Loading
+# Country Map
 # ---------------------------------------------------------------------
-
 COUNTRY_MAP = {}
 try:
-    _cmap_df = pd.read_csv(COUNTRY_FILE)
-    _cmap_df.columns = _cmap_df.columns.str.strip().str.lower()
-    if 'value' in _cmap_df.columns and 'label' in _cmap_df.columns:
-        for _, row in _cmap_df.iterrows():
-            try:
-                COUNTRY_MAP[int(row["value"])] = row["label"]
-            except ValueError:
-                continue
-except Exception as e:
-    print(f"Warning: Could not load country map: {e}")
-
+    cdf = pd.read_csv(COUNTRY_FILE)
+    cdf.columns = cdf.columns.str.strip().str.lower()
+    if 'value' in cdf.columns and 'label' in cdf.columns:
+        for _, row in cdf.iterrows():
+            try: COUNTRY_MAP[int(row["value"])] = row["label"]
+            except: continue
+except: pass
 
 # ---------------------------------------------------------------------
 # Helpers
@@ -138,112 +126,86 @@ def _map_country_label(survey: str, code: int) -> str:
 
 def _normalize_val(val: Any) -> str:
     try:
-        f_val = float(val)
-        if f_val.is_integer():
-            return str(int(f_val))
-        return str(f_val)
-    except (ValueError, TypeError):
-        return str(val).strip()
+        f = float(val)
+        if f.is_integer(): return str(int(f))
+        return str(f)
+    except: return str(val).strip()
 
 def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
-    if not variable:
-        return {}
-    
+    if not variable: return {}
     def fetch(srv=None):
-        where_clause = "LOWER(variable) = LOWER(?)"
-        params = [variable]
+        wc = "LOWER(variable) = LOWER(?)"
+        p = [variable]
         if srv:
-            where_clause += " AND survey = ?"
-            params.append(srv)
-            
-        sql = f"SELECT value, value_label FROM response_labels WHERE {where_clause}"
+            wc += " AND survey = ?"
+            p.append(srv)
         try:
-            rows = _con.execute(sql, params).fetchall()
-            m = {}
-            for r in rows:
-                m[_normalize_val(r[0])] = r[1]
-            return m
-        except:
-            return {}
-
-    mapping = fetch(survey)
-    if not mapping:
-        mapping = fetch(None) 
-        
-    return mapping
-
+            rows = _con.execute(f"SELECT value, value_label FROM response_labels WHERE {wc}", p).fetchall()
+            return {_normalize_val(r[0]): r[1] for r in rows}
+        except: return {}
+    m = fetch(survey)
+    return m if m else fetch(None)
 
 # ---------------------------------------------------------------------
-# Data Accessors
+# Logic
 # ---------------------------------------------------------------------
 
 def list_surveys() -> List[Tuple[str, str]]:
     try:
-        q = "SELECT DISTINCT Survey FROM dashboard_labels ORDER BY 1"
-        rows = _con.execute(q).fetchall()
+        rows = _con.execute("SELECT DISTINCT Survey FROM dashboard_labels ORDER BY 1").fetchall()
         return [(r[0], r[0]) for r in rows]
-    except Exception:
-        return []
-
-def list_longitudinal_questions() -> List[Dict[str, Any]]:
-    """
-    Returns questions that appear in more than one survey AND exist in the data.
-    """
-    q = """
-        SELECT 
-            Variable, 
-            MIN("Short") as Label, 
-            MIN(Question) as Desc,
-            COUNT(DISTINCT Survey) as cnt
-        FROM dashboard_labels
-        GROUP BY Variable
-        HAVING cnt > 1
-        ORDER BY Label
-    """
-    try:
-        rows = _con.execute(q).fetchall()
-        valid_questions = []
-        for r in rows:
-            var_code = r[0]
-            if var_code and var_code.lower() in _data_variables:
-                valid_questions.append({
-                    "id": var_code,
-                    "label": r[1],
-                    "description": r[2]
-                })
-        return valid_questions
-    except Exception as e:
-        print(f"Error listing longitudinal questions: {e}")
-        return []
+    except: return []
 
 def list_questions_for_survey(survey: str) -> List[Dict[str, Any]]:
-    """
-    Returns list of questions for a survey that exist in the data.
-    """
-    q = """
-        SELECT Variable, "Short", Question 
-        FROM dashboard_labels
-        WHERE Survey = ?
-        ORDER BY Variable
-    """
     try:
-        rows = _con.execute(q, [survey]).fetchall()
-        valid_questions = []
-        for r in rows:
-            var_code = r[0]
-            if var_code and var_code.lower() in _data_variables:
-                valid_questions.append({
-                    "id": var_code,      # ID is now the Variable Code (robust)
-                    "label": r[1],       # Label is Short text
-                    "description": r[2]  # Description is Full text
-                })
-        return valid_questions
-    except Exception:
-        return []
+        rows = _con.execute("SELECT Variable, \"Short\", Question FROM dashboard_labels WHERE Survey = ? ORDER BY Variable", [survey]).fetchall()
+        return [{"id": r[0], "label": r[1], "description": r[2]} for r in rows if r[0] and r[0].lower() in _data_variables]
+    except: return []
+
+def list_longitudinal_questions() -> List[Dict[str, Any]]:
+    try:
+        rows = _con.execute("SELECT Variable, MIN(\"Short\"), MIN(Question), COUNT(DISTINCT Survey) as c FROM dashboard_labels GROUP BY Variable HAVING c > 1 ORDER BY 2").fetchall()
+        return [{"id": r[0], "label": r[1], "description": r[2]} for r in rows if r[0] and r[0].lower() in _data_variables]
+    except: return []
 
 def list_weights_for_survey(survey: str) -> List[str]:
-    all_cols = sorted([val for key, val in _cols_map.items()])
-    return sorted([c for c in all_cols if c.lower().startswith('w') and c != 'wave'])
+    # Switch logic based on survey type
+    if survey in _ecs_surveys:
+        return ["emp_wei", "est_wei"]
+    
+    # EWCS Logic
+    try:
+        r = _con.execute("PRAGMA table_info(main_data)").fetchall()
+        cols = [x[1] for x in r]
+        return sorted([c for c in cols if c.lower().startswith('w') and c != 'wave'])
+    except: return []
+
+def get_survey_categories(survey: str) -> List[str]:
+    """
+    Checks which category columns have valid data for the given survey.
+    """
+    table = "ecs_data" if survey in _ecs_surveys else "main_data"
+    candidates = ECS_CATEGORIES if survey in _ecs_surveys else EWCS_CATEGORIES
+    
+    valid = []
+    try:
+        # Check if table exists first
+        _con.execute(f"SELECT 1 FROM {table} LIMIT 0")
+        
+        # Check columns exist in table
+        t_info = _con.execute(f"PRAGMA table_info({table})").fetchall()
+        t_cols = {x[1].lower() for x in t_info}
+        
+        for cat in candidates:
+            if cat.lower() in t_cols:
+                # Optional: Check if non-null data exists for this survey
+                # This can be slow for large data, so we trust the column existence + survey filter
+                # sql = f"SELECT 1 FROM {table} WHERE survey = ? AND {cat} IS NOT NULL LIMIT 1"
+                # if _con.execute(sql, [survey]).fetchone():
+                valid.append(cat)
+    except:
+        pass
+    return valid
 
 def weighted_pct(
     survey: str,
@@ -255,235 +217,134 @@ def weighted_pct(
     category_value: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], str]:
     
-    # 1. Resolve Labels
-    actual_variable = None
-    original_question_num = None
-    q_label_text = question
-
+    # 1. Setup
+    is_ecs = survey in _ecs_surveys
+    table = "ecs_data" if is_ecs else "main_data"
+    
+    # Resolve Label
+    act_var, q_desc, orig_q = None, question, None
     try:
-        # Try matching Variable first (Robust)
-        lookup_var_sql = """
-            SELECT Variable, Question, "Question Number"
-            FROM dashboard_labels 
-            WHERE Survey = ? AND Variable = ? 
-            LIMIT 1
-        """
-        res = _con.execute(lookup_var_sql, [survey, question]).fetchone()
-        
-        if res:
-            actual_variable = res[0]
-            q_label_text = res[1]
-            original_question_num = str(res[2]) if res[2] else None
-        else:
-            # Try matching "Short" label (Legacy support)
-            lookup_short_sql = """
-                SELECT Variable, Question, "Question Number"
-                FROM dashboard_labels 
-                WHERE Survey = ? AND "Short" = ? 
-                LIMIT 1
-            """
-            res = _con.execute(lookup_short_sql, [survey, question]).fetchone()
-            if res:
-                actual_variable = res[0]
-                q_label_text = res[1]
-                original_question_num = str(res[2]) if res[2] else None
-            else:
-                actual_variable = question
+        r = _con.execute("SELECT Variable, Question, \"Question Number\" FROM dashboard_labels WHERE Survey = ? AND Variable = ? LIMIT 1", [survey, question]).fetchone()
+        if not r: r = _con.execute("SELECT Variable, Question, \"Question Number\" FROM dashboard_labels WHERE Survey = ? AND \"Short\" = ? LIMIT 1", [survey, question]).fetchone()
+        if r: act_var, q_desc, orig_q = r[0], r[1], str(r[2]) if r[2] else None
+        else: act_var = question
+    except: act_var = question
 
-    except Exception:
-        actual_variable = question
-
-    # 2. Query Data
+    # 2. Build Query
     df = pd.DataFrame()
     
-    # Build Category Filter SQL
-    cat_filter_sql = ""
-    cat_params = []
-    
+    # Category Filter
+    cat_sql = ""
+    cat_p = []
     if category_group and category_value:
-        if category_group.lower() in _cols_main_lower:
-            cat_filter_sql = f" AND CAST({category_group} AS INTEGER) = ?"
-            cat_params = [int(category_value)]
-        else:
-            print(f"Warning: Category column {category_group} not found.")
+        try:
+            # Check if cat col exists
+            _con.execute(f"SELECT {category_group} FROM {table} LIMIT 0")
+            cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
+            cat_p = [int(category_value)]
+        except: pass
 
-    # Wide Format Query
-    if actual_variable.lower() in _cols_main_lower:
-        col_name = _cols_map[actual_variable.lower()]
+    # Query
+    try:
+        # Check Wide
+        _con.execute(f"SELECT \"{act_var}\" FROM {table} LIMIT 0")
+        # Wide format query
         sql = f"""
-            SELECT 
-                country, 
-                "{col_name}" as val, 
-                SUM({weight}) as w_sum,
-                COUNT(*) as count
-            FROM main_data
-            WHERE survey = ? AND "{col_name}" IS NOT NULL
-            {cat_filter_sql}
+            SELECT country, "{act_var}" as val, SUM({weight}) as w_sum, COUNT(*) as count
+            FROM {table} WHERE survey = ? AND "{act_var}" IS NOT NULL {cat_sql}
             GROUP BY 1, 2
         """
+        df = _con.execute(sql, [survey] + cat_p).fetchdf()
+    except:
+        # Try Long
         try:
-            df = _con.execute(sql, [survey] + cat_params).fetchdf()
-        except Exception as e:
-            print(f"Query failed: {e}")
-            pass 
+            sql = f"""
+                SELECT country, value as val, SUM({weight}) as w_sum, COUNT(*) as count
+                FROM {table} WHERE survey = ? AND question = ? AND value IS NOT NULL {cat_sql}
+                GROUP BY 1, 2
+            """
+            df = _con.execute(sql, [survey, act_var] + cat_p).fetchdf()
+        except: pass
 
-    # Long Format Query
-    elif 'question' in _cols_main_lower and 'value' in _cols_main_lower:
-        sql = f"""
-            SELECT 
-                country, 
-                value as val, 
-                SUM({weight}) as w_sum,
-                COUNT(*) as count
-            FROM main_data
-            WHERE survey = ? AND question = ? AND value IS NOT NULL
-            {cat_filter_sql}
-            GROUP BY 1, 2
-        """
-        try:
-            df = _con.execute(sql, [survey, actual_variable] + cat_params).fetchdf()
-        except Exception as e:
-            print(f"Query failed: {e}")
-            pass
+    if df.empty: return [], q_desc
 
-    if df.empty:
-        return [], q_label_text
-
-    # Fetch Labels & Filter Exclusions
-    val_map = {}
-    if actual_variable:
-        val_map = _build_value_labels(survey, actual_variable)
+    # 3. Labels
+    val_map = _build_value_labels(survey, act_var)
+    if not val_map and orig_q:
+        val_map = _build_value_labels(survey, orig_q)
+        if not val_map: val_map = _build_value_labels(survey, f"q{orig_q}")
     
-    if not val_map and original_question_num:
-        val_map = _build_value_labels(survey, original_question_num)
-        if not val_map:
-             val_map = _build_value_labels(survey, f"q{original_question_num}")
-             if not val_map:
-                 val_map = _build_value_labels(survey, f"Q{original_question_num}")
+    # Exclude non-response
+    excl = ["dk", "dont know", "don't know", "na", "prefer not", "refusal", "no answer"]
+    bad_vals = {v for v, l in val_map.items() if any(x in str(l).lower() for x in excl)}
+    if bad_vals:
+        df = df[~df["val"].apply(lambda x: _normalize_val(x) in bad_vals)]
+        if df.empty: return [], q_desc
 
-    EXCLUSION_TERMS = ["dk", "dont know", "don't know", "na", "prefer not", "refusal", "no answer"]
-    excluded_values = set()
-    for val, label in val_map.items():
-        if any(term in str(label).lower() for term in EXCLUSION_TERMS):
-            excluded_values.add(val)
-    
-    if excluded_values:
-        def is_excluded(row_val):
-            return _normalize_val(row_val) in excluded_values
-        df = df[~df["val"].apply(is_excluded)]
-
-    if df.empty:
-        return [], q_label_text
-
-    # Calculate Totals and Percentages
+    # Calc
     df["w_total"] = df.groupby("country")["w_sum"].transform("sum")
     df["pct"] = (df["w_sum"] / df["w_total"]) * 100.0
-    
     df["total_count"] = df.groupby("country")["count"].transform("sum")
     
-    if min_pct > 0:
-        df = df[df["pct"] >= min_pct]
-
-    df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, x))
+    if min_pct: df = df[df["pct"] >= min_pct]
     
-    def get_val_label(val):
-        norm = _normalize_val(val)
-        return val_map.get(norm, str(val))
-
-    df["value_label"] = df["val"].apply(get_val_label)
-    df = df.sort_values(["country_label", "val"])
+    df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, x))
+    df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
     
     rows = []
-    for _, row in df.iterrows():
+    for _, r in df.sort_values(["country_label", "val"]).iterrows():
         rows.append({
-            "country": int(row["country"]),
-            "country_label": row["country_label"],
-            "value": str(row["val"]),
-            "value_label": row["value_label"],
-            "pct": float(row["pct"]),
-            "count": int(row["count"]),
-            "total_count": int(row["total_count"])
+            "country": int(r["country"]),
+            "country_label": r["country_label"],
+            "value": str(r["val"]),
+            "value_label": r["value_label"],
+            "pct": float(r["pct"]),
+            "count": int(r["count"]),
+            "total_count": int(r["total_count"])
         })
-        
-    return rows, q_label_text
+    return rows, q_desc
 
-def get_trend_data(
-    question_short: str,
-    weight: str,
-    response_labels: List[str],
-    countries: Optional[List[str]] = None,
-    category_group: Optional[str] = None,
-    category_value: Optional[str] = None,
-) -> List[Dict[str, Any]]:
-    
-    # Resolve variable from short label
-    var_code = question_short
+def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=None):
+    # Resolve var
+    var = q_short
     try:
-        res = _con.execute("""
-            SELECT Variable FROM dashboard_labels 
-            WHERE "Short" = ? LIMIT 1
-        """, [question_short]).fetchone()
-        if res:
-            var_code = res[0]
-    except:
-        pass
-
-    # Find surveys having this variable
-    q = """
-        SELECT DISTINCT Survey 
-        FROM dashboard_labels 
-        WHERE Variable = ?
-        ORDER BY Survey
-    """
-    surveys = [r[0] for r in _con.execute(q, [var_code]).fetchall()]
+        r = _con.execute("SELECT Variable FROM dashboard_labels WHERE \"Short\" = ? LIMIT 1", [q_short]).fetchone()
+        if r: var = r[0]
+    except: pass
     
-    results = []
+    # Find surveys
+    surveys = []
+    try:
+        r = _con.execute("SELECT DISTINCT Survey FROM dashboard_labels WHERE Variable = ? ORDER BY 1", [var]).fetchall()
+        surveys = [x[0] for x in r]
+    except: pass
     
-    for survey in surveys:
-        year = SURVEY_YEARS.get(survey, survey)
-        
+    out = []
+    for s in surveys:
         try:
-            rows, _ = weighted_pct(
-                survey, var_code, weight, 
-                category_group=category_group, 
-                category_value=category_value
-            )
-        except:
-            continue 
-            
-        if not rows:
-            continue
-            
-        country_aggs = {}
-        for row in rows:
-            c_label = row["country_label"]
-            
-            if countries and c_label not in countries:
-                continue
-                
-            if c_label not in country_aggs:
-                country_aggs[c_label] = {
-                    "value": 0.0, 
-                    "count": 0, 
-                    "total_count": 0
-                }
-            
-            if row["value_label"] in response_labels:
-                country_aggs[c_label]["value"] += row["pct"]
-                country_aggs[c_label]["count"] += row["count"]
-                
-            if row["total_count"] > country_aggs[c_label]["total_count"]:
-                country_aggs[c_label]["total_count"] = row["total_count"]
+            rows, _ = weighted_pct(s, var, weight, category_group=cat_grp, category_value=cat_val)
+        except: continue
+        if not rows: continue
         
-        for c_label, agg in country_aggs.items():
-            if agg["total_count"] > 0: 
-                results.append({
-                    "survey": survey,
-                    "year": year,
-                    "country": c_label,
-                    "value": agg["value"],
-                    "count": agg["count"],
-                    "total_count": agg["total_count"]
-                })
+        agg = {}
+        for r in rows:
+            c = r["country_label"]
+            if cntrys and c not in cntrys: continue
+            if c not in agg: agg[c] = {"v":0.0, "c":0, "tc":0}
             
-    return results
+            if r["value_label"] in resps:
+                agg[c]["v"] += r["pct"]
+                agg[c]["c"] += r["count"]
+            if r["total_count"] > agg[c]["tc"]: agg[c]["tc"] = r["total_count"]
+            
+        for c, d in agg.items():
+            if d["tc"] > 0:
+                out.append({
+                    "survey": s,
+                    "year": SURVEY_YEARS.get(s, s),
+                    "country": c,
+                    "value": d["v"],
+                    "count": d["c"],
+                    "total_count": d["tc"]
+                })
+    return out

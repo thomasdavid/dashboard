@@ -139,7 +139,6 @@
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
 
-  // --- CATEGORY MAPPINGS ---
   const CATEGORY_DEF = {
     "agesex": [
         {label: "Male 15-24", value: "1"}, {label: "Male 25-54", value: "2"}, {label: "Male 55+", value: "3"},
@@ -157,42 +156,44 @@
     "mm102grp": [{label: "Size Grp 1", value: "1"}, {label: "Size Grp 2", value: "2"}]
   };
   
-  // --- COLOR LOGIC ---
-  function interpolateColor(color1, color2, factor) {
-    if (arguments.length < 3) { factor = 0.5; }
-    var result = result || "#";
-    var r1 = parseInt(color1.substring(1, 3), 16);
-    var g1 = parseInt(color1.substring(3, 5), 16);
-    var b1 = parseInt(color1.substring(5, 7), 16);
-    var r2 = parseInt(color2.substring(1, 3), 16);
-    var g2 = parseInt(color2.substring(3, 5), 16);
-    var b2 = parseInt(color2.substring(5, 7), 16);
-    var r = Math.round(r1 + factor * (r2 - r1));
-    var g = Math.round(g1 + factor * (g2 - g1));
-    var b = Math.round(b1 + factor * (b2 - b1));
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-  }
-
+  // --- NEW COLOR LOGIC (Discrete Selection) ---
   function generateDivergingPalette(n) {
-    const blueStart = "#355582"; 
-    const blueEnd   = "#A0B0CA";
-    const greenStart= "#A0DCA0"; 
-    const greenEnd  = "#005F2F"; 
-    const grey      = "#D3D3D3";
-    
+    // Define pools: [Extreme -> Medium -> Light]
+    const blues  = ["#052F42", "#0F3D50", "#1B4C5F" ,"#265C6F"]; // Dark Blue -> Light Blue
+    const greens = ["#A38E7F", "#906036", "#BC6800","#A55100"]; // Dark Green -> Light Green
+    const grey   = "#8A8C8D";
+
     const colors = [];
     const mid = Math.floor(n / 2);
     const isOdd = n % 2 !== 0;
     
+    // Left Side (Blues): Fill from Extreme (index 0) inwards
     for (let i = 0; i < mid; i++) {
-        const factor = mid > 1 ? i / (mid - 1) : 0; 
-        colors.push(interpolateColor(blueStart, blueEnd, factor));
+        // If n is large, clamp to lightest color
+        const idx = Math.min(i, blues.length - 1);
+        colors.push(blues[idx]);
     }
+    
+    // Middle
     if (isOdd) colors.push(grey);
+    
+    // Right Side (Greens): Fill from Light to Extreme
+    // We want Light -> Med -> Dark for the right side (standard diverging)
+    // The 'greens' array is Dark->Light. So we pick based on proximity to edge?
+    // User Request: "Go in to the next colour from the edge".
+    // Logic: 
+    // n=2: [Blue0, Green0]
+    // n=4: [Blue0, Blue1, Green1, Green0] (Inner are lighter)
+    // n=6: [Blue0, Blue1, Blue2, Green2, Green1, Green0]
+    
+    const rightSide = [];
     for (let i = 0; i < mid; i++) {
-        const factor = mid > 1 ? i / (mid - 1) : 0;
-        colors.push(interpolateColor(greenStart, greenEnd, factor));
+        const idx = Math.min(i, greens.length - 1);
+        rightSide.push(greens[idx]);
     }
+    // Reverse right side so Extreme is at the end
+    colors.push(...rightSide.reverse());
+    
     return colors;
   }
 
@@ -224,6 +225,8 @@
   function getCountryKey(name) {
     if (!name) return null;
     const n = name.trim();
+    if (/^[a-zA-Z]{2}$/.test(n)) return n.toLowerCase();
+
     const isoMap = {
       "Albania": "al", "Austria": "at", "Belgium": "be", "Bulgaria": "bg", "Bosnia and Herzegovina": "ba",
       "Croatia": "hr", "Cyprus": "cy", "Czech Republic": "cz", "Czechia": "cz", "Denmark": "dk",
@@ -397,6 +400,7 @@
   }
 
   els.tQuestion.addEventListener('change', () => loadTrendOptions(false));
+
   async function loadTrendData() {
     const q=els.tQuestion.value, w=els.tWeight.value;
     const rs=Array.from(els.tResponse.selectedOptions).map(o=>o.value);
@@ -414,6 +418,7 @@
     drawTrendChart(data, lastTrendLabel);
     setStatus("");
   }
+
   els.tResponse.addEventListener('change', loadTrendData);
   els.tCountry.addEventListener('change', loadTrendData);
   els.tCategory.addEventListener('change', loadTrendData);
@@ -436,7 +441,7 @@
     checkLowBase(countries, c => currentData.find(r => r.country_label === c), els.threshold);
     const colors = generateDivergingPalette(answers.length);
     
-    // Conditional labels logic
+    // Only show if < 20 countries
     const showLabels = countries.length < 20;
 
     Highcharts.chart(els.container, {
@@ -447,7 +452,7 @@
           series: { 
               stacking: 'normal', 
               groupPadding: 0.1, 
-              pointPadding: 0.15, // Thinner bars (was 0.05)
+              pointPadding: 0.15, 
               dataLabels: {
                   enabled: showLabels,
                   color: '#FFFFFF',
@@ -456,7 +461,8 @@
                   style: { textOutline: 'none', fontSize: '11px', fontWeight: 'bold' },
                   formatter: function() {
                       if (this.y === null || this.y === 0) return null;
-                      return parseFloat(this.y.toPrecision(2)) + '%';
+                      // Max 2 significant figs (e.g. 67 or 6.7) and remove %
+                      return parseFloat(this.y.toPrecision(2));
                   }
               }
           } 

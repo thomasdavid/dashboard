@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import List, Optional, Any
 import os
+import secrets
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -13,12 +15,39 @@ from .service_duckdb import (
     list_questions_for_survey,
     list_longitudinal_questions,
     list_weights_for_survey,
-    get_survey_categories,  # NEW
+    get_survey_categories,
     weighted_pct,
     get_trend_data
 )
 
-app = FastAPI(title="EWCS prototype API")
+# ---------------------------------------------------------------------------
+# SECURITY CONFIGURATION
+# ---------------------------------------------------------------------------
+
+security = HTTPBasic()
+
+def check_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Enforces Basic Auth.
+    Username: admin
+    Password: eurofound
+    """
+    correct_username = secrets.compare_digest(credentials.username, "admin")
+    correct_password = secrets.compare_digest(credentials.password, "eurofound")
+    
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+# Initialize App with Global Security
+app = FastAPI(title="EWCS prototype API", dependencies=[Depends(check_credentials)])
+
+# ---------------------------------------------------------------------------
+# CORS
+# ---------------------------------------------------------------------------
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +57,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Models ---
+# ---------------------------------------------------------------------------
+# Models
+# ---------------------------------------------------------------------------
+
 class Survey(BaseModel):
     id: str
     label: str
@@ -41,7 +73,7 @@ class QuestionOut(BaseModel):
 class Weight(BaseModel):
     id: str
     label: str
-
+    
 class CategoryInfo(BaseModel):
     id: str
     label: str
@@ -67,10 +99,13 @@ class TrendPoint(BaseModel):
     count: int
     total_count: int
 
-# --- Endpoints ---
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
 
 @app.get("/")
 async def read_index():
+    # Serves the index1.html from the sibling 'web' folder
     file_path = os.path.join(os.path.dirname(__file__), "../web/index1.html")
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Index file not found")
@@ -108,7 +143,6 @@ def get_weights(survey: str):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return [Weight(id=w, label=w) for w in weights]
 
-# NEW ENDPOINT: Get available categories for a survey
 @app.get("/categories/{survey}", response_model=List[CategoryInfo])
 def get_categories(survey: str):
     try:

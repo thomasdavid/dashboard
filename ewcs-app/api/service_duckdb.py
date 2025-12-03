@@ -1,7 +1,10 @@
 """
 EWCS Dashboard – DuckDB + Pandas backend
-Cleaned version: Relies on updated CSV metadata.
-Includes EU27 Aggregation + Render Memory Fix.
+Features: 
+1. Auto-detects EWCSR8 metadata if missing from CSV (Fixes Dropdown).
+2. Calculates EU27 aggregates on the fly.
+3. Includes 'export_full_dataset' matching specific composite-key format.
+4. Optimized for Low-Memory environments (Render).
 """
 
 from __future__ import annotations
@@ -37,7 +40,6 @@ SURVEY_YEARS = {
 }
 
 # Standard EU27 (2020) Country Codes
-# Used to calculate the "EU27" aggregate row on the fly
 EU27_CODES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}
 
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
@@ -51,7 +53,7 @@ EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wsta
 
 print(f"--- Initialising DuckDB...")
 
-# 1. Use a temporary file buffer to prevent OOM crashes on 512MB instances
+# 1. Use a temporary file buffer to prevent OOM crashes
 db_path = os.path.join(tempfile.gettempdir(), "ewcs_buffer.duckdb")
 _con = duckdb.connect(database=db_path)
 
@@ -108,7 +110,6 @@ else:
 # ---------------------------------------------------------------------
 
 # 6. Labels -> TABLE
-# (Now relying on your updated CSV file to contain EWCSR8)
 try:
     _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
     _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
@@ -116,7 +117,66 @@ try:
 except Exception as e:
     print(f"!!! Error loading Labels CSV: {e}")
 
-# 7. Metadata Caching (For fast lookups)
+# ---------------------------------------------------------------------
+# CRITICAL FIX: Auto-Inject EWCSR8 Metadata if Missing
+# ---------------------------------------------------------------------
+try:
+    # 1. Check if EWCSR8 is in labels
+    chk = _con.execute("SELECT COUNT(*) FROM dashboard_labels WHERE Survey = 'EWCSR8'").fetchone()
+    
+    # 2. Check if data view exists
+    has_data_24 = False
+    try:
+        _con.execute("SELECT 1 FROM ewcs24_data LIMIT 1")
+        has_data_24 = True
+    except: pass
+
+    # 3. Auto-generate labels if missing from CSV
+    if chk and chk[0] == 0 and has_data_24:
+        print("--- DEBUG: EWCSR8 missing from labels. Auto-detecting variables...")
+        
+        tbl_info = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
+        cols_lower = {c[1].lower() for c in tbl_info}
+        
+        generated_vars = []
+
+        # STRATEGY 1: LONG FORMAT (Use row values from 'question' column)
+        if 'question' in cols_lower:
+            print("--- DEBUG: Detected LONG format (scanning 'question' column).")
+            # Fetch distinct question codes
+            q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data WHERE question IS NOT NULL").fetchall()
+            generated_vars = [str(r[0]) for r in q_rows]
+            
+        # STRATEGY 2: WIDE FORMAT (Use Column Headers)
+        else:
+            print("--- DEBUG: Detected WIDE format (scanning columns).")
+            exclude_cols = {
+                'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 
+                'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'
+            }
+            for col in tbl_info:
+                if col[1].lower() not in exclude_cols:
+                    generated_vars.append(col[1])
+
+        # Insert variables into dashboard_labels
+        insert_count = 0
+        for var_code in generated_vars:
+            q_text = f"{var_code} (Auto-detected)" 
+            # Schema: Survey, "Question Number", Variable, Question, "Short"
+            params = ['EWCSR8', var_code, var_code, q_text, var_code]
+            _con.execute("INSERT INTO dashboard_labels VALUES (?, ?, ?, ?, ?)", params)
+            insert_count += 1
+            
+        print(f"--- DEBUG: Injected {insert_count} variables for EWCSR8.")
+
+except Exception as e:
+    print(f"!!! Error injecting metadata: {e}")
+    traceback.print_exc()
+
+# ---------------------------------------------------------------------
+# Metadata Caching
+# ---------------------------------------------------------------------
+
 print("--- DEBUG: Caching metadata...")
 _data_variables = set()
 _ecs_surveys = set()
@@ -222,6 +282,29 @@ def _is_ecs(survey: str) -> bool:
 
 def _is_ewcs24(survey: str) -> bool:
     return survey == "EWCSR8"
+
+def get_category_values(survey: str, category_col: str) -> List[int]:
+    """Returns distinct numeric codes for a specific category column (e.g., sex, age)."""
+    if _is_ewcs24(survey):
+        tbl = "ewcs24_data"
+        cols = _cols_ewcs24_lower
+    elif _is_ecs(survey):
+        tbl = "ecs_data"
+        cols = _cols_ecs_lower
+    else:
+        tbl = "main_data"
+        cols = _cols_main_lower
+    
+    try:
+        if category_col.lower() not in cols:
+            return []
+        
+        # Ensure we get integers
+        sql = f"SELECT DISTINCT CAST({category_col} AS INTEGER) FROM {tbl} WHERE {category_col} IS NOT NULL ORDER BY 1"
+        rows = _con.execute(sql).fetchall()
+        return [r[0] for r in rows]
+    except:
+        return []
 
 # ---------------------------------------------------------------------
 # Logic
@@ -482,3 +565,107 @@ def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=No
                     "total_count": d["tc"]
                 })
     return out
+
+# ---------------------------------------------------------------------
+# EXPORT FUNCTION
+# ---------------------------------------------------------------------
+
+def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
+    """
+    Generates a full bulk export matching the requested relational format:
+    Columns: Question_ID, country, Score, unique_value, FilterID, Survey, LabelId, EU, Duplicateremove, Value_key
+    """
+    print(f"--- Starting Bulk Export for {survey}...")
+    
+    # 1. Get all questions
+    vars_list = list_questions_for_survey(survey)
+    valid_vars = [v['id'] for v in vars_list]
+    
+    if not valid_vars:
+        print("!!! No variables found for export.")
+        return pd.DataFrame()
+
+    # 2. Define Categories to loop through
+    # '0' represents "Total" (No Filter)
+    categories_to_process = [
+        {"col": None, "val": 0, "name": "Total"} 
+    ]
+    
+    # Add survey specific categories (Sex, Age, etc.)
+    survey_cats = get_survey_categories(survey)
+    for cat_col in survey_cats:
+        # Get distinct numeric values (e.g., 1, 2)
+        distinct_vals = get_category_values(survey, cat_col)
+        for val in distinct_vals:
+            categories_to_process.append({
+                "col": cat_col, 
+                "val": val, 
+                "name": f"{cat_col}_{val}"
+            })
+
+    all_rows = []
+    
+    # 3. Main Loop: Variable -> Category -> Calculate
+    total_steps = len(valid_vars)
+    
+    for idx, var_id in enumerate(valid_vars):
+        if idx % 5 == 0: print(f"Exporting {idx}/{total_steps}: {var_id}")
+        
+        for cat_def in categories_to_process:
+            cat_col = cat_def['col']
+            cat_val = cat_def['val']
+            
+            # FilterID mimics the screenshot (e.g., '1', '21' etc.)
+            filter_id = str(cat_val) 
+            
+            try:
+                # Calculate weighted stats (EU27 is handled inside)
+                if cat_col:
+                    data, _ = weighted_pct(survey, var_id, weight, category_group=cat_col, category_value=str(cat_val))
+                else:
+                    data, _ = weighted_pct(survey, var_id, weight) # Total
+
+                if not data: continue
+
+                # 4. Format rows
+                for r in data:
+                    country_code = r['country']
+                    
+                    # Logic for "EU" column (True if EU27 aggregate OR member state)
+                    # 999 is our code for the EU27 aggregate row
+                    is_eu = (country_code == 999) or (country_code in EU27_CODES)
+                    
+                    row_val = r['value'] # The response code (1, 2, 3...)
+                    
+                    # Composite Keys Construction
+                    # LabelId: Survey + Variable
+                    label_id = f"{survey}{var_id}"
+                    
+                    # Value_key: Survey + Variable + ResponseValue
+                    value_key = f"{survey}{var_id}_{row_val}"
+                    
+                    # Duplicateremove: Survey + Variable + ResponseValue + FilterID + CountryCode
+                    dup_remove = f"{survey}{var_id}_{row_val}_{filter_id}_{country_code}"
+
+                    csv_row = {
+                        "Question_ID": var_id,
+                        "country": country_code,
+                        "Score": round(r['pct'], 4), # Percentage / Index Value
+                        "unique_value": row_val,
+                        "FilterID": filter_id,
+                        "Survey": survey,
+                        "LabelId": label_id,
+                        "EU": is_eu,
+                        "Duplicateremove": dup_remove,
+                        "Value_key": value_key
+                    }
+                    all_rows.append(csv_row)
+
+            except Exception as e:
+                # Log error but keep going
+                # print(f"Error on {var_id} - {cat_def['name']}: {e}")
+                continue
+
+    # 5. Convert to DataFrame
+    df_export = pd.DataFrame(all_rows)
+    return df_export

@@ -271,7 +271,11 @@
 
   function drawBar() {
     els.mapControls.classList.add('hidden');
-    const countries = [...new Set(currentData.map(r=>r.country_label))];
+    const countries = [...new Set(currentData.map(r=>r.country_label))].sort((a,b) => {
+        if (a === "EU27") return -1;
+        if (b === "EU27") return 1;
+        return a.localeCompare(b);
+    });
     const answers = [...new Set(currentData.map(r=>r.value_label))];
     checkLowBase(countries, c => currentData.find(r => r.country_label === c), els.threshold);
     const colors = generateDivergingPalette(answers.length);

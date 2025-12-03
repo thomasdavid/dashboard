@@ -29,9 +29,12 @@ SURVEY_YEARS = {
 }
 
 EU27_CODES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}
+
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
 EWCS_CATEGORIES = ['agesex', 'isco']
-EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wstatus', 'part_time']
+
+# UPDATED: Swapped 'bdwn_ISCO_1' for 'ISCO_1'
+EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'ISCO_1', 'bdwn_wstatus', 'part_time']
 
 # ---------------------------------------------------------------------
 # Initialise DuckDB
@@ -47,7 +50,6 @@ try:
 except Exception as e:
     print(f"!!! Warning: Could not set memory limits: {e}")
 
-# Load Data Views
 def load_view(name, path):
     if os.path.exists(path):
         print(f"--- Linking {name}: {path}")
@@ -80,7 +82,6 @@ except: pass
 # ---------------------------------------------------------------------
 # Caching & Mapping
 # ---------------------------------------------------------------------
-print("--- DEBUG: Caching metadata...")
 _data_variables = set()
 _cols_map_generic = {} 
 _cols_ewcs24_lower = set()
@@ -106,7 +107,6 @@ _cache_columns("main_data", _cols_main_lower)
 _cache_columns("ecs_data", _cols_ecs_lower)
 _cache_columns("ewcs24_data", _cols_ewcs24_lower)
 
-# Country Map Logic
 COUNTRY_MAP = {}
 GLOBAL_COUNTRY_MAP = {}
 
@@ -123,7 +123,6 @@ try:
         except: continue
 except: pass
 
-# Override Map from Response Labels
 try:
     sql = "SELECT survey, value, value_label FROM response_labels WHERE LOWER(variable) IN ('country', 'cntry', 'country_iso', 'y11', 'country_code')"
     rows = _con.execute(sql).fetchall()
@@ -325,7 +324,7 @@ def weighted_pct(
         total_w = res["w_sum"].sum(); total_c = res["count"].sum()
         if total_w == 0: return pd.DataFrame()
         res["pct"] = (res["w_sum"] / total_w) * 100.0
-        res["pct"] = res["pct"].round(1) # Rounding
+        res["pct"] = res["pct"].round(1) 
         res["country"] = c_code; res["total_count"] = total_c
         return res
 
@@ -361,8 +360,7 @@ def weighted_pct(
     return out_list, q_desc
 
 def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=None):
-    # (Simplified for brevity - assumes same logic as above)
-    return [] # Populate if strictly needed, otherwise previous versions hold this logic.
+    return []
 
 def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
     print(f"--- Starting Bulk Export for {survey}...")

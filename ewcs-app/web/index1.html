@@ -34,7 +34,6 @@
   .btn-full:hover { background-color: #2a4469; }
   .btn-full:disabled { background-color: #9ca2a9; border-color: #9ca2a9; cursor: not-allowed; }
 
-  /* Toggles & Tabs */
   .toggle-wrapper { display: flex; align-items: center; gap: 10px; padding-bottom: 5px; }
   .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -111,7 +110,7 @@
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
 
-  // --- UPDATED CATEGORY MAPPINGS (Fixes "35:54" issue) ---
+  // --- UPDATED CATEGORY MAPPINGS (Fixed 35:54 and ISCO_1) ---
   const CATEGORY_DEF = {
     // --- Old EWCS ---
     "agesex": [
@@ -128,10 +127,10 @@
     // --- NEW: EWCS 2024 (EWCSR8) ---
     "sex2": [{label: "Male", value: "1"}, {label: "Female", value: "2"}],
     
-    // AGE: Matches Parquet exactly (Colon)
+    // AGE: Value set to "35:54:00" to match weird DB string
     "age3": [
         {label: "16-34", value: "16-34"}, 
-        {label: "35-54", value: "35:54"}, // <--- The Fix
+        {label: "35-54", value: "35:54:00"}, 
         {label: "55+", value: "55+"}
     ],
     
@@ -140,7 +139,8 @@
         {label: "Commerce & hospitality", value: "Commerce & hospitality"}, {label: "Transport", value: "Transport"}, {label: "Financial services", value: "Financial services"}, 
         {label: "Public administration", value: "Public administration"}, {label: "Education", value: "Education"}, {label: "Health", value: "Health"}, {label: "Other services", value: "Other services"}
     ],
-    "bdwn_ISCO_1": [
+    // ISCO_1: Using clean Numeric Column
+    "ISCO_1": [
         {label: "1. Managers", value: "1"}, {label: "2. Professionals", value: "2"}, {label: "3. Technicians", value: "3"}, {label: "4. Clerks", value: "4"}, 
         {label: "5. Service/Sales", value: "5"}, {label: "6. Skilled Agric", value: "6"}, {label: "7. Craft/Trades", value: "7"}, {label: "8. Plant/Machine", value: "8"}, 
         {label: "9. Elementary", value: "9"}, {label: "0. Armed Forces", value: "0"}
@@ -245,8 +245,6 @@
 
   async function initTrend() { if(trendInitDone) return; trendInitDone = true; const qs = await fetchJson(`${API_BASE}/questions/longitudinal`); els.tQuestion.innerHTML = '<option value="">Select...</option>' + qs.map(q=>`<option value="${q.id}">${q.label}</option>`).join(''); const ws = await fetchJson(`${API_BASE}/weights/EWCSR4`); els.tWeight.innerHTML = '<option value="">Select...</option>' + ws.map(w=>`<option value="${w.id}">${w.label}</option>`).join(''); if(ws.some(w=>w.id===DEFAULT_WEIGHT)) els.tWeight.value=DEFAULT_WEIGHT; await updateCategories("EWCSR4", els.tCategory); }
   
-  // (Trend Logic omitted for brevity, identical to previous)
-
   function checkLowBase(countries, getDataFn, thresholdInput) {
     const limit = parseInt(thresholdInput.value) || 300; const low = [];
     countries.forEach(c => { const d = getDataFn(c); if (d && d.total_count < limit) low.push(`${c} (N=${d.total_count})`); });
@@ -334,6 +332,24 @@
       chart: { map: 'custom/europe' }, exporting: { enabled: true }, title: { text: getTitle() }, subtitle: { text: subtitle }, mapNavigation: { enabled: true },
       colorAxis: { min: Math.min(...data.map(d=>d.value)), max: Math.max(...data.map(d=>d.value)), stops: [[0,'#EFEFFF'],[0.5,'#355582'],[1,'#005F2F']] },
       series: [{ data, name: 'Value', states: { hover: { color: '#BADA55' } } }], credits: { enabled: false }
+    });
+  }
+
+  function drawTrendChart(data, label) {
+    const countries = [...new Set(data.map(d=>d.country))].sort();
+    const years = [...new Set(data.map(d=>d.year))].sort();
+    const limit = parseInt(els.tThreshold.value) || 300;
+    const lowPoints = data.filter(d => d.total_count < limit);
+    if(lowPoints.length) {
+      const lowCs = [...new Set(lowPoints.map(d=>`${d.country} (${d.year})`))];
+      els.notes.innerHTML = `<b>Note:</b> Low base size (<${limit}): ${lowCs.join(', ')}.`;
+    } else els.notes.innerHTML = "";
+    
+    Highcharts.chart(els.container, {
+      title: { text: els.tQuestion.options[els.tQuestion.selectedIndex].text }, subtitle: { text: `Trend: ${label}` }, xAxis: { categories: years }, yAxis: { title: { text: '%' }, min: 0, max: 100 },
+      tooltip: { pointFormatter: function() { return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y.toFixed(1)}%<br/>(N=${this.count}, Total=${this.total_count})<br/>`; } },
+      series: countries.map(c => ({ name: c, data: years.map(y => { const d = data.find(x => x.country === c && x.year === y); return d ? { y: parseFloat(d.value.toFixed(1)), count: d.count, total_count: d.total_count } : null; }) })),
+      credits: { enabled: false }
     });
   }
 

@@ -1,6 +1,11 @@
 """
 EWCS Dashboard – DuckDB + Pandas backend
-Updated: Prioritizes CSV for labels, fixes Category Filters, and maps EWCSR8 countries.
+Features: 
+1. Handles mixed-type Category Filters (Numeric vs String).
+2. Prioritizes CSV for labels (Fixes mapping issues).
+3. Auto-detects EWCSR8 metadata.
+4. Calculates EU27 aggregates.
+5. Optimized for Render (Low RAM).
 """
 
 from __future__ import annotations
@@ -98,7 +103,7 @@ else:
 
 
 # ---------------------------------------------------------------------
-# Metadata Loading - UPDATED TO SUPPORT CSV
+# Metadata Loading
 # ---------------------------------------------------------------------
 
 # 4. Labels -> TABLE
@@ -109,15 +114,11 @@ try:
 except Exception as e:
     print(f"!!! Error loading Labels CSV: {e}")
 
-# 5. Response Labels -> TABLE (FIXED: Tries CSV first, then Parquet)
-# This ensures your recent updates to the CSV file are actually loaded.
+# 5. Response Labels -> TABLE (Prioritizes CSV)
 try:
-    # Construct CSV path based on settings or assumption
     resp_csv = str(RESPONSE_META_FILE).replace(".parquet", ".csv")
-    
     if os.path.exists(resp_csv):
         print(f"--- Loading Response Labels from CSV: {resp_csv}")
-        # Use quote='"' to handle quoted strings in CSV
         _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_csv('{resp_csv}', auto_detect=True, header=True);")
     else:
         print(f"--- Loading Response Labels from Parquet: {RESPONSE_META_FILE}")
@@ -167,7 +168,7 @@ try:
 except: pass
 
 # ---------------------------------------------------------------------
-# Country Map Logic (FIXED FOR EWCSR8)
+# Country Map Logic
 # ---------------------------------------------------------------------
 COUNTRY_MAP = {}
 GLOBAL_COUNTRY_MAP = {}
@@ -189,11 +190,9 @@ try:
 except Exception as e:
     print(f"!!! Error loading Country Map: {e}")
 
-# 2. OVERRIDE with Response Labels (Crucial for EWCSR8 Fix)
+# 2. OVERRIDE with Response Labels
 print("--- DEBUG: Updating Country Map from Response Labels...")
 try:
-    # Query for any variable that looks like a country definition
-    # We explicitly look for EWCSR8 in the query to verify your file update
     sql = """
         SELECT survey, value, value_label 
         FROM response_labels 
@@ -201,23 +200,17 @@ try:
     """
     rows = _con.execute(sql).fetchall()
     count_updated = 0
-    ewcsr8_found = False
     
     for r in rows:
         try:
             srv = str(r[0]).strip()
-            # Handle float strings cleanly (e.g., "1.0" -> 1)
             val_id = int(float(r[1])) 
             lbl = r[2]
-            
             COUNTRY_MAP[(srv, val_id)] = lbl
-            
-            if srv == 'EWCSR8': ewcsr8_found = True
             if val_id not in GLOBAL_COUNTRY_MAP: GLOBAL_COUNTRY_MAP[val_id] = lbl
             count_updated += 1
         except: continue
-        
-    print(f"--- DEBUG: Updated {count_updated} mappings. EWCSR8 Countries Found: {ewcsr8_found}")
+    print(f"--- DEBUG: Updated {count_updated} mappings.")
     
 except Exception as e:
     print(f"!!! Error updating country map from labels: {e}")
@@ -306,10 +299,13 @@ def get_category_values(survey: str, category_col: str) -> List[int]:
     
     try:
         if category_col.lower() not in cols: return []
-        # Safe cast to ignore junk
-        sql = f"SELECT DISTINCT CAST({category_col} AS INTEGER) FROM {tbl} WHERE {category_col} IS NOT NULL ORDER BY 1"
-        rows = _con.execute(sql).fetchall()
-        return [r[0] for r in rows]
+        # Check if column is numeric or string
+        try:
+            sql = f"SELECT DISTINCT {category_col} FROM {tbl} WHERE {category_col} IS NOT NULL ORDER BY 1"
+            rows = _con.execute(sql).fetchall()
+            # Return raw values (could be string or int)
+            return [r[0] for r in rows]
+        except: return []
     except: return []
 
 # ---------------------------------------------------------------------
@@ -385,19 +381,30 @@ def weighted_pct(
         else: act_var = question
     except: act_var = question
 
-    # 2. Build Query & Category Filter Logic
+    # 2. Build Query & Category Filter Logic (UPDATED MIXED TYPE SUPPORT)
     df = pd.DataFrame()
     cat_sql = ""
     cat_p = []
     
     if category_group and category_value:
         if category_group.lower() in cols_lower:
-            # SAFETY FIX: Double Cast (Int -> Varchar) ensures 1.0 matches '1'
-            # We assume category_value is passed as a string from frontend
-            cat_sql = f" AND CAST(CAST({category_group} AS INTEGER) AS VARCHAR) = ?"
-            # Ensure we compare against a clean string version of the integer
-            clean_val = str(int(float(category_value)))
-            cat_p = [clean_val]
+            # Determine if we should treat this as a Number or a String
+            is_numeric_filter = False
+            try:
+                # remove .0 for integer check
+                clean_chk = str(category_value).replace('.0', '')
+                if clean_chk.isdigit():
+                    is_numeric_filter = True
+            except: pass
+
+            if is_numeric_filter:
+                # Numeric: Cast column to int to match input '1' against '1.0'
+                cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
+                cat_p = [int(float(category_value))]
+            else:
+                # String: Use as is for things like "Agriculture", "35:54"
+                cat_sql = f" AND {category_group} = ?"
+                cat_p = [str(category_value)]
 
     cntry_col = "country"
     if "country" not in cols_lower:
@@ -559,7 +566,10 @@ def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
         if idx % 5 == 0: print(f"Exporting {idx}/{total_steps}: {var_id}")
         for cat_def in categories_to_process:
             cat_col, cat_val = cat_def['col'], cat_def['val']
+            # FilterID logic: if numeric keep as is, if string we might want to hash or keep as string
+            # For the CSV output, we cast to string
             filter_id = str(cat_val) 
+            
             try:
                 if cat_col:
                     data, _ = weighted_pct(survey, var_id, weight, category_group=cat_col, category_value=str(cat_val))

@@ -1,6 +1,7 @@
 """
 EWCS Dashboard – DuckDB + Pandas backend
-Updated for EWCS 2024 Long Format + EU27 Aggregation
+Cleaned version: Relies on updated CSV metadata.
+Includes EU27 Aggregation + Render Memory Fix.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional
 import traceback
 import os
+import tempfile
 
 from .settings import (
     DATA_FILE,
@@ -34,11 +36,8 @@ SURVEY_YEARS = {
     "EWCSR8": 2024 # NEW SURVEY
 }
 
-# Standard Eurofound Country Codes for EU27 (2020 definition)
-# 1=BE, 2=DK, 3=DE, 4=GR, 5=ES, 6=FR, 7=IE, 8=IT, 9=LU, 10=NL, 
-# 11=PT, 13=AT, 14=SE, 15=FI, 16=CY, 17=CZ, 18=EE, 19=HU, 20=LV, 
-# 21=LT, 22=MT, 23=PL, 24=SK, 25=SI, 26=BG, 27=RO, 28=HR
-# (Excludes 12=UK)
+# Standard EU27 (2020) Country Codes
+# Used to calculate the "EU27" aggregate row on the fly
 EU27_CODES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}
 
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
@@ -47,29 +46,25 @@ EWCS_CATEGORIES = ['agesex', 'isco']
 EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wstatus', 'part_time']
 
 # ---------------------------------------------------------------------
-# Initialise DuckDB
+# Initialise DuckDB (Optimized for Render/Low RAM)
 # ---------------------------------------------------------------------
-
-import tempfile
 
 print(f"--- Initialising DuckDB...")
 
-# 1. Use a temporary file instead of RAM. 
-# Render's ephemeral disk is slower but won't crash your app like RAM will.
+# 1. Use a temporary file buffer to prevent OOM crashes on 512MB instances
 db_path = os.path.join(tempfile.gettempdir(), "ewcs_buffer.duckdb")
 _con = duckdb.connect(database=db_path)
 
-# 2. Set strict memory limits.
-# On a 512MB instance, leave ~200MB for Python/Pandas/Gunicorn overhead.
-# Limit DuckDB to 256MB.
+# 2. Set strict memory limits
 try:
     _con.execute("PRAGMA memory_limit='256MB'") 
-    _con.execute("PRAGMA threads=2") # Limit threads to reduce context switching overhead
-    _con.execute("PRAGMA temp_directory='/tmp'") # Ensure spilling goes to writable disk
+    _con.execute("PRAGMA threads=2")
+    _con.execute("PRAGMA temp_directory='/tmp'")
     print("--- DuckDB configured for low-memory environment.")
 except Exception as e:
     print(f"!!! Warning: Could not set memory limits: {e}")
-# 1. Load EWCS Data -> VIEW
+
+# 3. Load EWCS Data -> VIEW
 if os.path.exists(DATA_FILE):
     print(f"--- Linking EWCS data: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
@@ -83,7 +78,7 @@ except Exception as e:
     print(f"!!! Error linking EWCS data: {e}")
     _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# 2. Load ECS Data -> VIEW
+# 4. Load ECS Data -> VIEW
 if os.path.exists(ECS_DATA_FILE):
     print(f"--- Linking ECS data: {ECS_DATA_FILE}")
     try:
@@ -95,7 +90,7 @@ else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
     _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 
-# 3. Load EWCS 2024 Data -> VIEW (NEW)
+# 5. Load EWCS 2024 Data -> VIEW (NEW)
 if os.path.exists(EWCS24_DATA_FILE):
     print(f"--- Linking EWCS 2024 data: {EWCS24_DATA_FILE}")
     try:
@@ -108,73 +103,20 @@ else:
     _con.execute("CREATE OR REPLACE VIEW ewcs24_data AS SELECT 1 as dummy")
 
 
-# 4. Labels -> TABLE
+# ---------------------------------------------------------------------
+# Metadata Loading
+# ---------------------------------------------------------------------
+
+# 6. Labels -> TABLE
+# (Now relying on your updated CSV file to contain EWCSR8)
 try:
     _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
     _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
     _con.execute("CREATE INDEX idx_labels_var ON dashboard_labels(Variable)")
-except: pass
-
-# ---------------------------------------------------------------------
-# METADATA INJECTION (FIX FOR EWCSR8)
-# ---------------------------------------------------------------------
-try:
-    # 1. Check if EWCSR8 is in labels
-    chk = _con.execute("SELECT COUNT(*) FROM dashboard_labels WHERE Survey = 'EWCSR8'").fetchone()
-    
-    # 2. Check if data view exists
-    has_data_24 = False
-    try:
-        _con.execute("SELECT 1 FROM ewcs24_data LIMIT 1")
-        has_data_24 = True
-    except: pass
-
-    # 3. Auto-generate labels if missing
-    if chk and chk[0] == 0 and has_data_24:
-        print("--- DEBUG: EWCSR8 metadata missing. Auto-detecting variables...")
-        
-        tbl_info = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
-        cols_lower = {c[1].lower() for c in tbl_info}
-        
-        generated_vars = []
-
-        # STRATEGY 1: LONG FORMAT (Use row values from 'question' column)
-        if 'question' in cols_lower:
-            print("--- DEBUG: Detected LONG format (scanning 'question' column).")
-            # Fetch distinct question codes
-            q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data WHERE question IS NOT NULL").fetchall()
-            generated_vars = [str(r[0]) for r in q_rows]
-            
-        # STRATEGY 2: WIDE FORMAT (Use Column Headers)
-        else:
-            print("--- DEBUG: Detected WIDE format (scanning columns).")
-            exclude_cols = {
-                'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 
-                'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'
-            }
-            for col in tbl_info:
-                if col[1].lower() not in exclude_cols:
-                    generated_vars.append(col[1])
-
-        # Insert variables into dashboard_labels
-        insert_count = 0
-        for var_code in generated_vars:
-            q_text = f"{var_code} (Auto-detected)" 
-            # Schema: Survey, "Question Number", Variable, Question, "Short"
-            params = ['EWCSR8', var_code, var_code, q_text, var_code]
-            _con.execute("INSERT INTO dashboard_labels VALUES (?, ?, ?, ?, ?)", params)
-            insert_count += 1
-            
-        print(f"--- DEBUG: Injected {insert_count} variables for EWCSR8.")
-
 except Exception as e:
-    print(f"!!! Error injecting metadata: {e}")
-    traceback.print_exc()
+    print(f"!!! Error loading Labels CSV: {e}")
 
-# ---------------------------------------------------------------------
-# Metadata Caching
-# ---------------------------------------------------------------------
-
+# 7. Metadata Caching (For fast lookups)
 print("--- DEBUG: Caching metadata...")
 _data_variables = set()
 _ecs_surveys = set()
@@ -189,8 +131,11 @@ def _cache_columns(table_name, target_set):
         
         # If 'question' column exists (long format), cache distinct values
         if 'question' in cols:
-            q_rows = _con.execute(f"SELECT DISTINCT question FROM {table_name}").fetchall()
-            _data_variables.update({str(row[0]).lower() for row in q_rows})
+            # Only cache distinct questions if table isn't dummy
+            count = _con.execute(f"SELECT count(*) FROM {table_name}").fetchone()[0]
+            if count > 1:
+                q_rows = _con.execute(f"SELECT DISTINCT question FROM {table_name} WHERE question IS NOT NULL").fetchall()
+                _data_variables.update({str(row[0]).lower() for row in q_rows})
         else:
             # Wide format, cache column names
             _data_variables.update(cols)
@@ -212,7 +157,7 @@ try:
 except: pass
 
 
-# 5. Response Labels -> TABLE
+# 8. Response Labels -> TABLE
 try:
     _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
     _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")

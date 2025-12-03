@@ -1,10 +1,10 @@
 """
-EWCS Dashboard – DuckDB + Pandas backend
+EWCS Dashboard – DuckDB + Pandas backend (service_duckdb.py)
 Features: 
-1. Handles mixed-type Category Filters (Numeric vs String).
-2. Prioritizes CSV for labels (Fixes mapping issues).
-3. Auto-detects EWCSR8 metadata.
-4. Calculates EU27 aggregates.
+1. Smart Filter Logic (Handles "1" vs "1.0" vs "1. Managers").
+2. Rounding to 1 decimal place (6.7 or 67).
+3. Prioritizes CSV for labels.
+4. Auto-detects EWCSR8 metadata.
 5. Optimized for Render (Low RAM).
 """
 
@@ -381,7 +381,7 @@ def weighted_pct(
         else: act_var = question
     except: act_var = question
 
-    # 2. Build Query & Category Filter Logic (UPDATED MIXED TYPE SUPPORT)
+    # 2. Build Query & Category Filter Logic (SMART MATCHING)
     df = pd.DataFrame()
     cat_sql = ""
     cat_p = []
@@ -390,20 +390,26 @@ def weighted_pct(
         if category_group.lower() in cols_lower:
             # Determine if we should treat this as a Number or a String
             is_numeric_filter = False
+            int_val = 0
             try:
-                # remove .0 for integer check
-                clean_chk = str(category_value).replace('.0', '')
-                if clean_chk.isdigit():
+                # Check if it looks like a number (handle 1, 1.0)
+                f_val = float(category_value)
+                if f_val.is_integer():
                     is_numeric_filter = True
+                    int_val = int(f_val)
             except: pass
 
             if is_numeric_filter:
-                # Numeric: Cast column to int to match input '1' against '1.0'
-                cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
-                cat_p = [int(float(category_value))]
+                # Numeric Filter Logic:
+                # Match 1. exact integer (1)
+                # Match 2. integer cast (1.0 -> 1)
+                # Match 3. String Prefix (e.g. "1. Managers" starts with "1.")
+                cat_sql = f" AND (TRY_CAST({category_group} AS INTEGER) = ? OR CAST({category_group} AS VARCHAR) LIKE ? || '.%')"
+                cat_p = [int_val, str(int_val)]
             else:
-                # String: Use as is for things like "Agriculture", "35:54"
-                cat_sql = f" AND {category_group} = ?"
+                # String Filter Logic:
+                # Exact match for strings (e.g. "Agriculture", "35:54")
+                cat_sql = f" AND CAST({category_group} AS VARCHAR) = ?"
                 cat_p = [str(category_value)]
 
     cntry_col = "country"
@@ -465,7 +471,9 @@ def weighted_pct(
         total_w = res["w_sum"].sum()
         total_c = res["count"].sum()
         if total_w == 0: return pd.DataFrame()
+        # ROUNDING LOGIC: Round to 1 decimal place here (e.g. 67.2)
         res["pct"] = (res["w_sum"] / total_w) * 100.0
+        res["pct"] = res["pct"].round(1) 
         res["country"] = c_code
         res["total_count"] = total_c
         return res
@@ -533,11 +541,13 @@ def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=No
             if r["total_count"] > agg[c]["tc"]: agg[c]["tc"] = r["total_count"]
         for c, d in agg.items():
             if d["tc"] > 0:
+                # Round Trend Data too
+                val = round(d["v"], 1)
                 out.append({
                     "survey": s,
                     "year": SURVEY_YEARS.get(s, s),
                     "country": c,
-                    "value": d["v"],
+                    "value": val,
                     "count": d["c"],
                     "total_count": d["tc"]
                 })
@@ -583,10 +593,14 @@ def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
                     label_id = f"{survey}{var_id}"
                     value_key = f"{survey}{var_id}_{row_val}"
                     dup_remove = f"{survey}{var_id}_{row_val}_{filter_id}_{country_code}"
+                    
+                    # Score is already rounded in weighted_pct, but ensure consistency
+                    score_val = round(r['pct'], 1) 
+
                     csv_row = {
                         "Question_ID": var_id,
                         "country": country_code,
-                        "Score": round(r['pct'], 4),
+                        "Score": score_val,
                         "unique_value": row_val,
                         "FilterID": filter_id,
                         "Survey": survey,

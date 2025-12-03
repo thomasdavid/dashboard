@@ -16,7 +16,13 @@ from .settings import (
     LABELS_FILE,
     RESPONSE_META_FILE,
     COUNTRY_FILE,
+    # You might need to add this to settings.py if not dynamic, 
+    # but here I'll assume a relative path or existing pattern
+    DATA_DIR 
 )
+
+# Define path for new survey if not in settings
+EWCS24_DATA_FILE = DATA_DIR / "EWCSR8.parquet"
 
 # ---------------------------------------------------------------------
 # Constants
@@ -25,11 +31,14 @@ from .settings import (
 SURVEY_YEARS = {
     "EWCSR1": 1991, "EWCSR2": 1995, "EWCSR3": 2000, "EWCSR4": 2005,
     "EWCSR5": 2010, "EWCSR6": 2015, "EWCS2021": 2021, "COVID": 2020,
-    "ECSR1": 2004, "ECSR2": 2009, "ECSR3": 2013, "ECSR4": 2019
+    "ECSR1": 2004, "ECSR2": 2009, "ECSR3": 2013, "ECSR4": 2019,
+    "EWCSR8": 2024 # NEW SURVEY
 }
 
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
 EWCS_CATEGORIES = ['agesex', 'isco']
+# NEW Categories for EWCS 2024
+EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wstatus', 'part_time']
 
 # ---------------------------------------------------------------------
 # Initialise DuckDB
@@ -38,7 +47,7 @@ EWCS_CATEGORIES = ['agesex', 'isco']
 print(f"--- Initialising DuckDB...")
 _con = duckdb.connect(database=":memory:")
 
-# 1. Load EWCS Data -> VIEW (Saves RAM)
+# 1. Load EWCS Data -> VIEW
 if os.path.exists(DATA_FILE):
     print(f"--- Linking EWCS data: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
@@ -47,13 +56,12 @@ else:
     print(f"--- Linking EWCS split data: {ewcs_path}")
 
 try:
-    # USE VIEW: Reads from disk on demand. Slower query, but won't crash RAM.
     _con.execute(f"CREATE OR REPLACE VIEW main_data AS SELECT * FROM read_parquet('{ewcs_path}');")
 except Exception as e:
     print(f"!!! Error linking EWCS data: {e}")
     _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# 2. Load ECS Data -> VIEW (Saves RAM)
+# 2. Load ECS Data -> VIEW
 if os.path.exists(ECS_DATA_FILE):
     print(f"--- Linking ECS data: {ECS_DATA_FILE}")
     try:
@@ -65,22 +73,36 @@ else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
     _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 
+# 3. Load EWCS 2024 Data -> VIEW (NEW)
+if os.path.exists(EWCS24_DATA_FILE):
+    print(f"--- Linking EWCS 2024 data: {EWCS24_DATA_FILE}")
+    try:
+        _con.execute(f"CREATE OR REPLACE VIEW ewcs24_data AS SELECT * FROM read_parquet('{EWCS24_DATA_FILE}');")
+    except Exception as e:
+        print(f"!!! Error linking EWCS 2024 data: {e}")
+        _con.execute("CREATE OR REPLACE VIEW ewcs24_data AS SELECT 1 as dummy")
+else:
+    print(f"!!! EWCS 2024 Data file not found: {EWCS24_DATA_FILE}")
+    _con.execute("CREATE OR REPLACE VIEW ewcs24_data AS SELECT 1 as dummy")
+
+
 # --- CACHE METADATA ---
 print("--- DEBUG: Caching metadata...")
 _data_variables = set()
 _ecs_surveys = set()
+_ewcs24_surveys = {"EWCSR8"} # Known ID
 
 _cols_main_lower = set()
-_cols_main_map = {}
 _cols_ecs_lower = set()
-_cols_ecs_map = {}
+_cols_ewcs24_lower = set()
+_cols_map_generic = {} # Generic map for fallback
 
 try:
     # EWCS Columns
     try:
         r = _con.execute("PRAGMA table_info(main_data)").fetchall()
         _cols_main_lower = {x[1].lower() for x in r}
-        _cols_main_map = {x[1].lower(): x[1] for x in r}
+        for x in r: _cols_map_generic[x[1].lower()] = x[1]
         
         if 'question' in _cols_main_lower:
             rows = _con.execute("SELECT DISTINCT question FROM main_data").fetchall()
@@ -93,29 +115,39 @@ try:
     try:
         r_ecs = _con.execute("PRAGMA table_info(ecs_data)").fetchall()
         _cols_ecs_lower = {x[1].lower() for x in r_ecs}
-        _cols_ecs_map = {x[1].lower(): x[1] for x in r_ecs}
+        for x in r_ecs: _cols_map_generic[x[1].lower()] = x[1]
         
         if 'survey' in _cols_ecs_lower:
             s_rows = _con.execute("SELECT DISTINCT survey FROM ecs_data").fetchall()
             _ecs_surveys = {str(row[0]) for row in s_rows}
-            print(f"--- DEBUG: ECS Surveys found in DB: {_ecs_surveys}")
             
             if 'question' in _cols_ecs_lower:
                 q_rows = _con.execute("SELECT DISTINCT question FROM ecs_data").fetchall()
                 _data_variables.update({str(row[0]).lower() for row in q_rows})
     except: pass
 
+    # EWCS 2024 Columns (NEW)
+    try:
+        r_24 = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
+        _cols_ewcs24_lower = {x[1].lower() for x in r_24}
+        for x in r_24: _cols_map_generic[x[1].lower()] = x[1]
+        
+        if 'question' in _cols_ewcs24_lower:
+            q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data").fetchall()
+            _data_variables.update({str(row[0]).lower() for row in q_rows})
+    except: pass
+
 except Exception as e:
     print(f"!!! Metadata Cache Error: {e}")
 
-# 3. Labels -> TABLE (Small enough for RAM, speeds up UI)
+# 4. Labels -> TABLE
 try:
     _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
     _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
     _con.execute("CREATE INDEX idx_labels_var ON dashboard_labels(Variable)")
 except: pass
 
-# 4. Response Labels -> TABLE (Small enough for RAM)
+# 5. Response Labels -> TABLE
 try:
     _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
     _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")
@@ -177,6 +209,9 @@ def _build_value_labels(survey: str, variable: str) -> Dict[str, str]:
 def _is_ecs(survey: str) -> bool:
     return survey in _ecs_surveys or survey.upper().startswith("ECSR")
 
+def _is_ewcs24(survey: str) -> bool:
+    return survey == "EWCSR8"
+
 # ---------------------------------------------------------------------
 # Logic
 # ---------------------------------------------------------------------
@@ -200,17 +235,31 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
     except: return []
 
 def list_weights_for_survey(survey: str) -> List[str]:
+    if _is_ewcs24(survey):
+        return ["calweight"] # Force single option for 2024
+    
     if _is_ecs(survey):
         return ["emp_wei", "est_wei"]
+        
     try:
-        cols = _cols_main_map.values()
+        # For older EWCS, find columns starting with 'w'
+        # Use generic map as main_data might not be active
+        cols = _cols_map_generic.values()
         return sorted([c for c in cols if c.lower().startswith('w') and c != 'wave'])
     except: return []
 
 def get_survey_categories(survey: str) -> List[str]:
-    is_ecs = _is_ecs(survey)
-    table_cols = _cols_ecs_lower if is_ecs else _cols_main_lower
-    candidates = ECS_CATEGORIES if is_ecs else EWCS_CATEGORIES
+    # Select candidates and table columns based on survey type
+    if _is_ewcs24(survey):
+        candidates = EWCS24_CATEGORIES
+        table_cols = _cols_ewcs24_lower
+    elif _is_ecs(survey):
+        candidates = ECS_CATEGORIES
+        table_cols = _cols_ecs_lower
+    else:
+        candidates = EWCS_CATEGORIES
+        table_cols = _cols_main_lower
+
     valid = []
     for cat in candidates:
         if cat.lower() in table_cols:
@@ -227,10 +276,16 @@ def weighted_pct(
     category_value: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], str]:
     
-    is_ecs = _is_ecs(survey)
-    table = "ecs_data" if is_ecs else "main_data"
-    cols_lower = _cols_ecs_lower if is_ecs else _cols_main_lower
-    cols_map = _cols_ecs_map if is_ecs else _cols_main_map
+    # 1. Setup - Select Table and Columns
+    if _is_ewcs24(survey):
+        table = "ewcs24_data"
+        cols_lower = _cols_ewcs24_lower
+    elif _is_ecs(survey):
+        table = "ecs_data"
+        cols_lower = _cols_ecs_lower
+    else:
+        table = "main_data"
+        cols_lower = _cols_main_lower
     
     # Resolve Label
     act_var, q_desc, orig_q = None, question, None
@@ -247,10 +302,20 @@ def weighted_pct(
     cat_p = []
     if category_group and category_value:
         if category_group.lower() in cols_lower:
+            # Handle mixed type categories (some are strings, some ints)
+            # Safe to cast to string for comparison in many cases, or int if purely numeric
+            # EWCS24 uses codes like '1', '2'.
             cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
             cat_p = [int(category_value)]
 
-    cntry_col = cols_map.get('country', 'country')
+    # Country Column Logic
+    # Use 'country' if available (standard)
+    cntry_col = "country"
+    if "country" not in cols_lower:
+        # Check if there is a case variant in the map
+        for k, v in _cols_map_generic.items():
+            if k == "country": cntry_col = v; break
+
     survey_candidates = [survey]
     if survey in SURVEY_YEARS:
         y = SURVEY_YEARS[survey]
@@ -259,9 +324,13 @@ def weighted_pct(
 
     for s_cand in survey_candidates:
         try:
-            # Strategy A: Wide
+            # Strategy A: Wide (Variable is a column)
             if act_var.lower() in cols_lower:
-                col_name = cols_map[act_var.lower()]
+                # Find exact case column name
+                col_name = act_var
+                for k, v in _cols_map_generic.items():
+                    if k == act_var.lower(): col_name = v; break
+                
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST("{col_name}" AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
                     FROM {table} 
@@ -270,7 +339,7 @@ def weighted_pct(
                 """
                 df = _con.execute(sql, [s_cand] + cat_p).fetchdf()
 
-            # Strategy B: Long
+            # Strategy B: Long (Variable is a value in 'question' column)
             elif 'question' in cols_lower and 'value' in cols_lower:
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST(value AS FLOAT) as val, SUM({weight}) as w_sum, COUNT(*) as count
@@ -306,10 +375,12 @@ def weighted_pct(
     
     if min_pct: df = df[df["pct"] >= min_pct]
     
+    # Country Mapping
     df["country_label"] = df["country"].apply(lambda x: _map_country_label(survey, int(x)))
+    
     df["value_label"] = df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
     
-    # SORTING: Numeric val for consistency
+    # SORTING: By val (numeric)
     df = df.sort_values(["country_label", "val"])
     
     rows = []

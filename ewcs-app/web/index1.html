@@ -5,18 +5,13 @@
 <title>EWCS Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<!-- Highcharts & Maps -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
-
 <script src="https://code.highcharts.com/maps/modules/map.js"></script>
-
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
-
 <script src="https://code.highcharts.com/mapdata/custom/europe.js"></script>
 
-<!-- Fonts -->
-<link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap)" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -68,6 +63,41 @@
   input:checked + .slider:before { transform: translateX(22px); }
   .mode-label { font-weight: 600; font-size: 0.9rem; color: var(--blue); }
 
+  /* Download Buttons Area */
+  .download-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+      justify-content: flex-end;
+  }
+  .btn-download {
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s;
+  }
+  .btn-view {
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text);
+  }
+  .btn-view:hover { background-color: #f3f3f3; }
+  
+  .btn-full {
+      background-color: var(--blue);
+      border: 1px solid var(--blue);
+      color: white;
+  }
+  .btn-full:hover { background-color: #2a4469; }
+  .btn-full:disabled { background-color: #9ca2a9; border-color: #9ca2a9; cursor: not-allowed; }
+
   #tabs { display: flex; gap: 1.5rem; margin: 0 0 1rem; font-weight: 600; border-bottom: 1px solid #eee; }
   .tab { display: flex; align-items: center; gap: 0.4rem; padding-bottom: 0.8rem; color: var(--grey); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
   .tab.active { color: var(--blue); border-bottom: 3px solid var(--blue); }
@@ -77,6 +107,9 @@
   #chart-notes { margin-top: 0.5rem; font-size: 0.85rem; color: var(--warning); line-height: 1.4; }
   #status { margin-top: 1rem; font-size: 0.9rem; color: var(--grey); min-height: 1.5em; }
   #status.error { color: #dc2626; }
+  
+  #download-status { font-size: 0.85rem; color: var(--blue); margin-right: auto; }
+
   footer { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem; }
   .hidden { display: none !important; }
 </style>
@@ -92,7 +125,6 @@
     <span class="tab" data-view="trend"><svg viewBox="0 0 24 24"><path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"/></svg> Trend</span>
   </div>
 
-  <!-- Main Controls -->
   <div id="std-controls" class="controls-row">
     <div><label>1. Select Survey</label><select id="survey-select"><option value="">Loading...</option></select></div>
     <div><label>Filter Category</label><select id="category-select"><option value="">None (All)</option></select></div>
@@ -113,7 +145,6 @@
     </div>
   </div>
 
-  <!-- Trend Controls -->
   <div id="trend-controls" class="controls-row hidden">
     <div><label>1. Select Question</label><select id="t-question-select"><option value="">Loading...</option></select></div>
     <div><label>Filter Category</label><select id="t-category-select"><option value="">None (All)</option></select></div>
@@ -127,9 +158,18 @@
     </div>
   </div>
 
-  <!-- Map Controls -->
   <div id="map-controls" class="controls-row hidden" style="padding: 1rem; margin-bottom: 1rem;">
     <div><label>Select Response(s) (Multi)</label><select id="response-select" multiple></select></div>
+  </div>
+
+  <div class="download-controls">
+      <span id="download-status"></span>
+      <button class="btn-download btn-view" onclick="downloadCurrentView()">
+          <span>📊</span> Download View (CSV)
+      </button>
+      <button class="btn-download btn-full" id="btn-download-full" onclick="downloadFullDataset()">
+          <span>📥</span> Download Full Dataset (All Questions)
+      </button>
   </div>
 
   <div id="status"></div>
@@ -137,7 +177,7 @@
   <div id="chart-notes"></div>
 
   <footer>
-    <img src="[https://raw.githubusercontent.com/thomasdavid/dashboard/main/logo.svg](https://raw.githubusercontent.com/thomasdavid/dashboard/main/logo.svg)" alt="Eurofound" style="height:30px;opacity:0.8">
+    <img src="https://raw.githubusercontent.com/thomasdavid/dashboard/main/logo.svg" alt="Eurofound" style="height:30px;opacity:0.8">
   </footer>
 
 <script>
@@ -206,16 +246,14 @@
   }
 
   function generateDivergingPalette(n) {
-    // Define pools: [Extreme -> Medium -> Light]
-    const blues  = ["#355582", "#5F7CA6", "#A0B3CA"]; // Dark Blue -> Light Blue
-    const greens = ["#005F2F", "#559E55", "#A0DCA0"]; // Dark Green -> Light Green
+    const blues  = ["#355582", "#5F7CA6", "#A0B3CA"]; 
+    const greens = ["#005F2F", "#559E55", "#A0DCA0"];
     const grey   = "#D3D3D3";
 
     const colors = [];
     const mid = Math.floor(n / 2);
     const isOdd = n % 2 !== 0;
     
-    // Left Side (Blues): Fill from Extreme (index 0) inwards
     for (let i = 0; i < mid; i++) {
         const idx = Math.min(i, blues.length - 1);
         colors.push(blues[idx]);
@@ -223,14 +261,12 @@
     
     if (isOdd) colors.push(grey);
     
-    // Right Side (Greens): Fill from Light to Extreme
     const rightSide = [];
     for (let i = 0; i < mid; i++) {
         const idx = Math.min(i, greens.length - 1);
         rightSide.push(greens[idx]);
     }
     colors.push(...rightSide.reverse());
-    
     return colors;
   }
 
@@ -273,8 +309,7 @@
       "North Macedonia": "mk", "Macedonia": "mk", "Norway": "no", "Poland": "pl", "Portugal": "pt",
       "Romania": "ro", "Serbia": "rs", "Slovakia": "sk", "Slovenia": "si", "Spain": "es",
       "Sweden": "se", "Switzerland": "ch", "Turkey": "tr", "United Kingdom": "gb", "Kosovo": "xk",
-      
-      // Historical
+      "EU27": "", // Map doesn't have EU27 shape
       "West Germany": "de", "East Germany": "de", "Germany (West)": "de", "Germany (East)": "de",
       "Great Britain": "gb", "Northern Ireland": "gb", "The Netherlands": "nl", "Republic of Ireland": "ie",
       "Türkiye": "tr", "Slovak Republic": "sk", "The former Yugoslav Republic of Macedonia": "mk",
@@ -297,11 +332,6 @@
       if(sumW>0) out.push({ country_label:c, index:sumProd/sumW, total_count: arr[0].total_count });
     }
     return out;
-  }
-
-  function populateCategoryDropdown(el) {
-    el.innerHTML = "";
-    // No longer used here; populated dynamically via updateCategories
   }
 
   async function updateCategories(surveyId, dropdown) {
@@ -351,7 +381,7 @@
     
     let defW = DEFAULT_WEIGHT;
     if (els.survey.value.startsWith('ECSR')) defW = ECS_DEFAULT_WEIGHT;
-    if (els.survey.value === 'EWCSR8') defW = "calweight"; // EWCS 2024 Default
+    if (els.survey.value === 'EWCSR8') defW = "calweight"; 
 
     if(ws.some(w=>w.id===defW)) els.weight.value=defW;
     else if(ws.length>0) els.weight.selectedIndex=1;
@@ -468,6 +498,64 @@
   function renderChart() { if(currentView==='bar') chartMode==='index'?drawIndex():drawBar(); else if(currentView==='map') drawMap(); }
   function getTitle() { return els.question.options[els.question.selectedIndex]?.dataset.desc || ""; }
 
+  // --------------------------------------------------------------------------------
+  // DOWNLOAD FUNCTIONS
+  // --------------------------------------------------------------------------------
+  
+  // 1. Download Current Chart Data (Client Side)
+  function downloadCurrentView() {
+      const chart = Highcharts.charts[0];
+      if (chart) {
+          chart.downloadCSV();
+      } else {
+          alert("No chart available to download.");
+      }
+  }
+
+  // 2. Download Full Aggregate Dataset (Server Side)
+  async function downloadFullDataset() {
+      const survey = els.survey.value;
+      if (!survey) { alert("Please select a survey first."); return; }
+      
+      const btn = document.getElementById('btn-download-full');
+      const statusSpan = document.getElementById('download-status');
+      
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      statusSpan.innerText = `Preparing bulk export for ${survey}. This may take ~30-60 seconds...`;
+
+      try {
+          // Construct URL matching the backend logic
+          const url = `${API_BASE}/api/export_full?survey=${survey}`; 
+          
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Server Error: ${response.statusText}`);
+          
+          const blob = await response.blob();
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = `${survey}_Full_Aggregate_Data.csv`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          
+          statusSpan.innerText = "Download started!";
+          setTimeout(() => statusSpan.innerText = "", 5000);
+      } catch (e) {
+          console.error(e);
+          statusSpan.innerText = "Export failed. Check console.";
+          alert("Export failed: " + e.message);
+      } finally {
+          btn.disabled = false;
+          btn.style.opacity = "1";
+      }
+  }
+
+  // --------------------------------------------------------------------------------
+  // CHART FUNCTIONS
+  // --------------------------------------------------------------------------------
+
   function drawBar() {
     els.mapControls.classList.add('hidden');
     const countries = [...new Set(currentData.map(r=>r.country_label))];
@@ -475,7 +563,8 @@
     checkLowBase(countries, c => currentData.find(r => r.country_label === c), els.threshold);
     const colors = generateDivergingPalette(answers.length);
     
-    const showLabels = countries.length < 20;
+    // UPDATED: Always show labels, allow overlap
+    const showLabels = true; 
 
     Highcharts.chart(els.container, {
       chart: { type: 'bar', height: Math.max(800, countries.length * 40) },
@@ -489,12 +578,16 @@
               dataLabels: {
                   enabled: showLabels,
                   color: '#FFFFFF',
-                  align: 'right',
+                  align: 'right', // or center
                   inside: true,
+                  allowOverlap: true, // <--- Key Change
+                  crop: false,        // <--- Key Change
+                  overflow: 'allow',  // <--- Key Change
                   style: { textOutline: 'none', fontSize: '11px', fontWeight: 'bold' },
                   formatter: function() {
-                      if (this.y === null || this.y === 0) return null;
-                      return parseFloat(this.y.toPrecision(2));
+                      // Only show numbers > 0 to keep clean, or remove condition to show 0.0
+                      if (this.y === null || this.y <= 0) return null;
+                      return parseFloat(this.y.toPrecision(3));
                   }
               }
           } 
@@ -511,7 +604,12 @@
     checkLowBase(data.map(d=>d.country_label), c=>data.find(d=>d.country_label===c), els.threshold);
     Highcharts.chart(els.container, {
       chart: { type: 'column', height: 600 }, title: { text: getTitle() + " (Index)" }, xAxis: { categories: data.map(d=>d.country_label) }, yAxis: { title: { text: 'Mean' } },
-      series: [{ name: 'Index', color: '#355582', data: data.map(d => ({ y: d.index, total_count: d.total_count })) }],
+      series: [{ 
+          name: 'Index', 
+          color: '#355582', 
+          data: data.map(d => ({ y: d.index, total_count: d.total_count })),
+          dataLabels: { enabled: true, format: '{y:.1f}' } 
+      }],
       tooltip: { pointFormatter: function() { return `<b>Index</b>: ${this.y.toFixed(1)}<br/>(Total N=${this.total_count})`; } },
       credits: { enabled: false }
     });
@@ -529,13 +627,14 @@
       const sel = Array.from(els.response.selectedOptions).map(o=>o.value);
       const countries = [...new Set(currentData.map(r=>r.country_label))];
       data = countries.map(c => {
+        if (c === "EU27") return null; // Skip EU27 for Map
         const rows = currentData.filter(r => r.country_label === c && sel.includes(r.value_label));
         const total = rows.reduce((s, r) => s + r.pct, 0);
         const totCount = rows.length ? rows[0].total_count : 0;
         return { 'hc-key': getCountryKey(c), value: total, name: c, total_count: totCount };
-      });
+      }).filter(x => x); // Filter nulls
       subtitle = `Responses: ${sel.join(", ")}`;
-      checkLowBase(countries, c=>data.find(d=>d.name===c), els.threshold);
+      checkLowBase(countries.filter(c=>c!=="EU27"), c=>data.find(d=>d.name===c), els.threshold);
     }
     Highcharts.mapChart(els.container, {
       chart: { map: 'custom/europe' }, title: { text: getTitle() }, subtitle: { text: subtitle }, mapNavigation: { enabled: true },

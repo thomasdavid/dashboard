@@ -1,10 +1,11 @@
 """
 EWCS Dashboard – DuckDB + Pandas backend
 Features: 
-1. Auto-detects EWCSR8 metadata if missing from CSV (Fixes Dropdown).
-2. Calculates EU27 aggregates on the fly.
-3. Includes 'export_full_dataset' matching specific composite-key format.
-4. Optimized for Low-Memory environments (Render).
+1. Priority: Loads Country Labels from 'response_labels.csv' (Fixes mapping issues).
+2. Auto-detects EWCSR8 metadata if missing.
+3. Calculates EU27 aggregates.
+4. Full Export functionality.
+5. Optimized for Render (Low RAM).
 """
 
 from __future__ import annotations
@@ -44,7 +45,6 @@ EU27_CODES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20,
 
 ECS_CATEGORIES = ['sector13', 'mm102grp', 'sector2', 'rev_type', 'sec3', 'size_5', 'size_10']
 EWCS_CATEGORIES = ['agesex', 'isco']
-# NEW Categories for EWCS 2024
 EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wstatus', 'part_time']
 
 # ---------------------------------------------------------------------
@@ -66,7 +66,7 @@ try:
 except Exception as e:
     print(f"!!! Warning: Could not set memory limits: {e}")
 
-# 3. Load EWCS Data -> VIEW
+# 3. Load EWCS Data
 if os.path.exists(DATA_FILE):
     print(f"--- Linking EWCS data: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
@@ -80,7 +80,7 @@ except Exception as e:
     print(f"!!! Error linking EWCS data: {e}")
     _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# 4. Load ECS Data -> VIEW
+# 4. Load ECS Data
 if os.path.exists(ECS_DATA_FILE):
     print(f"--- Linking ECS data: {ECS_DATA_FILE}")
     try:
@@ -92,7 +92,7 @@ else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
     _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 
-# 5. Load EWCS 2024 Data -> VIEW (NEW)
+# 5. Load EWCS 2024 Data
 if os.path.exists(EWCS24_DATA_FILE):
     print(f"--- Linking EWCS 2024 data: {EWCS24_DATA_FILE}")
     try:
@@ -118,60 +118,38 @@ except Exception as e:
     print(f"!!! Error loading Labels CSV: {e}")
 
 # ---------------------------------------------------------------------
-# CRITICAL FIX: Auto-Inject EWCSR8 Metadata if Missing
+# FIX: Auto-Inject EWCSR8 Metadata if Missing
 # ---------------------------------------------------------------------
 try:
-    # 1. Check if EWCSR8 is in labels
     chk = _con.execute("SELECT COUNT(*) FROM dashboard_labels WHERE Survey = 'EWCSR8'").fetchone()
-    
-    # 2. Check if data view exists
     has_data_24 = False
     try:
         _con.execute("SELECT 1 FROM ewcs24_data LIMIT 1")
         has_data_24 = True
     except: pass
 
-    # 3. Auto-generate labels if missing from CSV
     if chk and chk[0] == 0 and has_data_24:
         print("--- DEBUG: EWCSR8 missing from labels. Auto-detecting variables...")
-        
         tbl_info = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
         cols_lower = {c[1].lower() for c in tbl_info}
         
         generated_vars = []
-
-        # STRATEGY 1: LONG FORMAT (Use row values from 'question' column)
         if 'question' in cols_lower:
-            print("--- DEBUG: Detected LONG format (scanning 'question' column).")
-            # Fetch distinct question codes
             q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data WHERE question IS NOT NULL").fetchall()
             generated_vars = [str(r[0]) for r in q_rows]
-            
-        # STRATEGY 2: WIDE FORMAT (Use Column Headers)
         else:
-            print("--- DEBUG: Detected WIDE format (scanning columns).")
-            exclude_cols = {
-                'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 
-                'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'
-            }
+            exclude_cols = {'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'}
             for col in tbl_info:
                 if col[1].lower() not in exclude_cols:
                     generated_vars.append(col[1])
 
-        # Insert variables into dashboard_labels
-        insert_count = 0
         for var_code in generated_vars:
             q_text = f"{var_code} (Auto-detected)" 
-            # Schema: Survey, "Question Number", Variable, Question, "Short"
             params = ['EWCSR8', var_code, var_code, q_text, var_code]
             _con.execute("INSERT INTO dashboard_labels VALUES (?, ?, ?, ?, ?)", params)
-            insert_count += 1
             
-        print(f"--- DEBUG: Injected {insert_count} variables for EWCSR8.")
-
 except Exception as e:
     print(f"!!! Error injecting metadata: {e}")
-    traceback.print_exc()
 
 # ---------------------------------------------------------------------
 # Metadata Caching
@@ -189,15 +167,12 @@ def _cache_columns(table_name, target_set):
         target_set.update(cols)
         for x in r: _cols_map_generic[x[1].lower()] = x[1]
         
-        # If 'question' column exists (long format), cache distinct values
         if 'question' in cols:
-            # Only cache distinct questions if table isn't dummy
             count = _con.execute(f"SELECT count(*) FROM {table_name}").fetchone()[0]
             if count > 1:
                 q_rows = _con.execute(f"SELECT DISTINCT question FROM {table_name} WHERE question IS NOT NULL").fetchall()
                 _data_variables.update({str(row[0]).lower() for row in q_rows})
         else:
-            # Wide format, cache column names
             _data_variables.update(cols)
     except: pass
 
@@ -209,7 +184,6 @@ _cache_columns("main_data", _cols_main_lower)
 _cache_columns("ecs_data", _cols_ecs_lower)
 _cache_columns("ewcs24_data", _cols_ewcs24_lower)
 
-# ECS Survey identification
 try:
     if 'survey' in _cols_ecs_lower:
         s_rows = _con.execute("SELECT DISTINCT survey FROM ecs_data").fetchall()
@@ -224,11 +198,12 @@ try:
 except: pass
 
 # ---------------------------------------------------------------------
-# Country Map
+# Country Map & FIX FOR USER MAPPINGS
 # ---------------------------------------------------------------------
 COUNTRY_MAP = {}
 GLOBAL_COUNTRY_MAP = {}
 
+# 1. Load standard country file (Generic)
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
@@ -245,12 +220,46 @@ try:
 except Exception as e:
     print(f"!!! Error loading Country Map: {e}")
 
+# 2. OVERRIDE with Response Labels (Specific Fix for User Update)
+# This looks for variables named 'country', 'cntry', 'country_iso' in the updated csv
+# and forces those labels into the map.
+print("--- DEBUG: Updating Country Map from Response Labels...")
+try:
+    # Query for any variable that looks like a country definition
+    sql = """
+        SELECT survey, value, value_label 
+        FROM response_labels 
+        WHERE LOWER(variable) IN ('country', 'cntry', 'country_iso', 'y11', 'country_code')
+    """
+    rows = _con.execute(sql).fetchall()
+    count_updated = 0
+    for r in rows:
+        try:
+            srv = str(r[0]).strip()
+            # Handle float strings like "1.0"
+            val_id = int(float(r[1])) 
+            lbl = r[2]
+            
+            # Update specific survey map
+            COUNTRY_MAP[(srv, val_id)] = lbl
+            
+            # Update global fallback if missing
+            if val_id not in GLOBAL_COUNTRY_MAP:
+                GLOBAL_COUNTRY_MAP[val_id] = lbl
+            
+            count_updated += 1
+        except: continue
+    print(f"--- DEBUG: Updated {count_updated} country mappings from response_labels.csv")
+except Exception as e:
+    print(f"!!! Error updating country map from labels: {e}")
+
+
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------
 
 def _map_country_label(survey: str, code: int) -> str:
-    if code == 999: return "EU27" # Special code for aggregation
+    if code == 999: return "EU27"
     if (survey, code) in COUNTRY_MAP: return COUNTRY_MAP[(survey, code)]
     if code in GLOBAL_COUNTRY_MAP: return GLOBAL_COUNTRY_MAP[code]
     return str(code)
@@ -284,7 +293,6 @@ def _is_ewcs24(survey: str) -> bool:
     return survey == "EWCSR8"
 
 def get_category_values(survey: str, category_col: str) -> List[int]:
-    """Returns distinct numeric codes for a specific category column (e.g., sex, age)."""
     if _is_ewcs24(survey):
         tbl = "ewcs24_data"
         cols = _cols_ewcs24_lower
@@ -296,15 +304,11 @@ def get_category_values(survey: str, category_col: str) -> List[int]:
         cols = _cols_main_lower
     
     try:
-        if category_col.lower() not in cols:
-            return []
-        
-        # Ensure we get integers
+        if category_col.lower() not in cols: return []
         sql = f"SELECT DISTINCT CAST({category_col} AS INTEGER) FROM {tbl} WHERE {category_col} IS NOT NULL ORDER BY 1"
         rows = _con.execute(sql).fetchall()
         return [r[0] for r in rows]
-    except:
-        return []
+    except: return []
 
 # ---------------------------------------------------------------------
 # Logic
@@ -330,13 +334,9 @@ def list_longitudinal_questions() -> List[Dict[str, Any]]:
 
 def list_weights_for_survey(survey: str) -> List[str]:
     if _is_ewcs24(survey):
-        # Look for weight columns dynamically, defaulting to calweight
         cols = [c for c in _cols_ewcs24_lower if 'weight' in c or c == 'w']
         return cols if cols else ["calweight"]
-    
-    if _is_ecs(survey):
-        return ["emp_wei", "est_wei"]
-        
+    if _is_ecs(survey): return ["emp_wei", "est_wei"]
     try:
         cols = _cols_map_generic.values()
         return sorted([c for c in cols if c.lower().startswith('w') and c != 'wave'])
@@ -352,12 +352,7 @@ def get_survey_categories(survey: str) -> List[str]:
     else:
         candidates = EWCS_CATEGORIES
         table_cols = _cols_main_lower
-
-    valid = []
-    for cat in candidates:
-        if cat.lower() in table_cols:
-            valid.append(cat)
-    return valid
+    return [c for c in candidates if c.lower() in table_cols]
 
 def weighted_pct(
     survey: str,
@@ -380,7 +375,6 @@ def weighted_pct(
         table = "main_data"
         cols_lower = _cols_main_lower
     
-    # Resolve Label
     act_var, q_desc, orig_q = None, question, None
     try:
         r = _con.execute("SELECT Variable, Question, \"Question Number\" FROM dashboard_labels WHERE Survey = ? AND Variable = ? LIMIT 1", [survey, question]).fetchone()
@@ -398,7 +392,6 @@ def weighted_pct(
             cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
             cat_p = [int(category_value)]
 
-    # Country Column Logic
     cntry_col = "country"
     if "country" not in cols_lower:
         for k, v in _cols_map_generic.items():
@@ -412,8 +405,6 @@ def weighted_pct(
 
     for s_cand in survey_candidates:
         try:
-            # Strategy A: Long (Variable is a value in 'question' column)
-            # Checked FIRST because EWCSR8 is Long Format
             if 'question' in cols_lower and 'value' in cols_lower:
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST(value AS FLOAT) as val, {weight} as w
@@ -421,20 +412,16 @@ def weighted_pct(
                     WHERE survey = ? AND LOWER(question) = LOWER(?) AND value IS NOT NULL AND "{cntry_col}" IS NOT NULL {cat_sql}
                 """
                 raw_df = _con.execute(sql, [s_cand, act_var] + cat_p).fetchdf()
-
-            # Strategy B: Wide (Variable is a column)
             elif act_var.lower() in cols_lower:
                 col_name = act_var
                 for k, v in _cols_map_generic.items():
                     if k == act_var.lower(): col_name = v; break
-                
                 sql = f"""
                     SELECT "{cntry_col}" AS country, CAST("{col_name}" AS FLOAT) as val, {weight} as w
                     FROM {table} 
                     WHERE survey = ? AND "{col_name}" IS NOT NULL AND "{cntry_col}" IS NOT NULL {cat_sql}
                 """
                 raw_df = _con.execute(sql, [s_cand] + cat_p).fetchdf()
-            
             if not raw_df.empty: 
                 df = raw_df
                 break
@@ -442,7 +429,6 @@ def weighted_pct(
 
     if df.empty: return [], q_desc
 
-    # 3. Process Labels & Exclusions
     val_map = _build_value_labels(survey, act_var)
     if not val_map and orig_q:
         val_map = _build_value_labels(survey, orig_q)
@@ -456,54 +442,39 @@ def weighted_pct(
 
     if df.empty: return [], q_desc
 
-    # 4. Aggregation Logic with EU27 (Treat as a Country)
-    
+    # 4. Aggregation Logic
     def aggregate_chunk(d, c_code):
-        # Group by value
         g = d.groupby("val")
         res = g["w"].sum().reset_index()
         res.rename(columns={"w": "w_sum"}, inplace=True)
-        res["count"] = g["w"].count().values # Raw count (N)
-        
+        res["count"] = g["w"].count().values 
         total_w = res["w_sum"].sum()
         total_c = res["count"].sum()
-        
         if total_w == 0: return pd.DataFrame()
-
         res["pct"] = (res["w_sum"] / total_w) * 100.0
         res["country"] = c_code
         res["total_count"] = total_c
         return res
 
     final_rows = []
-
-    # A. Individual Countries
     country_groups = df.groupby("country")
     for c_code, c_df in country_groups:
         agg = aggregate_chunk(c_df, int(c_code))
         if not agg.empty: final_rows.append(agg)
 
-    # B. EU27 Aggregation (The "Super Country")
-    # Filter original DF for only EU27 countries
     eu27_df = df[df["country"].isin(EU27_CODES)]
     if not eu27_df.empty:
-        # 999 is the dummy code for EU27
         eu_agg = aggregate_chunk(eu27_df, 999) 
         if not eu_agg.empty: final_rows.append(eu_agg)
 
-    # Combine
     if not final_rows: return [], q_desc
     
     result_df = pd.concat(final_rows, ignore_index=True)
 
-    # Filter Min PCT
     if min_pct: result_df = result_df[result_df["pct"] >= min_pct]
     
-    # Labeling
     result_df["country_label"] = result_df["country"].apply(lambda x: _map_country_label(survey, int(x)))
     result_df["value_label"] = result_df["val"].apply(lambda x: val_map.get(_normalize_val(x), str(x)))
-    
-    # Sorting
     result_df = result_df.sort_values(["country_label", "val"])
     
     out_list = []
@@ -526,34 +497,26 @@ def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=No
         r = _con.execute("SELECT Variable FROM dashboard_labels WHERE \"Short\" = ? LIMIT 1", [q_short]).fetchone()
         if r: var = r[0]
     except: pass
-    
     surveys = []
     try:
         r = _con.execute("SELECT DISTINCT Survey FROM dashboard_labels WHERE Variable = ? ORDER BY 1", [var]).fetchall()
         surveys = [x[0] for x in r]
     except: pass
-    
     out = []
     for s in surveys:
         try:
-            # weighted_pct now handles EU27 calculation automatically
             rows, _ = weighted_pct(s, var, weight, category_group=cat_grp, category_value=cat_val)
         except: continue
         if not rows: continue
-        
         agg = {}
         for r in rows:
             c = r["country_label"]
-            # If specific countries requested, filter. Otherwise allow all (incl EU27)
             if cntrys and c not in cntrys: continue
-            
             if c not in agg: agg[c] = {"v":0.0, "c":0, "tc":0}
-            
             if r["value_label"] in resps:
                 agg[c]["v"] += r["pct"]
                 agg[c]["c"] += r["count"]
             if r["total_count"] > agg[c]["tc"]: agg[c]["tc"] = r["total_count"]
-            
         for c, d in agg.items():
             if d["tc"] > 0:
                 out.append({
@@ -571,86 +534,42 @@ def get_trend_data(q_short, weight, resps, cntrys=None, cat_grp=None, cat_val=No
 # ---------------------------------------------------------------------
 
 def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
-    """
-    Generates a full bulk export matching the requested relational format:
-    Columns: Question_ID, country, Score, unique_value, FilterID, Survey, LabelId, EU, Duplicateremove, Value_key
-    """
     print(f"--- Starting Bulk Export for {survey}...")
-    
-    # 1. Get all questions
     vars_list = list_questions_for_survey(survey)
     valid_vars = [v['id'] for v in vars_list]
-    
-    if not valid_vars:
-        print("!!! No variables found for export.")
-        return pd.DataFrame()
+    if not valid_vars: return pd.DataFrame()
 
-    # 2. Define Categories to loop through
-    # '0' represents "Total" (No Filter)
-    categories_to_process = [
-        {"col": None, "val": 0, "name": "Total"} 
-    ]
-    
-    # Add survey specific categories (Sex, Age, etc.)
+    categories_to_process = [{"col": None, "val": 0, "name": "Total"}]
     survey_cats = get_survey_categories(survey)
     for cat_col in survey_cats:
-        # Get distinct numeric values (e.g., 1, 2)
         distinct_vals = get_category_values(survey, cat_col)
         for val in distinct_vals:
-            categories_to_process.append({
-                "col": cat_col, 
-                "val": val, 
-                "name": f"{cat_col}_{val}"
-            })
+            categories_to_process.append({"col": cat_col, "val": val, "name": f"{cat_col}_{val}"})
 
     all_rows = []
-    
-    # 3. Main Loop: Variable -> Category -> Calculate
     total_steps = len(valid_vars)
-    
     for idx, var_id in enumerate(valid_vars):
         if idx % 5 == 0: print(f"Exporting {idx}/{total_steps}: {var_id}")
-        
         for cat_def in categories_to_process:
-            cat_col = cat_def['col']
-            cat_val = cat_def['val']
-            
-            # FilterID mimics the screenshot (e.g., '1', '21' etc.)
+            cat_col, cat_val = cat_def['col'], cat_def['val']
             filter_id = str(cat_val) 
-            
             try:
-                # Calculate weighted stats (EU27 is handled inside)
                 if cat_col:
                     data, _ = weighted_pct(survey, var_id, weight, category_group=cat_col, category_value=str(cat_val))
                 else:
-                    data, _ = weighted_pct(survey, var_id, weight) # Total
-
+                    data, _ = weighted_pct(survey, var_id, weight)
                 if not data: continue
-
-                # 4. Format rows
                 for r in data:
                     country_code = r['country']
-                    
-                    # Logic for "EU" column (True if EU27 aggregate OR member state)
-                    # 999 is our code for the EU27 aggregate row
                     is_eu = (country_code == 999) or (country_code in EU27_CODES)
-                    
-                    row_val = r['value'] # The response code (1, 2, 3...)
-                    
-                    # Composite Keys Construction
-                    # LabelId: Survey + Variable
+                    row_val = r['value'] 
                     label_id = f"{survey}{var_id}"
-                    
-                    # Value_key: Survey + Variable + ResponseValue
                     value_key = f"{survey}{var_id}_{row_val}"
-                    
-                    # Duplicateremove: Survey + Variable + ResponseValue + FilterID + CountryCode
                     dup_remove = f"{survey}{var_id}_{row_val}_{filter_id}_{country_code}"
-
                     csv_row = {
                         "Question_ID": var_id,
                         "country": country_code,
-                        "Score": round(r['pct'], 4), # Percentage / Index Value
+                        "Score": round(r['pct'], 4),
                         "unique_value": row_val,
                         "FilterID": filter_id,
                         "Survey": survey,
@@ -660,12 +579,6 @@ def export_full_dataset(survey: str, weight: str = "calweight") -> pd.DataFrame:
                         "Value_key": value_key
                     }
                     all_rows.append(csv_row)
+            except Exception: continue
 
-            except Exception as e:
-                # Log error but keep going
-                # print(f"Error on {var_id} - {cat_def['name']}: {e}")
-                continue
-
-    # 5. Convert to DataFrame
-    df_export = pd.DataFrame(all_rows)
-    return df_export
+    return pd.DataFrame(all_rows)

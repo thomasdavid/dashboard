@@ -1,11 +1,6 @@
 """
 EWCS Dashboard – DuckDB + Pandas backend
-Features: 
-1. Priority: Loads Country Labels from 'response_labels.csv' (Fixes mapping issues).
-2. Auto-detects EWCSR8 metadata if missing.
-3. Calculates EU27 aggregates.
-4. Full Export functionality.
-5. Optimized for Render (Low RAM).
+Updated: Prioritizes CSV for labels, fixes Category Filters, and maps EWCSR8 countries.
 """
 
 from __future__ import annotations
@@ -37,7 +32,7 @@ SURVEY_YEARS = {
     "EWCSR1": 1991, "EWCSR2": 1995, "EWCSR3": 2000, "EWCSR4": 2005,
     "EWCSR5": 2010, "EWCSR6": 2015, "EWCS2021": 2021, "COVID": 2020,
     "ECSR1": 2004, "ECSR2": 2009, "ECSR3": 2013, "ECSR4": 2019,
-    "EWCSR8": 2024 # NEW SURVEY
+    "EWCSR8": 2024
 }
 
 # Standard EU27 (2020) Country Codes
@@ -52,12 +47,9 @@ EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wsta
 # ---------------------------------------------------------------------
 
 print(f"--- Initialising DuckDB...")
-
-# 1. Use a temporary file buffer to prevent OOM crashes
 db_path = os.path.join(tempfile.gettempdir(), "ewcs_buffer.duckdb")
 _con = duckdb.connect(database=db_path)
 
-# 2. Set strict memory limits
 try:
     _con.execute("PRAGMA memory_limit='256MB'") 
     _con.execute("PRAGMA threads=2")
@@ -66,7 +58,7 @@ try:
 except Exception as e:
     print(f"!!! Warning: Could not set memory limits: {e}")
 
-# 3. Load EWCS Data
+# 1. Load EWCS Data
 if os.path.exists(DATA_FILE):
     print(f"--- Linking EWCS data: {DATA_FILE}")
     ewcs_path = str(DATA_FILE)
@@ -80,7 +72,7 @@ except Exception as e:
     print(f"!!! Error linking EWCS data: {e}")
     _con.execute("CREATE OR REPLACE VIEW main_data AS SELECT 1 as dummy")
 
-# 4. Load ECS Data
+# 2. Load ECS Data
 if os.path.exists(ECS_DATA_FILE):
     print(f"--- Linking ECS data: {ECS_DATA_FILE}")
     try:
@@ -92,7 +84,7 @@ else:
     print(f"!!! ECS Data file not found: {ECS_DATA_FILE}")
     _con.execute("CREATE OR REPLACE VIEW ecs_data AS SELECT 1 as dummy")
 
-# 5. Load EWCS 2024 Data
+# 3. Load EWCS 2024 Data
 if os.path.exists(EWCS24_DATA_FILE):
     print(f"--- Linking EWCS 2024 data: {EWCS24_DATA_FILE}")
     try:
@@ -106,10 +98,10 @@ else:
 
 
 # ---------------------------------------------------------------------
-# Metadata Loading
+# Metadata Loading - UPDATED TO SUPPORT CSV
 # ---------------------------------------------------------------------
 
-# 6. Labels -> TABLE
+# 4. Labels -> TABLE
 try:
     _con.execute(f"CREATE OR REPLACE TABLE dashboard_labels AS SELECT TRIM(Survey) AS Survey, \"Question Number\", Variable, Question, \"Short\" FROM read_csv('{LABELS_FILE}', auto_detect=True, header=True);")
     _con.execute("CREATE INDEX idx_labels_survey ON dashboard_labels(Survey)")
@@ -117,39 +109,24 @@ try:
 except Exception as e:
     print(f"!!! Error loading Labels CSV: {e}")
 
-# ---------------------------------------------------------------------
-# FIX: Auto-Inject EWCSR8 Metadata if Missing
-# ---------------------------------------------------------------------
+# 5. Response Labels -> TABLE (FIXED: Tries CSV first, then Parquet)
+# This ensures your recent updates to the CSV file are actually loaded.
 try:
-    chk = _con.execute("SELECT COUNT(*) FROM dashboard_labels WHERE Survey = 'EWCSR8'").fetchone()
-    has_data_24 = False
-    try:
-        _con.execute("SELECT 1 FROM ewcs24_data LIMIT 1")
-        has_data_24 = True
-    except: pass
-
-    if chk and chk[0] == 0 and has_data_24:
-        print("--- DEBUG: EWCSR8 missing from labels. Auto-detecting variables...")
-        tbl_info = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
-        cols_lower = {c[1].lower() for c in tbl_info}
+    # Construct CSV path based on settings or assumption
+    resp_csv = str(RESPONSE_META_FILE).replace(".parquet", ".csv")
+    
+    if os.path.exists(resp_csv):
+        print(f"--- Loading Response Labels from CSV: {resp_csv}")
+        # Use quote='"' to handle quoted strings in CSV
+        _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_csv('{resp_csv}', auto_detect=True, header=True);")
+    else:
+        print(f"--- Loading Response Labels from Parquet: {RESPONSE_META_FILE}")
+        _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
         
-        generated_vars = []
-        if 'question' in cols_lower:
-            q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data WHERE question IS NOT NULL").fetchall()
-            generated_vars = [str(r[0]) for r in q_rows]
-        else:
-            exclude_cols = {'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'}
-            for col in tbl_info:
-                if col[1].lower() not in exclude_cols:
-                    generated_vars.append(col[1])
-
-        for var_code in generated_vars:
-            q_text = f"{var_code} (Auto-detected)" 
-            params = ['EWCSR8', var_code, var_code, q_text, var_code]
-            _con.execute("INSERT INTO dashboard_labels VALUES (?, ?, ?, ?, ?)", params)
-            
+    _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")
 except Exception as e:
-    print(f"!!! Error injecting metadata: {e}")
+    print(f"!!! Error loading Response Labels: {e}")
+
 
 # ---------------------------------------------------------------------
 # Metadata Caching
@@ -166,7 +143,6 @@ def _cache_columns(table_name, target_set):
         cols = {x[1].lower() for x in r}
         target_set.update(cols)
         for x in r: _cols_map_generic[x[1].lower()] = x[1]
-        
         if 'question' in cols:
             count = _con.execute(f"SELECT count(*) FROM {table_name}").fetchone()[0]
             if count > 1:
@@ -190,20 +166,13 @@ try:
         _ecs_surveys = {str(row[0]) for row in s_rows}
 except: pass
 
-
-# 8. Response Labels -> TABLE
-try:
-    _con.execute(f"CREATE OR REPLACE TABLE response_labels AS SELECT * FROM read_parquet('{RESPONSE_META_FILE}');")
-    _con.execute("CREATE INDEX idx_resp_survey_var ON response_labels(survey, variable)")
-except: pass
-
 # ---------------------------------------------------------------------
-# Country Map & FIX FOR USER MAPPINGS
+# Country Map Logic (FIXED FOR EWCSR8)
 # ---------------------------------------------------------------------
 COUNTRY_MAP = {}
 GLOBAL_COUNTRY_MAP = {}
 
-# 1. Load standard country file (Generic)
+# 1. Load standard country file
 try:
     cdf = pd.read_csv(COUNTRY_FILE)
     cdf.columns = cdf.columns.str.strip().str.lower()
@@ -220,12 +189,11 @@ try:
 except Exception as e:
     print(f"!!! Error loading Country Map: {e}")
 
-# 2. OVERRIDE with Response Labels (Specific Fix for User Update)
-# This looks for variables named 'country', 'cntry', 'country_iso' in the updated csv
-# and forces those labels into the map.
+# 2. OVERRIDE with Response Labels (Crucial for EWCSR8 Fix)
 print("--- DEBUG: Updating Country Map from Response Labels...")
 try:
     # Query for any variable that looks like a country definition
+    # We explicitly look for EWCSR8 in the query to verify your file update
     sql = """
         SELECT survey, value, value_label 
         FROM response_labels 
@@ -233,26 +201,59 @@ try:
     """
     rows = _con.execute(sql).fetchall()
     count_updated = 0
+    ewcsr8_found = False
+    
     for r in rows:
         try:
             srv = str(r[0]).strip()
-            # Handle float strings like "1.0"
+            # Handle float strings cleanly (e.g., "1.0" -> 1)
             val_id = int(float(r[1])) 
             lbl = r[2]
             
-            # Update specific survey map
             COUNTRY_MAP[(srv, val_id)] = lbl
             
-            # Update global fallback if missing
-            if val_id not in GLOBAL_COUNTRY_MAP:
-                GLOBAL_COUNTRY_MAP[val_id] = lbl
-            
+            if srv == 'EWCSR8': ewcsr8_found = True
+            if val_id not in GLOBAL_COUNTRY_MAP: GLOBAL_COUNTRY_MAP[val_id] = lbl
             count_updated += 1
         except: continue
-    print(f"--- DEBUG: Updated {count_updated} country mappings from response_labels.csv")
+        
+    print(f"--- DEBUG: Updated {count_updated} mappings. EWCSR8 Countries Found: {ewcsr8_found}")
+    
 except Exception as e:
     print(f"!!! Error updating country map from labels: {e}")
 
+
+# ---------------------------------------------------------------------
+# Metadata Auto-Injection (Fallback)
+# ---------------------------------------------------------------------
+try:
+    chk = _con.execute("SELECT COUNT(*) FROM dashboard_labels WHERE Survey = 'EWCSR8'").fetchone()
+    has_data_24 = False
+    try:
+        _con.execute("SELECT 1 FROM ewcs24_data LIMIT 1")
+        has_data_24 = True
+    except: pass
+
+    if chk and chk[0] == 0 and has_data_24:
+        print("--- DEBUG: EWCSR8 missing from labels. Auto-detecting variables...")
+        tbl_info = _con.execute("PRAGMA table_info(ewcs24_data)").fetchall()
+        cols_lower = {c[1].lower() for c in tbl_info}
+        generated_vars = []
+        if 'question' in cols_lower:
+            q_rows = _con.execute("SELECT DISTINCT question FROM ewcs24_data WHERE question IS NOT NULL").fetchall()
+            generated_vars = [str(r[0]) for r in q_rows]
+        else:
+            exclude_cols = {'country', 'calweight', 'weight', 'w', 'survey', 'year', 'int_length', 'eu27', 'eu28', 'is_eu', 'hhold_id', 'p_id', 'id'}
+            for col in tbl_info:
+                if col[1].lower() not in exclude_cols:
+                    generated_vars.append(col[1])
+
+        for var_code in generated_vars:
+            q_text = f"{var_code} (Auto-detected)" 
+            params = ['EWCSR8', var_code, var_code, q_text, var_code]
+            _con.execute("INSERT INTO dashboard_labels VALUES (?, ?, ?, ?, ?)", params)
+except Exception as e:
+    print(f"!!! Error injecting metadata: {e}")
 
 # ---------------------------------------------------------------------
 # Helpers
@@ -305,6 +306,7 @@ def get_category_values(survey: str, category_col: str) -> List[int]:
     
     try:
         if category_col.lower() not in cols: return []
+        # Safe cast to ignore junk
         sql = f"SELECT DISTINCT CAST({category_col} AS INTEGER) FROM {tbl} WHERE {category_col} IS NOT NULL ORDER BY 1"
         rows = _con.execute(sql).fetchall()
         return [r[0] for r in rows]
@@ -383,14 +385,19 @@ def weighted_pct(
         else: act_var = question
     except: act_var = question
 
-    # 2. Build Query
+    # 2. Build Query & Category Filter Logic
     df = pd.DataFrame()
     cat_sql = ""
     cat_p = []
+    
     if category_group and category_value:
         if category_group.lower() in cols_lower:
-            cat_sql = f" AND CAST({category_group} AS INTEGER) = ?"
-            cat_p = [int(category_value)]
+            # SAFETY FIX: Double Cast (Int -> Varchar) ensures 1.0 matches '1'
+            # We assume category_value is passed as a string from frontend
+            cat_sql = f" AND CAST(CAST({category_group} AS INTEGER) AS VARCHAR) = ?"
+            # Ensure we compare against a clean string version of the integer
+            clean_val = str(int(float(category_value)))
+            cat_p = [clean_val]
 
     cntry_col = "country"
     if "country" not in cols_lower:

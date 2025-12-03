@@ -187,7 +187,7 @@
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
 
-  // --- UPDATED CATEGORY MAPPINGS (Matches Raw Parquet Data) ---
+  // --- UPDATED CATEGORY MAPPINGS (Clean Codes) ---
   const CATEGORY_DEF = {
     // --- Old EWCS ---
     "agesex": [
@@ -228,6 +228,7 @@
         {label: "Health", value: "Health"}, 
         {label: "Other services", value: "Other services"}
     ],
+    // ISCO: Send clean codes (1-9). Backend smart matching handles the rest.
     "bdwn_ISCO_1": [
         {label: "1. Managers", value: "1"}, 
         {label: "2. Professionals", value: "2"}, 
@@ -240,12 +241,13 @@
         {label: "9. Elementary", value: "9"},
         {label: "0. Armed Forces", value: "0"}
     ],
+    // WStatus: Send clean codes. Backend smart matching handles the rest.
     "bdwn_wstatus": [
-        {label: "Self-employed (Own account)", value: "1. Selfemployed: own account"},
-        {label: "Self-employed (With employees)", value: "2. Selfemployed: with employees"},
-        {label: "Employee (Fixed/Temp)", value: "3. Employee: fixed, apprentice or temporary agency"},
-        {label: "Employee (Indefinite)", value: "4. Employee: indefinite"},
-        {label: "Employee (Other)", value: "5. Employee: other and no contract"}
+        {label: "1. Self-employed (Own account)", value: "1"},
+        {label: "2. Self-employed (With employees)", value: "2"},
+        {label: "3. Employee (Fixed/Temp)", value: "3"},
+        {label: "4. Employee (Indefinite)", value: "4"},
+        {label: "5. Employee (Other)", value: "5"}
     ],
     "part_time": [
         {label: "Full-time", value: "1"}, 
@@ -526,7 +528,6 @@
   // DOWNLOAD FUNCTIONS
   // --------------------------------------------------------------------------------
   
-  // 1. Download Current Chart Data (Client Side)
   function downloadCurrentView() {
       const chart = Highcharts.charts[0];
       if (chart) {
@@ -536,7 +537,6 @@
       }
   }
 
-  // 2. Download Full Aggregate Dataset (Server Side)
   async function downloadFullDataset() {
       const survey = els.survey.value;
       if (!survey) { alert("Please select a survey first."); return; }
@@ -549,9 +549,7 @@
       statusSpan.innerText = `Preparing bulk export for ${survey}. This may take ~30-60 seconds...`;
 
       try {
-          // Construct URL matching the backend logic
           const url = `${API_BASE}/api/export_full?survey=${survey}`; 
-          
           const response = await fetch(url);
           if (!response.ok) throw new Error(`Server Error: ${response.statusText}`);
           
@@ -587,7 +585,6 @@
     checkLowBase(countries, c => currentData.find(r => r.country_label === c), els.threshold);
     const colors = generateDivergingPalette(answers.length);
     
-    // UPDATED: Always show labels, allow overlap
     const showLabels = true; 
 
     Highcharts.chart(els.container, {
@@ -604,14 +601,15 @@
                   color: '#FFFFFF',
                   align: 'right', // or center
                   inside: true,
-                  allowOverlap: true, // <--- Key Change
-                  crop: false,        // <--- Key Change
-                  overflow: 'allow',  // <--- Key Change
+                  allowOverlap: true,
+                  crop: false,
+                  overflow: 'allow',
                   style: { textOutline: 'none', fontSize: '11px', fontWeight: 'bold' },
                   formatter: function() {
-                      // Only show numbers > 0 to keep clean, or remove condition to show 0.0
+                      // Show numbers like 67 or 6.7
                       if (this.y === null || this.y <= 0) return null;
-                      return parseFloat(this.y.toPrecision(3));
+                      // toFixed(1) -> "67.0", parseFloat -> 67
+                      return parseFloat(this.y.toFixed(1));
                   }
               }
           } 
@@ -655,7 +653,9 @@
         const rows = currentData.filter(r => r.country_label === c && sel.includes(r.value_label));
         const total = rows.reduce((s, r) => s + r.pct, 0);
         const totCount = rows.length ? rows[0].total_count : 0;
-        return { 'hc-key': getCountryKey(c), value: total, name: c, total_count: totCount };
+        // Map Rounding to 1 decimal place
+        const valRounded = parseFloat(total.toFixed(1));
+        return { 'hc-key': getCountryKey(c), value: valRounded, name: c, total_count: totCount };
       }).filter(x => x); // Filter nulls
       subtitle = `Responses: ${sel.join(", ")}`;
       checkLowBase(countries.filter(c=>c!=="EU27"), c=>data.find(d=>d.name===c), els.threshold);
@@ -681,7 +681,7 @@
     Highcharts.chart(els.container, {
       title: { text: els.tQuestion.options[els.tQuestion.selectedIndex].text }, subtitle: { text: `Trend: ${label}` }, xAxis: { categories: years }, yAxis: { title: { text: '%' }, min: 0, max: 100 },
       tooltip: { pointFormatter: function() { return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y.toFixed(1)}%<br/>(N=${this.count}, Total=${this.total_count})<br/>`; } },
-      series: countries.map(c => ({ name: c, data: years.map(y => { const d = data.find(x => x.country === c && x.year === y); return d ? { y: d.value, count: d.count, total_count: d.total_count } : null; }) })),
+      series: countries.map(c => ({ name: c, data: years.map(y => { const d = data.find(x => x.country === c && x.year === y); return d ? { y: parseFloat(d.value.toFixed(1)), count: d.count, total_count: d.total_count } : null; }) })),
       credits: { enabled: false }
     });
   }

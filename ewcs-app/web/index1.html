@@ -187,7 +187,7 @@
   const TREND_DEFAULT_Q = "Job Satisfaction"; 
   const TREND_DEFAULT_RESPS = ["Very satisfied", "Satisfied"];
 
-  // --- CATEGORY MAPPINGS ---
+  // --- UPDATED CATEGORY MAPPINGS (Matches Raw Parquet Data) ---
   const CATEGORY_DEF = {
     // --- Old EWCS ---
     "agesex": [
@@ -206,26 +206,50 @@
     "size_10": [{label: "Size 1", value: "1"}, {label: "Size 2", value: "2"}],
     "mm102grp": [{label: "Size Grp 1", value: "1"}, {label: "Size Grp 2", value: "2"}],
 
-    // --- NEW: EWCS 2024 ---
+    // --- NEW: EWCS 2024 (EWCSR8) ---
     "sex2": [
-        {label: "Male", value: "1"}, {label: "Female", value: "2"}
+        {label: "Male", value: "1"}, 
+        {label: "Female", value: "2"}
     ],
     "age3": [
-        {label: "15-34", value: "1"}, {label: "35-49", value: "2"}, {label: "50+", value: "3"}
+        {label: "16-34", value: "16-34"}, 
+        {label: "35-54", value: "35:54"},
+        {label: "55+", value: "55+"}
     ],
     "bdwn_NACE0_lbl": [
-        {label: "Agriculture", value: "1"}, {label: "Industry", value: "2"}, {label: "Services", value: "3"}, {label: "Public admin", value: "4"}
+        {label: "Agriculture", value: "Agriculture"}, 
+        {label: "Industry", value: "Industry"}, 
+        {label: "Construction", value: "Construction"}, 
+        {label: "Commerce & hospitality", value: "Commerce & hospitality"},
+        {label: "Transport", value: "Transport"}, 
+        {label: "Financial services", value: "Financial services"}, 
+        {label: "Public administration", value: "Public administration"}, 
+        {label: "Education", value: "Education"}, 
+        {label: "Health", value: "Health"}, 
+        {label: "Other services", value: "Other services"}
     ],
     "bdwn_ISCO_1": [
-        {label: "Managers", value: "1"}, {label: "Professionals", value: "2"}, {label: "Technicians", value: "3"},
-        {label: "Clerks", value: "4"}, {label: "Service/Sales", value: "5"}, {label: "Skilled Agric", value: "6"},
-        {label: "Craft/Trades", value: "7"}, {label: "Plant/Machine", value: "8"}, {label: "Elementary", value: "9"}
+        {label: "1. Managers", value: "1"}, 
+        {label: "2. Professionals", value: "2"}, 
+        {label: "3. Technicians", value: "3"}, 
+        {label: "4. Clerks", value: "4"}, 
+        {label: "5. Service/Sales", value: "5"}, 
+        {label: "6. Skilled Agric", value: "6"}, 
+        {label: "7. Craft/Trades", value: "7"}, 
+        {label: "8. Plant/Machine", value: "8"}, 
+        {label: "9. Elementary", value: "9"},
+        {label: "0. Armed Forces", value: "0"}
     ],
     "bdwn_wstatus": [
-        {label: "Employee", value: "1"}, {label: "Self-employed", value: "2"}
+        {label: "Self-employed (Own account)", value: "1. Selfemployed: own account"},
+        {label: "Self-employed (With employees)", value: "2. Selfemployed: with employees"},
+        {label: "Employee (Fixed/Temp)", value: "3. Employee: fixed, apprentice or temporary agency"},
+        {label: "Employee (Indefinite)", value: "4. Employee: indefinite"},
+        {label: "Employee (Other)", value: "5. Employee: other and no contract"}
     ],
     "part_time": [
-        {label: "Full-time", value: "1"}, {label: "Part-time", value: "2"}
+        {label: "Full-time", value: "1"}, 
+        {label: "Part-time", value: "2"}
     ]
   };
   
@@ -394,7 +418,7 @@
     setStatus("Fetching...");
     let url = `${API_BASE}/weighted?survey=${els.survey.value}&question=${encodeURIComponent(els.question.value)}&weight=${els.weight.value}`;
     const catVal = els.category.value; 
-    if (catVal) { const [grp, val] = catVal.split(':'); url += `&category_group=${grp}&category_value=${val}`; }
+    if (catVal) { const [grp, val] = catVal.split(':'); url += `&category_group=${grp}&category_value=${encodeURIComponent(val)}`; }
     
     const resp = await fetchJson(url);
     currentData = resp.rows || [];
@@ -475,7 +499,7 @@
     rs.forEach(r=>url+=`&responses=${encodeURIComponent(r)}`); 
     cs.forEach(c=>url+=`&countries=${encodeURIComponent(c)}`);
     const catVal = els.tCategory.value;
-    if (catVal) { const [grp, val] = catVal.split(':'); url += `&category_group=${grp}&category_value=${val}`; }
+    if (catVal) { const [grp, val] = catVal.split(':'); url += `&category_group=${grp}&category_value=${encodeURIComponent(val)}`; }
     
     const data = await fetchJson(url);
     lastTrendData = data; lastTrendLabel = rs.join(", ");

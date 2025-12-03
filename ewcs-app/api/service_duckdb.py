@@ -50,9 +50,25 @@ EWCS24_CATEGORIES = ['sex2', 'age3', 'bdwn_NACE0_lbl', 'bdwn_ISCO_1', 'bdwn_wsta
 # Initialise DuckDB
 # ---------------------------------------------------------------------
 
-print(f"--- Initialising DuckDB...")
-_con = duckdb.connect(database=":memory:")
+import tempfile
 
+print(f"--- Initialising DuckDB...")
+
+# 1. Use a temporary file instead of RAM. 
+# Render's ephemeral disk is slower but won't crash your app like RAM will.
+db_path = os.path.join(tempfile.gettempdir(), "ewcs_buffer.duckdb")
+_con = duckdb.connect(database=db_path)
+
+# 2. Set strict memory limits.
+# On a 512MB instance, leave ~200MB for Python/Pandas/Gunicorn overhead.
+# Limit DuckDB to 256MB.
+try:
+    _con.execute("PRAGMA memory_limit='256MB'") 
+    _con.execute("PRAGMA threads=2") # Limit threads to reduce context switching overhead
+    _con.execute("PRAGMA temp_directory='/tmp'") # Ensure spilling goes to writable disk
+    print("--- DuckDB configured for low-memory environment.")
+except Exception as e:
+    print(f"!!! Warning: Could not set memory limits: {e}")
 # 1. Load EWCS Data -> VIEW
 if os.path.exists(DATA_FILE):
     print(f"--- Linking EWCS data: {DATA_FILE}")

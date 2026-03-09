@@ -1,454 +1,454 @@
 ﻿Rank,Dutch,Frequency,Context Sentence (Dutch),Word Type,English Translation,Defintion,Grading
-1,ik,7840843,Ik woon in Ierland.,Pronoun,I,,1
-2,je,7242582,Hoe gaat het met je?,Pronoun,you,,1
-3,het,5233420,Het is vandaag mooi weer.,Article/Pronoun,the/it,,1
-4,de,5171977,De hond blaft luid.,Article,the,,1
-5,dat,4505789,Ik weet dat niet zeker.,Pronoun/Conjunction,that,,1
-6,is,4439481,Zij is mijn beste vriendin.,Verb,is,,1
-7,een,3715858,Ik wil graag een appel.,Article,a/an,,1
-8,niet,3678884,Ik begrijp het niet.,Adverb,not,,1
-9,en,2800789,We eten brood en kaas.,Conjunction,and,,1
-10,wat,2228941,Wat doe jij daar?,Pronoun,what,,1
-11,van,2209684,Dit boek is van mij.,Preposition,of/from,,1
-12,we,2076863,We gaan morgen naar de film.,Pronoun,we,,1
-13,in,1963658,De kat ligt in de doos.,Preposition,in,,1
-14,ze,1789915,Ze heeft een nieuwe auto.,Pronoun,she/they,,1
-15,hij,1719998,Hij werkt in een ziekenhuis.,Pronoun,he,,1
-16,op,1696645,De sleutels liggen op tafel.,Preposition,on,,1
-17,te,1691827,Het is vandaag te koud.,Adverb/Preposition,too/to,,1
-18,zijn,1681160,Wij zijn erg blij vandaag.,Verb/Pronoun,are/his,,1
-19,er,1615173,Er is iemand aan de deur.,Adverb,there,,1
-20,maar,1598672,Het is klein maar fijn.,Conjunction/Adverb,but/only,,1
-21,die,1434016,Die man loopt heel snel.,Pronoun,that/those,,1
-22,heb,1429701,Ik heb een vraag voor je.,Verb,have,,1
-23,me,1411318,Kun je me even helpen?,Pronoun,me,,1
-24,met,1395328,Ik ga met de trein.,Preposition,with,,1
-25,voor,1389735,Dit is voor jou.,Preposition,for,,1
-26,als,1273513,Hij werkt als leraar.,Conjunction/Preposition,as/if,,1
-27,ben,1144955,Ik ben moe.,Verb,am,,1
-28,was,1031488,Ik was gisteren thuis.,Verb,was,,1
-29,dit,1012898,Dit is mijn huis.,Pronoun,this,,1
-30,mijn,961659,Dat is mijn fiets.,Pronoun,my,,1
-31,om,950863,Ik vraag het om te leren.,Preposition/Conjunction,to/around/because of,,1
-32,aan,939521,Het schilderij hangt aan de muur.,Preposition,on/at/to,,1
-33,jij,928107,Wat wil jij eten?,Pronoun,you (emphasis),,1
-34,naar,908546,We gaan naar school.,Preposition,to,,1
-35,dan,904663,Ik ben groter dan hij.,Conjunction/Adverb,than/then,,1
-36,hier,892773,Kom hier naartoe.,Adverb,here,,1
-37,weet,870605,Ik weet het antwoord.,Verb,know,,1
-38,kan,827534,Ik kan goed zwemmen.,Verb,can,,1
-39,geen,799250,Ik heb geen tijd.,Pronoun,no/none,,1
-40,nog,792339,Ben je nog wakker?,Adverb,still/yet,,1
-41,moet,762775,Ik moet nu gaan.,Verb,must/have to,,1
-42,wil,759522,Ik wil koffie.,Verb,want,,1
-43,wel,758242,Dat is wel waar.,Adverb,indeed/well/however,,1
-44,ja,746431,Ja ik kom eraan.,Adverb,yes,,1
-45,zo,746139,Het is zo groot!,Adverb,so/thus,,1
-46,heeft,735768,Zij heeft een kat.,Verb,has,,1
-47,hebben,732206,Wij hebben honger.,Verb,have,,1
-48,hem,730248,Ik zie hem daar.,Pronoun,him,,1
-49,goed,711659,Dat is een goed idee.,Adjective/Adverb,good/well,,1
-50,nee,663369,Nee bedankt.,Adverb,no,,1
-51,waar,634748,Waar ben je?,Adverb/Adjective,where/true,,1
-52,nu,633525,Ik moet nu gaan.,Adverb,now,,1
-53,hoe,632454,Hoe werkt dit?,Adverb,how,,1
-54,ga,579630,Ik ga slapen.,Verb,go,,1
-55,haar,573366,Ik zie haar.,Pronoun/Noun,her/hair,,1
-56,uit,562873,Hij komt uit Nederland.,Preposition,out/from,,1
-57,doen,557710,Wat ga je doen?,Verb,do,,1
-58,ook,555481,Ik wil dat ook.,Adverb,also/too,,1
-59,over,555424,We praten over werk.,Preposition,over/about,,1
-60,bent,551495,Jij bent laat.,Verb,are,,1
-61,mij,549004,Geef dat aan mij.,Pronoun,me,,1
-62,gaan,545717,Wij gaan weg.,Verb,go,,1
-63,of,506118,Koffie of thee?,Conjunction,or/whether,,1
-64,kom,502576,Ik kom eraan.,Verb,come,,1
-65,zou,501036,Wat zou je doen?,Verb,would,,1
-66,al,493269,Ik ben al klaar.,Adverb,already/all,,1
-67,bij,490366,Hij is bij mij.,Preposition,at/by/with,,1
-68,daar,482796,Zet het daar neer.,Adverb,there,,1
-69,ons,473851,Dit is ons huis.,Pronoun,us/our,,1
-70,jullie,472767,Gaan jullie mee?,Pronoun,you (plural),,1
-71,hebt,460950,Jij hebt gelijk.,Verb,have,,1
-72,gaat,454817,Alles gaat goed.,Verb,goes,,1
-73,iets,442933,Wil je iets drinken?,Pronoun,something,,1
-74,zal,441963,Ik zal je helpen.,Verb,shall/will,,1
-75,meer,430364,Ik wil meer water.,Adverb/Pronoun,more,,1
-76,waarom,426031,Waarom doe je dat?,Adverb,why,,1
-77,had,404241,Ik had geen tijd.,Verb,had,,1
-78,deze,401349,Deze appel is lekker.,Pronoun,these/this,,1
-79,laat,396728,Het is erg laat.,Adjective/Verb,late/let,,1
-80,moeten,370913,Wij moeten gaan.,Verb,must,,1
-81,m'n,363630,Waar is m'n tas?,Pronoun,my,,1
-82,jou,362713,Ik zie jou.,Pronoun,you (object),,1
-83,doe,358703,Ik doe mijn best.,Verb,do,,1
-84,wie,354534,Wie is daar?,Pronoun,who,,1
-85,kunnen,352929,Wij kunnen dat.,Verb,can,,1
-86,alles,347190,Alles komt goed.,Pronoun,everything,,1
-87,denk,337537,Ik denk van wel.,Verb,think,,1
-88,door,327117,Hij loopt door de deur.,Preposition,through/by,,1
-89,echt,319510,Is dat echt waar?,Adverb/Adjective,really/real,,1
-90,alleen,317745,Ik ben alleen thuis.,Adverb/Adjective,only/alone,,1
-91,oké,314825,Oké ik doe het.,Adverb,okay,,#N/A
-92,eens,314535,Ik ben het met je eens.,Adverb,once/agreed,,1
-93,dus,313730,Dus we gaan niet?,Adverb/Conjunction,so/thus,,1
-94,weg,309088,Ik ga weg.,Adverb/Noun,away/road,,1
-95,zien,304936,Ik wil je zien.,Verb,see,,1
-96,toch,299795,Je komt toch wel?,Adverb,yet/still/surely,,1
-97,man,293750,De man loopt daar.,Noun,man,,1
-98,nooit,278492,Ik doe dat nooit.,Adverb,never,,1
-99,terug,276017,Kom snel terug.,Adverb,back,,1
-100,laten,271958,Laten we gaan.,Verb,let/leave,,1
-101,nou,268379,Nou en?,Adverb,well/now,,1
-102,mee,267390,Ga je mee?,Adverb,along/with,,1
-103,misschien,256638,Misschien komt hij.,Adverb,maybe,,1
-104,even,256366,Wacht even.,Adverb,a moment/just,,1
-105,iemand,255563,Is er iemand?,Pronoun,someone,,1
-106,komt,254604,Hij komt eraan.,Verb,comes,,1
-107,niets,254174,Ik weet niets.,Pronoun,nothing,,1
-108,zei,250107,Hij zei dat.,Verb,said,,1
-109,hou,236668,Ik hou van jou.,Verb,hold/love,,1
-110,komen,229453,Ze komen morgen.,Verb,come,,1
-111,mensen,229103,Er zijn veel mensen.,Noun,people,,1
-112,onze,226560,Dit is onze auto.,Pronoun,our,,1
-113,nodig,225962,Ik heb hulp nodig.,Adjective,needed/necessary,,1
-114,tot,221382,Tot ziens!,Preposition,until/to,,1
-115,worden,219867,Hij wil arts worden.,Verb,become/be,,1
-116,veel,219860,Ik heb veel tijd.,Adjective/Adverb,much/many,,1
-117,weten,219188,Wij weten dat.,Verb,know,,1
-118,leven,218884,Het leven is mooi.,Noun/Verb,life/live,,1
-119,wij,216722,Wij zijn klaar.,Pronoun,we (emphasis),,1
-120,weer,215029,Het is weer koud.,Adverb/Noun,again/weather,,1
-121,gewoon,213834,Doe gewoon normaal.,Adverb/Adjective,just/normal,,1
-122,kijk,213616,Kijk daar!,Verb,look,,1
-123,zeggen,213356,Wat wil je zeggen?,Verb,say,,1
-124,tijd,212764,Ik heb geen tijd.,Noun,time,,1
-125,zeg,210814,Zeg het maar.,Verb,say,,1
-126,twee,208298,Ik heb twee honden.,Numeral,two,,1
-127,toen,208044,Toen was ik jong.,Adverb/Conjunction,then/when,,1
-128,tegen,207613,Hij praat tegen mij.,Preposition,against/to,,1
-129,zit,205110,Hij zit op de stoel.,Verb,sits,,1
-130,net,203060,Ik ben net wakker.,Adverb,just/exactly,,1
-131,dood,200313,De plant is dood.,Adjective/Noun,dead/death,,1
-132,uw,198061,Wat is uw naam?,Pronoun,your (formal),,1
-133,wordt,195977,Het wordt donker.,Verb,becomes,,1
-134,hé,195920,Hé let op!,Interjection,hey,,#N/A
-135,maken,192444,We maken een taart.,Verb,make,,1
-136,mag,189195,Mag ik binnenkomen?,Verb,may/allowed,,1
-137,één,188447,Ik wil er één.,Numeral,one,,#N/A
-138,z'n,187701,Hij zoekt z'n jas.,Pronoun,his,,1
-139,omdat,184722,Ik lach omdat ik blij ben.,Conjunction,because,,1
-140,gedaan,183529,Goed gedaan!,Verb,done,,1
-141,heel,182156,Dat is heel mooi.,Adverb/Adjective,very/whole,,1
-142,af,181253,Het werk is af.,Adjective/Adverb,finished/off,,1
-143,altijd,179551,Hij is altijd op tijd.,Adverb,always,,1
-144,jouw,174623,Is dat jouw boek?,Pronoun,your,,1
-145,zeker,172890,Weet je het zeker?,Adjective/Adverb,certain/sure,,1
-146,geef,172570,Geef me dat.,Verb,give,,1
-147,zie,170848,Ik zie je morgen.,Verb,see,,1
-148,wacht,170736,Wacht hier op mij.,Verb,wait,,1
-149,allemaal,165588,We gaan allemaal.,Pronoun,all/everybody,,1
-150,jaar,164433,Gelukkig nieuw jaar.,Noun,year,,1
-151,doet,164337,Hij doet zijn best.,Verb,does,,1
-152,dag,162898,Een fijne dag nog.,Noun,day,,1
-153,zij,161349,Zij is hier.,Pronoun,she/they,,1
-154,hun,159382,Dat is hun huis.,Pronoun,their,,1
-155,huis,158155,Ik ga naar huis.,Noun,house/home,,1
-156,vader,156071,Mijn vader werkt hier.,Noun,father,,1
-157,dank,155212,Dank je wel.,Noun/Verb,thanks,,1
-158,dacht,153597,Ik dacht dat ook.,Verb,thought,,1
-159,kunt,152626,Je kunt het proberen.,Verb,can,,1
-160,zoals,152422,Mensen zoals wij.,Conjunction/Preposition,like/such as,,1
-161,vrouw,151285,De vrouw loopt daar.,Noun,woman/wife,,1
-162,keer,150854,Nog één keer.,Noun,time (occasion),,1
-163,anders,146609,Dat is anders.,Adjective/Adverb,different/otherwise,,1
-164,andere,146177,Ik wil de andere.,Adjective,other,,1
-165,willen,145447,Wij willen eten.,Verb,want,,1
-166,erg,144618,Dat is erg leuk.,Adverb/Adjective,very/terrible,,1
-167,spijt,141916,Het spijt me.,Noun,regret,,1
-168,bedankt,141652,Bedankt voor alles.,Interjection,thanks,,1
-169,niemand,140961,Er is niemand.,Pronoun,nobody,,1
-170,wilt,140826,Als je dat wilt.,Verb,want,,1
-171,geld,140214,Dat kost veel geld.,Noun,money,,1
-172,zitten,140083,We zitten hier.,Verb,sit,,1
-173,niks,139985,Ik weet er niks van.,Pronoun,nothing,,1
-174,iedereen,138954,Iedereen is welkom.,Pronoun,everyone,,1
-175,binnen,138320,Kom snel binnen.,Adverb/Preposition,inside/within,,1
-176,staat,135644,De auto staat daar.,Verb,stands/is,,1
-177,wilde,134996,Ik wilde dat niet.,Verb,wanted,,1
-178,zich,134601,Hij wast zich.,Pronoun,himself/herself/itself,,1
-179,beter,134537,Dit is veel beter.,Adjective/Adverb,better,,1
-180,werk,134446,Ik heb veel werk.,Noun/Verb,work,,1
-181,praten,132705,We moeten praten.,Verb,talk,,1
-182,gezien,131006,Heb je dat gezien?,Verb,seen,,1
-183,zullen,130862,We zullen zien.,Verb,shall/will,,1
-184,waren,129549,Wij waren daar.,Verb,were,,1
-185,god,128800,Mijn god!,Noun,god,,1
-186,maak,128702,Ik maak het eten.,Verb,make,,1
-187,neem,128506,Neem je tijd.,Verb,take,,1
-188,vinden,127950,Dat kan ik niet vinden.,Verb,find/think,,1
-189,vind,127521,Ik vind het mooi.,Verb,find/think,,1
-190,moeder,124814,Mijn moeder is lief.,Noun,mother,,1
-191,kon,123381,Ik kon het niet doen.,Verb,could,,1
-192,uur,122231,Het duurt een uur.,Noun,hour,,1
-193,klaar,122212,Ik ben klaar.,Adjective,ready/finished,,1
-194,genoeg,120215,Dat is genoeg.,Adverb/Adjective,enough,,1
-195,helpen,119301,Kan ik je helpen?,Verb,help,,1
-196,oh,119077,Oh ik snap het.,Interjection,oh,,1
-197,hele,118678,De hele dag.,Adjective,whole/entire,,1
-198,drie,117145,Ik heb drie boeken.,Numeral,three,,1
-199,vast,116765,Het zit vast.,Adverb/Adjective,stuck/certainly,,1
-200,na,116659,Na de les gaan we.,Preposition,after,,1
-201,hallo,116482,Hallo allemaal.,Interjection,hello,,1
-202,leuk,116343,Dat is een leuk idee.,Adjective,nice/fun,,1
-203,sorry,116048,Sorry daarvoor.,Interjection,sorry,,1
-204,alle,114830,Alle mensen hier.,Pronoun/Adjective,all,,1
-205,elkaar,114709,We zien elkaar morgen.,Pronoun,each other,,1
-206,zoon,114466,Dat is mijn zoon.,Noun,son,,1
-207,wist,114289,Ik wist het niet.,Verb,knew,,1
-208,zegt,112794,Hij zegt ja.,Verb,says,,1
-209,bedoel,111995,Wat bedoel je?,Verb,mean,,1
-210,blijf,111068,Blijf hier wachten.,Verb,stay,,1
-211,alsjeblieft,110808,Hier is het alsjeblieft.,Interjection,please/here you go,,2
-212,lang,109815,Het duurt erg lang.,Adverb/Adjective,long,,1
-213,meneer,109602,Dag meneer.,Noun,sir/mister,,1
-214,ziet,109385,Hij ziet mij niet.,Verb,sees,,1
-215,maakt,109255,Dat maakt niet uit.,Verb,makes,,1
-216,luister,108225,Luister naar mij.,Verb,listen,,1
-217,dingen,107800,Ik zie veel dingen.,Noun,things,,1
-218,mooi,106513,Wat een mooi huis.,Adjective/Adverb,beautiful,,1
-219,soort,106486,Wat voor soort is dat?,Noun,kind/type,,1
-220,eerste,105501,Hij is de eerste.,Adjective,first,,1
-221,graag,105501,Ik wil dat graag.,Adverb,gladly/please,,1
-222,natuurlijk,105268,Dat is natuurlijk zo.,Adverb/Adjective,of course/natural,,2
-223,houden,103838,We houden van jou.,Verb,hold/keep/love,,1
-224,zonder,103634,Koffie zonder melk.,Preposition,without,,1
-225,steeds,103491,Hij is er nog steeds.,Adverb,still/always,,1
-226,krijgen,102922,Wat krijgen we nu?,Verb,get/receive,,1
-227,grote,102284,Een grote boom.,Adjective,big/large,,1
-228,achter,102224,Kijk achter je.,Preposition,behind,,1
-229,helemaal,101859,Ik ben het er helemaal mee eens.,Adverb,completely/totally,,1
-230,naam,100664,Wat is jouw naam?,Noun,name,,1
-231,gek,100386,Doe niet zo gek.,Adjective,crazy,,1
-232,blijven,100084,We blijven hier.,Verb,stay,,1
-233,onder,99913,Het boek ligt onder de tafel.,Preposition,under/below,,1
-234,vriend,99666,Hij is een goede vriend.,Noun,friend,,1
-235,geweest,98850,Ik ben daar geweest.,Verb,been,,1
-236,kijken,98710,We gaan een film kijken.,Verb,look/watch,,1
-237,geven,98686,Ik zal het je geven.,Verb,give,,1
-238,ging,98129,Hij ging gisteren weg.,Verb,went,,1
-239,vertellen,97831,Kan je me dat vertellen?,Verb,tell,,1
-240,ooit,95370,Heb je dat ooit gedaan?,Adverb,ever,,1
-241,snel,94773,We moeten snel gaan.,Adverb/Adjective,fast/quick,,1
-242,hand,94597,Geef me je hand.,Noun,hand,,1
-243,idee,94437,Dat is een goed idee.,Noun,idea,,1
-244,goeie,23729,Een goeie morgen.,Adjective,good (colloquial),,2
-245,gisteren,23708,Gisteren was het warm.,Adverb,yesterday,,2
-246,aarde,23690,Planeet aarde.,Noun,earth,,2
-247,contact,23680,We houden contact.,Noun,contact,,2
-248,zus,23673,Zij is mijn zus.,Noun,sister,,1
-249,erbij,23655,Ik ben erbij.,Adverb,there/with it,,2
-250,beschermen,23651,We moeten het beschermen.,Verb,protect,,3
-251,gevangenis,23604,Hij zit in de gevangenis.,Noun,prison/jail,,3
-252,persoon,23532,Dat is een aardig persoon.,Noun,person,,2
-253,winnen,23527,We gaan de wedstrijd winnen.,Verb,win,,2
-254,kracht,23416,Hij heeft veel kracht.,Noun,power/strength,,2
-255,ziek,23388,Ik voel me erg ziek.,Adjective,sick/ill,,1
-256,omhoog,23384,Kijk omhoog naar de lucht.,Adverb,up/upwards,,2
-257,beloof,23372,Ik beloof dat ik kom.,Verb,promise,,2
-258,gebruik,23324,Ik gebruik dit elke dag.,Verb/Noun,use,,2
-259,hoezo,23305,Hoezo doe je dat?,Adverb,how so/why,,2
-260,degene,23190,Jij bent degene die ik zoek.,Pronoun,the one,,2
-261,trek,23142,Ik heb trek in een appel.,Noun/Verb,appetite/pull,,1
-262,meen,23131,Ik meen het echt.,Verb,mean (serious),,1
-263,enkele,23120,Er zijn enkele problemen.,Pronoun/Adjective,some/a few,,2
-264,getrouwd,23101,Zij zijn gisteren getrouwd.,Verb/Adjective,married,,2
-265,gevraagd,23036,Ik heb het hem gevraagd.,Verb,asked,,2
-266,New York,22992,We gaan naar New York.,Noun,New York,,#N/A
-267,verdomde,22976,Zet die verdomde tv uit.,Adjective,damned,,2
-268,hierheen,22953,Kom direct hierheen.,Adverb,here/this way,,2
-269,punt,22940,Dat is een goed punt.,Noun,point,,1
-270,toekomst,22866,De toekomst is onzeker.,Noun,future,,2
-271,probeerde,22816,Ik probeerde je te bellen.,Verb,tried,,2
-272,half,22653,Geef me een half glas.,Adjective/Adverb,half,,1
-273,leger,22633,Hij zit in het leger.,Noun,army,,2
-274,waard,22558,Dat is veel geld waard.,Adjective,worth,,2
-275,opnieuw,22556,Laten we opnieuw beginnen.,Adverb,again/anew,,2
-276,val,22549,Pas op voor de val.,Noun/Verb,trap/fall,,1
-277,vuur,22539,Het vuur is heet.,Noun,fire,,1
-278,bewijs,22485,Heb je daar bewijs voor?,Noun,proof/evidence,,2
-279,controle,22448,Ik heb er geen controle over.,Noun,control,,2
-280,stellen,22399,We moeten een grens stellen.,Verb,set/put,,2
-281,tv,22397,Wat is er op tv?,Noun,TV,,1
-282,loop,22309,Ik loop naar de winkel.,Verb/Noun,walk/barrel,,1
-283,woorden,22277,Ik heb er geen woorden voor.,Noun,words,,2
-284,droom,22275,Ik had een rare droom.,Noun/Verb,dream,,2
-285,begrijpen,22175,Ik kan het niet begrijpen.,Verb,understand,,2
-286,eet,22161,Eet je bord leeg.,Verb,eat,,1
-287,bedoelt,22087,Ik weet wat je bedoelt.,Verb,means/mean,,2
-288,onzin,22078,Dat is complete onzin.,Noun,nonsense,,2
-289,serieus,21993,Ben je serieus?,Adjective/Adverb,serious/seriously,,2
-290,konden,21991,We konden niets doen.,Verb,could,,2
-291,nietwaar,21987,Dat is mooi nietwaar?,Adverb,isn't it?/right?,,2
-292,verlaten,21978,Ze moest de stad verlaten.,Verb,leave/abandon,,2
-293,pistool,21976,Hij heeft een pistool.,Noun,gun/pistol,,2
-294,gekregen,21923,Ik heb een cadeau gekregen.,Verb,got/received,,2
-295,men,21893,Dat zegt men vaak.,Pronoun,one/people,,1
-296,brengt,21858,Hij brengt het boek terug.,Verb,brings,,2
-297,fantastisch,21749,Dat is echt fantastisch!,Adjective,fantastic,,3
-298,trots,21748,Ik ben heel trots op je.,Adjective/Noun,proud/pride,,2
-299,ziens,21747,Tot ziens!,Noun,goodbye/seeing,,2
-300,ongeluk,21576,Er is een ongeluk gebeurd.,Noun,accident,,2
-301,geheim,21569,Het is een groot geheim.,Noun/Adjective,secret,,2
-302,vroeger,21569,Vroeger was alles anders.,Adverb,formerly/used to be,,2
-303,veranderd,21563,Er is veel veranderd.,Verb,changed,,2
-304,eentje,21539,Neem er nog eentje.,Pronoun,one (diminutive),,2
-305,werden,21503,Ze werden heel boos.,Verb,became/were,,2
-306,begon,21433,Het begon te regenen.,Verb,began/started,,2
-307,verliezen,21415,We mogen niet verliezen.,Verb,lose,,2
-308,probeert,21388,Hij probeert zijn best te doen.,Verb,tries,,2
-309,vliegtuig,21378,Het vliegtuig landt zo.,Noun,airplane,,2
-310,let,21267,Let goed op.,Verb,pay attention,,1
-311,slim,21263,Dat is een slim idee.,Adjective,smart/clever,,1
-312,juiste,21213,Dit is het juiste antwoord.,Adjective,right/correct,,2
-313,langer,21206,We blijven wat langer.,Adverb/Adjective,longer,,2
-314,slaap,21098,Ik heb slaap nodig.,Noun/Verb,sleep,,2
-315,lezen,20906,Ik hou van boeken lezen.,Verb,read,,2
-316,ongeveer,20864,Het kost ongeveer tien euro.,Adverb,about/approximately,,2
-317,behalve,20764,Iedereen behalve jij.,Preposition/Conjunction,except,,2
-318,meid,20761,Kom op meid.,Noun,girl/maid,,1
-319,oom,20690,Mijn oom woont hier.,Noun,uncle,,1
-320,gered,20648,Je hebt mijn leven gered.,Verb,saved,,2
-321,bank,20625,Ik zit op de bank.,Noun,couch/bank,,1
-322,generaal,20580,De generaal geeft orders.,Noun,general,,2
-323,dienst,20545,Kan ik u van dienst zijn?,Noun,service/duty,,2
-324,tenminste,20489,Dat hoop ik tenminste.,Adverb,at least,,2
-325,noem,20459,Hoe noem je dat?,Verb,call/name,,1
-326,geleden,20440,Dat is jaren geleden.,Adverb,ago,,1
-327,gedood,20400,Hij werd gisteren gedood.,Verb,killed,,2
-328,vraagt,20434,Ze vraagt om hulp.,Verb,asks,,2
-329,boos,20412,Waarom ben je boos?,Adjective,angry,,1
-330,spullen,20372,Pak al je spullen.,Noun,stuff/things,,2
-331,volgen,20356,Ik zal je volgen.,Verb,follow,,2
-332,sturen,20355,Kan je me een mail sturen?,Verb,send/steer,,2
-333,hemel,20341,Kijk naar de hemel.,Noun,heaven/sky,,2
-334,makkelijk,20338,Dat is heel makkelijk.,Adjective/Adverb,easy/easily,,2
-335,ter,20291,Ter zake komen.,Preposition,to the,,1
-336,genomen,20285,Ik heb een pauze genomen.,Verb,taken,,2
-337,grootste,20192,Dit is de grootste stad.,Adjective,biggest/largest,,2
-338,gebeurde,20138,Wat gebeurde er toen?,Verb,happened,,2
-339,kwamen,20022,Zij kwamen wat later.,Verb,came,,2
-340,excuseer,19977,Excuseer mij even.,Verb,excuse,,2
-341,meter,19974,Het is honderd meter ver.,Noun,meter,,2
-342,weinig,19956,Ik heb heel weinig tijd.,Adverb/Pronoun,little/few,,2
-343,iedere,19953,Iedere dag leer ik iets.,Pronoun,every,,2
-344,moordenaar,19937,De moordenaar is gepakt.,Noun,murderer,,3
-345,luisteren,19909,Je moet goed luisteren.,Verb,listen,,2
-346,begrijpt,19866,Hij begrijpt het niet.,Verb,understands,,2
-347,gevaar,19844,Er is groot gevaar.,Noun,danger,,2
-348,ieder,19830,Voor ieder wat wils.,Pronoun,every/each,,2
-349,sommige,19823,Sommige mensen weten dat.,Pronoun/Adjective,some,,2
-350,via,19779,We rijden via Utrecht.,Preposition,via/through,,1
-351,succes,19777,Ik wens je veel succes.,Noun,success/good luck,,2
-352,vertrekken,19747,We vertrekken morgenochtend.,Verb,leave/depart,,3
-353,muziek,19732,Ik luister graag naar muziek.,Noun,music,,2
-354,gestolen,19720,Mijn fiets is gestolen.,Verb/Adjective,stolen,,2
-355,meest,19707,Dit is het meest belangrijk.,Adverb,most,,2
-356,hoef,19691,Ik hoef niet te werken.,Verb,have to/need,,1
-357,advocaat,19685,Hij praat met zijn advocaat.,Noun,lawyer,,2
-358,kijkt,19657,Hij kijkt naar de tv.,Verb,looks/watches,,2
-359,helpt,19490,Zij helpt mij altijd.,Verb,helps,,2
-360,afspraak,19419,Ik heb een afspraak bij de dokter.,Noun,appointment/agreement,,2
-361,maand,19362,Volgende maand ga ik op vakantie.,Noun,month,,2
-362,zwarte,19353,De zwarte kat slaapt.,Adjective,black,,2
-363,seconden,19303,Wacht een paar seconden.,Noun,seconds,,2
-364,sterk,19286,Hij is erg sterk.,Adjective,strong,,2
-365,foto's,19273,Ik heb veel foto's gemaakt.,Noun,photos,,2
-366,lijken,19214,Ze lijken veel op elkaar.,Verb,look like/seem,,2
-367,geest,19204,Ik zag een geest in dat huis.,Noun,ghost/spirit/mind,,2
-368,gingen,19194,We gingen gisteren naar de stad.,Verb,went,,2
-369,straat,19185,Ze lopen op straat.,Noun,street,,2
-370,slechts,19175,Het kost slechts vijf euro.,Adverb,only/merely,,2
-371,verkeerde,19172,Dat was de verkeerde afslag.,Adjective,wrong,,2
-372,slaan,19171,Je mag niemand slaan.,Verb,hit/strike,,2
-373,FBI,19103,De FBI onderzoekt de zaak.,Noun,FBI,,1
-374,afgelopen,19035,De film is afgelopen.,Adjective/Adverb,finished/past,,2
-375,hotel,19031,We slapen in een hotel.,Noun,hotel,,2
-376,bekend,19028,Hij is een bekend persoon.,Adjective,known/famous,,2
-377,ene,18988,De ene na de andere.,Pronoun/Adjective,one,,1
-378,ruimte,18932,Er is genoeg ruimte.,Noun,space/room,,2
-379,lange,18891,Het is een lange reis.,Adjective,long,,2
-380,trouwens,18890,Ik ben er trouwens ook.,Adverb,by the way,,2
-381,feest,18874,Morgen is het feest.,Noun,party/festival,,2
-382,vliegen,18847,Vogels kunnen vliegen.,Verb,fly,,2
-383,boot,18845,We varen op een boot.,Noun,boat,,1
-384,meester,18785,Hij is een echte meester.,Noun,master/male teacher,,2
-385,doel,18759,Wat is je doel?,Noun,goal/target,,1
-386,zolang,18755,Zolang het regent blijf ik binnen.,Conjunction,as long as,,2
-387,regels,18728,We moeten de regels volgen.,Noun,rules,,2
-388,stomme,18662,Dat is een stomme fout.,Adjective,stupid/dumb,,2
-389,begonnen,18629,We zijn gisteren begonnen.,Verb,started/begun,,2
-390,zak,18614,Wat heb je in je zak?,Noun,pocket/bag,,1
-391,absoluut,18610,Dat is absoluut waar.,Adverb,absolutely,,2
-392,spreek,18561,Ik spreek Nederlands.,Verb,speak,,2
-393,stom,18549,Dat vind ik echt stom.,Adjective,stupid,,1
-394,bestaat,18538,Dat dier bestaat niet echt.,Verb,exists,,2
-395,welk,18524,Welk boek wil je?,Pronoun,which,,1
-396,gevaarlijk,18518,Dat is heel gevaarlijk.,Adjective,dangerous,,3
-397,jawel,18482,Jawel dat heb ik wel gedaan.,Adverb,yes indeed (contradicting negative),,2
-398,goedemorgen,18460,Goedemorgen iedereen.,Noun/Interjection,good morning,,3
-399,wilden,18401,Zij wilden niet komen.,Verb,wanted,,2
-400,erger,18342,Het wordt steeds erger.,Adjective/Adverb,worse,,2
-401,vreselijk,18250,Wat een vreselijk nieuws.,Adjective/Adverb,terrible/awful,,2
-402,zodra,18225,Ik bel je zodra ik kan.,Conjunction,as soon as,,2
-403,geraakt,18208,Ik werd door de bal geraakt.,Verb/Adjective,hit/touched,,2
-404,nadat,18165,Nadat we eten gaan we weg.,Conjunction,after,,2
-405,vertrouw,18156,Ik vertrouw je niet.,Verb,trust,,2
-406,kolonel,18129,De kolonel gaf een bevel.,Noun,colonel,,2
-407,voelde,18124,Ik voelde me gisteren ziek.,Verb,felt,,2
-408,kleren,18114,Ik heb nieuwe kleren gekocht.,Noun,clothes,,2
-409,rug,18066,Ik heb pijn in mijn rug.,Noun,back,,1
-410,naast,18065,Ik zit naast jou.,Preposition,next to/beside,,2
-411,totdat,17937,Ik wacht totdat je klaar bent.,Conjunction,until,,2
-412,verliefd,17921,Ze is heel erg verliefd.,Adjective,in love,,2
-413,lukt,17899,Het lukt me niet.,Verb,succeeds/works out,,1
-414,wonen,17894,Zij wonen in Amsterdam.,Verb,live (reside),,2
-415,lieve,17885,Lieve mensen welkom!,Adjective,sweet/dear,,2
-416,gaten,17884,Houd hem in de gaten.,Noun,holes/eyes (idiomatically),,2
-417,raar,17802,Dat is best wel raar.,Adjective,weird/strange,,1
-418,geprobeerd,17778,Ik heb het echt geprobeerd.,Verb,tried,,3
-419,geleerd,17694,Heb je daar iets van geleerd?,Verb,learned,,2
-420,erover,17563,We praten erover.,Pronominal Adverb,about it,,2
-421,raad,17563,Ik weet geen raad meer.,Noun/Verb,advice/guess,,1
-422,volg,17553,Volg mij.,Verb,follow,,1
-423,verkopen,17535,We gaan het huis verkopen.,Verb,sell,,2
-424,geweldige,17508,Dat is een geweldige prestatie.,Adjective,amazing/awesome,,2
-425,zover,17502,Het is bijna zover.,Adverb,so far/that far/ready,,2
-426,red,17457,Ik red me wel.,Verb,save/manage,,1
-427,woont,17449,Hij woont hier niet meer.,Verb,lives (resides),,2
-428,Amerika,17421,We gaan naar Amerika.,Noun,America,,2
-429,lul,17403,Doe niet als een lul.,Noun,dick/jerk,,1
-430,gedacht,17366,Ik had dat nooit gedacht.,Verb/Noun,thought,,2
-431,bewijzen,17361,Je moet dat bewijzen.,Verb,prove,,2
-432,prijs,17348,Wat is de prijs?,Noun,price/prize,,2
-433,www,17331,Typ www in de browser.,Noun,www (World Wide Web),,1
-434,raken,17313,Probeer hem niet te raken.,Verb,touch/hit,,2
-435,voorstellen,17306,Ik wil me even voorstellen.,Verb,introduce/imagine,,3
-436,vorige,17290,Dat was vorige week.,Adjective,previous/last,,2
-437,regel,17284,Wat is de eerste regel?,Noun,rule/line,,2
-438,schrijven,17273,Ik ga een boek schrijven.,Verb,write,,2
-439,rot,17272,Voel je je rot?,Adjective/Noun,rotten/bad,,1
-440,gebouw,17260,Het is een heel hoog gebouw.,Noun,building,,2
-441,trekken,17238,Je moet hard trekken.,Verb,pull,,2
-442,herinneren,17205,Ik kan me dat niet herinneren.,Verb,remember,,3
-443,dansen,17139,Laten we gaan dansen.,Verb,dance,,2
-444,gebracht,17060,Hij heeft me naar huis gebracht.,Verb,brought,,2
-445,meeste,17030,De meeste mensen weten dit.,Pronoun/Adjective,most,,2
-446,jammer,16997,Dat is heel jammer.,Adjective/Adverb,a pity/unfortunately,,2
-447,koud,16949,Het is erg koud vandaag.,Adjective,cold,,1
-448,wegwezen,16918,We moeten nu wegwezen.,Verb/Interjection,leave/get out,,2
-449,macht,16913,Hij heeft veel macht.,Noun,power,,2
-450,drugs,16889,Drugs zijn illegaal.,Noun,drugs,,2
+1,ik,7840843,Ik woon in Ierland.,Pronoun,I,De persoon die spreekt of schrijft.,1
+2,je,7242582,Hoe gaat het met je?,Pronoun,you,De persoon tot wie men zich richt.,1
+3,het,5233420,Het is vandaag mooi weer.,Article/Pronoun,the/it,Onzijdig bepaald lidwoord.,1
+4,de,5171977,De hond blaft luid.,Article,the,Mannelijk of vrouwelijk bepaald lidwoord.,1
+5,dat,4505789,Ik weet dat niet zeker.,Pronoun/Conjunction,that,Aanwijzend voornaamwoord voor iets verder weg.,1
+6,is,4439481,Zij is mijn beste vriendin.,Verb,is,Vorm van het koppelwerkwoord zijn.,1
+7,een,3715858,Ik wil graag een appel.,Article,a/an,Onbepaald lidwoord.,1
+8,niet,3678884,Ik begrijp het niet.,Adverb,not,Woord dat een ontkenning uitdrukt.,1
+9,en,2800789,We eten brood en kaas.,Conjunction,and,Voegwoord dat delen van een zin verbindt.,1
+10,wat,2228941,Wat doe jij daar?,Pronoun,what,Vragend of betrekkelijk voornaamwoord.,1
+11,van,2209684,Dit boek is van mij.,Preposition,of/from,Voorzetsel dat bezit of herkomst aanduidt.,1
+12,we,2076863,We gaan morgen naar de film.,Pronoun,we,Persoonlijk voornaamwoord (eerste persoon meervoud).,1
+13,in,1963658,De kat ligt in de doos.,Preposition,in,Voorzetsel dat een plaats of positie binnen iets aanduidt.,1
+14,ze,1789915,Ze heeft een nieuwe auto.,Pronoun,she/they,Persoonlijk voornaamwoord (vrouwelijk enkelvoud of meervoud).,1
+15,hij,1719998,Hij werkt in een ziekenhuis.,Pronoun,he,Persoonlijk voornaamwoord (mannelijk enkelvoud).,1
+16,op,1696645,De sleutels liggen op tafel.,Preposition,on,Voorzetsel dat een positie bovenop iets aanduidt.,1
+17,te,1691827,Het is vandaag te koud.,Adverb/Preposition,too/to,Voorzetsel vaak gebruikt voor een infinitief.,1
+18,zijn,1681160,Wij zijn erg blij vandaag.,Verb/Pronoun,are/his,Koppelwerkwoord of bezittelijk voornaamwoord (mannelijk).,1
+19,er,1615173,Er is iemand aan de deur.,Adverb,there,Bijwoord dat een plaats of aanwezigheid aanduidt.,1
+20,maar,1598672,Het is klein maar fijn.,Conjunction/Adverb,but/only,Voegwoord dat een tegenstelling aangeeft.,1
+21,die,1434016,Die man loopt heel snel.,Pronoun,that/those,Aanwijzend voornaamwoord voor mensen of zaken.,1
+22,heb,1429701,Ik heb een vraag voor je.,Verb,have,Vorm van het werkwoord hebben.,1
+23,me,1411318,Kun je me even helpen?,Pronoun,me,Wederkerend voornaamwoord (mijzelf).,1
+24,met,1395328,Ik ga met de trein.,Preposition,with,Voorzetsel dat gezelschap of middel aanduidt.,1
+25,voor,1389735,Dit is voor jou.,Preposition,for,Voorzetsel dat een plaats aan de voorkant of tijd aanduidt.,1
+26,als,1273513,Hij werkt als leraar.,Conjunction/Preposition,as/if,Voegwoord gebruikt bij vergelijkingen of voorwaarden.,1
+27,ben,1144955,Ik ben moe.,Verb,am,Vorm van het werkwoord zijn (eerste persoon).,1
+28,was,1031488,Ik was gisteren thuis.,Verb,was,Verleden tijd van het werkwoord zijn.,1
+29,dit,1012898,Dit is mijn huis.,Pronoun,this,Aanwijzend voornaamwoord voor iets dichtbij.,1
+30,mijn,961659,Dat is mijn fiets.,Pronoun,my,Bezittelijk voornaamwoord (eerste persoon).,1
+31,om,950863,Ik vraag het om te leren.,Preposition/Conjunction,to/around/because of,Voorzetsel dat een reden of beweging rondom aanduidt.,1
+32,aan,939521,Het schilderij hangt aan de muur.,Preposition,on/at/to,Voorzetsel dat contact of richting aanduidt.,1
+33,jij,928107,Wat wil jij eten?,Pronoun,you (emphasis),Persoonlijk voornaamwoord (tweede persoon enkelvoud).,1
+34,naar,908546,We gaan naar school.,Preposition,to,Voorzetsel dat een richting aanduidt.,1
+35,dan,904663,Ik ben groter dan hij.,Conjunction/Adverb,than/then,Bijwoord gebruikt bij tijdsbepaling of vergelijking.,1
+36,hier,892773,Kom hier naartoe.,Adverb,here,Op deze plaats.,1
+37,weet,870605,Ik weet het antwoord.,Verb,know,Vorm van het werkwoord weten.,1
+38,kan,827534,Ik kan goed zwemmen.,Verb,can,Vorm van het werkwoord kunnen.,1
+39,geen,799250,Ik heb geen tijd.,Pronoun,no/none,"Nul, niet Ã©Ã©n.",1
+40,nog,792339,Ben je nog wakker?,Adverb,still/yet,Bijwoord dat continuÃ¯teit aanduidt.,1
+41,moet,762775,Ik moet nu gaan.,Verb,must/have to,Vorm van het werkwoord moeten.,1
+42,wil,759522,Ik wil koffie.,Verb,want,Vorm van het werkwoord willen.,1
+43,wel,758242,Dat is wel waar.,Adverb,indeed/well/however,Bijwoord dat een bevestiging of nadruk geeft.,1
+44,ja,746431,Ja ik kom eraan.,Adverb,yes,Woord om een bevestigend antwoord te geven.,1
+45,zo,746139,Het is zo groot!,Adverb,so/thus,Op die manier of zeer binnenkort.,1
+46,heeft,735768,Zij heeft een kat.,Verb,has,Vorm van het werkwoord hebben (derde persoon).,1
+47,hebben,732206,Wij hebben honger.,Verb,have,Het bezitten van iets.,1
+48,hem,730248,Ik zie hem daar.,Pronoun,him,Persoonlijk voornaamwoord (mannelijk lijdend voorwerp).,1
+49,goed,711659,Dat is een goed idee.,Adjective/Adverb,good/well,Op een juiste of prettige manier; niet slecht.,1
+50,nee,663369,Nee bedankt.,Adverb,no,Woord om een ontkennend antwoord te geven.,1
+51,waar,634748,Waar ben je?,Adverb/Adjective,where/true,Vraagwoord naar een plaats of synoniem voor echt.,1
+52,nu,633525,Ik moet nu gaan.,Adverb,now,Op dit moment.,1
+53,hoe,632454,Hoe werkt dit?,Adverb,how,Vraagwoord naar de manier waarop.,1
+54,ga,579630,Ik ga slapen.,Verb,go,Vorm van het werkwoord gaan.,1
+55,haar,573366,Ik zie haar.,Pronoun/Noun,her/hair,Bezittelijk voornaamwoord (vrouwelijk) of de begroeiing op het hoofd.,1
+56,uit,562873,Hij komt uit Nederland.,Preposition,out/from,Voorzetsel dat een beweging naar buiten aanduidt.,1
+57,doen,557710,Wat ga je doen?,Verb,do,Een handeling verrichten.,1
+58,ook,555481,Ik wil dat ook.,Adverb,also/too,"Eveneens, daarnaast.",1
+59,over,555424,We praten over werk.,Preposition,over/about,Voorzetsel dat een positie boven of een onderwerp aanduidt.,1
+60,bent,551495,Jij bent laat.,Verb,are,Vorm van het werkwoord zijn (tweede persoon).,1
+61,mij,549004,Geef dat aan mij.,Pronoun,me,Persoonlijk voornaamwoord (eerste persoon object).,1
+62,gaan,545717,Wij gaan weg.,Verb,go,Zich verplaatsen naar een andere plek.,1
+63,of,506118,Koffie of thee?,Conjunction,or/whether,Voegwoord dat een keuze tussen twee zaken aangeeft.,1
+64,kom,502576,Ik kom eraan.,Verb,come,Vorm van het werkwoord komen.,1
+65,zou,501036,Wat zou je doen?,Verb,would,Hulpwerkwoord voor de onvoltooid verleden toekomende tijd.,1
+66,al,493269,Ik ben al klaar.,Adverb,already/all,"Reeds, of een aanduiding van een geheel.",1
+67,bij,490366,Hij is bij mij.,Preposition,at/by/with,Voorzetsel dat nabijheid aanduidt.,1
+68,daar,482796,Zet het daar neer.,Adverb,there,Op die plaats (verder weg).,1
+69,ons,473851,Dit is ons huis.,Pronoun,us/our,Bezittelijk voornaamwoord (eerste persoon meervoud).,1
+70,jullie,472767,Gaan jullie mee?,Pronoun,you (plural),Persoonlijk voornaamwoord (tweede persoon meervoud).,1
+71,hebt,460950,Jij hebt gelijk.,Verb,have,Vorm van het werkwoord hebben (tweede persoon).,1
+72,gaat,454817,Alles gaat goed.,Verb,goes,Vorm van het werkwoord gaan (derde persoon).,1
+73,iets,442933,Wil je iets drinken?,Pronoun,something,Een onbepaald ding of een kleine hoeveelheid.,1
+74,zal,441963,Ik zal je helpen.,Verb,shall/will,Hulpwerkwoord voor de toekomende tijd.,1
+75,meer,430364,Ik wil meer water.,Adverb/Pronoun,more,Een grotere hoeveelheid of een plas water.,1
+76,waarom,426031,Waarom doe je dat?,Adverb,why,Vraagwoord naar de reden of oorzaak.,1
+77,had,404241,Ik had geen tijd.,Verb,had,Verleden tijd van hebben.,1
+78,deze,401349,Deze appel is lekker.,Pronoun,these/this,Aanwijzend voornaamwoord voor iets dichtbij.,1
+79,laat,396728,Het is erg laat.,Adjective/Verb,late/let,"Niet op tijd, of vorm van het werkwoord laten.",1
+80,moeten,370913,Wij moeten gaan.,Verb,must,Verplicht zijn om iets te doen.,1
+81,m'n,363630,Waar is m'n tas?,Pronoun,my,Betekenis volgt.,1
+82,jou,362713,Ik zie jou.,Pronoun,you (object),Persoonlijk voornaamwoord (tweede persoon object).,1
+83,doe,358703,Ik doe mijn best.,Verb,do,Vorm van het werkwoord doen.,1
+84,wie,354534,Wie is daar?,Pronoun,who,Vraagwoord naar een persoon.,1
+85,kunnen,352929,Wij kunnen dat.,Verb,can,In staat zijn tot iets.,1
+86,alles,347190,Alles komt goed.,Pronoun,everything,"De gehele hoeveelheid, niets uitgezonderd.",1
+87,denk,337537,Ik denk van wel.,Verb,think,Vorm van het werkwoord denken.,1
+88,door,327117,Hij loopt door de deur.,Preposition,through/by,Voorzetsel dat een middel of opening aanduidt.,1
+89,echt,319510,Is dat echt waar?,Adverb/Adjective,really/real,"Werkelijk, niet vals.",1
+90,alleen,317745,Ik ben alleen thuis.,Adverb/Adjective,only/alone,Zonder gezelschap van anderen.,1
+91,oké,314825,Oké ik doe het.,Adverb,okay,"Akkoord, het is goed.",#N/A
+92,eens,314535,Ik ben het met je eens.,Adverb,once/agreed,Op een bepaald moment in het verleden of de toekomst.,1
+93,dus,313730,Dus we gaan niet?,Adverb/Conjunction,so/thus,Voegwoord dat een conclusie inleidt.,1
+94,weg,309088,Ik ga weg.,Adverb/Noun,away/road,"Niet meer aanwezig, of een route om over te rijden.",1
+95,zien,304936,Ik wil je zien.,Verb,see,Waarnemen met de ogen.,1
+96,toch,299795,Je komt toch wel?,Adverb,yet/still/surely,"Ondanks dat, of ter bevestiging.",1
+97,man,293750,De man loopt daar.,Noun,man,Volwassen mannelijk persoon.,1
+98,nooit,278492,Ik doe dat nooit.,Adverb,never,Op geen enkel moment.,1
+99,terug,276017,Kom snel terug.,Adverb,back,Naar de plek van herkomst.,1
+100,laten,271958,Laten we gaan.,Verb,let/leave,Toestaan of niet veranderen.,1
+101,nou,268379,Nou en?,Adverb,well/now,Nu (vaak met een emotionele lading).,1
+102,mee,267390,Ga je mee?,Adverb,along/with,Samen met anderen of iets.,1
+103,misschien,256638,Misschien komt hij.,Adverb,maybe,"Mogelijk, maar niet zeker.",1
+104,even,256366,Wacht even.,Adverb,a moment/just,Gedurende een korte tijd.,1
+105,iemand,255563,Is er iemand?,Pronoun,someone,Een onbekend persoon.,1
+106,komt,254604,Hij komt eraan.,Verb,comes,Vorm van het werkwoord komen.,1
+107,niets,254174,Ik weet niets.,Pronoun,nothing,Helemaal geen ding.,1
+108,zei,250107,Hij zei dat.,Verb,said,Verleden tijd van zeggen.,1
+109,hou,236668,Ik hou van jou.,Verb,hold/love,Vorm van het werkwoord houden.,1
+110,komen,229453,Ze komen morgen.,Verb,come,Zich naar de spreker toe bewegen.,1
+111,mensen,229103,Er zijn veel mensen.,Noun,people,Personen in het algemeen.,1
+112,onze,226560,Dit is onze auto.,Pronoun,our,Bezittelijk voornaamwoord (eerste persoon meervoud).,1
+113,nodig,225962,Ik heb hulp nodig.,Adjective,needed/necessary,Iets dat vereist is.,1
+114,tot,221382,Tot ziens!,Preposition,until/to,Voorzetsel dat een grens in tijd of plaats aangeeft.,1
+115,worden,219867,Hij wil arts worden.,Verb,become/be,Zich ontwikkelen tot iets.,1
+116,veel,219860,Ik heb veel tijd.,Adjective/Adverb,much/many,In grote hoeveelheid.,1
+117,weten,219188,Wij weten dat.,Verb,know,Kennis hebben van iets.,1
+118,leven,218884,Het leven is mooi.,Noun/Verb,life/live,"Niet dood zijn, of het bestaan op zich.",1
+119,wij,216722,Wij zijn klaar.,Pronoun,we (emphasis),Persoonlijk voornaamwoord (eerste persoon meervoud).,1
+120,weer,215029,Het is weer koud.,Adverb/Noun,again/weather,"Opnieuw, of de toestand van de atmosfeer.",1
+121,gewoon,213834,Doe gewoon normaal.,Adverb/Adjective,just/normal,"Normaal, gebruikelijk.",1
+122,kijk,213616,Kijk daar!,Verb,look,Vorm van het werkwoord kijken.,1
+123,zeggen,213356,Wat wil je zeggen?,Verb,say,Mondeling mededelen.,1
+124,tijd,212764,Ik heb geen tijd.,Noun,time,Betekenis volgt.,1
+125,zeg,210814,Zeg het maar.,Verb,say,Vorm van het werkwoord zeggen.,1
+126,twee,208298,Ik heb twee honden.,Numeral,two,Het getal na Ã©Ã©n.,1
+127,toen,208044,Toen was ik jong.,Adverb/Conjunction,then/when,Op dat moment in het verleden.,1
+128,tegen,207613,Hij praat tegen mij.,Preposition,against/to,In de richting van of in strijd met.,1
+129,zit,205110,Hij zit op de stoel.,Verb,sits,Vorm van het werkwoord zitten.,1
+130,net,203060,Ik ben net wakker.,Adverb,just/exactly,"Precies, of een voorwerp van draden om iets te vangen.",1
+131,dood,200313,De plant is dood.,Adjective/Noun,dead/death,Het einde van het leven.,1
+132,uw,198061,Wat is uw naam?,Pronoun,your (formal),Bezittelijk voornaamwoord (beleefdheidsvorm).,1
+133,wordt,195977,Het wordt donker.,Verb,becomes,Vorm van het werkwoord worden.,1
+134,hé,195920,Hé let op!,Interjection,hey,Uitroep om de aandacht te trekken.,#N/A
+135,maken,192444,We maken een taart.,Verb,make,Iets creÃ«ren of herstellen.,1
+136,mag,189195,Mag ik binnenkomen?,Verb,may/allowed,Vorm van het werkwoord mogen (toestemming).,1
+137,één,188447,Ik wil er één.,Numeral,one,#N/A,#N/A
+138,z'n,187701,Hij zoekt z'n jas.,Pronoun,his,Betekenis volgt.,1
+139,omdat,184722,Ik lach omdat ik blij ben.,Conjunction,because,Voegwoord dat een reden aangeeft.,1
+140,gedaan,183529,Goed gedaan!,Verb,done,Voltooid deelwoord van doen.,1
+141,heel,182156,Dat is heel mooi.,Adverb/Adjective,very/whole,"Niet kapot, of in grote mate.",1
+142,af,181253,Het werk is af.,Adjective/Adverb,finished/off,BeÃ«indigd of klaar.,1
+143,altijd,179551,Hij is altijd op tijd.,Adverb,always,Op elk moment.,1
+144,jouw,174623,Is dat jouw boek?,Pronoun,your,Bezittelijk voornaamwoord (tweede persoon).,1
+145,zeker,172890,Weet je het zeker?,Adjective/Adverb,certain/sure,Zonder twijfel.,1
+146,geef,172570,Geef me dat.,Verb,give,Vorm van het werkwoord geven.,1
+147,zie,170848,Ik zie je morgen.,Verb,see,Vorm van het werkwoord zien.,1
+148,wacht,170736,Wacht hier op mij.,Verb,wait,Vorm van het werkwoord wachten.,1
+149,allemaal,165588,We gaan allemaal.,Pronoun,all/everybody,Iedereen of alles bij elkaar.,1
+150,jaar,164433,Gelukkig nieuw jaar.,Noun,year,Periode van 365 dagen.,1
+151,doet,164337,Hij doet zijn best.,Verb,does,Derde persoon enkelvoud van doen; een handeling verrichten.,1
+152,dag,162898,Een fijne dag nog.,Noun,day,De periode van 24 uur of wanneer het licht is.,1
+153,zij,161349,Zij is hier.,Pronoun,she/they,Persoonlijk voornaamwoord voor een vrouw of meerdere personen.,1
+154,hun,159382,Dat is hun huis.,Pronoun,their,Bezittelijk voornaamwoord behorend bij 'hen'.,1
+155,huis,158155,Ik ga naar huis.,Noun,house/home,Een gebouw waarin mensen wonen.,1
+156,vader,156071,Mijn vader werkt hier.,Noun,father,Een mannelijke ouder.,1
+157,dank,155212,Dank je wel.,Noun/Verb,thanks,Woord om erkentelijkheid uit te drukken.,1
+158,dacht,153597,Ik dacht dat ook.,Verb,thought,Verleden tijd van denken; een mening of idee vormen.,1
+159,kunt,152626,Je kunt het proberen.,Verb,can,In staat zijn om iets te doen (tweede persoon).,1
+160,zoals,152422,Mensen zoals wij.,Conjunction/Preposition,like/such as,Op dezelfde manier als; bijvoorbeeld.,1
+161,vrouw,151285,De vrouw loopt daar.,Noun,woman/wife,Een volwassen vrouwelijk mens.,1
+162,keer,150854,Nog één keer.,Noun,time (occasion),Een bepaald moment of een herhaling van een gebeurtenis.,1
+163,anders,146609,Dat is anders.,Adjective/Adverb,different/otherwise,Op een andere manier; of in het andere geval.,1
+164,andere,146177,Ik wil de andere.,Adjective,other,Niet dezelfde; verschillend van wat eerder genoemd is.,1
+165,willen,145447,Wij willen eten.,Verb,want,De wens of het verlangen hebben naar iets.,1
+166,erg,144618,Dat is erg leuk.,Adverb/Adjective,very/terrible,In grote mate; of iets wat heel vervelend is.,1
+167,spijt,141916,Het spijt me.,Noun,regret,Het gevoel dat je iets liever niet had gedaan.,1
+168,bedankt,141652,Bedankt voor alles.,Interjection,thanks,Woord om iemand te bedanken voor iets.,1
+169,niemand,140961,Er is niemand.,Pronoun,nobody,Geen enkel mens.,1
+170,wilt,140826,Als je dat wilt.,Verb,want,Het verlangen hebben om iets te doen (tweede persoon).,1
+171,geld,140214,Dat kost veel geld.,Noun,money,Munten of bankbiljetten om mee te betalen.,1
+172,zitten,140083,We zitten hier.,Verb,sit,Zich op de billen bevinden op een stoel of bank.,1
+173,niks,139985,Ik weet er niks van.,Pronoun,nothing,Helemaal niets.,1
+174,iedereen,138954,Iedereen is welkom.,Pronoun,everyone,Elk mens; alle personen in een groep.,1
+175,binnen,138320,Kom snel binnen.,Adverb/Preposition,inside/within,In een gebouw of een afgesloten ruimte.,1
+176,staat,135644,De auto staat daar.,Verb,stands/is,Zich rechtop op de voeten bevinden; of de conditie van iets.,1
+177,wilde,134996,Ik wilde dat niet.,Verb,wanted,Verleden tijd van willen; iets graag hebben.,1
+178,zich,134601,Hij wast zich.,Pronoun,himself/herself/itself,Wederkerend voornaamwoord voor de derde persoon.,1
+179,beter,134537,Dit is veel beter.,Adjective/Adverb,better,Goeder dan voorheen; hersteld van ziekte.,1
+180,werk,134446,Ik heb veel werk.,Noun/Verb,work,Activiteit of baan om geld te verdienen.,1
+181,praten,132705,We moeten praten.,Verb,talk,Woorden gebruiken om te communiceren.,1
+182,gezien,131006,Heb je dat gezien?,Verb,seen,Waargenomen met de ogen (voltooid deelwoord).,1
+183,zullen,130862,We zullen zien.,Verb,shall/will,Hulpwerkwoord voor de toekomende tijd of een belofte.,1
+184,waren,129549,Wij waren daar.,Verb,were,Verleden tijd meervoud van zijn.,1
+185,god,128800,Mijn god!,Noun,god,Een opperwezen in een religie.,1
+186,maak,128702,Ik maak het eten.,Verb,make,Iets creëren of produceren (eerste persoon).,1
+187,neem,128506,Neem je tijd.,Verb,take,Iets vastpakken of accepteren (gebiedende wijs).,1
+188,vinden,127950,Dat kan ik niet vinden.,Verb,find/think,Iets ontdekken dat je zocht of nodig had.,1
+189,vind,127521,Ik vind het mooi.,Verb,find/think,Iets ontdekken of een mening over iets hebben.,1
+190,moeder,124814,Mijn moeder is lief.,Noun,mother,Een vrouwelijke ouder.,1
+191,kon,123381,Ik kon het niet doen.,Verb,could,Verleden tijd van kunnen; in staat zijn tot.,1
+192,uur,122231,Het duurt een uur.,Noun,hour,Een periode van zestig minuten.,1
+193,klaar,122212,Ik ben klaar.,Adjective,ready/finished,Gereed; wanneer een taak voltooid is.,1
+194,genoeg,120215,Dat is genoeg.,Adverb/Adjective,enough,Voldoende; niet meer nodig.,1
+195,helpen,119301,Kan ik je helpen?,Verb,help,Iemand ondersteunen of bijstaan bij een taak.,1
+196,oh,119077,Oh ik snap het.,Interjection,oh,"Uitroep van verbazing, schrik of begrip.",1
+197,hele,118678,De hele dag.,Adjective,whole/entire,Volledig; zonder dat er iets ontbreekt.,1
+198,drie,117145,Ik heb drie boeken.,Numeral,three,Het getal na twee.,1
+199,vast,116765,Het zit vast.,Adverb/Adjective,stuck/certainly,Stevig bevestigd; of bijna zeker.,1
+200,na,116659,Na de les gaan we.,Preposition,after,Op een later tijdstip dan.,1
+201,hallo,116482,Hallo allemaal.,Interjection,hello,Een begroeting wanneer je iemand ziet of spreekt.,1
+202,leuk,116343,Dat is een leuk idee.,Adjective,nice/fun,"Iets wat plezierig, grappig of aangenaam is.",1
+203,sorry,116048,Sorry daarvoor.,Interjection,sorry,Woord dat je gebruikt om spijt te betuigen of excuses aan te bieden.,1
+204,alle,114830,Alle mensen hier.,Pronoun/Adjective,all,De gehele hoeveelheid; iedereen of alles zonder uitzondering.,1
+205,elkaar,114709,We zien elkaar morgen.,Pronoun,each other,De een en de ander; wederzijds.,1
+206,zoon,114466,Dat is mijn zoon.,Noun,son,Een mannelijk kind van ouders.,1
+207,wist,114289,Ik wist het niet.,Verb,knew,Verleden tijd van weten; kennis hebben van iets.,1
+208,zegt,112794,Hij zegt ja.,Verb,says,Woorden uitspreken (derde persoon enkelvoud).,1
+209,bedoel,111995,Wat bedoel je?,Verb,mean,Iets willen zeggen of ergens op doelen.,1
+210,blijf,111068,Blijf hier wachten.,Verb,stay,Op dezelfde plek of in dezelfde toestand blijven (gebiedende wijs).,1
+211,alsjeblieft,110808,Hier is het alsjeblieft.,Interjection,please/here you go,Beleefdheidsvorm bij een verzoek of het geven van iets.,2
+212,lang,109815,Het duurt erg lang.,Adverb/Adjective,long,Met een grote afmeting in de lengte of tijd.,1
+213,meneer,109602,Dag meneer.,Noun,sir/mister,Een beleefde aanspreekvorm voor een man.,1
+214,ziet,109385,Hij ziet mij niet.,Verb,sees,Waarnemen met de ogen (derde persoon enkelvoud).,1
+215,maakt,109255,Dat maakt niet uit.,Verb,makes,"Iets creëren, fabriceren of veroorzaken.",1
+216,luister,108225,Luister naar mij.,Verb,listen,Met aandacht horen wat er gezegd wordt.,1
+217,dingen,107800,Ik zie veel dingen.,Noun,things,Onbepaalde voorwerpen of zaken (meervoud).,1
+218,mooi,106513,Wat een mooi huis.,Adjective/Adverb,beautiful,Wat prettig is om naar te kijken; fraai of knap.,1
+219,soort,106486,Wat voor soort is dat?,Noun,kind/type,Een groep met dezelfde kenmerken.,1
+220,eerste,105501,Hij is de eerste.,Adjective,first,Dat wat voor alle anderen komt in een reeks.,1
+221,graag,105501,Ik wil dat graag.,Adverb,gladly/please,Met veel plezier; iets wat je graag wilt.,1
+222,natuurlijk,105268,Dat is natuurlijk zo.,Adverb/Adjective,of course/natural,Vanzelfsprekend; of met betrekking tot de natuur.,2
+223,houden,103838,We houden van jou.,Verb,hold/keep/love,Iets in je bezit bewaren of van iemand houden.,1
+224,zonder,103634,Koffie zonder melk.,Preposition,without,Niet in het bezit van; de afwezigheid van iets.,1
+225,steeds,103491,Hij is er nog steeds.,Adverb,still/always,Elke keer weer; voortdurend.,1
+226,krijgen,102922,Wat krijgen we nu?,Verb,get/receive,Iets ontvangen van iemand anders.,1
+227,grote,102284,Een grote boom.,Adjective,big/large,Van aanzienlijke omvang (verbogen vorm).,1
+228,achter,102224,Kijk achter je.,Preposition,behind,Aan de rugzijde van iets of iemand.,1
+229,helemaal,101859,Ik ben het er helemaal mee eens.,Adverb,completely/totally,Volledig; totaal; in alle opzichten.,1
+230,naam,100664,Wat is jouw naam?,Noun,name,Het woord waarmee een persoon of zaak wordt aangeduid.,1
+231,gek,100386,Doe niet zo gek.,Adjective,crazy,Iemand die niet verstandig of raar doet; krankzinnig.,1
+232,blijven,100084,We blijven hier.,Verb,stay,Niet weggaan; in dezelfde toestand voortduren.,1
+233,onder,99913,Het boek ligt onder de tafel.,Preposition,under/below,Op een lagere plaats dan iets anders.,1
+234,vriend,99666,Hij is een goede vriend.,Noun,friend,Een persoon met wie je een goede band hebt.,1
+235,geweest,98850,Ik ben daar geweest.,Verb,been,Voltooid deelwoord van zijn; op een plek zijn geweest.,1
+236,kijken,98710,We gaan een film kijken.,Verb,look/watch,De ogen op iets richten om het te zien.,1
+237,geven,98686,Ik zal het je geven.,Verb,give,Iets aan een ander overhandigen.,1
+238,ging,98129,Hij ging gisteren weg.,Verb,went,Verleden tijd van gaan; zich verplaatsen.,1
+239,vertellen,97831,Kan je me dat vertellen?,Verb,tell,Een verhaal of informatie mondeling mededelen.,1
+240,ooit,95370,Heb je dat ooit gedaan?,Adverb,ever,Op een onbepaald moment in de tijd.,1
+241,snel,94773,We moeten snel gaan.,Adverb/Adjective,fast/quick,Met een hoge snelheid; in weinig tijd.,1
+242,hand,94597,Geef me je hand.,Noun,hand,Het lichaamsdeel aan het einde van de arm.,1
+243,idee,94437,Dat is een goed idee.,Noun,idea,"Een gedachte, plan of opvatting.",1
+244,goeie,23729,Een goeie morgen.,Adjective,good (colloquial),Informele vorm van goede; van goede kwaliteit.,2
+245,gisteren,23708,Gisteren was het warm.,Adverb,yesterday,De dag vóór vandaag.,2
+246,aarde,23690,Planeet aarde.,Noun,earth,De planeet waarop wij leven; of de grond.,2
+247,contact,23680,We houden contact.,Noun,contact,Verbinding of communicatie met iemand.,2
+248,zus,23673,Zij is mijn zus.,Noun,sister,Een vrouwelijk gezinslid met dezelfde ouders.,1
+249,erbij,23655,Ik ben erbij.,Adverb,there/with it,Aanwezig bij een bepaalde groep of zaak.,2
+250,beschermen,23651,We moeten het beschermen.,Verb,protect,Ervoor zorgen dat iets of iemand veilig blijft.,3
+251,gevangenis,23604,Hij zit in de gevangenis.,Noun,prison/jail,Gebouw waar mensen vastgehouden worden als straf.,3
+252,persoon,23532,Dat is een aardig persoon.,Noun,person,Een menselijk individu.,2
+253,winnen,23527,We gaan de wedstrijd winnen.,Verb,win,De beste zijn in een spel of wedstrijd.,2
+254,kracht,23416,Hij heeft veel kracht.,Noun,power/strength,Het vermogen om iets te doen of te verplaatsen.,2
+255,ziek,23388,Ik voel me erg ziek.,Adjective,sick/ill,Niet gezond; last hebben van een aandoening.,1
+256,omhoog,23384,Kijk omhoog naar de lucht.,Adverb,up/upwards,Naar een hogere plaats of positie.,2
+257,beloof,23372,Ik beloof dat ik kom.,Verb,promise,Toezeggen dat je iets zeker zult doen.,2
+258,gebruik,23324,Ik gebruik dit elke dag.,Verb/Noun,use,Het aanwenden van een middel of voorwerp.,2
+259,hoezo,23305,Hoezo doe je dat?,Adverb,how so/why,Vraag naar de reden; waarom?,2
+260,degene,23190,Jij bent degene die ik zoek.,Pronoun,the one,De persoon die (verwijst naar iemand).,2
+261,trek,23142,Ik heb trek in een appel.,Noun/Verb,appetite/pull,Iets naar je toe halen; of zin hebben in eten.,1
+262,meen,23131,Ik meen het echt.,Verb,mean (serious),Iets echt menen; niet voor de grap zeggen.,1
+263,enkele,23120,Er zijn enkele problemen.,Pronoun/Adjective,some/a few,Een klein aantal; een paar.,2
+264,getrouwd,23101,Zij zijn gisteren getrouwd.,Verb/Adjective,married,Verbonden door een huwelijk.,2
+265,gevraagd,23036,Ik heb het hem gevraagd.,Verb,asked,Verzocht om informatie of hulp (voltooid deelwoord).,2
+266,New York,22992,We gaan naar New York.,Noun,New York,Een grote bekende stad in de Verenigde Staten.,#N/A
+267,verdomde,22976,Zet die verdomde tv uit.,Adjective,damned,Krachtterm voor iets dat zeer vervelend is.,2
+268,hierheen,22953,Kom direct hierheen.,Adverb,here/this way,Naar deze plek toe.,2
+269,punt,22940,Dat is een goed punt.,Noun,point,Een klein rondje als leesteken; of een specifiek onderwerp.,1
+270,toekomst,22866,De toekomst is onzeker.,Noun,future,De tijd die nog moet komen.,2
+271,probeerde,22816,Ik probeerde je te bellen.,Verb,tried,Verleden tijd van proberen; pogen.,2
+272,half,22653,Geef me een half glas.,Adjective/Adverb,half,De helft van een geheel (50%).,1
+273,leger,22633,Hij zit in het leger.,Noun,army,Een grote groep soldaten die een land verdedigen.,2
+274,waard,22558,Dat is veel geld waard.,Adjective,worth,De waarde die iets heeft in geld of belang.,2
+275,opnieuw,22556,Laten we opnieuw beginnen.,Adverb,again/anew,Nog een keer; weer vanaf het begin.,2
+276,val,22549,Pas op voor de val.,Noun/Verb,trap/fall,Een beweging omlaag zonder controle.,1
+277,vuur,22539,Het vuur is heet.,Noun,fire,Hitte en licht geproduceerd door verbranding.,1
+278,bewijs,22485,Heb je daar bewijs voor?,Noun,proof/evidence,Feiten die aantonen dat iets waar is.,2
+279,controle,22448,Ik heb er geen controle over.,Noun,control,Macht hebben over iets; of iets nakijken op fouten.,2
+280,stellen,22399,We moeten een grens stellen.,Verb,set/put,Iets plaatsen; of een bewering doen.,2
+281,tv,22397,Wat is er op tv?,Noun,TV,Apparaat waarop je beelden en films kijkt (televisie).,1
+282,loop,22309,Ik loop naar de winkel.,Verb/Noun,walk/barrel,De handeling van het wandelen; of een onderdeel van een wapen.,1
+283,woorden,22277,Ik heb er geen woorden voor.,Noun,words,Klanken of letters die samen een betekenis hebben.,2
+284,droom,22275,Ik had een rare droom.,Noun/Verb,dream,Beelden die je ziet terwijl je slaapt.,2
+285,begrijpen,22175,Ik kan het niet begrijpen.,Verb,understand,De betekenis van iets volledig vatten.,2
+286,eet,22161,Eet je bord leeg.,Verb,eat,Voedsel consumeren via de mond.,1
+287,bedoelt,22087,Ik weet wat je bedoelt.,Verb,means/mean,Wat iemand wil zeggen met bepaalde woorden.,2
+288,onzin,22078,Dat is complete onzin.,Noun,nonsense,Iets wat totaal niet waar is of nergens op slaat.,2
+289,serieus,21993,Ben je serieus?,Adjective/Adverb,serious/seriously,Menen wat je zegt; niet voor de grap.,2
+290,konden,21991,We konden niets doen.,Verb,could,Verleden tijd meervoud van kunnen.,2
+291,nietwaar,21987,Dat is mooi nietwaar?,Adverb,isn't it?/right?,"Woord om bevestiging te vragen (""toch?"").",2
+292,verlaten,21978,Ze moest de stad verlaten.,Verb,leave/abandon,Weggaan van een plek of persoon.,2
+293,pistool,21976,Hij heeft een pistool.,Noun,gun/pistol,Een klein handvuurwapen.,2
+294,gekregen,21923,Ik heb een cadeau gekregen.,Verb,got/received,Ontvangen van iemand (voltooid deelwoord).,2
+295,men,21893,Dat zegt men vaak.,Pronoun,one/people,De mensen in het algemeen.,1
+296,brengt,21858,Hij brengt het boek terug.,Verb,brings,Iets naar een bepaalde plaats vervoeren.,2
+297,fantastisch,21749,Dat is echt fantastisch!,Adjective,fantastic,Heel erg goed of geweldig.,3
+298,trots,21748,Ik ben heel trots op je.,Adjective/Noun,proud/pride,Een gevoel van eer of zelfvoldaanheid over een prestatie.,2
+299,ziens,21747,Tot ziens!,Noun,goodbye/seeing,Afscheidsgroet (tot ziens).,2
+300,ongeluk,21576,Er is een ongeluk gebeurd.,Noun,accident,Een onverwachte gebeurtenis die schade veroorzaakt.,2
+301,geheim,21569,Het is een groot geheim.,Noun/Adjective,secret,Iets wat niemand mag weten.,2
+302,vroeger,21569,Vroeger was alles anders.,Adverb,formerly/used to be,In de tijd die voorbij is.,2
+303,veranderd,21563,Er is veel veranderd.,Verb,changed,Anders geworden dan het was.,2
+304,eentje,21539,Neem er nog eentje.,Pronoun,one (diminutive),Informeel woord voor één exemplaar.,2
+305,werden,21503,Ze werden heel boos.,Verb,became/were,Verleden tijd meervoud van worden.,2
+306,begon,21433,Het begon te regenen.,Verb,began/started,Verleden tijd van beginnen; starten.,2
+307,verliezen,21415,We mogen niet verliezen.,Verb,lose,Iets kwijtraken; of niet winnen.,2
+308,probeert,21388,Hij probeert zijn best te doen.,Verb,tries,Pogen om iets te doen (derde persoon).,2
+309,vliegtuig,21378,Het vliegtuig landt zo.,Noun,airplane,Voertuig dat door de lucht vliegt.,2
+310,let,21267,Let goed op.,Verb,pay attention,Aandacht schenken aan iets (gebiedende wijs).,1
+311,slim,21263,Dat is een slim idee.,Adjective,smart/clever,Intelligent; handig in het bedenken van oplossingen.,1
+312,juiste,21213,Dit is het juiste antwoord.,Adjective,right/correct,Dat wat correct of passend is.,2
+313,langer,21206,We blijven wat langer.,Adverb/Adjective,longer,Meer tijd in beslag nemend; of groter in lengte.,2
+314,slaap,21098,Ik heb slaap nodig.,Noun/Verb,sleep,De rusttoestand van het lichaam met gesloten ogen.,2
+315,lezen,20906,Ik hou van boeken lezen.,Verb,read,Tekens of woorden begrijpen van papier of een scherm.,2
+316,ongeveer,20864,Het kost ongeveer tien euro.,Adverb,about/approximately,Niet precies; circa.,2
+317,behalve,20764,Iedereen behalve jij.,Preposition/Conjunction,except,Met uitzondering van.,2
+318,meid,20761,Kom op meid.,Noun,girl/maid,Een jong meisje of een jonge vrouw.,1
+319,oom,20690,Mijn oom woont hier.,Noun,uncle,De broer van je vader of moeder.,1
+320,gered,20648,Je hebt mijn leven gered.,Verb,saved,Uit een gevaarlijke situatie geholpen.,2
+321,bank,20625,Ik zit op de bank.,Noun,couch/bank,Meubel om op te zitten; of een geldinstelling.,1
+322,generaal,20580,De generaal geeft orders.,Noun,general,Een officier met een zeer hoge rang in het leger.,2
+323,dienst,20545,Kan ik u van dienst zijn?,Noun,service/duty,Het helpen van iemand; of een afdeling bij de overheid.,2
+324,tenminste,20489,Dat hoop ik tenminste.,Adverb,at least,Althans; in ieder geval.,2
+325,noem,20459,Hoe noem je dat?,Verb,call/name,Een naam geven aan iets of iemand.,1
+326,geleden,20440,Dat is jaren geleden.,Adverb,ago,In het verleden; terugkijkend vanaf nu.,1
+327,gedood,20400,Hij werd gisteren gedood.,Verb,killed,Het leven ontnomen (voltooid deelwoord).,2
+328,vraagt,20434,Ze vraagt om hulp.,Verb,asks,Een vraag stellen aan iemand.,2
+329,boos,20412,Waarom ben je boos?,Adjective,angry,Een gevoel van kwaadheid.,1
+330,spullen,20372,Pak al je spullen.,Noun,stuff/things,Diverse zaken of voorwerpen.,2
+331,volgen,20356,Ik zal je volgen.,Verb,follow,Achter iemand of iets aan gaan.,2
+332,sturen,20355,Kan je me een mail sturen?,Verb,send/steer,Iets verzenden; of een voertuig besturen.,2
+333,hemel,20341,Kijk naar de hemel.,Noun,heaven/sky,De ruimte boven de aarde; of een religieuze plek.,2
+334,makkelijk,20338,Dat is heel makkelijk.,Adjective/Adverb,easy/easily,Eenvoudig; zonder veel moeite.,2
+335,ter,20291,Ter zake komen.,Preposition,to the,"Voorzetsel (""tot de"" of ""voor de"").",1
+336,genomen,20285,Ik heb een pauze genomen.,Verb,taken,Gepakt of geaccepteerd (voltooid deelwoord).,2
+337,grootste,20192,Dit is de grootste stad.,Adjective,biggest/largest,De meest grote van allemaal.,2
+338,gebeurde,20138,Wat gebeurde er toen?,Verb,happened,Vond plaats in het verleden.,2
+339,kwamen,20022,Zij kwamen wat later.,Verb,came,Arriveerden in het verleden.,2
+340,excuseer,19977,Excuseer mij even.,Verb,excuse,Woord om vergeving te vragen voor een kleine fout.,2
+341,meter,19974,Het is honderd meter ver.,Noun,meter,Een maateenheid voor lengte (100 centimeter).,2
+342,weinig,19956,Ik heb heel weinig tijd.,Adverb/Pronoun,little/few,Een kleine hoeveelheid; niet veel.,2
+343,iedere,19953,Iedere dag leer ik iets.,Pronoun,every,Elke (verwijzend naar alle delen van een groep).,2
+344,moordenaar,19937,De moordenaar is gepakt.,Noun,murderer,Iemand die opzettelijk iemand anders heeft gedood.,3
+345,luisteren,19909,Je moet goed luisteren.,Verb,listen,Met aandacht proberen geluid te horen.,2
+346,begrijpt,19866,Hij begrijpt het niet.,Verb,understands,Snappen wat iets betekent.,2
+347,gevaar,19844,Er is groot gevaar.,Noun,danger,Een situatie waarin iets vervelends kan gebeuren.,2
+348,ieder,19830,Voor ieder wat wils.,Pronoun,every/each,Iedereen of elk ding afzonderlijk.,2
+349,sommige,19823,Sommige mensen weten dat.,Pronoun/Adjective,some,"Een aantal, maar niet alle.",2
+350,via,19779,We rijden via Utrecht.,Preposition,via/through,Door middel van; langs een bepaalde route.,1
+351,succes,19777,Ik wens je veel succes.,Noun,success/good luck,Het bereiken van een goed resultaat.,2
+352,vertrekken,19747,We vertrekken morgenochtend.,Verb,leave/depart,Weggaan naar een andere plaats.,3
+353,muziek,19732,Ik luister graag naar muziek.,Noun,music,Klanken die volgens een bepaald ritme mooi samengaan.,2
+354,gestolen,19720,Mijn fiets is gestolen.,Verb/Adjective,stolen,Weggenomen zonder toestemming.,2
+355,meest,19707,Dit is het meest belangrijk.,Adverb,most,In de grootste mate.,2
+356,hoef,19691,Ik hoef niet te werken.,Verb,have to/need,Iets niet verplicht zijn (meestal: hoef niet).,1
+357,advocaat,19685,Hij praat met zijn advocaat.,Noun,lawyer,Iemand die mensen helpt met juridische zaken.,2
+358,kijkt,19657,Hij kijkt naar de tv.,Verb,looks/watches,De ogen op iets richten.,2
+359,helpt,19490,Zij helpt mij altijd.,Verb,helps,Ondersteuning bieden aan iemand.,2
+360,afspraak,19419,Ik heb een afspraak bij de dokter.,Noun,appointment/agreement,Een afgesproken moment om iemand te ontmoeten.,2
+361,maand,19362,Volgende maand ga ik op vakantie.,Noun,month,Een periode van ongeveer dertig dagen.,2
+362,zwarte,19353,De zwarte kat slaapt.,Adjective,black,De donkerste kleur (zoals roet).,2
+363,seconden,19303,Wacht een paar seconden.,Noun,seconds,Korte eenheden van tijd (60 in een minuut).,2
+364,sterk,19286,Hij is erg sterk.,Adjective,strong,Met veel kracht.,2
+365,foto's,19273,Ik heb veel foto's gemaakt.,Noun,photos,Afbeeldingen gemaakt met een camera.,2
+366,lijken,19214,Ze lijken veel op elkaar.,Verb,look like/seem,De schijn hebben; of dode lichamen.,2
+367,geest,19204,Ik zag een geest in dat huis.,Noun,ghost/spirit/mind,Het menselijk bewustzijn; of een spook.,2
+368,gingen,19194,We gingen gisteren naar de stad.,Verb,went,Verleden tijd meervoud van gaan.,2
+369,straat,19185,Ze lopen op straat.,Noun,street,Weg in een stad of dorp met huizen erlangs.,2
+370,slechts,19175,Het kost slechts vijf euro.,Adverb,only/merely,Niet meer dan; alleen maar.,2
+371,verkeerde,19172,Dat was de verkeerde afslag.,Adjective,wrong,Dat wat onjuist of fout is.,2
+372,slaan,19171,Je mag niemand slaan.,Verb,hit/strike,Met kracht een klap geven.,2
+373,FBI,19103,De FBI onderzoekt de zaak.,Noun,FBI,De federale opsporingsdienst van de Verenigde Staten.,1
+374,afgelopen,19035,De film is afgelopen.,Adjective/Adverb,finished/past,Wat voorbij is; beëindigd.,2
+375,hotel,19031,We slapen in een hotel.,Noun,hotel,Gebouw waar je tegen betaling kunt slapen.,2
+376,bekend,19028,Hij is een bekend persoon.,Adjective,known/famous,Iets wat veel mensen weten of herkennen.,2
+377,ene,18988,De ene na de andere.,Pronoun/Adjective,one,Verwijzing naar één specifiek persoon of ding.,1
+378,ruimte,18932,Er is genoeg ruimte.,Noun,space/room,Een plaats die leeg is; of het heelal.,2
+379,lange,18891,Het is een lange reis.,Adjective,long,Verbogen vorm van lang; met grote lengte.,2
+380,trouwens,18890,Ik ben er trouwens ook.,Adverb,by the way,Woord om extra informatie toe te voegen.,2
+381,feest,18874,Morgen is het feest.,Noun,party/festival,Een vrolijke bijeenkomst om iets te vieren.,2
+382,vliegen,18847,Vogels kunnen vliegen.,Verb,fly,Zich door de lucht verplaatsen.,2
+383,boot,18845,We varen op een boot.,Noun,boat,Een vaartuig voor op het water.,1
+384,meester,18785,Hij is een echte meester.,Noun,master/male teacher,Iemand die heel goed is in iets; of een leraar.,2
+385,doel,18759,Wat is je doel?,Noun,goal/target,Dat wat je probeert te bereiken.,1
+386,zolang,18755,Zolang het regent blijf ik binnen.,Conjunction,as long as,Gedurende de tijd dat.,2
+387,regels,18728,We moeten de regels volgen.,Noun,rules,Voorschriften waar men zich aan moet houden.,2
+388,stomme,18662,Dat is een stomme fout.,Adjective,stupid/dumb,Domme of vervelende zaken/personen.,2
+389,begonnen,18629,We zijn gisteren begonnen.,Verb,started/begun,Gestart met iets (voltooid deelwoord).,2
+390,zak,18614,Wat heb je in je zak?,Noun,pocket/bag,Een tasje in je kleding; of een verpakking.,1
+391,absoluut,18610,Dat is absoluut waar.,Adverb,absolutely,Zeker weten; zonder enige twijfel.,2
+392,spreek,18561,Ik spreek Nederlands.,Verb,speak,Woorden uiten (eerste persoon).,2
+393,stom,18549,Dat vind ik echt stom.,Adjective,stupid,Dom; of niet kunnen praten.,1
+394,bestaat,18538,Dat dier bestaat niet echt.,Verb,exists,Er werkelijk zijn.,2
+395,welk,18524,Welk boek wil je?,Pronoun,which,Vragend voornaamwoord voor een keuze.,1
+396,gevaarlijk,18518,Dat is heel gevaarlijk.,Adjective,dangerous,Wat een risico op ongelukken inhoudt.,3
+397,jawel,18482,Jawel dat heb ik wel gedaan.,Adverb,yes indeed (contradicting negative),Een versterkt ja (vaak na een ontkenning).,2
+398,goedemorgen,18460,Goedemorgen iedereen.,Noun/Interjection,good morning,Groet in de vroege ochtend.,3
+399,wilden,18401,Zij wilden niet komen.,Verb,wanted,Verleden tijd meervoud van willen.,2
+400,erger,18342,Het wordt steeds erger.,Adjective/Adverb,worse,Minder goed dan voorheen; slechter.,2
+401,vreselijk,18250,Wat een vreselijk nieuws.,Adjective/Adverb,terrible/awful,Heel erg naar of verschrikkelijk.,2
+402,zodra,18225,Ik bel je zodra ik kan.,Conjunction,as soon as,Op het moment dat er iets gebeurt.,2
+403,geraakt,18208,Ik werd door de bal geraakt.,Verb/Adjective,hit/touched,Getroffen door iets; of emotioneel bewogen.,2
+404,nadat,18165,Nadat we eten gaan we weg.,Conjunction,after,Na het tijdstip dat iets gebeurd is.,2
+405,vertrouw,18156,Ik vertrouw je niet.,Verb,trust,Geloof hebben in iemands eerlijkheid.,2
+406,kolonel,18129,De kolonel gaf een bevel.,Noun,colonel,Een hoge rang in het leger.,2
+407,voelde,18124,Ik voelde me gisteren ziek.,Verb,felt,Ervaren via de zintuigen of emoties.,2
+408,kleren,18114,Ik heb nieuwe kleren gekocht.,Noun,clothes,Zaken die je aantrekt om je lichaam te bedekken.,2
+409,rug,18066,Ik heb pijn in mijn rug.,Noun,back,De achterzijde van het menselijk lichaam.,1
+410,naast,18065,Ik zit naast jou.,Preposition,next to/beside,Aan de zijkant van iets of iemand.,2
+411,totdat,17937,Ik wacht totdat je klaar bent.,Conjunction,until,Tot het moment dat.,2
+412,verliefd,17921,Ze is heel erg verliefd.,Adjective,in love,Sterke liefdesgevoelens voor iemand hebben.,2
+413,lukt,17899,Het lukt me niet.,Verb,succeeds/works out,Slagen in een bepaalde opzet.,1
+414,wonen,17894,Zij wonen in Amsterdam.,Verb,live (reside),Een vaste plek hebben waar je leeft.,2
+415,lieve,17885,Lieve mensen welkom!,Adjective,sweet/dear,Aardig of vriendelijk (verbogen vorm).,2
+416,gaten,17884,Houd hem in de gaten.,Noun,holes/eyes (idiomatically),Openingen in een oppervlak.,2
+417,raar,17802,Dat is best wel raar.,Adjective,weird/strange,Vreemd of ongebruikelijk.,1
+418,geprobeerd,17778,Ik heb het echt geprobeerd.,Verb,tried,Getracht om iets te doen (voltooid deelwoord).,3
+419,geleerd,17694,Heb je daar iets van geleerd?,Verb,learned,Kennis opgedaan (voltooid deelwoord).,2
+420,erover,17563,We praten erover.,Pronominal Adverb,about it,Over dat specifieke onderwerp.,2
+421,raad,17563,Ik weet geen raad meer.,Noun/Verb,advice/guess,Advies over wat je moet doen.,1
+422,volg,17553,Volg mij.,Verb,follow,Achter iemand aan gaan (eerste persoon).,1
+423,verkopen,17535,We gaan het huis verkopen.,Verb,sell,Iets weggeven in ruil voor geld.,2
+424,geweldige,17508,Dat is een geweldige prestatie.,Adjective,amazing/awesome,Heel erg goede; fantastische (verbogen).,2
+425,zover,17502,Het is bijna zover.,Adverb,so far/that far/ready,Op dat punt aangekomen.,2
+426,red,17457,Ik red me wel.,Verb,save/manage,Iemand uit een gevaarlijke situatie halen (gebiedende wijs).,1
+427,woont,17449,Hij woont hier niet meer.,Verb,lives (resides),Leeft op een vaste plek (derde persoon).,2
+428,Amerika,17421,We gaan naar Amerika.,Noun,America,Een land of werelddeel (Verenigde Staten).,2
+429,lul,17403,Doe niet als een lul.,Noun,dick/jerk,Scheldwoord voor een vervelende man.,1
+430,gedacht,17366,Ik had dat nooit gedacht.,Verb/Noun,thought,Nagedacht over iets (voltooid deelwoord).,2
+431,bewijzen,17361,Je moet dat bewijzen.,Verb,prove,Laten zien dat iets waar is.,2
+432,prijs,17348,Wat is de prijs?,Noun,price/prize,Wat iets kost; of een beloning voor een winnaar.,2
+433,www,17331,Typ www in de browser.,Noun,www (World Wide Web),Afkorting voor World Wide Web (internet).,1
+434,raken,17313,Probeer hem niet te raken.,Verb,touch/hit,Iets aanraken; of emotioneel treffen.,2
+435,voorstellen,17306,Ik wil me even voorstellen.,Verb,introduce/imagine,Iemand bekendmaken; of een idee opperen.,3
+436,vorige,17290,Dat was vorige week.,Adjective,previous/last,Wat direct voorafging aan het huidige.,2
+437,regel,17284,Wat is de eerste regel?,Noun,rule/line,Een voorschrift; of een lijn tekst.,2
+438,schrijven,17273,Ik ga een boek schrijven.,Verb,write,Tekens of woorden op papier of een scherm zetten.,2
+439,rot,17272,Voel je je rot?,Adjective/Noun,rotten/bad,Bederf; of een gevoel van ellende.,1
+440,gebouw,17260,Het is een heel hoog gebouw.,Noun,building,Een constructie met muren en een dak (zoals een huis).,2
+441,trekken,17238,Je moet hard trekken.,Verb,pull,Kracht uitoefenen om iets naar je toe te halen.,2
+442,herinneren,17205,Ik kan me dat niet herinneren.,Verb,remember,Iets uit het verleden weer voor de geest halen.,3
+443,dansen,17139,Laten we gaan dansen.,Verb,dance,Bewegen op het ritme van muziek.,2
+444,gebracht,17060,Hij heeft me naar huis gebracht.,Verb,brought,Naar een plek vervoerd (voltooid deelwoord).,2
+445,meeste,17030,De meeste mensen weten dit.,Pronoun/Adjective,most,Het grootste deel van een groep.,2
+446,jammer,16997,Dat is heel jammer.,Adjective/Adverb,a pity/unfortunately,Spijtig; vervelend dat het zo is.,2
+447,koud,16949,Het is erg koud vandaag.,Adjective,cold,Met een lage temperatuur.,1
+448,wegwezen,16918,We moeten nu wegwezen.,Verb/Interjection,leave/get out,Snel weggaan van een plek.,2
+449,macht,16913,Hij heeft veel macht.,Noun,power,De mogelijkheid om anderen te dwingen of te sturen.,2
+450,drugs,16889,Drugs zijn illegaal.,Noun,drugs,Middelen die de geest beïnvloeden.,2
 451,geboren,16844,Hij is in mei geboren.,Verb/Adjective,born,Ter wereld gekomen,2
 452,dragen,16831,Je moet een jas dragen.,Verb,wear/carry,Kleding aanhebben of iets tillen,2
 453,keuze,16822,Dat is een moeilijke keuze.,Noun,choice,Wat je kiest uit meerdere opties,2

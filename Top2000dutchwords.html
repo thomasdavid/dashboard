@@ -68,7 +68,6 @@
             transform: scale(0.9);
         }
 
-        /* Specific sizing */
         .word-audio { font-size: 2rem; padding: 10px; }
         .small-audio { font-size: 1.5rem; padding: 8px; }
 
@@ -107,7 +106,7 @@
             box-sizing: border-box;
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Space text and audio btn apart */
+            justify-content: space-between;
             gap: 10px;
         }
         .def-box {
@@ -165,35 +164,53 @@
             box-shadow: none;
         }
 
-        /* Bottom Status Area */
+        /* Status & Level Selection */
         .status-area {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             width: 100%;
             max-width: 600px;
             margin-top: 15px;
-            padding: 0 10px;
-            box-sizing: border-box;
+            gap: 15px;
         }
+        
         #progress {
             color: #7f8c8d;
             font-weight: bold;
         }
-        #shuffle-btn {
-            background-color: #9b59b6;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+
+        /* Difficulty Buttons */
+        .difficulty-controls {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .diff-btn {
+            background-color: #e0e6ed;
+            color: #34495e;
+            border: 2px solid transparent;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.2s;
+            flex: 1;
+            min-width: 80px;
+            transition: all 0.2s;
         }
-        #shuffle-btn:hover {
-            background-color: #8e44ad;
+        .diff-btn:hover {
+            background-color: #bdc3c7;
         }
-        
+        .diff-btn.active {
+            background-color: #9b59b6;
+            color: white;
+            border-color: #8e44ad;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
         .instructions {
             margin-top: 15px;
             color: #888;
@@ -220,6 +237,7 @@
             button.nav-btn { font-size: 1rem; padding: 12px 10px; }
             #flashcard-container { min-height: 350px; padding: 20px 15px; }
             .reveal-box { padding: 10px; }
+            .diff-btn { padding: 8px 5px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -228,7 +246,6 @@
     <div id="loading">Loading words from GitHub...</div>
 
     <div id="flashcard-container" class="hidden">
-        
         <div class="text-audio-row">
             <div id="dutch-word">Word</div>
             <button id="word-audio-btn" class="audio-btn word-audio" title="Play Word">🔊</button>
@@ -249,7 +266,6 @@
         <div id="english-container" class="hidden reveal-box english-box">
             <div id="english-word">English</div>
         </div>
-        
     </div>
     
     <div id="controls-container" class="hidden">
@@ -259,21 +275,27 @@
     
     <div class="status-area hidden" id="status-container">
         <div id="progress"></div>
-        <button id="shuffle-btn">🔀 Shuffle Cards</button>
+        
+        <div class="difficulty-controls">
+            <button class="diff-btn" data-level="1">Level 1</button>
+            <button class="diff-btn" data-level="2">Level 2</button>
+            <button class="diff-btn" data-level="3">Level 3</button>
+            <button class="diff-btn" data-level="4">Level 4</button>
+        </div>
     </div>
 
     <div class="instructions hidden" id="instructions-container">
         Tap the card or press <b>Spacebar</b> to reveal answers.<br>
-        Use <b>Arrows</b> or the buttons to change words.
+        Use <b>Arrows</b> to change words.
     </div>
 
     <script>
         const csvUrl = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/dutchwords.csv';
         
-        let flashcards = [];
-        let originalOrder = [];
+        let allFlashcards = [];   // Holds entire database
+        let currentDeck = [];     // Holds the filtered & shuffled deck
         let currentIndex = 0;
-        let currentState = 0; // 0: Front, 1: Definition, 2: English
+        let currentState = 0;     // 0: Front, 1: Definition, 2: English
 
         const elements = {
             container: document.getElementById('flashcard-container'),
@@ -291,7 +313,7 @@
             wordAudioBtn: document.getElementById('word-audio-btn'),
             sentenceAudioBtn: document.getElementById('sentence-audio-btn'),
             defAudioBtn: document.getElementById('def-audio-btn'),
-            shuffleBtn: document.getElementById('shuffle-btn'),
+            diffBtns: document.querySelectorAll('.diff-btn'),
             
             // App states
             loading: document.getElementById('loading'),
@@ -301,6 +323,7 @@
             instructions: document.getElementById('instructions-container')
         };
 
+        // Shuffle Array (Fisher-Yates Algorithm)
         function shuffleArray(array) {
             let shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -310,6 +333,22 @@
             return shuffled;
         }
 
+        // Difficulty Calculation Logic (Matches Python Script)
+        function calculateDifficulty(index, wordText) {
+            let base = 4;
+            if (index < 500) base = 1;
+            else if (index < 1500) base = 2;
+            else if (index < 2500) base = 3;
+            
+            let len = wordText.length;
+            if (len <= 4) base -= 1;
+            else if (len >= 10) base += 1;
+            else if (len >= 14) base += 2;
+            
+            return Math.max(1, Math.min(4, base));
+        }
+
+        // Web Speech API
         function playDutchAudio(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel(); 
@@ -322,6 +361,7 @@
             }
         }
 
+        // CSV Parser
         function parseCSVLine(text) {
             let ret = [];
             let inQuote = false;
@@ -333,21 +373,12 @@
                         if (i + 1 < text.length && text[i + 1] === '"') {
                             value += '"';
                             i++;
-                        } else {
-                            inQuote = false;
-                        }
-                    } else {
-                        value += ch;
-                    }
+                        } else { inQuote = false; }
+                    } else { value += ch; }
                 } else {
-                    if (ch === '"') {
-                        inQuote = true;
-                    } else if (ch === ',') {
-                        ret.push(value.trim());
-                        value = '';
-                    } else {
-                        value += ch;
-                    }
+                    if (ch === '"') { inQuote = true; } 
+                    else if (ch === ',') { ret.push(value.trim()); value = ''; } 
+                    else { value += ch; }
                 }
             }
             ret.push(value.trim());
@@ -361,6 +392,7 @@
                 const textData = await response.text();
                 
                 const lines = textData.trim().split('\n');
+                let wordCount = 0;
                 
                 for (let i = 1; i < lines.length; i++) {
                     if (lines[i].trim() === '') continue; 
@@ -368,24 +400,30 @@
                     const columns = parseCSVLine(lines[i]);
                     
                     if (columns.length >= 6) {
-                        flashcards.push({
-                            dutch: columns[1],
+                        const dutchWord = columns[1];
+                        const diffLevel = calculateDifficulty(wordCount, dutchWord);
+                        
+                        allFlashcards.push({
+                            dutch: dutchWord,
                             sentence: columns[3],
                             type: columns[4],
                             english: columns[5],
-                            definition: columns[6] || '' 
+                            definition: columns[6] || '',
+                            difficulty: diffLevel
                         });
+                        wordCount++;
                     }
                 }
                 
-                if (flashcards.length > 0) {
-                    originalOrder = [...flashcards];
+                if (allFlashcards.length > 0) {
                     elements.loading.classList.add('hidden');
                     elements.container.classList.remove('hidden');
                     elements.controls.classList.remove('hidden');
                     elements.status.classList.remove('hidden');
                     elements.instructions.classList.remove('hidden');
-                    updateCard();
+                    
+                    // Always start by loading Difficulty Level 1
+                    loadDifficultySet(1);
                 } else {
                     elements.loading.textContent = "Error: No valid data found in CSV.";
                 }
@@ -396,20 +434,56 @@
             }
         }
 
-        function updateCard() {
-            if (!flashcards[currentIndex]) return;
-            const card = flashcards[currentIndex];
+        // Load specific difficulty and randomize
+        function loadDifficultySet(level) {
+            // Update Active Button styling
+            elements.diffBtns.forEach(btn => {
+                if (parseInt(btn.getAttribute('data-level')) === level) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Filter out words by difficulty level
+            const filteredSet = allFlashcards.filter(card => card.difficulty === level);
             
+            // Randomize on load!
+            currentDeck = shuffleArray(filteredSet);
+            currentIndex = 0;
+            
+            updateCard();
+        }
+
+        function updateCard() {
+            if (!currentDeck[currentIndex]) {
+                elements.word.textContent = "Set Complete!";
+                elements.sentence.textContent = "You've reviewed all words in this level.";
+                elements.type.textContent = "";
+                elements.defContainer.classList.add('hidden');
+                elements.engContainer.classList.add('hidden');
+                elements.wordAudioBtn.classList.add('hidden');
+                elements.sentenceAudioBtn.classList.add('hidden');
+                elements.progress.textContent = `0 words remaining`;
+                return;
+            }
+            
+            const card = currentDeck[currentIndex];
+            
+            // Restore visibility of audio buttons
+            elements.wordAudioBtn.classList.remove('hidden');
+            elements.sentenceAudioBtn.classList.remove('hidden');
+
             elements.word.textContent = card.dutch;
             elements.type.textContent = `(${card.type})`;
             elements.sentence.textContent = card.sentence;
             
             if (card.definition && card.definition !== "") {
                 elements.definition.textContent = card.definition;
-                elements.defAudioBtn.classList.remove('hidden'); // Show audio btn if def exists
+                elements.defAudioBtn.classList.remove('hidden'); 
             } else {
                 elements.definition.textContent = "(No Dutch definition provided)";
-                elements.defAudioBtn.classList.add('hidden'); // Hide audio btn if no def
+                elements.defAudioBtn.classList.add('hidden'); 
             }
             
             elements.english.textContent = card.english;
@@ -419,13 +493,14 @@
             elements.engContainer.classList.add('hidden');
             currentState = 0;
             
-            elements.progress.textContent = `Word ${currentIndex + 1} of ${flashcards.length}`;
+            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length} (Level ${card.difficulty})`;
             
             elements.prevBtn.disabled = currentIndex === 0;
-            elements.nextBtn.disabled = currentIndex === flashcards.length - 1;
+            elements.nextBtn.disabled = currentIndex === currentDeck.length - 1;
         }
 
         function advanceState() {
+            if (currentDeck.length === 0) return; // Ignore if deck empty
             if (currentState === 0) {
                 elements.defContainer.classList.remove('hidden');
                 currentState = 1;
@@ -433,7 +508,7 @@
                 elements.engContainer.classList.remove('hidden');
                 currentState = 2;
             } else if (currentState === 2) {
-                if (currentIndex < flashcards.length - 1) {
+                if (currentIndex < currentDeck.length - 1) {
                     currentIndex++;
                     updateCard();
                 }
@@ -441,7 +516,7 @@
         }
 
         function goNext() {
-            if (currentIndex < flashcards.length - 1) {
+            if (currentIndex < currentDeck.length - 1) {
                 currentIndex++;
                 updateCard();
             }
@@ -455,37 +530,32 @@
         }
 
         // --- Event Listeners ---
-        
         elements.container.addEventListener('click', advanceState);
         elements.nextBtn.addEventListener('click', goNext);
         elements.prevBtn.addEventListener('click', goPrev);
 
+        // Difficulty Buttons Listener
+        elements.diffBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const level = parseInt(e.target.getAttribute('data-level'));
+                loadDifficultySet(level);
+            });
+        });
+
         // Audio Button Listeners
         elements.wordAudioBtn.addEventListener('click', (event) => {
             event.stopPropagation();
-            playDutchAudio(flashcards[currentIndex].dutch);
+            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].dutch);
         });
         
         elements.sentenceAudioBtn.addEventListener('click', (event) => {
             event.stopPropagation();
-            playDutchAudio(flashcards[currentIndex].sentence);
+            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].sentence);
         });
         
         elements.defAudioBtn.addEventListener('click', (event) => {
             event.stopPropagation();
-            playDutchAudio(flashcards[currentIndex].definition);
-        });
-
-        // Shuffle Button
-        elements.shuffleBtn.addEventListener('click', () => {
-            flashcards = shuffleArray(flashcards);
-            currentIndex = 0;
-            updateCard();
-            
-            elements.shuffleBtn.textContent = "✅ Shuffled!";
-            setTimeout(() => {
-                elements.shuffleBtn.textContent = "🔀 Shuffle Cards";
-            }, 1500);
+            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].definition);
         });
 
         // Keyboard navigation
@@ -500,6 +570,7 @@
             }
         });
 
+        // Initialize!
         fetchCSV();
 
     </script>

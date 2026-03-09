@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dutch Flashcards</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #flashcard-container {
+            background-color: white;
+            width: 100%;
+            max-width: 600px;
+            min-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px 20px;
+            cursor: pointer;
+            user-select: none;
+            box-sizing: border-box;
+            transition: transform 0.1s;
+            position: relative;
+        }
+        #flashcard-container:active {
+            transform: scale(0.99);
+        }
+        
+        /* Flex rows for text + audio buttons */
+        .text-audio-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+        }
+        
+        .audio-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .audio-btn:hover {
+            background-color: #f0f4f8;
+            transform: scale(1.1);
+        }
+        .audio-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Specific sizing */
+        .word-audio { font-size: 2rem; padding: 10px; }
+        .small-audio { font-size: 1.5rem; padding: 8px; }
+
+        #dutch-word {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            word-break: break-word;
+            margin: 0;
+        }
+        #word-type {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin: 5px 0 15px 0;
+        }
+        
+        .sentence-row {
+            margin: 0 0 20px 0;
+        }
+        #sentence {
+            font-size: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Reveal blocks */
+        .reveal-box {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Space text and audio btn apart */
+            gap: 10px;
+        }
+        .def-box {
+            background-color: #e8f4f8;
+            border: 1px solid #b3e5fc;
+        }
+        #dutch-definition {
+            font-size: 1.3rem;
+            color: #0277bd;
+            text-align: left;
+            flex-grow: 1;
+        }
+        
+        .english-box {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            justify-content: center;
+        }
+        #english-word {
+            font-weight: bold;
+            font-size: 1.8rem;
+            color: #2e7d32;
+        }
+        
+        /* Navigation Controls */
+        #controls-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        button.nav-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.2s, transform 0.1s;
+            flex: 1;
+        }
+        button.nav-btn:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        button.nav-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Bottom Status Area */
+        .status-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 15px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        #progress {
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        #shuffle-btn {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #shuffle-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .instructions {
+            margin-top: 15px;
+            color: #888;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0 10px;
+        }
+        #loading {
+            font-size: 1.5rem;
+            color: #3498db;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            #dutch-word { font-size: 2.5rem; }
+            .word-audio { font-size: 1.5rem; padding: 5px; }
+            .small-audio { font-size: 1.2rem; padding: 5px; }
+            #word-type { font-size: 1rem; margin-bottom: 10px;}
+            #sentence { font-size: 1.2rem; }
+            #dutch-definition { font-size: 1.1rem; }
+            #english-word { font-size: 1.4rem; }
+            button.nav-btn { font-size: 1rem; padding: 12px 10px; }
+            #flashcard-container { min-height: 350px; padding: 20px 15px; }
+            .reveal-box { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">Loading words from GitHub...</div>
+
+    <div id="flashcard-container" class="hidden">
+        
+        <div class="text-audio-row">
+            <div id="dutch-word">Word</div>
+            <button id="word-audio-btn" class="audio-btn word-audio" title="Play Word">🔊</button>
+        </div>
+        
+        <div id="word-type">(Type)</div>
+        
+        <div class="text-audio-row sentence-row">
+            <div id="sentence">Sentence goes here.</div>
+            <button id="sentence-audio-btn" class="audio-btn small-audio" title="Play Sentence">🔊</button>
+        </div>
+        
+        <div id="def-container" class="hidden reveal-box def-box">
+            <div id="dutch-definition">Definition</div>
+            <button id="def-audio-btn" class="audio-btn small-audio" title="Play Definition">🔊</button>
+        </div>
+        
+        <div id="english-container" class="hidden reveal-box english-box">
+            <div id="english-word">English</div>
+        </div>
+        
+    </div>
+    
+    <div id="controls-container" class="hidden">
+        <button id="prev-btn" class="nav-btn">&larr; Prev</button>
+        <button id="next-btn" class="nav-btn">Next &rarr;</button>
+    </div>
+    
+    <div class="status-area hidden" id="status-container">
+        <div id="progress"></div>
+        <button id="shuffle-btn">🔀 Shuffle Cards</button>
+    </div>
+
+    <div class="instructions hidden" id="instructions-container">
+        Tap the card or press <b>Spacebar</b> to reveal answers.<br>
+        Use <b>Arrows</b> or the buttons to change words.
+    </div>
+
+    <script>
+        const csvUrl = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/dutchwords.csv';
+        
+        let flashcards = [];
+        let originalOrder = [];
+        let currentIndex = 0;
+        let currentState = 0; // 0: Front, 1: Definition, 2: English
+
+        const elements = {
+            container: document.getElementById('flashcard-container'),
+            word: document.getElementById('dutch-word'),
+            type: document.getElementById('word-type'),
+            sentence: document.getElementById('sentence'),
+            definition: document.getElementById('dutch-definition'),
+            english: document.getElementById('english-word'),
+            defContainer: document.getElementById('def-container'),
+            engContainer: document.getElementById('english-container'),
+            
+            // Buttons
+            prevBtn: document.getElementById('prev-btn'),
+            nextBtn: document.getElementById('next-btn'),
+            wordAudioBtn: document.getElementById('word-audio-btn'),
+            sentenceAudioBtn: document.getElementById('sentence-audio-btn'),
+            defAudioBtn: document.getElementById('def-audio-btn'),
+            shuffleBtn: document.getElementById('shuffle-btn'),
+            
+            // App states
+            loading: document.getElementById('loading'),
+            controls: document.getElementById('controls-container'),
+            status: document.getElementById('status-container'),
+            progress: document.getElementById('progress'),
+            instructions: document.getElementById('instructions-container')
+        };
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function playDutchAudio(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'nl-NL';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Sorry, your browser doesn't support text-to-speech audio.");
+            }
+        }
+
+        function parseCSVLine(text) {
+            let ret = [];
+            let inQuote = false;
+            let value = '';
+            for (let i = 0; i < text.length; i++) {
+                let ch = text[i];
+                if (inQuote) {
+                    if (ch === '"') {
+                        if (i + 1 < text.length && text[i + 1] === '"') {
+                            value += '"';
+                            i++;
+                        } else {
+                            inQuote = false;
+                        }
+                    } else {
+                        value += ch;
+                    }
+                } else {
+                    if (ch === '"') {
+                        inQuote = true;
+                    } else if (ch === ',') {
+                        ret.push(value.trim());
+                        value = '';
+                    } else {
+                        value += ch;
+                    }
+                }
+            }
+            ret.push(value.trim());
+            return ret;
+        }
+
+        async function fetchCSV() {
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const textData = await response.text();
+                
+                const lines = textData.trim().split('\n');
+                
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue; 
+                    
+                    const columns = parseCSVLine(lines[i]);
+                    
+                    if (columns.length >= 6) {
+                        flashcards.push({
+                            dutch: columns[1],
+                            sentence: columns[3],
+                            type: columns[4],
+                            english: columns[5],
+                            definition: columns[6] || '' 
+                        });
+                    }
+                }
+                
+                if (flashcards.length > 0) {
+                    originalOrder = [...flashcards];
+                    elements.loading.classList.add('hidden');
+                    elements.container.classList.remove('hidden');
+                    elements.controls.classList.remove('hidden');
+                    elements.status.classList.remove('hidden');
+                    elements.instructions.classList.remove('hidden');
+                    updateCard();
+                } else {
+                    elements.loading.textContent = "Error: No valid data found in CSV.";
+                }
+
+            } catch (error) {
+                elements.loading.textContent = "Error loading CSV. Make sure the GitHub repository is public and the link is correct.";
+                console.error('Error fetching CSV:', error);
+            }
+        }
+
+        function updateCard() {
+            if (!flashcards[currentIndex]) return;
+            const card = flashcards[currentIndex];
+            
+            elements.word.textContent = card.dutch;
+            elements.type.textContent = `(${card.type})`;
+            elements.sentence.textContent = card.sentence;
+            
+            if (card.definition && card.definition !== "") {
+                elements.definition.textContent = card.definition;
+                elements.defAudioBtn.classList.remove('hidden'); // Show audio btn if def exists
+            } else {
+                elements.definition.textContent = "(No Dutch definition provided)";
+                elements.defAudioBtn.classList.add('hidden'); // Hide audio btn if no def
+            }
+            
+            elements.english.textContent = card.english;
+
+            // Hide answers on flip
+            elements.defContainer.classList.add('hidden');
+            elements.engContainer.classList.add('hidden');
+            currentState = 0;
+            
+            elements.progress.textContent = `Word ${currentIndex + 1} of ${flashcards.length}`;
+            
+            elements.prevBtn.disabled = currentIndex === 0;
+            elements.nextBtn.disabled = currentIndex === flashcards.length - 1;
+        }
+
+        function advanceState() {
+            if (currentState === 0) {
+                elements.defContainer.classList.remove('hidden');
+                currentState = 1;
+            } else if (currentState === 1) {
+                elements.engContainer.classList.remove('hidden');
+                currentState = 2;
+            } else if (currentState === 2) {
+                if (currentIndex < flashcards.length - 1) {
+                    currentIndex++;
+                    updateCard();
+                }
+            }
+        }
+
+        function goNext() {
+            if (currentIndex < flashcards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function goPrev() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        // --- Event Listeners ---
+        
+        elements.container.addEventListener('click', advanceState);
+        elements.nextBtn.addEventListener('click', goNext);
+        elements.prevBtn.addEventListener('click', goPrev);
+
+        // Audio Button Listeners
+        elements.wordAudioBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            playDutchAudio(flashcards[currentIndex].dutch);
+        });
+        
+        elements.sentenceAudioBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            playDutchAudio(flashcards[currentIndex].sentence);
+        });
+        
+        elements.defAudioBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            playDutchAudio(flashcards[currentIndex].definition);
+        });
+
+        // Shuffle Button
+        elements.shuffleBtn.addEventListener('click', () => {
+            flashcards = shuffleArray(flashcards);
+            currentIndex = 0;
+            updateCard();
+            
+            elements.shuffleBtn.textContent = "✅ Shuffled!";
+            setTimeout(() => {
+                elements.shuffleBtn.textContent = "🔀 Shuffle Cards";
+            }, 1500);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault(); 
+                advanceState();
+            } else if (event.code === 'ArrowRight') {
+                goNext();
+            } else if (event.code === 'ArrowLeft') {
+                goPrev();
+            }
+        });
+
+        fetchCSV();
+
+    </script>
+</body>
+</html>

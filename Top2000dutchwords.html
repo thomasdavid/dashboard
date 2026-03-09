@@ -18,6 +18,63 @@
             padding: 10px;
             box-sizing: border-box;
         }
+        
+        /* Info Button & Modal */
+        #info-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 100;
+        }
+        #info-btn:hover {
+            transform: scale(1.1);
+        }
+        #info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            position: relative;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .modal-content h2 { margin-top: 0; color: #2c3e50; }
+        .modal-content h3 { font-size: 1.2rem; color: #34495e; margin-bottom: 5px; }
+        .modal-content p, .modal-content ul { font-size: 1.05rem; color: #555; }
+        .modal-content ul { padding-left: 20px; margin-top: 5px; }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #aaa;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #333; }
+
+        /* Flashcard Container */
         #flashcard-container {
             background-color: white;
             width: 100%;
@@ -60,13 +117,8 @@
             align-items: center;
             justify-content: center;
         }
-        .audio-btn:hover {
-            background-color: #f0f4f8;
-            transform: scale(1.1);
-        }
-        .audio-btn:active {
-            transform: scale(0.9);
-        }
+        .audio-btn:hover { background-color: #f0f4f8; transform: scale(1.1); }
+        .audio-btn:active { transform: scale(0.9); }
 
         .word-audio { font-size: 2rem; padding: 10px; }
         .small-audio { font-size: 1.5rem; padding: 8px; }
@@ -85,17 +137,9 @@
             margin: 5px 0 15px 0;
         }
         
-        .sentence-row {
-            margin: 0 0 20px 0;
-        }
-        #sentence {
-            font-size: 1.5rem;
-            line-height: 1.4;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .sentence-row { margin: 0 0 20px 0; }
+        #sentence { font-size: 1.5rem; line-height: 1.4; }
+        .hidden { display: none !important; }
         
         /* Reveal blocks */
         .reveal-box {
@@ -119,7 +163,6 @@
             text-align: left;
             flex-grow: 1;
         }
-        
         .english-box {
             background-color: #e8f5e9;
             border: 1px solid #c8e6c9;
@@ -152,17 +195,9 @@
             transition: background-color 0.2s, transform 0.1s;
             flex: 1;
         }
-        button.nav-btn:hover:not(:disabled) {
-            background-color: #2980b9;
-        }
-        button.nav-btn:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        button.nav-btn:hover:not(:disabled) { background-color: #2980b9; }
+        button.nav-btn:active:not(:disabled) { transform: scale(0.95); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
 
         /* Status & Level Selection */
         .status-area {
@@ -174,17 +209,12 @@
             margin-top: 15px;
             gap: 15px;
         }
-        
-        #progress {
-            color: #7f8c8d;
-            font-weight: bold;
-        }
+        #progress { color: #7f8c8d; font-weight: bold; }
 
-        /* Difficulty Buttons */
         .difficulty-controls {
             display: flex;
             width: 100%;
-            gap: 10px;
+            gap: 5px;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -192,18 +222,16 @@
             background-color: #e0e6ed;
             color: #34495e;
             border: 2px solid transparent;
-            padding: 10px 15px;
-            font-size: 1rem;
+            padding: 10px 10px;
+            font-size: 0.95rem;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             flex: 1;
-            min-width: 80px;
+            min-width: 60px;
             transition: all 0.2s;
         }
-        .diff-btn:hover {
-            background-color: #bdc3c7;
-        }
+        .diff-btn:hover { background-color: #bdc3c7; }
         .diff-btn.active {
             background-color: #9b59b6;
             color: white;
@@ -227,6 +255,7 @@
 
         /* Mobile Adjustments */
         @media (max-width: 600px) {
+            #info-btn { top: 10px; right: 10px; font-size: 1.8rem; }
             #dutch-word { font-size: 2.5rem; }
             .word-audio { font-size: 1.5rem; padding: 5px; }
             .small-audio { font-size: 1.2rem; padding: 5px; }
@@ -237,11 +266,28 @@
             button.nav-btn { font-size: 1rem; padding: 12px 10px; }
             #flashcard-container { min-height: 350px; padding: 20px 15px; }
             .reveal-box { padding: 10px; }
-            .diff-btn { padding: 8px 5px; font-size: 0.9rem; }
+            .diff-btn { padding: 8px 2px; font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
+
+    <button id="info-btn" title="About this tool">ℹ️</button>
+
+    <div id="info-modal" class="hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h2>About This Tool</h2>
+            <p>This flashcard system is designed to help you master the <strong>4,621 most frequently used Dutch words</strong>. The frequency list is based on the massive database of movie and television subtitles from <em>www.opensubtitles.org</em>.</p>
+            <h3>How it works:</h3>
+            <ul>
+                <li><strong>Front of Card:</strong> Displays the Dutch word, its grammatical type, and a sentence for context.</li>
+                <li><strong>First Reveal:</strong> Click the card or press Spacebar to see the Dutch definition.</li>
+                <li><strong>Second Reveal:</strong> Click again to show the English translation.</li>
+            </ul>
+            <p>Use the difficulty buttons below to filter the deck based on frequency and word length. Every time you pick a level, the words are randomly shuffled so you never review them in the same order twice!</p>
+        </div>
+    </div>
 
     <div id="loading">Loading words from GitHub...</div>
 
@@ -277,10 +323,11 @@
         <div id="progress"></div>
         
         <div class="difficulty-controls">
-            <button class="diff-btn" data-level="1">Level 1</button>
-            <button class="diff-btn" data-level="2">Level 2</button>
-            <button class="diff-btn" data-level="3">Level 3</button>
-            <button class="diff-btn" data-level="4">Level 4</button>
+            <button class="diff-btn active" data-level="all">All</button>
+            <button class="diff-btn" data-level="1">Lvl 1</button>
+            <button class="diff-btn" data-level="2">Lvl 2</button>
+            <button class="diff-btn" data-level="3">Lvl 3</button>
+            <button class="diff-btn" data-level="4">Lvl 4</button>
         </div>
     </div>
 
@@ -292,10 +339,10 @@
     <script>
         const csvUrl = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/dutchwords.csv';
         
-        let allFlashcards = [];   // Holds entire database
-        let currentDeck = [];     // Holds the filtered & shuffled deck
+        let allFlashcards = [];   
+        let currentDeck = [];     
         let currentIndex = 0;
-        let currentState = 0;     // 0: Front, 1: Definition, 2: English
+        let currentState = 0;     
 
         const elements = {
             container: document.getElementById('flashcard-container'),
@@ -306,24 +353,41 @@
             english: document.getElementById('english-word'),
             defContainer: document.getElementById('def-container'),
             engContainer: document.getElementById('english-container'),
-            
-            // Buttons
             prevBtn: document.getElementById('prev-btn'),
             nextBtn: document.getElementById('next-btn'),
             wordAudioBtn: document.getElementById('word-audio-btn'),
             sentenceAudioBtn: document.getElementById('sentence-audio-btn'),
             defAudioBtn: document.getElementById('def-audio-btn'),
             diffBtns: document.querySelectorAll('.diff-btn'),
-            
-            // App states
             loading: document.getElementById('loading'),
             controls: document.getElementById('controls-container'),
             status: document.getElementById('status-container'),
             progress: document.getElementById('progress'),
-            instructions: document.getElementById('instructions-container')
+            instructions: document.getElementById('instructions-container'),
+            
+            // Modal Elements
+            infoBtn: document.getElementById('info-btn'),
+            infoModal: document.getElementById('info-modal'),
+            closeModalBtn: document.getElementById('close-modal')
         };
 
-        // Shuffle Array (Fisher-Yates Algorithm)
+        // Modal Event Listeners
+        elements.infoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            elements.infoModal.classList.remove('hidden');
+        });
+        
+        elements.closeModalBtn.addEventListener('click', () => {
+            elements.infoModal.classList.add('hidden');
+        });
+        
+        elements.infoModal.addEventListener('click', (e) => {
+            if (e.target === elements.infoModal) {
+                elements.infoModal.classList.add('hidden');
+            }
+        });
+
+        // Shuffle Array
         function shuffleArray(array) {
             let shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -333,7 +397,7 @@
             return shuffled;
         }
 
-        // Difficulty Calculation Logic (Matches Python Script)
+        // Difficulty Calculation Logic
         function calculateDifficulty(index, wordText) {
             let base = 4;
             if (index < 500) base = 1;
@@ -422,8 +486,7 @@
                     elements.status.classList.remove('hidden');
                     elements.instructions.classList.remove('hidden');
                     
-                    // Always start by loading Difficulty Level 1
-                    loadDifficultySet(1);
+                    loadDifficultySet('all');
                 } else {
                     elements.loading.textContent = "Error: No valid data found in CSV.";
                 }
@@ -434,21 +497,22 @@
             }
         }
 
-        // Load specific difficulty and randomize
         function loadDifficultySet(level) {
-            // Update Active Button styling
             elements.diffBtns.forEach(btn => {
-                if (parseInt(btn.getAttribute('data-level')) === level) {
+                if (btn.getAttribute('data-level') == level) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
 
-            // Filter out words by difficulty level
-            const filteredSet = allFlashcards.filter(card => card.difficulty === level);
+            let filteredSet = [];
+            if (level === 'all') {
+                filteredSet = [...allFlashcards];
+            } else {
+                filteredSet = allFlashcards.filter(card => card.difficulty === parseInt(level));
+            }
             
-            // Randomize on load!
             currentDeck = shuffleArray(filteredSet);
             currentIndex = 0;
             
@@ -470,7 +534,6 @@
             
             const card = currentDeck[currentIndex];
             
-            // Restore visibility of audio buttons
             elements.wordAudioBtn.classList.remove('hidden');
             elements.sentenceAudioBtn.classList.remove('hidden');
 
@@ -488,19 +551,19 @@
             
             elements.english.textContent = card.english;
 
-            // Hide answers on flip
             elements.defContainer.classList.add('hidden');
             elements.engContainer.classList.add('hidden');
             currentState = 0;
             
-            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length} (Level ${card.difficulty})`;
+            let diffDisplay = card.difficulty ? ` (Level ${card.difficulty})` : '';
+            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length}${diffDisplay}`;
             
             elements.prevBtn.disabled = currentIndex === 0;
             elements.nextBtn.disabled = currentIndex === currentDeck.length - 1;
         }
 
         function advanceState() {
-            if (currentDeck.length === 0) return; // Ignore if deck empty
+            if (currentDeck.length === 0) return; 
             if (currentState === 0) {
                 elements.defContainer.classList.remove('hidden');
                 currentState = 1;
@@ -529,20 +592,17 @@
             }
         }
 
-        // --- Event Listeners ---
         elements.container.addEventListener('click', advanceState);
         elements.nextBtn.addEventListener('click', goNext);
         elements.prevBtn.addEventListener('click', goPrev);
 
-        // Difficulty Buttons Listener
         elements.diffBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const level = parseInt(e.target.getAttribute('data-level'));
+                const level = e.target.getAttribute('data-level');
                 loadDifficultySet(level);
             });
         });
 
-        // Audio Button Listeners
         elements.wordAudioBtn.addEventListener('click', (event) => {
             event.stopPropagation();
             if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].dutch);
@@ -558,7 +618,6 @@
             if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].definition);
         });
 
-        // Keyboard navigation
         document.addEventListener('keydown', (event) => {
             if (event.code === 'Space') {
                 event.preventDefault(); 
@@ -567,10 +626,11 @@
                 goNext();
             } else if (event.code === 'ArrowLeft') {
                 goPrev();
+            } else if (event.code === 'Escape') {
+                elements.infoModal.classList.add('hidden');
             }
         });
 
-        // Initialize!
         fetchCSV();
 
     </script>

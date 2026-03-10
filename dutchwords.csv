@@ -38,7 +38,7 @@
 37,weet,870605,Ik weet het antwoord.,Verb,know,Vorm van het werkwoord weten.,1
 38,kan,827534,Ik kan goed zwemmen.,Verb,can,Vorm van het werkwoord kunnen.,1
 39,geen,799250,Ik heb geen tijd.,Pronoun,no/none,"Nul, niet Ã©Ã©n.",1
-40,nog,792339,Ben je nog wakker?,Adverb,still/yet,Bijwoord dat continuÃ¯teit aanduidt.,1
+40,nog,792339,Ben je nog wakker?,Adverb,still/yet,Bijwoord dat continuïteit aanduidt.,1
 41,moet,762775,Ik moet nu gaan.,Verb,must/have to,Vorm van het werkwoord moeten.,1
 42,wil,759522,Ik wil koffie.,Verb,want,Vorm van het werkwoord willen.,1
 43,wel,758242,Dat is wel waar.,Adverb,indeed/well/however,Bijwoord dat een bevestiging of nadruk geeft.,1
@@ -133,14 +133,14 @@
 132,uw,198061,Wat is uw naam?,Pronoun,your (formal),Bezittelijk voornaamwoord (beleefdheidsvorm).,1
 133,wordt,195977,Het wordt donker.,Verb,becomes,Vorm van het werkwoord worden.,1
 134,hé,195920,Hé let op!,Interjection,hey,Uitroep om de aandacht te trekken.,1
-135,maken,192444,We maken een taart.,Verb,make,Iets creÃ«ren of herstellen.,1
+135,maken,192444,We maken een taart.,Verb,make,Iets creëren of herstellen.,1
 136,mag,189195,Mag ik binnenkomen?,Verb,may/allowed,Vorm van het werkwoord mogen (toestemming).,1
 137,één,188447,Ik wil er één.,Numeral,one,#N/A,1
 138,z'n,187701,Hij zoekt z'n jas.,Pronoun,his,Betekenis volgt.,1
 139,omdat,184722,Ik lach omdat ik blij ben.,Conjunction,because,Voegwoord dat een reden aangeeft.,1
 140,gedaan,183529,Goed gedaan!,Verb,done,Voltooid deelwoord van doen.,1
 141,heel,182156,Dat is heel mooi.,Adverb/Adjective,very/whole,"Niet kapot, of in grote mate.",1
-142,af,181253,Het werk is af.,Adjective/Adverb,finished/off,BeÃ«indigd of klaar.,1
+142,af,181253,Het werk is af.,Adjective/Adverb,finished/off,Beëindigd of klaar.,1
 143,altijd,179551,Hij is altijd op tijd.,Adverb,always,Op elk moment.,1
 144,jouw,174623,Is dat jouw boek?,Pronoun,your,Bezittelijk voornaamwoord (tweede persoon).,1
 145,zeker,172890,Weet je het zeker?,Adjective/Adverb,certain/sure,Zonder twijfel.,1
@@ -370,7 +370,6 @@
 370,slechts,19175,Het kost slechts vijf euro.,Adverb,only/merely,Niet meer dan; alleen maar.,2
 371,verkeerde,19172,Dat was de verkeerde afslag.,Adjective,wrong,Dat wat onjuist of fout is.,2
 372,slaan,19171,Je mag niemand slaan.,Verb,hit/strike,Met kracht een klap geven.,2
-373,FBI,19103,De FBI onderzoekt de zaak.,Noun,FBI,De federale opsporingsdienst van de Verenigde Staten.,1
 374,afgelopen,19035,De film is afgelopen.,Adjective/Adverb,finished/past,Wat voorbij is; beëindigd.,2
 375,hotel,19031,We slapen in een hotel.,Noun,hotel,Gebouw waar je tegen betaling kunt slapen.,2
 376,bekend,19028,Hij is een bekend persoon.,Adjective,known/famous,Iets wat veel mensen weten of herkennen.,2
@@ -425,7 +424,6 @@
 425,zover,17502,Het is bijna zover.,Adverb,so far/that far/ready,Op dat punt aangekomen.,2
 426,red,17457,Ik red me wel.,Verb,save/manage,Iemand uit een gevaarlijke situatie halen (gebiedende wijs).,1
 427,woont,17449,Hij woont hier niet meer.,Verb,lives (resides),Leeft op een vaste plek (derde persoon).,2
-428,Amerika,17421,We gaan naar Amerika.,Noun,America,Een land of werelddeel (Verenigde Staten).,2
 429,lul,17403,Doe niet als een lul.,Noun,dick/jerk,Scheldwoord voor een vervelende man.,1
 430,gedacht,17366,Ik had dat nooit gedacht.,Verb/Noun,thought,Nagedacht over iets (voltooid deelwoord).,2
 431,bewijzen,17361,Je moet dat bewijzen.,Verb,prove,Laten zien dat iets waar is.,2
@@ -483,7 +481,6 @@
 483,negen,16367,Het kost negen euro.,Numeral,nine,Het getal na acht,2
 484,tafel,16343,Het eten staat op tafel.,Noun,table,Meubelstuk om aan te eten of werken,2
 485,sneller,16287,Je moet sneller fietsen.,Adverb/Adjective,faster,Met meer snelheid,2
-486,James,16285,James is mijn vriend.,Noun,James (name),Een Engelse voornaam,2
 487,jong,16260,Hij is nog erg jong.,Adjective,young,Niet oud of aan het begin van het leven,1
 488,vanwege,16260,Vanwege de regen blijf ik thuis.,Preposition,because of,Wegens of door,2
 489,beide,16258,Ze komen alle beide.,Pronoun/Numeral,both,Alle twee,2
@@ -525,7 +522,6 @@
 525,huwelijk,15205,Het was een mooi huwelijk.,Noun,marriage/wedding,Verbintenis tussen partners,2
 526,delen,15179,We moeten dit delen.,Verb,share/divide,Iets samen doen of verdelen,2
 527,sla,15172,Ik eet een broodje met sla.,Noun/Verb,lettuce/hit,Bladgroente of gebiedende wijs van slaan,1
-528,Amerikaanse,15170,Het is een Amerikaanse auto.,Adjective,American,Afkomstig uit Amerika,3
 529,wedstrijd,15148,Ze wonnen de wedstrijd.,Noun,match/game,Sportief duel of competitie,2
 530,maat,15142,Wat is jouw maat schoenen?,Noun,size/buddy,Afmeting of een vriend,1
 531,allen,15136,Wij allen zijn het eens.,Pronoun,all,Iedereen,2
@@ -853,7 +849,6 @@
 858,feit,N/A,Het is een feit dat de aarde rond is.,Noun,fact,Iets waarvan zeker is dat het zo is,1
 859,programma,N/A,Wat is er vanavond op dat programma?,Noun,program,Uitzending op tv of actieplan,2
 860,getuige,N/A,Hij was de enige getuige van de misdaad.,Noun,witness,Iemand die iets gezien heeft,2
-861,Tommy,N/A,Tommy is een goede vriend van mij.,Noun,Tommy,Engelse voornaam,2
 862,begraven,N/A,De hond heeft zijn bot begraven.,Verb,bury,In de grond stoppen,2
 863,gezeten,N/A,Wij hebben de hele middag gezeten.,Verb,sat,Verleden deelwoord van zitten,2
 864,grap,N/A,Dat is echt een hele slechte grap.,Noun,joke,Iets wat bedoeld is om te lachen,1
@@ -1338,7 +1333,7 @@
 98,vijf,N/A,Ik heb nog precies vijf euro in mijn portemonnee.,Numeral,five,Het getal na vier,1
 99,gehad,N/A,Ik heb gisteren een hele drukke werkdag gehad.,Verb,had,Voltooid deelwoord van hebben,1
 100,haal,N/A,Haal even snel wat lekkere broodjes bij de bakker.,Verb,get / fetch,Breng hierheen,1
-101,gemaakt,N/A,Ik heb een hele mooie tekening voor je gemaakt.,Verb,made,GecreÃ«erd of geproduceerd,1
+101,gemaakt,N/A,Ik heb een hele mooie tekening voor je gemaakt.,Verb,made,Gecreëerd of geproduceerd,1
 102,hé,N/A,Dat is echt ontzettend mooi gedaan hÃ¨?,Interjection,right? / huh?,Stopwoord om instemming te vragen,1
 103,manier,N/A,Je moet het op een hele andere manier doen.,Noun,way / manner,Hoe je iets aanpakt,1
 104,dagen,N/A,We hebben drie dagen lang hard gewerkt.,Noun,days,Periodes van 24 uur,1
@@ -1742,7 +1737,7 @@
 509,genezen,N/A,De dokter denkt dat de zieke man weer heel snel zal genezen.,Verb,heal / cure,Beter maken of worden,3
 510,gedachte,N/A,Dat is best wel een hele erg fijne en ook geruststellende gedachte.,Noun,thought / idea,Iets wat je denkt,3
 512,hoopte,N/A,Ik hoopte eigenlijk heel erg dat je vanavond nog langs zou komen.,Verb,hoped,Verlangde dat iets zou gebeuren,3
-513,doc,N/A,Bedankt doc zei de patiÃ«nt tegen zijn goede arts.,Noun,doc (abbreviation for doctor),Afkorting voor dokter,2
+513,doc,N/A,Bedankt doc zei de patiënt tegen zijn goede arts.,Noun,doc (abbreviation for doctor),Afkorting voor dokter,2
 514,gebruikte,N/A,Ik gebruikte gisteren een hele scherpe zaag voor dat hout.,Verb,used,Ingezet of gehanteerd,3
 515,gelaten,N/A,Heb je de hond vandaag al per ongeluk buiten gelaten?,Verb / Adjective,left / let / resigned,Verleden deelwoord van laten of berustend,3
 516,voeren,N/A,Ik ga de kippen even wat lekker graan en zaden voeren.,Verb,feed / carry out,Te eten geven of uitvoeren,3
@@ -1791,8 +1786,8 @@
 563,shirt,N/A,Ik wil straks graag een nieuw en schoon zwart shirt aantrekken.,Noun,shirt,Kledingstuk voor het bovenlichaam,3
 564,deuren,N/A,Zorg ervoor dat alle ramen en deuren vanavond goed dicht zijn.,Noun,doors,Grote openingen in een muur,3
 565,vertrekt,N/A,De snelle bus vertrekt pas weer over precies een kwartier.,Verb,leaves / departs,Gaat weg,3
-566,lijden,N/A,Het erge lijden van de zieke patiÃ«nt is nu eindelijk gelukkig voorbij.,Verb / Noun,suffer / suffering,Pijn hebben of last ervaren,3
-567,geïnteresseerd,N/A,Hij is echt helemaal nergens meer in de wereld in geÃ¯nteresseerd.,Adjective / Verb,interested,Aandacht hebben voor,4
+566,lijden,N/A,Het erge lijden van de zieke patiënt is nu eindelijk gelukkig voorbij.,Verb / Noun,suffer / suffering,Pijn hebben of last ervaren,3
+567,geïnteresseerd,N/A,Hij is echt helemaal nergens meer in de wereld in geïnteresseerd.,Adjective / Verb,interested,Aandacht hebben voor,4
 568,veroorzaakt,N/A,De zware regen heeft gisteren veel overlast buiten veroorzaakt.,Verb,caused,Gedaan dat het gebeurt,4
 569,telefoontje,N/A,Ik wacht nog steeds op dat ene hele belangrijke telefoontje.,Noun,phone call,Een oproep of gesprek (verkleinwoord),4
 570,proces,N/A,Het hele ingewikkelde proces nam uiteindelijk veel weken in beslag.,Noun,process / trial,Ontwikkeling of rechtszaak,3
@@ -1840,7 +1835,7 @@
 616,manieren,N/A,Je moet altijd netjes zijn en hele goede manieren hebben.,Noun,manners / ways,Gedragsregels of methodes,3
 617,normale,N/A,Dit is eigenlijk gewoon de hele normale gang van de zaken.,Adjective,normal,Gewone of standaard,3
 618,geheimen,N/A,Je mag echt absoluut geen grote geheimen voor je partner hebben.,Noun,secrets,Dingen die niemand mag weten,3
-619,reizen,N/A,Wij willen heel graag heel veel reizen door het verre AziÃ«.,Verb / Noun,travel / journeys,Naar andere plaatsen gaan of meervoud van reis,3
+619,reizen,N/A,Wij willen heel graag heel veel reizen door het verre Azië.,Verb / Noun,travel / journeys,Naar andere plaatsen gaan of meervoud van reis,3
 620,hoger,N/A,Het water kwam steeds veel hoger te staan in de rivier.,Adjective / Adverb,higher,Vergrotende trap van hoog,3
 621,schoonheid,N/A,Ze was echt een ontzettend knappe vrouw en een ware schoonheid.,Noun,beauty,Het mooi zijn of een mooie vrouw,4
 622,straf,N/A,De dief kreeg een hele lange straf van de strenge rechter.,Noun,punishment / sentence,Maatregel tegen een overtreding,3
@@ -1849,7 +1844,6 @@
 626,verkoop,N/A,De verkoop van de nieuwe huizen begint pas volgende week woensdag.,Noun / Verb,sale / sell,Het verkopen of gebiedende wijs van verkopen,3
 627,berg,N/A,We hebben met veel moeite de top van de steile berg bereikt.,Noun,mountain / pile,Hoge heuvel of grote stapel,2
 628,hoed,N/A,De oude man droeg een hele grote en grappige zwarte hoed.,Noun,hat,Hoofddeksel,2
-629,Alice,N/A,Mijn beste vriendin Alice komt morgen gezellig bij ons op bezoek.,Noun,Alice,Engelse meisjesnaam,3
 630,klant,N/A,De ontevreden klant wilde graag zijn grote aankoop direct weer ruilen.,Noun,customer / client,Koper in een winkel,3
 631,vergadering,N/A,De saaie vergadering duurde gisteren echt de hele lange donkere middag.,Noun,meeting,Bijeenkomst om te praten over werk,4
 632,sterren,N/A,Je kon vannacht heel erg mooi de duizenden sterren zien fonkelen.,Noun,stars,Hemellichamen,3
@@ -1946,7 +1940,6 @@
 726,nauwelijks,N/A,Ik had echt helemaal zo weinig en uiterst zacht bijna heilig niks noppes zo weinig zacht of wel amper en dus vrij of beter gezegd heel erg vrijwel en heel nauwelijks nog goed zicht.,Adverb,hardly / barely,Bijna niet,4
 727,pond,N/A,Ik weeg nu echt in Engeland geen kilootje en geen onsje en heel zeker ook helemaal of precies of toch net wel precies vijftig strak en vol pond.,Noun,pound (weight or currency),Vijfhonderd gram of Engelse munteenheid,2
 728,bepaald,N/A,Er was vanochtend op kantoor plotseling geen enkele en absoluut geen en ook geen vaste en dus tevens geen een of of toch wel een heel erg specifiek doel of tijd of dus en ook helemaal nog niks en geen plan echt en heel precies vooraf erg duidelijk strak en of dus echt of vast of of een goed doel vooraf goed bepaald.,Verb / Adjective / Adverb,determined / decided / certainly,Vastgesteld of beslist,3
-729,King,N/A,Hij leest de hele zonnige week of donkere zwoele lichte en warme hete nacht in de avond het vreselijke donkere donkere echt en of ook hele hele en wel hele echt eng donkere boek heel rustig van schrijver Stephen King.,Noun,King,Engels voor koning of een naam,2
 730,ruim,N/A,De auto was echt niet heel erg of uiterst en zeker en vast en goed ruim.,Adjective / Adverb / Noun,spacious / over / hold (of a ship),Groot of meer dan of scheepsruim,2
 731,leerde,N/A,Ik begreep of las of luisterde gisteren of dus eigenlijk of ik hoorde of zag en of dus of ook echt of ik en zag ik en vertelde en en ook eigenlijk of of vertelde en deed en ik was slim of of las en zette en was ook of en ook wel en zocht of snapte en dacht wel en oh ik echt dus leerde heel veel goed.,Verb,learned,Verleden tijd van leren,3
 732,duur,N/A,Het huis in die zonnige of juist en regenachtige of en en verre en zo oude rustige kleine en koude of of drukke of vieze mooie stad in en dat of land was helaas echt een beetje toch echt wat erg of wat vrij zwaar of best te wel veel te echt en heel echt uiterst of flink duur.,Adjective / Noun,expensive / duration,Kostbaar of de tijdsduur,2
@@ -1964,7 +1957,7 @@
 744,aankomen,N/A,Ik kan oh en de uiterst de vreselijk harde stormachtige trein was toen daar op oh voor zo na voor zo of of heel laat aan de poort aan de grens aan daar in om na voor en bij en om oh na om nog en aan aan voor nog laat om aan de kant aan en om in naar op de plek naar op in laat op of of op het oh of of in op het de daar het het station en daar aankomen.,Verb,arrive / gain weight,De bestemming bereiken of zwaarder worden,3
 745,gave,N/A,Dat is een heel mooi en extreem uniek en bijzonder magisch zacht uiterst zwaar uiterst erg machtig oh een zware groot sterk bijzonder speciaal echt raar heel vreemd magisch mooi uniek eng talent dat gave en die magische goddelijke mooie grote gave gave.,Noun / Adjective,gift / cool,Bijzonder talent of gaaf,2
 746,pakt,N/A,Hij pakt en of zo en dus neemt de snelle snelle trein trein pakt oh pakt echt snel zijn uiterst koude warme tas warm heet vol tas leeg leeg vol met met geld vol leeg koude hete lege met uit de kamer kamer de uit tas uit tas auto uit bed uit tas pakt.,Verb,takes / grabs,Neemt beet,2
-747,ideeÃ«n,N/A,We of ik dacht en bedacht vele hele grote domme of briljante of domme slimme briljante en slechte rare grote goede of rare of echt goede domme goede slechte briljante slechte slimme domme slimme of rare leuke slechte of domme slechte ideeÃ«n.,Noun,ideas,Meervoud van idee,3
+747,ideeën,N/A,We of ik dacht en bedacht vele hele grote domme of briljante of domme slimme briljante en slechte rare grote goede of rare of echt goede domme goede slechte briljante slechte slimme domme slimme of rare leuke slechte of domme slechte ideeën.,Noun,ideas,Meervoud van idee,3
 748,vals,1,Dat is een valse beschuldiging.,Adjective,fake / mean / out of tune,"Niet echt, of gemeen; ook onzuiver (muziek).",2
 749,bezoeken,2,Wij gaan morgen opa en oma bezoeken.,Verb,visit,Ergens naartoe gaan om iemand te zien.,3
 750,leert,3,Hij leert elke dag nieuwe woorden.,Verb (pres),learns / teaches,Kennis opdoen of iemand iets bijbrengen.,3
@@ -2069,7 +2062,6 @@
 853,moordenaars,106,De moordenaars zijn nog niet gepakt.,Noun (pl),murderers,Mensen die iemand gedood hebben.,4
 854,hoogheid,107,"Ja, uwe koninklijke hoogheid.",Noun,highness,Aanspreektitel voor koninklijke personen.,3
 855,poging,108,Hij deed een poging om de recordtijd te verbreken.,Noun,attempt / try,Een keer dat je probeert iets te doen.,3
-856,Jesse,109,Jesse komt vanavond ook naar het feest.,Noun,Jesse,Een eigennaam (unisex).,3
 857,materiaal,110,Dit shirt is gemaakt van zacht materiaal.,Noun,material,De grondstof waar iets van gemaakt is.,3
 858,toestand,111,De patiënt is in een kritieke toestand.,Noun,condition / state,Hoe iets er op dat moment voor staat.,3
 859,amper,112,Ik kan het amper geloven.,Adverb,barely / hardly,Bijna niet; nog maar net.,3
@@ -2271,9 +2263,7 @@
 1063,verrader,316,Niemand houdt van een verrader.,Noun,traitor,Iemand die een geheim of vriend doorgeeft aan de vijand.,3
 1064,indrukwekkend,317,Het optreden van de band was zeer indrukwekkend.,Adjective,impressive,Iets wat veel indruk maakt.,4
 1065,mogelijkheden,318,Er zijn veel mogelijkheden om geld te besparen.,Noun (pl),possibilities,Verschillende opties of kansen.,4
-1066,Helen,319,Helen is de lerares van groep 8.,Noun,Helen,Een eigennaam (vrouwennaam).,3
 1067,gebaseerd,320,De film is gebaseerd op een waargebeurd verhaal.,Verb (pp),based,Steunend op een bepaald feit of verhaal.,3
-1068,Nederlandse,321,Ik spreek een klein beetje Nederlandse taal.,Adjective,Dutch,Wat uit Nederland komt.,4
 1069,verschuldigd,322,Ik ben je nog een tientje verschuldigd.,Adjective,owed / indebted,Iets aan iemand moeten betalen of geven.,4
 1070,lever,323,De winkel kan de producten morgen al leveren.,Noun / Verb,liver / deliver,Een orgaan in je lichaam; of geven.,3
 1071,scheiden,324,Je moet je plastic van het restafval scheiden.,Verb,separate / divorce,Uit elkaar gaan; of afval sorteren.,3
@@ -2406,7 +2396,6 @@
 1203,kleed,456,Er ligt een mooi rood kleed in de woonkamer.,Noun,rug / cloth,Een lap stof voor op de vloer of een tafel.,4
 1204,bevrijden,457,De soldaten kwamen het dorp bevrijden.,Verb,free / liberate,Iemand uit gevangenschap halen.,4
 1205,merken,458,Ik begin te merken dat ik moe word.,Verb / Noun,notice / brands,Iets waarnemen; of namen van producten.,4
-1206,Derek,459,Derek is de nieuwe aanvoerder van het team.,Noun,Derek,Een eigennaam (jongensnaam).,4
 1207,haven,460,De boot vaart langzaam de haven binnen.,Noun,harbor / port,De plaats waar schepen aanleggen.,4
 1208,plekken,461,Er zijn nog een paar vrije plekken in de bus.,Noun (pl),spots / places,Bepaalde locaties of ruimtes.,4
 1209,gelopen,462,We hebben vandaag meer dan tien kilometer gelopen.,Verb (pp),walked / ran,Zich te voet verplaatst hebben.,4
@@ -2424,7 +2413,6 @@
 1221,verzamelen,474,Ik verzamelen al jaren oude postzegels.,Verb,collect / gather,Dingen bij elkaar brengen als hobby of taak.,4
 1222,daaron,475,Je kunt daarop rekenen.,Adverb,on that,Op dat specifieke ding (daarop).,2
 1223,duwen,476,"Je moet tegen de deur duwen, niet trekken.",Verb,push,Met kracht iets van je af bewegen.,4
-1224,Boston,477,Hij studeert aan de universiteit van Boston.,Noun,Boston,Een grote stad in de Verenigde Staten.,4
 1225,sport,478,Welke sport beoefen jij het liefst?,Noun,sport,Lichamelijke oefening als spel of wedstrijd.,4
 1226,onbekende,479,Er stond een onbekende man voor de deur.,Adjective / Noun,unknown / stranger,Iemand of iets die je niet kent.,4
 1227,onderhandelen,480,De partijen moeten nog over de prijs onderhandelen.,Verb,negotiate,Praten om tot een afspraak of prijs te komen.,4
@@ -2440,7 +2428,6 @@
 1237,eventjes,490,"Wacht eventjes, ik moet mijn veters strikken.",Adverb,a little moment,Een heel korte tijd.,4
 1238,voort,491,En zo ging het leven weer voort.,Adverb,on / forward,Verdergaan met iets.,4
 1239,meegaan,492,Wil je met mij meegaan naar de winkel?,Verb,go along / join,Samen met iemand ergens naartoe gaan.,4
-1240,Gordon,493,Gordon is een bekende zanger in Nederland.,Noun,Gordon,Een eigennaam (jongensnaam).,4
 1241,beroemd,494,Die acteur is over de hele wereld beroemd.,Adjective,famous,Bekend bij heel veel mensen.,4
 1242,gemeenschap,495,We wonen in een hechte gemeenschap.,Noun,community,Een groep mensen die bij elkaar horen.,4
 1243,gevaarlijke,496,Dat is een erg gevaarlijke weg.,Adjective,dangerous,Iets wat veel risico met zich meebrengt.,4
@@ -2517,7 +2504,6 @@
 1317,magische,570,Het was een magische avond vol sterren.,Adjective,magical,Iets wat te maken heeft met tovenarij.,4
 1318,ontslaan,571,De directeur moest drie mensen ontslaan.,Verb,fire / dismiss,Iemand zijn baan afnemen.,4
 1319,lafaard,572,"Hij rende weg en liet ons alleen, die lafaard!",Noun,coward,Iemand die niet dapper is; een angsthaas.,4
-1320,Sophie,573,Sophie is de beste vriendin van mijn zus.,Noun,Sophie,Een eigennaam (vrouwennaam).,4
 1321,hek,574,Doe je het hek goed achter je dicht?,Noun,gate / fence,Een afscheiding van hout of ijzer om een tuin.,3
 1322,hout,575,De tafel is gemaakt van massief hout.,Noun,wood,Materiaal dat van bomen komt.,3
 1323,truc,576,De goochelaar liet een verbazingwekkende truc zien.,Noun,trick,Een slimme handeling om iemand te misleiden.,3
@@ -2527,7 +2513,6 @@
 1327,machines,580,In de fabriek staan indrukwekkende machines.,Noun (pl),machines,Grote apparaten die werk doen.,4
 1328,opruimen,581,Je moet je kamer nu echt gaan opruimen.,Verb,clean up / tidy,Dingen op hun vaste plek terugleggen.,4
 1329,klonk,582,Dat klonk als een harde klap.,Verb (past),sounded,Het geluid dat iets maakte (verleden tijd).,4
-1330,Hollywood,583,Veel acteurs dromen van een carrière in Hollywood.,Noun,Hollywood,De filmwijk in Los Angeles.,4
 1331,schande,584,Het is een schande hoe ze met die dieren omgaan.,Noun,shame / disgrace,Iets wat moreel heel erg fout of beschamend is.,4
 1332,gezorgd,585,Hij heeft goed voor zijn zieke moeder gezorgd.,Verb (pp),cared / looked after,Voor iets of iemand gezorgd hebben.,4
 1333,bewust,586,Hij maakte een heel bewuste keuze.,Adjective,conscious / aware,Iets met opzet doen; of bij kennis zijn.,4
@@ -2572,7 +2557,6 @@
 1375,sprake,628,Er is geen sprake van een nieuwe lockdown.,Noun,mention / question of,"Iets wat genoemd wordt (meestal ""er is sprake van"").",4
 1377,mail,630,Ik stuur je de details wel even per mail.,Noun,email,Een elektronisch bericht.,3
 1378,veroordeeld,631,Hij is veroordeeld tot drie jaar gevangenisstraf.,Verb (pp),convicted / sentenced,Door een rechter schuldig bevonden en gestraft.,4
-1379,Caesar,632,Julius Caesar was een machtige generaal.,Noun,Caesar,De bekende Romeinse leider.,4
 1380,ingang,633,De hoofdingang van het gebouw is gesloten.,Noun,entrance,De plek waar je naar binnen gaat.,4
 1381,middag,634,Zullen we vanmiddag samen naar de stad gaan?,Noun,afternoon,De tijd tussen de ochtend en de avond.,4
 1382,hartstikke,635,Dat is een hartstikke leuk idee!,Adverb,awfully / very,Heel erg (informeel).,4
@@ -2627,7 +2611,6 @@
 1433,roze,686,Zij draagt een opvallende roze jas.,Adjective / Noun,pink,De kleur van een varken of een flamingo.,3
 1434,realiteit,687,Je moet de realiteit onder ogen zien.,Noun,reality,De werkelijkheid.,4
 1435,check,688,Doe nog één laatste check voor we vertrekken.,Noun / Verb,check,Controleren of iets klopt.,4
-1436,Lets,689,Ik spreek geen woord Lets.,Adjective / Noun,Latvian,Wat uit Letland komt (taal of cultuur).,3
 1437,gewicht,690,Wat is het maximale gewicht van deze koffer?,Noun,weight,Hoe zwaar iets is.,4
 1438,attentie,691,Mag ik even uw attentie voor de volgende mededeling?,Noun,attention / gift,Aandacht; of een klein cadeautje.,4
 1439,warme,692,Niets is lekkerder dan een warme douche in de winter.,Adjective,warm,Met een aangename of hoge temperatuur.,4
@@ -2636,7 +2619,6 @@
 1442,eenheden,695,De politie stuurde meerdere eenheden naar het ongeluk.,Noun (pl),units,Maatstaven; of groepen (zoals in het leger).,4
 1443,opleiding,696,Hij volgt een opleiding tot timmerman.,Noun,education / training,De studie die je volgt voor een beroep.,4
 1444,snij,697,Ik snij de uien wel voor de soep.,Verb (pres),cut / slice,Met een mes door iets heen gaan (ik-vorm).,3
-1445,Gibbs,698,Agent Gibbs is de leider van het team.,Noun,Gibbs,Een eigennaam (familienaam).,4
 1446,volgde,699,De hond volgde zijn baasje overal.,Verb (past),followed,Achter iemand aan gaan (verleden tijd).,4
 1447,busje,700,We hebben een busje gehuurd voor de verhuizing.,Noun,van / small bus,Een kleine bestelwagen of kleine bus.,4
 1448,watje,701,"Doe niet zo flauw, wees geen watje!",Noun,wimp / cotton pad,Een stukje watten; of een bangerik.,4
@@ -2724,9 +2706,7 @@
 1533,geruchten,786,Er gaan veel geruchten rond over hun scheiding.,Noun (pl),rumors,Verhalen die rondgaan maar niet bewezen zijn.,4
 1534,proef,787,We doen op school een proef met scheikunde.,Noun,test / trial,Een test of een experiment.,4
 1536,middel,789,Zij draagt een riem om haar middel.,Noun,waist / means,Het deel van je lichaam boven je heupen; of een manier.,4
-1537,Vietnam,790,De oorlog in Vietnam duurde vele jaren.,Noun,Vietnam,Een land in Zuidoost-Azië.,4
 1538,gezichten,791,Ik zie veel blije gezichten in de zaal.,Noun (pl),faces,De voorkanten van het hoofd (meervoud).,4
-1539,Angela,792,Angela Merkel was de kanselier van Duitsland.,Noun,Angela,Een eigennaam (vrouwennaam).,4
 1540,kopie,793,Kan ik een kopie krijgen van dit document?,Noun,copy,Een exacte nabootsing van iets.,4
 1541,releases,794,Er zijn deze maand veel grote filmreleases.,Noun (pl),releases,Het uitbrengen van nieuwe films of muziek.,4
 1542,slagen,795,Ik hoop echt dat ik voor mijn rijexamen zal slagen.,Verb,pass / succeed,Je examen halen; of klappen geven.,4
@@ -2806,7 +2786,6 @@
 1619,humor,872,Hij heeft een heel droog gevoel voor humor.,Noun,humor,Wat mensen grappig vinden.,4
 1620,zuurstof,873,In de bergen zit er minder zuurstof in de lucht.,Noun,oxygen,Het gas in de lucht dat we inademen.,4
 1621,vleugels,874,De vogel spreidde zijn vleugels.,Noun (pl),wings,De lichaamsdelen waarmee vogels vliegen.,4
-1622,San,875,We gaan op vakantie naar San Diego.,Adjective,Saint,Heilig (vaak in plaatsnamen zoals San Francisco).,3
 1623,slechter,876,Het weer wordt alleen maar slechter.,Adjective,worse,Minder goed dan eerst.,4
 1624,vertrouwde,877,Ik vertrouwde hem mijn grootste geheim toe.,Verb (past),trusted,Op iemand rekenen (verleden tijd).,4
 1625,betaalde,878,Hij betaalde de rekening met zijn pinpas.,Verb (past),paid,Geld geven voor iets (verleden tijd).,4
@@ -2817,7 +2796,6 @@
 1630,rotzak,883,Die rotzak heeft mijn fiets gestolen!,Noun (slang),bastard / jerk,Een scheldwoord voor een heel gemeen persoon.,4
 1631,aanpakken,884,We moeten dit probleem nu echt aanpakken.,Verb,tackle / handle,Iets vastpakken; of een probleem oplossen.,4
 1632,maal,885,Ik heb het hem al drie maal verteld.,Noun,time / meal,Een keer; of een maaltijd.,3
-1634,mm,887,De dikte is slechts drie mm.,Noun / Interj,mm / millimeter,Millimeter; of een geluid van genot/twijfel.,3
 1635,schedel,888,De archeoloog vond een oude schedel.,Noun,skull,Het bot van je hoofd.,4
 1636,dochters,889,Zij hebben drie prachtige dochters.,Noun (pl),daughters,Vrouwelijke kinderen (meervoud).,4
 1637,verspreiden,890,Het nieuws gaat zich snel verspreiden.,Verb,spread,Over een groot oppervlak verdelen.,4
@@ -2919,7 +2897,6 @@
 1739,besteld,992,We hebben alvast een pizza besteld.,Verb (pp),ordered,Iets gevraagd om te kopen (bijv. eten).,4
 1740,redde,993,De brandweerman redde de hond uit het brandende huis.,Verb (past),saved / rescued,Iemand redden (verleden tijd).,4
 1741,meegebracht,994,Ik heb een lekker toetje voor jullie meegebracht.,Verb (pp),brought along,Iets bij je hebben bij aankomst.,4
-1742,Dennis,995,Dennis gaat morgen naar de kapper.,Noun,Dennis,Een eigennaam (jongensnaam).,4
 1743,overste,996,De overste gaf het bevel om te verzamelen.,Noun,superior / lieutenant colonel,Een rang in het leger; of de baas.,4
 1744,doorbrengen,997,Ik wil graag meer tijd met mijn familie doorbrengen.,Verb,spend (time),Tijd ergens aan besteden.,4
 1745,rende,998,Hij rende zo hard hij kon naar de bus.,Verb (past),ran,Heel hard lopen (verleden tijd).,4
@@ -2927,3 +2904,919 @@
 1747,stemming,1000,Er was een vrolijke stemming op het feestje.,Noun,mood / vote,Je humeur; of het uitbrengen van je stem.,4
 1748,grootvader,1001,Mijn grootvader vertelt altijd spannende verhalen.,Noun,grandfather,De vader van je vader of moeder (opa).,4
 1749,bodem,1002,Het schip zonk naar de bodem van de zee.,Noun,bottom / floor,De onderkant van iets.,4
+1750,ontvoerd,,Zij is gisteren ontvoerd.,verb,kidnapped / abducted,ontvoerd worden door iemand,4
+1751,verzoek,,Ik heb een officieel verzoek ingediend.,noun,request,een vraag om iets te doen,4
+1752,kast,,De glazen staan in de kast.,noun,cupboard / closet,meubel om spullen in te bewaren,4
+1753,geesten,,Gelooft u in geesten?,noun,ghosts / spirits,verschijningen van doden,4
+1754,orders,,Ik volg alleen mijn orders op.,noun,orders / commands,opdrachten die je moet uitvoeren,4
+1755,beschermt,,Deze jas beschermt tegen regen.,verb,protects,zorgen dat er niets ergs gebeurt,4
+1756,traditie,,Het is een oude traditie.,noun,tradition,gewoonte die van vroeger overgenomen is,4
+1757,documenten,,De documenten liggen in de kluis.,noun,documents,officiële papieren,4
+1758,vervloekt,,Dit huis is vervloekt.,verb/adj,cursed,verwenst of ongeluk brengend,4
+1759,tja,,"Tja, daar kan ik niets aan doen.",interj,well,uitroep van berusting,4
+1760,robots,,De fabriek gebruikt veel robots.,noun,robots,machines die menselijk werk overnemen,4
+1761,belangrijk,,Dat is een belangrijk punt.,adj,important,van groot gewicht,4
+1762,overal,,Ik heb overal gezocht.,adv,everywhere,op alle plaatsen,4
+1763,jaar,,Ik ben vorig jaar verhuisd.,noun,year,periode van 365 dagen,4
+1764,lager,,De temperatuur is vandaag lager.,adj/adv,lower,minder hoog,4
+1765,gekken,,Dat is een huis vol gekken.,noun,crazy people,meervoud van gek,4
+1766,bood,,Hij bood mij zijn excuses aan.,verb,offered,verleden tijd van bieden,4
+1767,begrip,,Ik heb veel begrip voor je situatie.,noun,understanding / concept,inlevingsvermogen of een term,4
+1768,generatie,,De jongere generatie gebruikt veel AI.,noun,generation,groep mensen van ongeveer dezelfde leeftijd,4
+1769,wetenschappers,,Wetenschappers doen onderzoek naar de ruimte.,noun,scientists,meervoud van wetenschapper,4
+1770,ademt,,De patiënt ademt weer zelfstandig.,verb,breathes,lucht in- en uitlaten,4
+1771,eenzame,,Hij leidt een eenzaam leven.,adj,lonely,zonder gezelschap of gevoel van alleen zijn,4
+1772,beu,,Ik ben dat gezeur nu echt beu.,adj,fed up / tired of,iets niet meer willen verdragen,4
+1773,trouwde,,Zij trouwde vorig jaar in Italië.,verb,married,verleden tijd van trouwen,4
+1774,opties,,We hebben verschillende opties.,noun,options,meervoud van optie,4
+1775,hogere,,Zij volgt een hogere opleiding.,adj,higher,verder naar boven of van meer belang,4
+1776,hing,,De jas hing aan de kapstok.,verb,hung,verleden tijd van hangen,4
+1777,hakken,,Je moet het hout in stukken hakken.,verb/noun,to chop / heels,met een bijl slaan of delen van schoenen,4
+1778,tekort,,Er is een groot tekort aan leraren.,noun/adv,shortage / deficit,te weinig van iets,4
+1779,doorzoeken,,De politie gaat het huis doorzoeken.,verb,to search (through),overal kijken om iets te vinden,4
+1780,handschoenen,,Draag handschoenen tegen de kou.,noun,gloves,bekleding voor de handen,4
+1781,draad,,Ik ben de draad van het verhaal kwijt.,noun,thread / wire,dunne streng materiaal,4
+1782,air,,Zet de airco aan voor wat frisse air.,noun,air / appearance,lucht of een bepaalde uitstraling,4
+1783,diensten,,De online diensten zijn tijdelijk offline.,noun,services,meervoud van dienst,4
+1784,helm,,Draag altijd een helm op de motor.,noun,helmet,beschermend hoofddeksel,4
+1785,eed,,De getuige legde een eed af.,noun,oath,plechtige belofte de waarheid te spreken,4
+1786,timing,,Zijn timing was perfect.,noun,timing,het kiezen van het juiste moment,4
+1787,instappen,,Alle passagiers moeten nu instappen.,verb,to board / get in,een voertuig binnengaan,4
+1788,korporaal,,De korporaal gaf instructies.,noun,corporal,militaire rang,4
+1789,pappie,,"Dag pappie, tot straks!",noun,daddy,troetelnaam voor vader,4
+1790,complete,,Het is een complete verrassing.,adj,complete / total,volledig,4
+1791,bijeen,,De familie kwam bijeen voor het diner.,adv,together / gathered,bij elkaar,4
+1792,uitgevonden,,De gloeilamp werd door Edison uitgevonden.,verb,invented,iets nieuws bedacht,4
+1793,district,,Hij woont in een achtergesteld district.,noun,district,bepaald gebied of wijk,4
+1794,leiders,,De leiders van de landen overleggen.,noun,leaders,mensen die de leiding hebben,4
+1795,speciaals,,Ik heb iets speciaals voor je gekocht.,adj,something special,niet alledaags,4
+1796,lokken,,De bloemen lokken veel bijen.,verb/noun,to lure / locks (hair),aantrekken of haarplukken,4
+1797,congres,,Het medisch congres duurt drie dagen.,noun,congress / convention,grote bijeenkomst van deskundigen,4
+1798,blinde,,De blinde man liep met een stok.,adj/noun,blind (person),iemand die niet kan zien,4
+1799,uitstappen,,U moet bij de volgende halte uitstappen.,verb,to get out / off,een voertuig verlaten,4
+1800,compagnie,,De compagnie trok ten strijde.,noun,company,militaire eenheid of bedrijf,4
+1801,overleed,,Mijn opa overleed op hoge leeftijd.,verb,passed away / died,gestorven (verleden tijd),4
+1802,totale,,De totale kosten vallen mee.,adj,total / entire,volledig,4
+1803,stoute,,Dat was een stoute actie van je.,adj,naughty / bold,ongehoorzaam of dapper,4
+1804,baard,,Hij laat zijn baard groeien.,noun,beard,haar op de kin en wangen,4
+1805,standaard,,Dit is de standaard procedure.,noun/adj,standard,norm of gebruikelijk,4
+1806,kou,,Ik kan niet goed tegen de kou.,noun,cold,lage temperatuur,4
+1807,haren,,Zij heeft lange blonde haren.,noun,hairs,meervoud van haar,4
+1808,schakelen,,Je moet op tijd naar de tweede versnelling schakelen.,verb,to switch / shift,van de ene stand naar de andere gaan,4
+1809,nachtmerries,,Hij heeft vaak last van nachtmerries.,noun,nightmares,meervoud van nachtmerrie,4
+1810,jongedame,,"Kan ik u helpen, jongedame?",noun,young lady,beleefde aanspreekvorm voor een jonge vrouw,4
+1811,gezegend,,Wij voelen ons zeer gezegend.,verb/adj,blessed,geluk hebbend of gewijd,4
+1812,mazzel,,Wat een mazzel dat je die prijs won!,noun,luck / fluke,geluk (informeel),4
+1813,legaal,,Is het downloaden van deze film legaal?,adj,legal,volgens de wet toegestaan,4
+1814,falen,,Iedereen is bang om te falen.,verb/noun,to fail / failure,niet slagen,4
+1815,dog,,"What's up, dog?",noun,dog,hond (Engels) of vriend (slang),4
+1816,coke,,Hij is verslaafd aan coke.,noun,coke / cocaine,cola of cocaïne,4
+1817,serieuze,,Dit is een serieuze zaak.,adj,serious,niet voor de grap,4
+1818,transport,,Het transport van de goederen is vertraagd.,noun,transport,vervoer,4
+1819,tenen,,Hij liep op zijn tenen door de kamer.,noun,toes,uiteinden van de voet,4
+1820,salaris,,Mijn salaris wordt morgen gestort.,noun,salary,geld dat je krijgt voor je werk,4
+1821,offer,,Zij brachten een offer aan de goden.,noun,sacrifice,iets kostbaars weggeven voor een doel,4
+1822,knopen,,Mijn jas heeft zilveren knopen.,noun/verb,buttons / to knot,sluitingen op kleding of touw vastmaken,4
+1823,respecteren,,Je moet de mening van anderen respecteren.,verb,to respect,waardering en ontzag tonen,4
+1824,kwetsbaar,,Oude mensen zijn vaak kwetsbaar.,adj,vulnerable,gemakkelijk te beschadigen,4
+1825,nucleaire,,De dreiging van een nucleaire oorlog.,adj,nuclear,met betrekking tot kernenergie,4
+1826,freak,,Hij is een echte computerfreak.,noun,freak,iemand met een extreme passie of afwijking,4
+1827,slaag,,Hij kreeg een flink pak slaag.,noun/verb,beating / to succeed,klappen of slagen voor iets,4
+1828,bevroren,,De vijver is helemaal bevroren.,verb/adj,frozen,tot ijs geworden,4
+1829,innemen,,Je moet deze medicijnen elke dag innemen.,verb,to take (in) / occupy,inslikken of een plek bezetten,4
+1830,veertien,,Mijn zusje is veertien jaar oud.,num,fourteen,getal na dertien,4
+1831,bedank,,Bedank je opa voor het cadeau.,verb,thank / decline,dankjewel zeggen of ergens voor bedanken,4
+1832,achtervolgen,,De politie gaat de dief achtervolgen.,verb,to chase / pursue,iemand achternagaan,4
+1833,vergunning,,Heb je een vergunning om hier te vissen?,noun,permit / license,officiële toestemming,4
+1834,gij,,Gij zult niet doden.,pron,thou / you,oude vorm van 'jij' of 'u',4
+1835,menigte,,De menigte juichte voor de koning.,noun,crowd,grote groep mensen,4
+1836,herhalen,,Kun je dat nog een keer herhalen?,verb,to repeat,iets nog eens doen of zeggen,4
+1837,stille,,Het was een stille nacht.,adj,quiet / silent,zonder geluid,4
+1838,regelt,,Mijn moeder regelt alles voor het feest.,verb,arranges / regulates,zorgen dat het gebeurt,4
+1839,autoriteiten,,De autoriteiten onderzoeken de zaak.,noun,authorities,de officiële machthebbers,4
+1840,intelligent,,Zij is een zeer intelligente vrouw.,adj,intelligent,verstandig / slim,4
+1841,jood,,Mijn buurman is een vrome jood.,noun,Jew,iemand die het joodse geloof aanhangt,4
+1842,gebeden,,Zijn gebeden zijn verhoord.,noun/verb,prayers / prayed,meervoud van gebed,4
+1843,apen,,Er slingeren apen door de bomen.,noun,monkeys / apes,meervoud van aap,4
+1844,weigert,,Hij weigert zijn bord leeg te eten.,verb,refuses,nee zeggen tegen een opdracht,4
+1845,beroven,,Zij wilden de bank beroven.,verb,to rob,met geweld spullen afnemen,4
+1846,blanken,,Vroeger hadden de blanken meer rechten.,noun,white people,meervoud van blanke,4
+1847,modder,,De auto kwam vast te zitten in de modder.,noun,mud,natte aarde,4
+1848,gewapende,,Het was een gewapende overval.,adj,armed,voorzien van wapens,4
+1849,goedmaken,,Ik wil het graag met je goedmaken.,verb,to make up / compensate,een ruzie beëindigen of schade herstellen,4
+1850,vampiers,,Zij houdt van films over vampiers.,noun,vampires,meervoud van vampier,4
+1851,schuilplaats,,De soldaten zochten een schuilplaats.,noun,hideout / shelter,plek waar je veilig bent,4
+1852,bewaken,,De honden bewaken het terrein.,verb,to guard,toezicht houden op de veiligheid,4
+1853,verbazingwekkend,,Dat is een verbazingwekkend resultaat.,adj,amazing / astonishing,heel erg verrassend,4
+1854,verf,,De verf op de muur is nog nat.,noun,paint,vloeistof om iets een kleur te geven,4
+1855,mode,,Zij volgt de laatste mode.,noun,fashion,wat op dit moment populair is qua kleding,4
+1856,volwassenen,,Deze film is alleen voor volwassenen.,noun,adults,meervoud van volwassene,4
+1857,overdreven,,Dat is een overdreven reactie.,adj/verb,exaggerated,erger of groter gemaakt dan het is,4
+1858,woning,,Hij zoekt een nieuwe woning in Utrecht.,noun,home / dwelling,huis of appartement,4
+1859,agenda,,Zet de afspraak in je agenda.,noun,agenda / diary,boekje voor afspraken of lijst met punten,4
+1860,opsluiten,,De dief werd in een cel opgesloten.,verb,to lock up / imprison,vastzetten in een ruimte,4
+1861,drankjes,,Zullen we wat drankjes bestellen?,noun,drinks,meervoud van drankje,4
+1862,doorstaan,,Zij hebben veel ellende moeten doorstaan.,verb,to endure / withstand,ondergaan en overleven,4
+1863,telefoons,,De nieuwe telefoons zijn erg duur.,noun,phones,meervoud van telefoon,4
+1864,kick,,Parachutespringen geeft een enorme kick.,noun,kick / thrill,gevoel van grote opwinding,4
+1865,lesje,,Ik zal hem eens een lesje leren.,noun,lesson,verkleinwoord van les (vaak figuurlijk),4
+1866,diamant,,Zij draagt een ring met een diamant.,noun,diamond,kostbaar glanzend kristal,4
+1867,stapt,,Hij stapt elke ochtend in de trein.,verb,steps / gets in,een stap zetten of instappen,4
+1868,maatschappij,,We leven in een multiculturele maatschappij.,noun,society / company,samenleving of onderneming,4
+1869,pet,,Hij draagt een pet tegen de zon.,noun,cap,hoofddeksel met een klep,4
+1870,gids,,De gids vertelde veel over de stad.,noun,guide,iemand die anderen rondleidt,4
+1871,ticket,,Heb je je ticket voor het concert al?,noun,ticket,toegangsbewijs,4
+1872,delict,,De politie onderzoekt het delict.,noun,offense / crime,strafbaar feit,4
+1873,schouders,,Hij haalde zijn schouders op.,noun,shoulders,deel van het lichaam tussen nek en armen,4
+1874,revolutie,,De Franse Revolutie veranderde veel.,noun,revolution,grote,4
+1875,verslaafd,,Hij is verslaafd aan computerspelletjes.,adj,addicted,niet meer zonder iets kunnen,4
+1876,cultuur,,Ik ben geïnteresseerd in de Chinese cultuur.,noun,culture,gewoonten en kunst van een volk,4
+1877,besproken,,Het probleem is gisteren besproken.,verb,discussed / booked,over gepraat of gereserveerd,4
+1878,gene,,Ik heb geen gene om dat te vragen.,noun,shame / genes,gevoel van verlegenheid of erfelijk materiaal,4
+1879,revolver,,De cowboy trok zijn revolver.,noun,revolver,soort handvuurwapen,4
+1880,geland,,Het vliegtuig is veilig geland.,verb,landed,op de grond gekomen,4
+1881,staal,,De brug is gemaakt van staal.,noun,steel,sterk metaal,4
+1882,sms,,Ik stuur je wel even een sms.,noun/verb,text message / to text,kort berichtje via de telefoon,4
+1883,broodje,,Zullen we een broodje gezond eten?,noun,sandwich / roll,verkleinwoord van brood,4
+1884,afspreken,,Zullen we voor morgen afspreken?,verb,to meet / agree,een afspraak maken,4
+1885,metaal,,Goud is een kostbaar metaal.,noun,metal,harde,4
+1886,teruggeven,,Je moet het boek weer teruggeven.,verb,to give back / return,weer aan de eigenaar geven,4
+1887,gesneden,,Zij heeft de groenten gesneden.,verb/adj,cut / sliced,in stukken verdeeld met een mes,4
+1888,getroffen,,De stad is door een ramp getroffen.,verb/adj,hit / affected,geraakt door iets vervelends,4
+1889,undercover,,De agent werkt undercover.,adj/adv,undercover,geheim in dienst,4
+1890,bossen,,Er zijn veel bossen in dit gebied.,noun,forests / bunches,meervoud van bos,4
+1891,haak,,Hang je jas aan de haak.,noun,hook,gebogen voorwerp om iets aan te hangen,4
+1892,griet,,Dat is een leuke griet.,noun,girl / lass,meisje (informeel),4
+1893,krijt,,De leraar schrijft met krijt op het bord.,noun,chalk,zachte witte of gekleurde kalk,4
+1894,algemeen,,In het algemeen ben ik tevreden.,adj/adv,general / common,voor iedereen of meestal,4
+1895,actrice,,Zij is een bekende actrice.,noun,actress,vrouw die acteert,4
+1896,redding,,De redding van de drenkeling was op tijd.,noun,rescue / salvation,het uit gevaar halen,4
+1897,legde,,Hij legde de krant op tafel.,verb,put / laid,verleden tijd van leggen,4
+1898,zinloos,,Het is zinloos om te protesteren.,adj,pointless / senseless,zonder nut of betekenis,4
+1899,dertien,,Vrijdag de dertien is een ongeluksdag.,num,thirteen,getal na twaalf,4
+1900,cocaïne,,Hij werd gepakt met een kilo cocaïne.,noun,cocaine,soort harddrug,4
+1901,plots,,Plots begon het hard te regenen.,adv,suddenly,onverwachts,4
+1902,gevolg,,Dat heeft een nadelig gevolg.,noun,consequence / result,resultaat van een handeling,4
+1903,troon,,De koningin zit op de troon.,noun,throne,zetel van een vorst,4
+1904,non,,De non wijdt haar leven aan God.,noun,nun,vrouw in een klooster,4
+1905,klappen,,Het publiek begon hard te klappen.,verb/noun,to clap / blows,handen op elkaar slaan of slagen,4
+1906,zeuren,,"Niet zo zeuren, we zijn er bijna.",verb,to whine / nag,vervelend klagen,4
+1907,smeer,,Smeer een beetje boter op je brood.,verb/noun,to spread / grease,iets uitsmeren of vet spul,4
+1908,voert,,De gids voert ons door de stad.,verb,leads / carries out / feeds,begeleiden,4
+1909,haai,,Pas op voor de haai in het water!,noun,shark,grote roofvis,4
+1910,bouw,,De bouw van de school duurt een jaar.,noun,construction / build,het bouwen of de lichaamsvorm,4
+1911,dodelijke,,Hij liep een dodelijke ziekte op.,adj,deadly / fatal,wat de dood tot gevolg heeft,4
+1912,hoofden,,Ze bogen hun hoofden.,noun,heads / chiefs,meervoud van hoofd,4
+1913,tuig,,Houd op met dat tuig om te gaan.,noun,scum / harness,slecht volk of riemen voor een dier,4
+1914,analyse,,De analyse van de data is klaar.,noun,analysis,grondig onderzoek,4
+1915,uitmaakt,,Het maakt niet uit wat hij zegt.,verb,matters / breaks up,belangrijk zijn of relatie beëindigen,4
+1916,treffen,,Wij treffen elkaar in het park.,verb,to meet / hit,ontmoeten of raken,4
+1917,opereren,,De chirurgen gaan hem opereren.,verb,to operate,een medische ingreep doen,4
+1918,zooi,,Ruim je zooi eens op!,noun,mess / junk,rommel (informeel),4
+1919,accent,,Hij spreekt met een Frans accent.,noun,accent / emphasis,manier van praten of klemtoon,4
+1920,kruipen,,De baby kan al kruipen.,verb,to crawl,op handen en knieën voortbewegen,4
+1921,onderdelen,,Ik heb reserve-onderdelen nodig.,noun,parts / components,meervoud van onderdeel,4
+1922,clown,,De clown maakte de kinderen aan het lachen.,noun,clown,iemand die grappen maakt (circus),4
+1923,marinier,,Hij wil marinier worden bij de marine.,noun,marine,soldaat bij de vloot,4
+1924,weggelopen,,De hond is gisteren weggelopen.,verb,ran away,zonder toestemming vertrokken,4
+1925,depressief,,Hij voelt zich de laatste tijd depressief.,adj,depressed,erg somber en neerslachtig,4
+1926,dumpen,,Gooi je afval niet zomaar te dumpen.,verb,to dump,iets weggooien of een relatie verbreken,4
+1927,handboeien,,De dief kreeg handboeien om.,noun,handcuffs,ijzeren ringen voor de polsen,4
+1928,kabel,,De kabel van de tv is kapot.,noun,cable / wire,dikke draad voor stroom of signaal,4
+1929,buurman,,Mijn buurman is erg vriendelijk.,noun,neighbor (male),man die naast je woont,4
+1930,achterlijk,,Doe niet zo achterlijk!,adj,stupid / retarded,heel erg dom (beledigend),4
+1931,beëindigen,,We moeten dit gesprek nu beëindigen.,verb,to end / terminate,stoppen met iets,4
+1932,tempo,,We moeten het tempo verhogen.,noun,pace / speed,snelheid waarmee iets gebeurt,4
+1933,onbeleefd,,Het is onbeleefd om met je mond vol te praten.,adj,rude / impolite,zonder goede manieren,4
+1934,kameraad,,Hij is mijn beste kameraad.,noun,comrade / buddy,vriend of strijdgenoot,4
+1935,vrouwtje,,Mijn hond is een vrouwtje.,noun,female / little woman,vrouwelijk dier of verkleinvorm vrouw,4
+1936,adviseur,,Hij werkt als financieel adviseur.,noun,advisor,iemand die advies geeft,4
+1937,bruine,,Ik heb een bruine boterham gegeten.,adj,brown,kleur,4
+1938,informant,,De informant gaf de politie een tip.,noun,informant,iemand die in het geheim informatie geeft,4
+1939,bevolking,,De bevolking van de stad groeit.,noun,population,alle mensen die in een gebied wonen,4
+1940,beschaving,,De oude Egyptische beschaving.,noun,civilization,ontwikkelde menselijke samenleving,4
+1941,rechterhand,,Hij is de rechterhand van de baas.,noun,right hand / assistant,belangrijkste helper,4
+1942,roman,,Zij schrijft een spannende roman.,noun,novel,dik leesboek met een verhaal,4
+1943,stort,,De oude muur stort bijna in.,verb/noun,collapses / dump,vallen of plek voor afval,4
+1944,drieën,,We zijn met zijn drieën.,num,three / the three of us,het getal drie,4
+1945,gedicht,,Zij schreef een mooi gedicht.,noun,poem,tekst in een speciale vorm (vaak rijm),4
+1946,opletten,,Je moet goed opletten in de les.,verb,to pay attention,de aandacht ergens bij houden,4
+1947,werkten,,Zij werkten de hele dag buiten.,verb,worked,verleden tijd van werken (meervoud),4
+1948,wodka,,Wil je een glas wodka?,noun,vodka,sterke Russische drank,4
+1949,grappen,,Hij maakt altijd flauwe grappen.,noun,jokes,meervoud van grap,4
+1950,zonsopgang,,We keken samen naar de zonsopgang.,noun,sunrise,moment dat de zon opkomt,4
+1951,beschouw,,Ik beschouw hem als mijn broer.,verb,consider / regard,zien als / vinden,4
+1952,ziekenboeg,,Hij moet een paar dagen naar de ziekenboeg.,noun,infirmary / sick bay,ruimte voor zieken (vaak op een schip),4
+1953,reageerde,,Zij reageerde heel enthousiast.,verb,reacted / responded,verleden tijd van reageren,4
+1954,bedanken,,Ik wil je hartelijk bedanken.,verb,to thank / decline,dankjewel zeggen,4
+1955,verblijven,,Wij verblijven in een mooi hotel.,verb,to stay / reside,ergens tijdelijk zijn,4
+1956,vervangen,,Je moet de batterijen vervangen.,verb,to replace,het ene voor het andere wisselen,4
+1957,verleden,,Dat is een verhaal uit het verleden.,noun/adj,past,de tijd die geweest is,4
+1958,maling,,Hij heeft overal maling aan.,noun,mockery / indifference,iets niet serieus nemen of malen,4
+1959,schatje,,"Kom eens hier, mijn schatje.",noun,darling / sweetheart,troetelnaam voor een geliefde,4
+1960,verliezen,,Wij willen de wedstrijd niet verliezen.,verb,to lose,niet winnen of kwijtraken,4
+1961,rechter,,De rechter deed een uitspraak.,noun,judge,persoon die rechtspreekt,4
+1962,gebruikte,,Hij gebruikte mijn pen.,verb,used,verleden tijd van gebruiken,4
+1963,verdiende,,Zij verdiende een goede beloning.,verb,earned / deserved,krijgen waar je recht op hebt,4
+1964,pakketje,,Er is een pakketje voor u bezorgd.,noun,parcel / package,klein pakje,4
+1965,vuilnis,,Zet de vuilnis buiten.,noun,garbage / trash,afval,4
+1966,moeilijker,,Dit examen is veel moeilijker.,adj,harder / more difficult,minder makkelijk,4
+1967,ontbijt,,Wat wil je voor het ontbijt?,noun/verb,breakfast / to have breakfast,de eerste maaltijd van de dag,4
+1968,repareren,,Kun je mijn fiets repareren?,verb,to repair / fix,weer maken wat kapot is,4
+1969,aanvallen,,De vijand gaat de stad aanvallen.,verb/noun,to attack / attacks,geweld gebruiken tegen iets,4
+1970,mislukt,,Het experiment is helaas mislukt.,verb/adj,failed,niet gelukt,4
+1971,waarschuw,,Ik waarschuw je voor de laatste keer.,verb,warn,laten weten dat er gevaar is,4
+1972,voorstel,,Dat is een interessant voorstel.,noun,proposal / suggestion,plan dat je aan anderen voorlegt,4
+1973,gewoonlijk,,Gewoonlijk sta ik om zeven uur op.,adv,usually / normally,meestal,4
+1974,alcohol,,Hij drinkt nooit alcohol.,noun,alcohol,bedwelmende stof in dranken,4
+1975,verstopte,,Hij verstopte zich achter de boom.,verb,hid / clogged,iets onzichtbaar maken of blokkeren,4
+1976,begeleiden,,De docent gaat de student begeleiden.,verb,to accompany / guide,iemand helpen of meegaan,4
+1977,reageer,,Reageer niet zo boos.,verb,react / respond,iets terugdoen of zeggen,4
+1978,mevrouwtje,,"Luister eens goed, mevrouwtje.",noun,little lady,verkleinvorm van mevrouw (soms neerbuigend),4
+1979,beloof,,Ik beloof dat ik er zal zijn.,verb,promise,zeggen dat je iets zeker zult doen,4
+1980,overleven,,We moeten deze koude nacht overleven.,verb,to survive,in leven blijven,4
+1981,leegte,,Ik voel een grote leegte vanbinnen.,noun,emptiness / void,toestand van leeg zijn,4
+1982,scheiding,,Zijn ouders liggen in een scheiding.,noun,divorce / separation,het uit elkaar gaan,4
+1983,schieten,,Je moet op het doel schieten.,verb,to shoot,een wapen afvuren of een bal trappen,4
+1984,vlag,,De vlag hangt halfstok.,noun,flag,stuk doek als symbool van een land,4
+1985,eindigde,,De film eindigde heel droevig.,verb,ended,verleden tijd van eindigen,4
+1986,overtreding,,Dat was een zware overtreding.,noun,offense / foul,het breken van een regel,4
+1987,ontsnapt,,De tijger is uit de kooi ontsnapt.,verb,escaped,vrijgekomen uit gevangenschap,4
+1988,getuige,,Hij was getuige van het ongeluk.,noun,witness,iemand die iets heeft gezien,4
+1989,tegenstelling,,Dat is een grote tegenstelling.,noun,contrast / opposition,iets dat precies het omgekeerde is,4
+1990,gelovig,,Mijn oma is erg gelovig.,adj,religious / devout,in een god gelovend,4
+1991,verbonden,,De computers zijn met elkaar verbonden.,verb/adj,connected / linked,aan elkaar vastgemaakt,4
+1992,overtuiging,,Hij spreekt met veel overtuiging.,noun,conviction / belief,vast geloof in iets,4
+1993,pomp,,De pomp van de vijver is kapot.,noun/verb,pump / to pump,apparaat om vloeistof te verplaatsen,4
+1994,vuil,,Mijn handen zijn erg vuil.,adj/noun,dirty / dirt,vies,4
+1995,kussens,,Ik wil graag twee kussens in bed.,noun,pillows / cushions,meervoud van kussen,4
+1996,emotionele,,Dat was een emotionele gebeurtenis.,adj,emotional,met veel gevoel,4
+1997,rechterkant,,Hij zit aan de rechterkant.,noun,right side,de kant van de rechterhand,4
+1998,leidt,,De weg leidt naar het bos.,verb,leads / suffers,de weg wijzen of lijden (lijdt),4
+1999,begraven,,De hond is in de tuin begraven.,verb/adj,buried,onder de grond gelegd,4
+2000,verhuizen,,Wij gaan volgende maand verhuizen.,verb,to move (house),in een ander huis gaan wonen,4
+2001,bestrijden,,We moeten de ziekte bestrijden.,verb,to fight / combat,vechten tegen iets,4
+2002,neem,,Neem je je brood mee?,verb,take,pakken en meevoeren,4
+2003,staten,,De Verenigde Staten van Amerika.,noun,states,meervoud van staat,4
+2004,pijntje,,Hij heeft altijd wel ergens een pijntje.,noun,twinge / minor pain,kleine pijn,4
+2005,panty,,Zij draagt een zwarte panty.,noun,pantyhose / tights,nauwsluitend kledingstuk voor de benen,4
+2006,beledigen,,Ik wilde je echt niet beledigen.,verb,to insult / offend,iets zeggen dat de ander kwetst,4
+2007,verliezer,,De verliezer moet de afwas doen.,noun,loser,iemand die niet heeft gewonnen,4
+2008,overval,,De overval op de bank was gepland.,noun,robbery / hold-up,aanval om iets te stelen,4
+2009,overtuigen,,Ik kan hem niet overtuigen.,verb,to convince / persuade,zorgen dat iemand je gelooft,4
+2010,handtekening,,Zet hier uw handtekening.,noun,signature,eigen naam in eigen handschrift,4
+2011,mensenrechten,,Hij vecht voor de mensenrechten.,noun,human rights,rechten die ieder mens heeft,4
+2012,stelt,,Wat stelt dit schilderij voor?,verb,proposes / represents,zeggen of betekenen,4
+2013,overleven,,Kunnen planten overleven zonder water?,verb,to survive,in leven blijven,4
+2014,ontsnapping,,De ontsnapping uit de gevangenis mislukte.,noun,escape,het wegkomen uit gevangenschap,4
+2015,uitgaan,,Zullen we vanavond gezellig uitgaan?,verb,to go out / extinguish,naar cafÃ© of bioscoop gaan,4
+2016,vergeeft,,Zij vergeeft hem zijn fouten.,verb,forgives,niet meer boos zijn om een fout,4
+2017,gerecht,,Wat is je favoriete gerecht?,noun,dish / court,klaargemaakt eten of de rechtbank,4
+2018,uitzicht,,Vanaf de berg heb je een mooi uitzicht.,noun,view / outlook,wat je kunt zien vanuit een plek,4
+2019,bediende,,De bediende bracht de drankjes.,noun,servant / attendant,iemand die anderen helpt in het huishouden,4
+2020,onderzoekers,,De onderzoekers vonden een oplossing.,noun,researchers,meervoud van onderzoeker,4
+2021,verlaten,,Hij voelt zich door iedereen verlaten.,verb/adj,to leave / abandoned,weggaan of eenzaam,4
+2022,overtuigd,,Ik ben ervan overtuigd dat het lukt.,verb/adj,convinced,zeker weten,4
+2023,vliegtuigen,,Er vliegen veel vliegtuigen over.,noun,airplanes,meervoud van vliegtuig,4
+2024,bedreiging,,Dat is een bedreiging voor de vrede.,noun,threat,gevaar dat iemand iets naars doet,4
+2025,voorbereiding,,De voorbereiding op het feest kost tijd.,noun,preparation,het vooraf regelen,4
+2026,negeren,,Je moet dat lawaai gewoon negeren.,verb,to ignore,ergens geen aandacht aan besteden,4
+2027,strafblad,,Hij heeft een zwaar strafblad.,noun,criminal record,lijst met gepleegde misdaden,4
+2028,aanval,,De aanval werd afgeslagen.,noun,attack,daad van geweld,4
+2029,verdwijnen,,De goochelaar liet het konijn verdwijnen.,verb,to disappear,onzichtbaar worden of weggaan,4
+2030,zuster,,De zuster geeft hem een injectie.,noun,nurse / sister,verpleegster of familie van een vrouw,4
+2031,verdiend,,Hij heeft een vakantie verdiend.,verb/adj,earned / deserved,verleden deelwoord van verdienen,4
+2032,ontsnappen,,De dief probeerde te ontsnappen.,verb,to escape,wegkomen uit een dichte ruimte,4
+2033,uitgelegd,,De meester heeft de som uitgelegd.,verb,explained,duidelijk gemaakt,4
+2034,slachtoffers,,Er vielen veel slachtoffers bij de ramp.,noun,victims,mensen die lijden door een gebeurtenis,4
+2035,tegenstanders,,Zijn tegenstanders waren erg sterk.,noun,opponents,mensen die tegen hem streden,4
+2036,behandeling,,De medische behandeling duurde lang.,noun,treatment,zorg door een dokter of omgang,4
+2037,verraden,,Hij heeft zijn beste vriend verraden.,verb,to betray,geheimen verklappen of ontrouw zijn,4
+2038,schuldig,,De jury bevond hem schuldig.,adj,guilty,verantwoordelijk voor een fout,4
+2039,verbergen,,Waarom wil je dat voor mij verbergen?,verb,to hide,onzichtbaar maken of geheimhouden,4
+2040,toestemming,,Heb je toestemming om hier te zijn?,noun,permission / consent,goedkeuring om iets te doen,4
+2041,beschermt,,Deze jas beschermt tegen de regen.,verb,protects,veilig houden,4
+2042,beledigd,,Hij reageerde erg beledigd.,verb/adj,insulted / offended,gekrenkt,4
+2043,vriendelijk,,Zij is een erg vriendelijke vrouw.,adj,friendly / kind,aardig en behulpzaam,4
+2044,verliezen,,Je moet je geduld niet verliezen.,verb,to lose,kwijtraken of niet winnen,4
+2045,vrijheid,,Vrijheid is een groot goed.,noun,freedom / liberty,toestand dat je kunt gaan en staan,4
+2046,overleven,,De weinige overlevenden werden gered.,verb,to survive,in leven blijven,4
+2047,vermoedelijk,,Hij is vermoedelijk al onderweg.,adv/adj,presumably / probable,waarschijnlijk,4
+2048,vervangen,,De kapotte lamp moet worden vervangen.,verb,to replace,vernieuwen door een ander exemplaar,4
+2049,belangstelling,,Hij heeft veel belangstelling voor kunst.,noun,interest,aandacht voor iets,4
+2050,verliep,,De vergadering verliep rustig.,verb,passed / expired,gaan op een bepaalde manier of eindigen,4
+2051,toevallig,,Ik kwam hem toevallig tegen.,adj/adv,coincidentally / by chance,zonder dat het gepland was,4
+2052,verleden,,In het verleden was alles anders.,noun,past,de tijd die geweest is,4
+2053,uitgebreid,,Zij gaven een uitgebreid verslag.,adj/verb,extensive / expanded,met veel details of groter gemaakt,4
+2054,verdedigen,,Hij kan zichzelf goed verdedigen.,verb,to defend,beschermen tegen een aanval,4
+2055,verlangen,,Ik heb een groot verlangen naar huis.,noun/verb,longing / desire,iets heel graag willen,4
+2056,verklaard,,De oorlog werd officieel verklaard.,verb/adj,declared / explained,duidelijk gemaakt of officieel gezegd,4
+2057,vermoorden,,Ze wilden de koning vermoorden.,verb,to murder,iemand opzettelijk doden,4
+2058,verbazing,,Tot mijn verbazing was hij er al.,noun,amazement / surprise,verwondering,4
+2059,behandelen,,Je moet iedereen met respect behandelen.,verb,to treat,omgaan met mensen of voorwerpen,4
+2060,uitspraak,,De rechter deed een uitspraak.,noun,verdict / pronunciation,beslissing of manier van spreken,4
+2061,gelegenheid,,Bij de eerste de beste gelegenheid.,noun,opportunity / occasion,geschikte kans of moment,4
+2062,vernietigen,,De bom kan de hele stad vernietigen.,verb,to destroy,totaal kapotmaken,4
+2063,overtuigd,,Hij was ervan overtuigd dat hij gelijk had.,verb/adj,convinced,zeker weten,4
+2064,overeenkomst,,Zij tekenden een schriftelijke overeenkomst.,noun,agreement / resemblance,afspraak of gelijkenis,4
+2065,uitvoering,,De uitvoering van het toneelstuk was goed.,noun,performance / execution,het doen van een taak of optreden,4
+2066,voorzitter,,De voorzitter opende de vergadering.,noun,chairman / president,leider van een bijeenkomst of club,4
+2067,voorwaarden,,Je moet aan de voorwaarden voldoen.,noun,conditions,eisen waar je je aan moet houden,4
+2068,behoefte,,Ik heb behoefte aan vakantie.,noun,need / desire,iets wat je nodig hebt of wilt,4
+2069,onderhandelingen,,De onderhandelingen duurden uren.,noun,negotiations,gesprekken om tot een afspraak te komen,4
+2070,verantwoordelijkheid,,Hij neemt de volledige verantwoordelijkheid.,noun,responsibility,plicht om voor iets te zorgen,4
+2071,beschikbaar,,Is er nog een kamer beschikbaar?,adj,available,vrij om te gebruiken of te krijgen,4
+2072,voorzorgsmaatregelen,,Neem de nodige voorzorgsmaatregelen.,noun,precautions,iets wat je vooraf doet tegen gevaar,4
+2073,omstandigheden,,Onder deze omstandigheden kan ik niet werken.,noun,circumstances,de situatie waarin iets gebeurt,4
+2074,verzekering,,Heb je een goede verzekering?,noun,insurance,overeenkomst tegen financiële schade,4
+2075,uitzondering,,Hij maakte een uitzondering voor mij.,noun,exception,geval waarin een regel niet geldt,4
+2076,vooruitgang,,Er is veel vooruitgang geboekt.,noun,progress,verbetering of ontwikkeling,4
+2077,overwinning,,De overwinning werd groots gevierd.,noun,victory,het winnen van een strijd of spel,4
+2078,verplichting,,Dat is een wettelijke verplichting.,noun,obligation / duty,iets wat je moet doen,4
+2079,uitnodiging,,Ik heb een uitnodiging voor het feest.,noun,invitation,vraag om ergens bij te zijn,4
+2080,voorzieningen,,De medische voorzieningen zijn goed.,noun,facilities / provisions,middelen die beschikbaar zijn,4
+2081,onderbreken,,Mag ik je even onderbreken?,verb,to interrupt,stoppen met waar je mee bezig bent,4
+2082,overeenstemming,,Zij zijn in volledige overeenstemming.,noun,agreement / accordance,het met elkaar eens zijn,4
+2083,beperkingen,,Er gelden strenge beperkingen.,noun,restrictions / limitations,grenzen die aan iets gesteld worden,4
+2084,vernietiging,,De vernietiging van het milieu.,noun,destruction,het totaal kapotmaken van iets,4
+2085,uitwisseling,,Er vond een uitwisseling van studenten plaats.,noun,exchange,het ruilen van dingen of personen,4
+2086,ondersteuning,,Hij kreeg veel ondersteuning van zijn vrienden.,noun,support,hulp of bijstand,4
+2087,voorbereid,,Ik ben goed voorbereid op het examen.,verb/adj,prepared,klaar voor wat er komt,4
+2088,verontschuldiging,,Ik aanvaard je verontschuldiging.,noun,apology / excuse,spijtbetuiging voor een fout,4
+2089,uitdaging,,Dat is een sportieve uitdaging.,noun,challenge,moeilijke taak die je wilt doen,4
+2090,onderhoud,,De auto heeft onderhoud nodig.,noun,maintenance / conversation,zorg om iets goed te houden of gesprek,4
+2091,overtuigend,,Zijn argumenten waren erg overtuigend.,adj,convincing,zorgend dat anderen het geloven,4
+2092,verdediging,,Zijn verdediging was erg zwak.,noun,defense,bescherming of pleidooi bij de rechter,4
+2093,overweging,,Ik neem je voorstel in overweging.,noun,consideration,het erover nadenken,4
+2094,behandeling,,Zij ondergaat een behandeling in het ziekenhuis.,noun,treatment,zorg door een dokter of omgang,4
+2095,onderwerpen,,We hebben verschillende onderwerpen besproken.,noun/verb,subjects / to subject,zaken waarover gepraat wordt,4
+2096,overtuigen,,Ik probeer hem ervan te overtuigen.,verb,to convince,zorgen dat iemand je gelooft,4
+2097,veronderstelling,,Dat is een onjuiste veronderstelling.,noun,assumption,iets waarvan je denkt dat het zo is,4
+2098,overeenkomen,,Zij kunnen niet met elkaar overeenkomen.,verb,to agree / correspond,hetzelfde vinden of gelijk zijn,4
+2099,overgebleven,,Er is nog veel eten overgebleven.,verb/adj,leftover,wat nog over is,4
+2100,uitgelegd,,Hij heeft de regels nogmaals uitgelegd.,verb,explained,duidelijk gemaakt,4
+2101,overbodig,,Die informatie is geheel overbodig.,adj,superfluous / redundant,meer dan nodig,4
+2102,verandering,,Er komt een grote verandering aan.,noun,change,het anders worden van iets,4
+2103,uitstellen,,We moeten de afspraak uitstellen.,verb,to postpone / delay,naar een later tijdstip verschuiven,4
+2104,overtuigd,,Ik ben ervan overtuigd dat zij liegt.,verb/adj,convinced,zeker weten,4
+2105,uitstekend,,Dat heb je uitstekend gedaan!,adj/adv,excellent,heel erg goed,4
+2106,onderzoeken,,De politie gaat de zaak onderzoeken.,verb/noun,to investigate / studies,nauwkeurig bekijken hoe het zit,4
+2107,overzicht,,Ik heb geen overzicht meer over mijn werk.,noun,overview,duidelijk beeld van het geheel,4
+2108,uitgeput,,Na de wedstrijd was ik totaal uitgeput.,adj/verb,exhausted,heel erg moe,4
+2109,verklaring,,Hij legde een valse verklaring af.,noun,explanation / statement,uitleg of officieel bericht,4
+2110,verantwoordelijk,,Jij bent verantwoordelijk voor je eigen daden.,adj,responsible,verantwoording moeten afleggen,4
+2111,overlijden,,Het overlijden van zijn vader was een schok.,noun/verb,death / to die,het sterven,4
+2112,uitstappen,,Bij de volgende halte moeten we uitstappen.,verb,to get out / off,een voertuig verlaten,4
+2113,overwegen,,Ik moet nog even overwegen of ik meega.,verb,to consider,erover nadenken wat je zult doen,4
+2114,onderhandelen,,Je kunt met hem over de prijs onderhandelen.,verb,to negotiate,praten om tot een afspraak te komen,4
+2115,overnemen,,Mag ik het werk van je overnemen?,verb,to take over,de taak van een ander krijgen,4
+2116,uitmaken,,Het kan me niet uitmaken wat ze zeggen.,verb,to matter / break up,belangrijk zijn of relatie beëindigen,4
+2117,vernietigd,,De bewijzen zijn vernietigd.,verb,destroyed,totaal kapotgemaakt,4
+2118,bevolking,,De bevolking protesteert tegen de wet.,noun,population,de mensen die in een land/stad wonen,4
+2119,uitnodigen,,Ik wil je graag uitnodigen voor mijn verjaardag.,verb,to invite,vragen om te komen,4
+2120,overkomen,,Dat is me nog nooit overkomen.,verb,to happen to / come across,gebeuren met iemand,4
+2121,ondersteunen,,Wij ondersteunen dit goede doel.,verb,to support,helpen of bijstaan,4
+2122,uitvinden,,Edison ging de gloeilamp uitvinden.,verb,to invent,iets nieuws bedenken,4
+2123,overtuiging,,Zij heeft een sterke religieuze overtuiging.,noun,conviction / belief,vast geloof in iets,4
+2124,behandelt,,Deze film behandelt een moeilijk onderwerp.,verb,treats / covers,gaan over of verzorgen,4
+2125,overdragen,,Hij gaat zijn taken overdragen.,verb,to transfer / hand over,aan iemand anders geven,4
+2126,uitgebreid,,Wij hebben uitgebreid over het probleem gepraat.,adj/verb,extensive / expanded,met veel details,4
+2127,vertoning,,Dat was een vreemde vertoning.,noun,display / performance,het laten zien van iets,4
+2128,besluit,,Ik heb het besluit genomen om te stoppen.,noun,decision,beslissing,4
+2129,uitgekozen,,Zij is uitgekozen als de winnares.,verb/adj,chosen / selected,gekozen uit een groep,4
+2130,besparen,,We moeten op de kosten besparen.,verb,to save / spare,minder verbruiken of uitgeven,4
+2131,oversteken,,Kijk goed uit bij het oversteken van de straat.,verb,to cross,naar de overkant gaan,4
+2132,besmetting,,Er is een grote kans op besmetting.,noun,infection / contamination,het overbrengen van een ziekte,4
+2133,bevestigen,,Kunt u uw afspraak nog even bevestigen?,verb,to confirm,zeggen dat iets zo is of vastmaken,4
+2134,vreesde,,Hij vreesde voor zijn leven.,verb,feared,verleden tijd van vrezen,4
+2135,betreffen,,Deze regels betreffen alle leerlingen.,verb,to concern / relate to,gaan over of betrekking hebben op,4
+2136,bevrijding,,De bevrijding van het land werd gevierd.,noun,liberation / release,het vrij worden,4
+2137,beschadigen,,Pas op dat je de tafel niet gaat beschadigen.,verb,to damage,kapotmaken (niet helemaal),4
+2138,vermijden,,Je moet die drukke weg vermijden.,verb,to avoid,zorgen dat je er niet mee te maken krijgt,4
+2139,ontstaan,,Er is een groot misverstand ontstaan.,verb/noun,to arise / origin,beginnen te bestaan,4
+2140,bevinden,,De sleutels bevinden zich in de tas.,verb,to be located / find oneself,op een plek zijn,4
+2141,vermoeden,,Ik heb het vermoeden dat hij liegt.,verb/noun,to suspect / suspicion,denken dat iets zo is,4
+2142,bezoekt,,De koning bezoekt het nieuwe ziekenhuis.,verb,visits,langsgaan bij iemand of een plek,4
+2143,vondst,,De archeoloog deed een belangrijke vondst.,noun,find / discovery,iets wat gevonden is,4
+2144,voertuig,,Dit voertuig rijdt op elektriciteit.,noun,vehicle,middel om mee te rijden,4
+2145,bezorgd,,Ik ben erg bezorgd om haar gezondheid.,adj/verb,worried / delivered,ongerust of thuisgebracht,4
+2146,bezocht,,Hij heeft gisteren zijn oma bezocht.,verb,visited,verleden tijd van bezoeken,4
+2147,creëren,,We moeten een nieuwe strategie creëren.,verb,to create,iets nieuws maken of ontwerpen,4
+2148,heroïne,,Hij is verslaafd aan heroïne.,noun,heroin,een vorm van harddrugs,4
+2149,officiële,,Ik wacht op de officiële uitslag.,adj,official,volgens de regels van de autoriteit,4
+2150,financiële,,Zij hebben financiële problemen.,adj,financial,wat met geld te maken heeft,4
+2151,cocaïne,,Er werd veel cocaïne gevonden.,noun,cocaine,een vorm van harddrugs,4
+2152,beëindigen,,We moeten dit gesprek nu beëindigen.,verb,to end / terminate,stoppen met iets,4
+2153,drieën,,We zijn met zijn drieën.,num,three / the three of us,het getal drie (met personen),4
+2154,werelden,,Er zijn twee verschillende werelden.,noun,worlds,meervoud van wereld,4
+2155,stoer,,Wat een stoere auto!,adj,tough / cool,moedig of indrukwekkend,4
+2156,november,,In november wordt het kouder.,noun,November,de elfde maand van het jaar,4
+2157,aankan,,Ik hoop dat hij dit werk aankan.,verb,can handle,in staat zijn iets te doen,4
+2158,getest,,Het nieuwe medicijn is uitgebreid getest.,verb/adj,tested,gecontroleerd of het werkt,4
+2159,vanwaar,,Vanwaar deze plotselinge verandering?,adv,from where / why,waarvandaan of om welke reden,4
+2160,toespraak,,De burgemeester hield een toespraak.,noun,speech,een formeel verhaal voor een groep,4
+2161,harten,,Zij veroverde de harten van het publiek.,noun,hearts,meervoud van hart,4
+2162,tijdstip,,Op welk tijdstip spreken we af?,noun,time / moment,een bepaald punt in de tijd,4
+2163,bewaakt,,Het gebouw wordt dag en nacht bewaakt.,verb/adj,guarded,onder toezicht voor de veiligheid,4
+2164,kap,,De kap van de auto is kapot.,noun/verb,hood / cap / to chop,bedekking of het omhakken van bomen,4
+2165,aanvaard,,Hij heeft het aanbod aanvaard.,verb,accepted,iets aannemen of accepteren,4
+2166,weduwe,,Zij is sinds vorig jaar weduwe.,noun,widow,vrouw van wie de echtgenoot is overleden,4
+2167,koeien,,De koeien staan in de wei.,noun,cows,meervoud van koe,4
+2168,nagels,,Zij lakt haar nagels rood.,noun,nails,hoornachtige plaatjes op vingers/tenen of spijkers,4
+2169,zielige,,Wat een zielige vertoning.,adj,pitiful / sad,waard om medelijden mee te hebben,4
+2170,uitzending,,De uitzending begint om acht uur.,noun,broadcast / mission,programma op radio/tv of het wegsturen,4
+2171,opsporen,,De politie probeert de dader op te sporen.,verb,to track down,zoeken tot je iets vindt,4
+2172,wijsheid,,Met de jaren komt de wijsheid.,noun,wisdom,het hebben van veel kennis en inzicht,4
+2173,voorstelling,,De voorstelling was indrukwekkend.,noun,performance / show / idea,optreden of het beeld dat je ergens bij hebt,4
+2174,neukt,,Dat is een vulgair woord.,verb,fucks,vulgair woord voor geslachtsgemeenschap hebben,4
+2175,hoeveelheid,,Er ligt een grote hoeveelheid sneeuw.,noun,amount / quantity,de mate waarin iets er is,4
+2176,dankje,,Dankje voor de hulp.,interj,thank you,informele bedanking,4
+2177,vallei,,De rivier stroomt door de vallei.,noun,valley,dal tussen bergen of heuvels,4
+2178,zussen,,Zij heeft drie zussen.,noun,sisters,meervoud van zus,4
+2179,testament,,Hij heeft alles in zijn testament gezet.,noun,will / testament,officieel document over erfenis,4
+2180,codes,,Je moet de geheime codes invoeren.,noun,codes,meervoud van code,4
+2181,strategie,,Wat is onze strategie voor de wedstrijd?,noun,strategy,plan om een doel te bereiken,4
+2182,heden,,Tot op het heden is er niets bekend.,noun/adv,present / today,deze tijd,4
+2183,opstand,,Het volk kwam in opstand.,noun,rebellion / revolt,verzet tegen het gezag,4
+2184,poten,,De hond heeft modder aan zijn poten.,noun,paws / legs,benen van een dier of meubels,4
+2185,puinhoop,,Na het feest was het een puinhoop.,noun,mess / shambles,grote rommel,4
+2186,verschijnen,,Zijn nieuwe boek zal morgen verschijnen.,verb,to appear / be published,zichtbaar worden of uitkomen,4
+2187,zesde,,Dit is de zesde keer dat ik bel.,num,sixth,rangtelwoord voor zes,4
+2188,afzetten,,Wil je me bij de bushalte afzetten?,verb,to drop off / swindle / amputate,iemand ergens brengen of bedriegen,4
+2189,parkeerplaats,,Er is geen vrije parkeerplaats meer.,noun,parking spot / lot,plek om je auto te laten staan,4
+2190,wisselen,,Ik wil graag geld wisselen.,verb,to exchange / change,het ene voor het andere ruilen,4
+2191,vreugde,,De overwinning zorgde voor grote vreugde.,noun,joy / delight,gevoel van blijdschap,4
+2192,poesje,,Wat een lief klein poesje.,noun,pussycat / pussy,verkleinwoord voor poes of vulgair voor vagina,4
+2193,bestand,,Ik kan dit bestand niet openen.,noun/adj,file / resistant,computerdocument of bestand tegen iets zijn,4
+2194,verhouding,,De verhouding tussen prijs en kwaliteit.,noun,ratio / relationship / affair,relatie of onderlinge maat,4
+2195,originele,,Dat is een originele oplossing.,adj,original,oorspronkelijk of uniek,4
+2196,foute,,Dat was de foute beslissing.,adj,wrong / incorrect,niet goed,4
+2197,hetgeen,,Dat is precies hetgeen ik bedoel.,pron,which / that which,wat (formeel),4
+2198,massa,,Er was een grote massa mensen op de been.,noun,mass / crowd,grote hoeveelheid of groep,4
+2199,figuur,,Zij heeft een slank figuur.,noun,figure / shape / character,lichaamsvorm of persoon in een verhaal,4
+2200,natie,,De koning sprak de natie toe.,noun,nation,volk of staat,4
+2201,verrassen,,Ik wil mijn moeder verrassen.,verb,to surprise,iets onverwachts doen voor iemand,4
+2202,plank,,Het boek staat op de bovenste plank.,noun,shelf / board,plat stuk hout,4
+2203,verbroken,,De verbinding werd plotseling verbroken.,verb/adj,broken / severed,niet langer verbonden,4
+2204,typisch,,Dat is weer typisch iets voor hem.,adj/adv,typical,kenmerkend voor iemand of iets,4
+2205,streng,,De leraar is erg streng.,adj,strict / severe,houdt zich strak aan de regels,4
+2206,scholen,,Er zijn veel goede scholen in deze stad.,noun,schools,meervoud van school,4
+2207,liefst,,Ik ga het liefst vanavond al.,adv,preferably,bij voorkeur,4
+2208,respecteer,,Ik respecteer je besluit.,verb,respect,waardering hebben voor (gebiedende wijs),4
+2209,activiteiten,,Er zijn veel activiteiten gepland.,noun,activities,meervoud van activiteit,4
+2210,gestudeerd,,Hij heeft medicijnen gestudeerd.,verb,studied,onderwijs gevolgd na de middelbare school,4
+2211,noodzakelijk,,Een paspoort is noodzakelijk.,adj,necessary,onmisbaar / nodig,4
+2212,keken,,Zij keken naar de zonsondergang.,verb,looked / watched,verleden tijd van kijken (meervoud),4
+2213,belasting,,Ik moet voor mei belasting betalen.,noun,tax / load,geld voor de overheid of zwaarte,4
+2214,weddenschap,,Ik heb de weddenschap gewonnen.,noun,bet / wager,afspraak om geld bij juiste voorspelling,4
+2215,krijger,,De krijger vocht dapper.,noun,warrior,iemand die vecht in een oorlog,4
+2216,alhoewel,,"Ik kom, alhoewel ik weinig tijd heb.",conj,although,ook al / hoewel,4
+2217,apparatuur,,De medische apparatuur is erg duur.,noun,equipment / appliances,verzameling apparaten,4
+2218,boeien,,Die film kon me niet boeien.,verb/noun,to interest / handcuffs,interesseren of handboeien,4
+2219,voorraad,,We hebben nog een grote voorraad.,noun,stock / supply,hoeveelheid die je bewaart,4
+2220,geil,,Dat is een informele term.,adj,horny,seksueel opgewonden,4
+2221,zestien,,Mijn broertje is zestien jaar.,num,sixteen,getal na vijftien,4
+2222,product,,Dit is een biologisch product.,noun,product,iets wat gemaakt of geteeld is,4
+2223,nest,,De vogel bouwt een nest.,noun,nest,bouwsel van een vogel voor eieren,4
+2224,wagens,,Er stonden veel wagens op de parkeerplaats.,noun,cars / wagons,meervoud van wagen,4
+2225,functie,,Wat is jouw functie in dit bedrijf?,noun,function / position,taak of rol,4
+2226,heilig,,Dit is een heilige plek.,adj,holy / sacred,gewijd aan God of zeer bijzonder,4
+2227,handdoek,,Droog je af met een schone handdoek.,noun,towel,doek om je mee af te drogen,4
+2228,muis,,De kat achtervolgt de muis.,noun,mouse,klein knaagdier of computeronderdeel,4
+2229,succesvol,,De lancering was zeer succesvol.,adj,successful,met veel succes,4
+2230,idiote,,Stop met die idiote grappen.,adj,idiotic / stupid,heel erg dom,4
+2231,elektrische,,Zij rijdt in een elektrische auto.,adj,electrical,werkend op elektriciteit,4
+2232,opgezet,,Er is een nieuw onderzoek opgezet.,verb/adj,set up / mounted,begonnen of (van dieren) geprepareerd,4
+2233,diploma,,Zij heeft haar diploma gehaald.,noun,diploma / degree,officieel bewijs van een opleiding,4
+2234,springt,,De hond springt over het hek.,verb,jumps,omhoog of vooruit bewegen,4
+2235,cd,,Ik luister nog vaak naar een cd.,noun,CD,compact disc voor muziek of data,4
+2236,aantrekken,,Je moet een warme jas aantrekken.,verb,to put on / attract,kleding aan doen of naar je toe trekken,4
+2237,gehoopt,,Ik had op beter nieuws gehoopt.,verb,hoped,verleden deelwoord van hopen,4
+2238,eis,,Dat is een onredelijke eis.,noun,demand / requirement,iets wat beslist moet gebeuren,4
+2239,banken,,De banken zijn op zaterdag gesloten.,noun,banks / couches,meervoud van bank,4
+2240,bemoeien,,Je moet je er niet mee bemoeien.,verb,to interfere / meddle,je mengen in zaken van anderen,4
+2241,hierna,,Wat gaan we hierna doen?,adv,after this,na dit moment of deze gebeurtenis,4
+2242,examen,,Zij is gezakt voor haar examen.,noun,exam,toets aan het einde van een opleiding,4
+2243,zelden,,Ik zie hem zelden.,adv,rarely / seldom,bijna nooit,4
+2244,balans,,Je moet de balans weten te vinden.,noun,balance,evenwicht,4
+2245,verbeteren,,Je kunt je cijfers nog verbeteren.,verb,to improve,beter maken,4
+2246,sparen,,Ik wil geld sparen voor een reis.,verb,to save,geld opzij leggen of ontzien,4
+2247,hersteld,,Hij is weer volledig hersteld.,verb/adj,recovered / repaired,weer gezond of gemaakt,4
+2248,geel,,De zonnebloem is geel.,adj/noun,yellow,kleur van de zon,4
+2249,zwarten,,Er zijn veel zwarten in die regio.,noun,black people,mensen met een donkere huidskleur,4
+2250,extreem,,Het weer was extreem koud.,adj/adv,extreme / extremely,heel erg / buitengewoon,4
+2251,bishop,,Bishop is een Engelse achternaam.,noun,bishop,bisschop (Engels) of eigennaam,4
+2252,republiek,,Frankrijk is een republiek.,noun,republic,staat met een gekozen staatshoofd,4
+2253,blonde,,Zij heeft lang blonde haar.,adj,blonde,geelkleurig (haar),4
+2254,nutteloos,,Het is nutteloos om te wachten.,adj,useless,zonder nut,4
+2255,professionele,,Zij geeft professionele hulp.,adj,professional,door een vakman of deskundige,4
+2256,verzin,,Verzin eens een goede smois.,verb,invent / make up,iets bedenken (gebiedende wijs),4
+2257,schok,,Het nieuws was een grote schok.,noun,shock / jolt,plotselinge heftige schrik of beweging,4
+2258,schrik,,Ik schrok me een hoedje.,noun,fright / scare,plotselinge angst,4
+2259,alvast,,Ik ga alvast naar huis.,adv,already / in the meantime,voordat iets anders gebeurt,4
+2260,boem,,"Boem, daar viel de vaas.",interj,bang,geluid van een klap of val,4
+2261,spieren,,Hij traint zijn spieren in de sportschool.,noun,muscles,meervoud van spier,4
+2262,record,,Hij heeft het wereldrecord verbroken.,noun,record,de beste prestatie ooit,4
+2263,loser,,Doe niet zo als een loser.,noun,loser,iemand die altijd verliest (beledigend),4
+2264,drijven,,Hout blijft op water drijven.,verb,to float / drive,op vloeistof blijven liggen of voortstuwen,4
+2265,verberg,,Verberg je gezicht niet.,verb,hide,onzichtbaar maken (gebiedende wijs),4
+2266,opgevallen,,Het is me niet opgevallen.,verb,noticed,de aandacht getrokken,4
+2267,nakijken,,Wil je mijn huiswerk nakijken?,verb,to check / look after,controleren op fouten of nakijken,4
+2268,prioriteit,,Veiligheid heeft onze prioriteit.,noun,priority,iets wat voorrang krijgt,4
+2269,onderschat,,Je moet hem niet onderschatten.,verb,underestimate,denken dat iemand minder kan dan echt,4
+2270,rondje,,Zullen we een rondje lopen?,noun,round / lap / drink,een cirkel of een drankje voor de groep,4
+2271,ego,,Hij heeft een erg groot ego.,noun,ego,het beeld dat je van jezelf hebt,4
+2272,beker,,Wie heeft de gouden beker gewonnen?,noun,cup / trophy,drinkvat of prijs,4
+2273,professioneel,,Hij pakt het heel professioneel aan.,adj/adv,professional,vakkundig,4
+2274,winkelcentrum,,Het winkelcentrum is op zondag open.,noun,shopping mall,gebouw met veel winkels bij elkaar,4
+2275,verzekeren,,Ik wil mijn auto verzekeren.,verb,to insure / assure,tegen schade indekken of beloven,4
+2276,beleid,,De regering voert een streng beleid.,noun,policy,manier van besturen of handelen,4
+2277,genoten,,Wij hebben van de vakantie genoten.,verb,enjoyed,plezier hebben gehad van iets,4
+2278,vee,,De boer heeft veel vee.,noun,livestock / cattle,dieren die voor het nut gehouden worden,4
+2279,vergif,,Sommige slangen hebben dodelijk vergif.,noun,poison / venom,stof die schadelijk of dodelijk is,4
+2280,gastheer,,Onze gastheer was erg vriendelijk.,noun,host,man die gasten ontvangt,4
+2281,wachtwoord,,Voer uw geheime wachtwoord in.,noun,password,geheim woord om toegang te krijgen,4
+2282,stam,,De boom heeft een dikke stam.,noun,trunk / tribe,deel van een boom of een volksgroep,4
+2283,ongeval,,Er is een ernstig ongeval gebeurd.,noun,accident,ongeluk,4
+2284,leve,,Leve de koning!,interj,long live,uitroep van heil of geluk,4
+2285,achternaam,,Wat is je achternaam?,noun,surname / last name,familienaam,4
+2286,voorafging,,De gebeurtenis die hieraan voorafging.,verb,preceded,vÃ³Ã³r iets anders gebeuren,4
+2287,vrijwillig,,Hij deed het werk vrijwillig.,adj/adv,voluntary,zonder dat het moet,4
+2288,duim,,Hij stak zijn duim omhoog.,noun,thumb,de dikste vinger,4
+2289,stiekem,,Hij deed het stiekem.,adj/adv,secretly / sneaky,zonder dat anderen het zien,4
+2290,instinct,,Dieren handelen vaak op instinct.,noun,instinct,aangeboren gevoel om iets te doen,4
+2291,vereerd,,Ik voel me zeer vereerd.,verb/adj,honored,met veel ontzag en respect behandeld,4
+2292,vergelijken,,Je kunt die twee niet vergelijken.,verb,to compare,kijken naar de verschillen en overeenkomsten,4
+2293,verdere,,Ik heb geen verdere vragen.,adj,further,wat nog volgt,4
+2294,weetje,,Dat is een leuk weetje.,noun,fact / fun fact,klein feitje,4
+2295,cola,,Ik wil graag een glas cola.,noun,cola,donkere frisdrank,4
+2296,bod,,Zij deed een hoog bod op het huis.,noun,bid / offer,bedrag dat je ergens voor wilt betalen,4
+2297,put,,Er zit water in de diepe put.,noun,well / pit / drain,gegraven gat of afvoer,4
+2298,ademhalen,,Je moet rustig ademhalen.,verb,to breathe,lucht in- en uitlaten,4
+2299,vaardigheden,,Hij beschikt over goede vaardigheden.,noun,skills,dingen waar je goed in bent,4
+2300,ontvangt,,Hij ontvangt veel brieven.,verb,receives,krijgen of gasten welkom heten,4
+2301,zeldzaam,,Die vogel is erg zeldzaam.,adj,rare,wat niet vaak voorkomt,4
+2302,database,,Alle gegevens staan in de database.,noun,database,verzameling digitale gegevens,4
+2303,bitch,,Dat is een beledigend woord.,noun,bitch,belediging voor een vrouw (Engels leenwoord),4
+2304,ceremonie,,De ceremonie was erg plechtig.,noun,ceremony,officiële plechtigheid,4
+2305,alibi,,De verdachte heeft een goed alibi.,noun,alibi,bewijs dat je ergens anders was,4
+2306,grootmoeder,,Mijn grootmoeder is tachtig jaar.,noun,grandmother,de moeder van je vader of moeder,4
+2307,zakenman,,Hij is een succesvolle zakenman.,noun,businessman,man die een eigen bedrijf heeft,4
+2308,stadje,,Het is een gezellig klein stadje.,noun,small town,verkleinwoord van stad,4
+2309,charmant,,Wat een charmante man.,adj,charming,innemend / hoffelijk,4
+2310,boekje,,Ik schrijf het in mijn boekje.,noun,booklet,verkleinwoord van boek,4
+2311,misdrijf,,Hij is veroordeeld voor een misdrijf.,noun,crime / felony,strafbaar feit,4
+2312,spider,,Spider is het Engelse woord voor spin.,noun,spider,spin (vaak in namen),4
+2313,checken,,Wil je dat even checken?,verb,to check,controleren,4
+2314,golven,,De golven sloegen tegen de rotsen.,noun/verb,waves / to wave,bewegingen van water of haar,4
+2315,belooft,,Hij belooft dat hij komt.,verb,promises,zeggen dat je iets zeker zult doen,4
+2316,ontsnapte,,De boef ontsnapte uit de gevangenis.,verb,escaped,verleden tijd van ontsnappen,4
+2317,sokken,,Ik heb gaten in mijn sokken.,noun,socks,meervoud van sok,4
+2318,vreemden,,Wij praten niet met vreemden.,noun,strangers,mensen die je niet kent,4
+2319,fascinerend,,Ik vind dat een fascinerend onderwerp.,adj,fascinating,zeer boeiend,4
+2320,vermoed,,Ik vermoed dat hij liegt.,verb,suspect,denken dat iets waarschijnlijk zo is,4
+2321,afhankelijk,,Hij is afhankelijk van hulp.,adj,dependent,niet zonder iets of iemand kunnen,4
+2322,wonderen,,De wereld zit vol wonderen.,noun,wonders / miracles,meervoud van wonder,4
+2323,grof,,Dat was een grove belediging.,adj,coarse / rude / gross,niet fijn of onbeschoft,4
+2324,cash,,Ik heb geen cash bij me.,noun,cash,contant geld,4
+2325,finale,,Wie staat er in de finale?,noun,final,de laatste wedstrijd of ronde,4
+2326,gebakken,,Ik houd van gebakken eieren.,verb/adj,fried / baked,bereid in de pan of oven,4
+2327,schaal,,Leg het fruit op de schaal.,noun,bowl / scale / shell,bak,4
+2328,koppen,,De kranten staan vol grote koppen.,noun/verb,heads / headlines / to head,hoofden of titels,4
+2329,lek,,De band van mijn fiets is lek.,adj/noun,leak / punctured,kapot waardoor lucht/water ontsnapt,4
+2330,technische,,Hij volgt een technische opleiding.,adj,technical,wat met techniek te maken heeft,4
+2331,schijn,,Schijn bedriegt vaak.,noun/verb,appearance / shine,wat zo lijkt maar niet is of licht,4
+2332,teleur,,Stel me niet teleur.,verb/noun,disappoint,onderdeel van teleurstellen,4
+2333,troost,,Zij bood hem troost na het verlies.,noun/verb,comfort / consolation,hulp bij verdriet,4
+2334,earl,,Earl is een Engelse adellijke titel.,noun,earl,graaf (Engelse titel),4
+2335,gestaan,,Ik heb uren in de rij gestaan.,verb,stood,verleden deelwoord van staan,4
+2336,vest,,Ik trek mijn warme vest aan.,noun,cardigan / vest,kledingstuk voor het bovenlichaam,4
+2337,tegelijkertijd,,Je kunt niet twee dingen tegelijkertijd.,adv,simultaneously / at the same time,op hetzelfde moment,4
+2338,treden,,Je moet voorzichtig naar binnen treden.,verb/noun,to step / enter / steps,stappen of treden van een trap,4
+2339,zonsondergang,,We keken naar de zonsondergang.,noun,sunset,moment dat de zon weggaat,4
+2340,afnemen,,De koorts begint gelukkig af te nemen.,verb,to decrease / take away,minder worden of wegnemen,4
+2341,trip,,Zij maken een trip door Amerika.,noun,trip / journey,korte reis of ervaring met drugs,4
+2342,zogenaamde,,Dat is zijn zogenaamde beste vriend.,adj,so-called,wat zo genoemd wordt maar het niet echt is,4
+2343,radar,,Het vliegtuig verscheen op de radar.,noun,radar,apparaat om objecten op afstand te zien,4
+2344,bewijsmateriaal,,De politie heeft nieuw bewijsmateriaal.,noun,evidence,materiaal dat iemands ,4
+2345,oppassen,,Je moet goed oppassen bij het oversteken.,verb,to watch out / babysit,voorzichtig zijn of op kinderen letten,4
+2346,wijk,,Hij woont in een rustige wijk.,noun,neighborhood / district,deel van een stad of dorp,4
+2347,vreemds,,Ik hoorde iets vreemds op zolder.,adj/noun,something strange,iets wat ongewoon is,4
+2348,afleiding,,Ik zoek wat afleiding van mijn werk.,noun,distraction,iets wat de aandacht verzet,4
+2349,ontwikkelen,,Zij gaan een nieuw medicijn ontwikkelen.,verb,to develop,iets laten groeien of ontwerpen,4
+2350,rondlopen,,Hij bleef maar doelloos rondlopen.,verb,to walk around,wandelen zonder vast doel,4
+2351,illegale,,De politie pakte de illegale handel aan.,adj,illegal,tegen de wet,4
+2352,arrest,,De verdachte is onder arrest geplaatst.,noun,arrest / custody,gevangenneming door de politie,4
+2353,gevechten,,Er waren hevige gevechten in de stad.,noun,fights / battles,meervoud van gevecht,4
+2354,moeras,,Pas op dat je niet wegzakt in het moeras.,noun,swamp / marsh,zompig land met veel water,4
+2355,paranoïde,,"Doe niet zo paranoïde, niemand volgt je.",adj,paranoid,overdreven wantrouwig,4
+2356,uitkijken,,Je moet uitkijken voor die auto!,verb,to watch out / look out,voorzichtig zijn of naar buiten kijken,4
+2357,communiceren,,Dolfijnen communiceren via geluiden.,verb,to communicate,informatie uitwisselen,4
+2358,rent,,Zij rent elke ochtend door het park.,verb,runs,snel hardlopen (tegenwoordige tijd),4
+2359,ingebroken,,Er is vannacht bij de buren ingebroken.,verb,broken in,met geweld binnengekomen om te stelen,4
+2360,ge,,Ge hebt gelijk (Vlaams/Brabants).,pron,you,regionale vorm van 'jij' of 'u',4
+2361,zachtjes,,Zij sprak zachtjes tegen de baby.,adv,softly / quietly,met weinig geluid,4
+2362,secretaresse,,De secretaresse maakt de afspraken.,noun,secretary,vrouw die administratief werk doet,4
+2363,stoere,,Hij houdt ervan om stoere verhalen te vertellen.,adj,tough / brave,moedig of indrukwekkend,4
+2364,gelegen,,Het hotel is prachtig gelegen aan zee.,verb/adj,located / convenient,zich op een plek bevinden of goed uitkomen,4
+2365,ham,,Wil je een broodje met kaas of ham?,noun,ham,vlees van de achterbout van een varken,4
+2366,dagelijks,,Ik lees de dagelijkse krant.,adj/adv,daily,elke dag,4
+2367,inwoners,,Amsterdam heeft veel inwoners.,noun,inhabitants,mensen die in een bepaalde plaats wonen,4
+2368,dekmantel,,De winkel diende als dekmantel voor spionage.,noun,cover / front,iets wat dient om de waarheid te verbergen,4
+2369,rozen,,Hij gaf haar een bos rode rozen.,noun,roses,meervoud van roos (bloem),4
+2370,boten,,Er liggen veel boten in de haven.,noun,boats,meervoud van boot,4
+2371,misbruik,,Hij maakt misbruik van zijn macht.,noun/verb,abuse / misuse,verkeerd of slecht gebruik,4
+2372,deken,,Leg een warme deken over je heen.,noun,blanket / dean,dik kleed voor in bed of een kerkelijk leider,4
+2373,aanpassen,,Je moet je gedrag aanpassen.,verb,to adjust / adapt,veranderen om ergens bij te horen,4
+2374,sowieso,,Ik ga sowieso naar het feest.,adv,anyway / in any case,in ieder geval,4
+2375,au,,Au! Dat doet pijn.,interj,ouch,uitroep van pijn,4
+2376,blad,,Het blad van de boom is groen.,noun,leaf / magazine / tray,onderdeel van plant,4
+2377,scheppen,,God zou de wereld hebben geschapen.,verb,to create / shovel,maken of met een schep werken,4
+2378,bekijkt,,Hij bekijkt de foto's heel nauwkeurig.,verb,looks at / examines,iets goed bekijken,4
+2379,zuigen,,De baby ligt op zijn duim te zuigen.,verb,to suck,lucht of vloeistof naar binnen trekken,4
+2380,vergiftigd,,De vijand had de waterbron vergiftigd.,verb/adj,poisoned,voorzien van gif,4
+2381,bezoekers,,Het museum trok veel bezoekers.,noun,visitors,mensen die ergens op bezoek gaan,4
+2382,economie,,De economie groeit dit jaar weer.,noun,economy,systeem van geld en handel,4
+2383,dappere,,De dappere ridder versloeg de draak.,adj,brave / courageous,moedig,4
+2384,linker,,Mijn linker schoen zit te strak.,adj,left,aan de kant van je hart,4
+2385,ontwerp,,Dat is een heel modern ontwerp.,noun/verb,design / draft,plan voor hoe iets eruit moet zien,4
+2386,lijnen,,Zij is aan het lijnen om af te vallen.,noun/verb,lines / dieting,strepen of minder eten,4
+2387,saus,,Ik wil graag extra saus bij mijn friet.,noun,sauce,vloeibare toevoeging bij het eten,4
+2388,uurtje,,Ik ben over een uurtje weer terug.,noun,hour (little),verkleinwoord van uur,4
+2389,special,,Dat was een tv-special over de natuur.,noun/adj,special,bijzonder programma of afwijkend,4
+2390,praktisch,,Dat is een praktische oplossing.,adj/adv,practical / virtually,handig in het gebruik of bijna,4
+2391,gigantische,,Zij hebben een gigantische fout gemaakt.,adj,gigantic / huge,heel erg groot,4
+2392,luchtmacht,,Hij werkt als piloot bij de luchtmacht.,noun,air force,militairen die vechten in de lucht,4
+2393,uitleg,,Ik begrijp de uitleg van de leraar niet.,noun,explanation,woorden waarmee je iets duidelijk maakt,4
+2394,kalmeren,,Je moet proberen hem te kalmeren.,verb,to calm down,rustig worden of maken,4
+2395,academie,,Zij studeert aan de kunstacademie.,noun,academy,school voor hoger onderwijs,4
+2396,bestanden,,Je moet je bestanden goed opslaan.,noun,files,digitale documenten op de computer,4
+2397,spuit,,De dokter gaf hem een spuit.,noun/verb,syringe / to spray,medisch instrument of vloeistof sproeien,4
+2398,united,,Manchester United is een bekende club.,adj,united,verenigd (Engels),4
+2399,wade,,Wade is een Engelse voornaam.,noun,shroud / name,doodskleed of eigennaam,4
+2400,euro,,Dit boek kost twintig euro.,noun,euro,munteenheid van de EU,4
+2401,mysterieuze,,Zij kreeg een mysterieuze brief.,adj,mysterious,raadselachtig,4
+2402,tumor,,De chirurg heeft de tumor verwijderd.,noun,tumor,gezwel in het lichaam,4
+2403,huilt,,De baby huilt omdat hij honger heeft.,verb,cries,tranen laten door verdriet of pijn,4
+2404,huwelijksreis,,Zij gaan op huwelijksreis naar Bali.,noun,honeymoon,reis direct na de bruiloft,4
+2405,vastgebonden,,De dief had de bewaker vastgebonden.,verb/adj,tied up,vastgemaakt met touw,4
+2406,verlof,,Hij heeft twee weken verlof gekregen.,noun,leave / furlough,vrije tijd van je werk,4
+2407,gevlogen,,De vogel is gisteren weggevlogen.,verb,flown,verleden deelwoord van vliegen,4
+2408,wolven,,De wolven huilen naar de maan.,noun,wolves,meervoud van wolf,4
+2409,enthousiast,,Iedereen was erg enthousiast over het plan.,adj,enthusiastic,vol overgave en plezier,4
+2410,shock,,Het ongeluk bracht hem in een shock.,noun,shock,toestand van medische of emotionele verwarring,4
+2411,hopeloos,,De situatie ziet er hopeloos uit.,adj,hopeless,zonder hoop op verbetering,4
+2412,insecten,,Ik heb een hekel aan vliegende insecten.,noun,insects,meervoud van insect,4
+2413,monsieur,,"Oui, monsieur.",noun,mister / sir,Frans voor meneer,4
+2414,gegroet,,"Gegroet, mijn waarde vriend.",interj,greetings,formele groet,4
+2415,spraken,,Zij spraken urenlang over politiek.,verb,spoke / talked,verleden tijd van spreken (meervoud),4
+2416,schreeuwde,,Hij schreeuwde zo hard hij kon.,verb,shouted / yelled,verleden tijd van schreeuwen,4
+2417,vang,,Ik vang de bal met Ã©Ã©n hand.,verb,catch,iets grijpen dat beweegt,4
+2418,duister,,Het werd al snel erg duister buiten.,adj/noun,dark / obscure,donker of onduidelijk,4
+2419,proficiat,,Proficiat met je verjaardag!,interj,congratulations,felicitatie,4
+2420,mobieltje,,Vergeet je mobieltje niet mee te nemen.,noun,mobile phone,verkleinwoord voor mobiele telefoon,4
+2421,gore,,Wat een gore bende is het hier.,adj,filthy / disgusting,erg vies of smerig,4
+2422,waardeloze,,Dit is een waardeloze film.,adj,worthless / useless,zonder enige waarde,4
+2423,gitaar,,Hij speelt elke avond op zijn gitaar.,noun,guitar,snaarinstrument,4
+2424,stapel,,Er ligt een grote stapel boeken op tafel.,noun/adj,pile / stack / crazy,hoop spullen of gek (stapelgek),4
+2425,verse,,Ik heb verse broodjes gekocht.,adj,fresh,pas gemaakt of geoogst,4
+2426,bedriegen,,Je mag je vrienden nooit bedriegen.,verb,to deceive / cheat,iemand opzettelijk voorliegen,4
+2427,aanraakt,,Zorg dat je het hete ijzer niet aanraakt.,verb,touches,contact maken met je hand of lichaam,4
+2428,ontbreekt,,Er ontbreekt nog Ã©Ã©n puzzelstukje.,verb,is missing / lacks,er niet zijn terwijl het er wel hoort te zijn,4
+2429,jagers,,De jagers liepen door het bos.,noun,hunters,mensen die op dieren jagen,4
+2430,varkens,,De boer houdt honderden varkens.,noun,pigs,meervoud van varken,4
+2431,traceren,,De politie probeert het telefoontje te traceren.,verb,to trace / track,de herkomst van iets uitzoeken,4
+2432,gezonde,,Fruit is onderdeel van een gezonde voeding.,adj,healthy,goed voor het lichaam of niet ziek,4
+2433,schietpartij,,Er was een schietpartij in de stad.,noun,shooting,incident waarbij met wapens wordt geschoten,4
+2434,naald,,Zij haalt de draad door de naald.,noun,needle,dun metalen staafje om mee te naaien,4
+2435,protocol,,Volg altijd het officiële protocol.,noun,protocol,vaste regels voor hoe je iets moet doen,4
+2436,leuks,,Zullen we vanavond iets leuks gaan doen?,adj/noun,something fun,iets wat plezier geeft,4
+2437,tanks,,De tanks reden over het slagveld.,noun,tanks,zware militaire voertuigen of vaten,4
+2438,liter,,Ik heb een liter melk nodig.,noun,liter,maat voor vloeistof,4
+2439,organen,,Zij is een donor voor organen.,noun,organs,meervoud van orgaan (lichaamsdeel),4
+2440,lichte,,Het was maar een lichte blessure.,adj,light / slight,niet zwaar of met veel licht,4
+2441,vernietig,,Vernietig dit bericht direct.,verb,destroy,totaal kapotmaken (gebiedende wijs),4
+2442,smeren,,Je moet je goed insmeren tegen de zon.,verb,to spread / smear / grease,iets uitsmeren over een oppervlak,4
+2443,doelen,,Wij hebben onze doelen bereikt.,noun,goals / targets,dingen die je wilt halen,4
+2444,warmte,,Ik kan niet goed tegen de warmte.,noun,heat / warmth,hoge temperatuur,4
+2445,behandel,,Behandel anderen zoals je zelf behandeld wilt worden.,verb,treat,omgaan met mensen of zaken,4
+2446,voorwaarts,,"Mars, voorwaarts!",adv,forward,naar voren gericht,4
+2447,evacueren,,De bewoners moesten de stad evacueren.,verb,to evacuate,een onveilige plek verlaten,4
+2448,geleend,,Ik heb dit boek van de bieb geleend.,verb,borrowed,iets tijdelijk van iemand gekregen,4
+2449,mille,,Dat kost zeker drie mille.,noun,thousand (euros),informeel voor duizend euro,4
+2450,moois,,Zij heeft iets moois voor me gekocht.,adj/noun,something beautiful,iets wat prachtig is,4
+2451,munt,,Heb je een munt van twee euro?,noun,coin / mint,geldstuk of kruid,4
+2452,mannelijke,,Dat is een mannelijke acteur.,adj,male / masculine,van het mannelijk geslacht,4
+2453,gemeld,,Het ongeval is direct gemeld.,verb,reported,officieel laten weten,4
+2454,kritiek,,Hij kreeg veel kritiek op zijn werk.,noun/adj,criticism / critical,beoordeling of gevaarlijk,4
+2455,geloofd,,Zijn verhaal werd door niemand geloofd.,verb,believed,verleden deelwoord van geloven,4
+2456,olifant,,De olifant heeft een lange slurf.,noun,elephant,groot dier met slurf en slagtanden,4
+2457,handje,,Geef de mevrouw maar een handje.,noun,hand (little),verkleinwoord van hand,4
+2458,terugbellen,,Ik zal je over tien minuten terugbellen.,verb,to call back,opnieuw bellen nadat iemand jou belde,4
+2459,makkie,,Dat examen was een echt makkie.,noun,piece of cake / breeze,iets wat heel makkelijk is,4
+2460,liedjes,,We zongen vrolijke liedjes bij het kampvuur.,noun,songs,meervoud van liedje,4
+2461,oproepen,,De getuige werd door de rechter opgeroepen.,verb,to call / summon / evoke,iemand vragen te komen of herinneringen opwekken,4
+2462,diverse,,Er zijn diverse mogelijkheden.,adj,various / diverse,verschillende,4
+2463,acties,,De supermarkt heeft goede acties deze week.,noun,actions / promotions,handelingen of aanbiedingen,4
+2464,dwerg,,Sneeuwwitje en de zeven dwergen.,noun,dwarf,zeer klein mens of wezen,4
+2465,regelmatig,,Ik ga regelmatig naar de sportschool.,adv/adj,regularly,vaak en met vaste tussenpozen,4
+2466,plaatselijke,,Zij werken bij de plaatselijke bakker.,adj,local,uit de buurt of regio,4
+2467,geroepen,,Ik voel me geroepen om te helpen.,verb,called,verleden deelwoord van roepen,4
+2468,stoot,,Hij gaf een harde stoot tegen de deur.,noun/verb,push / blow / bump,duw of klap,4
+2469,verdragen,,Ik kan die hitte niet verdragen.,verb,to endure / tolerate,iets naars kunnen uithouden,4
+2470,nare,,Dat was een nare ervaring.,adj,nasty / unpleasant,vervelend of naar,4
+2471,elektriciteit,,De elektriciteit is uitgevallen.,noun,electricity,stroom,4
+2472,ruimteschip,,De astronauten stapten in het ruimteschip.,noun,spaceship,vaartuig voor in de ruimte,4
+2473,sloot,,Het kind viel in de diepe sloot.,noun/verb,ditch / closed,smalle watergang of verleden tijd sluiten,4
+2474,hierop,,Zijn reactie hierop was erg fel.,adv,to this / on this,op dit ding of hierover,4
+2475,verwondingen,,De chauffeur had lichte verwondingen.,noun,injuries,beschadigingen aan het lichaam,4
+2476,verre,,Zij maken een verre reis.,adj,far / distant,op grote afstand,4
+2477,honkbal,,In Amerika is honkbal erg populair.,noun,baseball,sport met een knuppel en bal,4
+2478,vreemdeling,,Er stond een vreemdeling voor de deur.,noun,stranger / foreigner,iemand die je niet kent of uit een ander land,4
+2479,afgenomen,,De belangstelling is flink afgenomen.,verb,decreased / taken away,minder geworden of afgepakt,4
+2480,verwerken,,Je moet dit slechte nieuws nog verwerken.,verb,to process / digest,omgaan met emoties of materiaal bewerken,4
+2481,inbraak,,Er was een inbraak in de juwelierszaak.,noun,burglary / break-in,het illegaal binnendringen om te stelen,4
+2482,bonen,,Ik eet graag sperziebonen.,noun,beans,meervoud van boon,4
+2483,scoren,,De spits probeert te scoren.,verb,to score,een punt maken in een spel,4
+2484,litteken,,Hij hield een litteken over aan de operatie.,noun,scar,spoor van een genezen wond,4
+2485,schurk,,De held versloeg de gemene schurk.,noun,villain / rogue,slecht persoon in een verhaal,4
+2486,werking,,Hoe is de werking van dit apparaat?,noun,operation / effect,manier waarop iets werkt of het effect ervan,4
+2487,slangen,,In de jungle leven gevaarlijke slangen.,noun,snakes / hoses,meervoud van slang,4
+2488,kwaliteit,,Dit product is van hoge kwaliteit.,noun,quality,hoe goed of slecht iets is,4
+2489,beseffen,,Zij beseffen niet hoeveel geluk ze hebben.,verb,to realize,iets goed inzien of begrijpen,4
+2490,hot,,Die nieuwe club is helemaal hot.,adj,hot / popular,heet of erg populair,4
+2491,huisje,,Wij hebben een klein huisje in het bos.,noun,cottage / little house,verkleinwoord van huis,4
+2492,yep,,"Yep, dat klopt.",interj,yep,informeel voor ja,4
+2493,bekentenis,,De verdachte legde een volledige bekentenis af.,noun,confession,het toegeven dat je iets gedaan hebt,4
+2494,gezag,,De politie staat voor het openbaar gezag.,noun,authority / power,de macht om beslissingen te nemen,4
+2495,madame,,"Bonjour, madame.",noun,madam / lady,Frans voor mevrouw,4
+2496,bepaalt,,De scheidsrechter bepaalt de regels.,verb,determines / decides,vaststellen of beslissen,4
+2497,platen,,Hij verzamelt oude grammofoonplaten.,noun,records / plates / sheets,grammofoonplaten of platte stukken materiaal,4
+2498,rotsen,,De golven sloegen tegen de rotsen.,noun,rocks / cliffs,meervoud van rots,4
+2499,geobsedeerd,,Hij is geobsedeerd door zijn werk.,verb/adj,obsessed,zo erg in beslag genomen dat het ongezond is,4
+2500,cake,,Zullen we een plakje cake eten?,noun,cake,zoet gebak,4
+2501,toast,,Zij brachten een toast uit op de bruid.,noun/verb,toast,geroosterd brood of een dronk,4
+2502,werknemers,,Het bedrijf heeft honderd werknemers.,noun,employees,mensen die voor een baas werken,4
+2503,executie,,De executie vond plaats in de gevangenis.,noun,execution,uitvoering van een vonnis of taak,4
+2504,realiseer,,Ik realiseer me dat het laat is.,verb,realize,iets inzien (gebiedende wijs of ik-vorm),4
+2505,frequentie,,De zender uitzendt op een hoge frequentie.,noun,frequency,hoe vaak iets gebeurt of trillingsgetal,4
+2506,probleempje,,Er is een klein probleempje met de auto.,noun,little problem,verkleinwoord van probleem,4
+2507,danst,,Zij danst de hele avond.,verb,dances,ritmisch bewegen op muziek,4
+2508,spook,,Ik geloof niet in een spook in dit huis.,noun,ghost,geestverschijning,4
+2509,ertoe,,Zijn gedrag doet er niet toe.,adv,to it / matter,naar dat ding of van belang zijn,4
+2510,reserve,,Heb je een reserve sleutel?,noun/adj,spare / reserve,iets wat je extra bewaart voor nood,4
+2511,blond,,Zij heeft blond haar.,adj,blond,lichtgeel van kleur,4
+2512,ongelijk,,"Je hebt ongelijk, de aarde is rond.",noun/adj,wrong / uneven,het niet bij het juiste eind hebben,4
+2513,maten,,De soldaten waren goede maten van elkaar.,noun,sizes / measures / buddies,meervoud van maat (grootte of vriend),4
+2514,chemische,,Dit is een chemische reactie.,adj,chemical,wat met scheikunde te maken heeft,4
+2515,voortdurend,,Hij klaagt voortdurend over het weer.,adv/adj,constantly,de hele tijd door,4
+2516,vliegende,,"Kijk, daar is een vliegende schotel!",adj,flying,wat vliegt,4
+2517,kalkoen,,Met Kerst eten we vaak kalkoen.,noun,turkey,grote vogel die gegeten wordt,4
+2518,remmen,,Je moet op tijd remmen voor het stoplicht.,verb/noun,brakes / to brake,een voertuig vertragen,4
+2519,doodgaat,,Iedereen is bang dat hij ooit doodgaat.,verb,dies,sterven (tegenwoordige tijd),4
+2520,website,,Bezoek onze website voor meer info.,noun,website,plek op het internet,4
+2521,pil,,Zij vergeet haar pil nooit.,noun,pill,klein medicijn of voorbehoedsmiddel,4
+2522,loyaliteit,,Ik waardeer je loyaliteit aan de club.,noun,loyalty,trouw aan een persoon of groep,4
+2523,letters,,Het woord bestaat uit zes letters.,noun,letters,tekens van het alfabet,4
+2524,nikker,,Dit is een zeer beledigend woord.,noun,nigger,zeer racistisch scheldwoord voor zwarte mensen,4
+2525,hemd,,Hij draagt een wit hemd onder zijn pak.,noun,shirt / undershirt,kledingstuk voor het bovenlichaam,4
+2526,stoelen,,Schuif de stoelen maar aan de tafel.,noun,chairs,meervoud van stoel,4
+2527,racen,,De coureurs racen over het circuit.,verb,to race,zo snel mogelijk rijden,4
+2528,doorgebracht,,We hebben de vakantie in Frankrijk doorgebracht.,verb,spent (time),tijd ergens geweest zijn,4
+2529,luxe,,Zij wonen in een huis vol luxe.,noun/adj,luxury / luxurious,groot comfort en rijkdom,4
+2530,chips,,Ik lust wel een bakje chips.,noun,chips / crisps,gefrituurde aardappelschijfjes,4
+2531,dvd,,Zullen we een dvd bekijken?,noun,DVD,schijfje met film of data,4
+2532,bestuderen,,De wetenschappers bestuderen de planten.,verb,to study / examine,iets heel nauwkeurig bekijken of leren,4
+2533,hieraan,,Wat kunnen we hieraan doen?,adv,to this / of this,aan dit ding of deze zaak,4
+2534,rugzak,,Ik heb al mijn spullen in mijn rugzak.,noun,backpack,tas die je op je rug draagt,4
+2535,ontvang,,Ik ontvang graag een bevestiging.,verb,receive,krijgen (ik-vorm of gebiedende wijs),4
+2536,koffers,,De koffers staan al klaar in de gang.,noun,suitcases / trunks,meervoud van koffer,4
+2537,tiener,,Mijn dochter is nu een tiener.,noun,teenager,iemand tussen de 13 en 19 jaar,4
+2538,hoever,,Hoever is het nog lopen naar de stad?,adv,how far,tot welke afstand of mate,4
+2539,luchthaven,,Schiphol is een grote luchthaven.,noun,airport,terrein voor vliegtuigen,4
+2540,riskant,,Het is riskant om daar 's nachts te lopen.,adj,risky,gevaarlijk,4
+2541,gewoond,,Ik heb tien jaar in Londen gewoond.,verb,lived,ergens je huis hebben gehad,4
+2542,mw.,,"Beste mw. Jansen,",noun,Ms. / Mrs.,afkorting voor mevrouw,4
+2543,hiernaast,,Mijn tante woont hiernaast.,adv,next door / beside this,in het huis ernaast of naast dit ding,4
+2544,achterdeur,,Vergeet de achterdeur niet op slot te doen.,noun,back door,de deur aan de achterkant van een huisschuld aantoont,4
+2545,geschorst,,De leerling is voor een week geschorst.,verb/adj,suspended,tijdelijk niet mogen komen op school of werk,4
+2546,boter,,Ik smeer roomboter op mijn brood.,noun,butter,vet uit melk,4
+2547,stank,,Er hangt een enorme stank in de stal.,noun,stench / smell,erg vieze geur,4
+2548,baantje,,Hij heeft een bijbaantje in de supermarkt.,noun,job (small) / lane,verkleinwoord van baan (werk of rijstrook),4
+2549,tragedie,,Het ongeluk was een vreselijke tragedie.,noun,tragedy,gebeurtenis met een heel droevige afloop,4
+2550,omheen,,Je kunt er niet omheen.,adv/prep,around it,langs de buitenkant van iets,4
+2551,koper,,De ring is gemaakt van puur koper.,noun,copper / buyer,roodbruin metaal of iemand die iets koopt,4
+2552,kenden,,Zij kenden elkaar al van de basisschool.,verb,knew,verleden tijd van kennen (meervoud),4
+2553,invasie,,De invasie van de geallieerden begon in Normandië.,noun,invasion,het binnendringen van een leger,4
+2554,eend,,De eend zwemt in de vijver.,noun,duck,watervogel,4
+2555,vermaak,,Er is genoeg vermaak op de kermis.,noun,entertainment / amusement,plezier of tijdverdrijf,4
+2556,elkaars,,Zij dragen elkaars kleren.,pron,each other's,van de een en de ander,4
+2557,maart,,In maart begint de lente.,noun,March,de derde maand van het jaar,4
+2558,zuiver,,Het is een zuiver geweten.,adj,pure / clean,niet gemengd of eerlijk,4
+2559,gewelddadig,,Het was een gewelddadige overval.,adj,violent,met veel geweld,4
+2560,egoïstisch,,"Denk niet alleen aan jezelf, dat is egoïstisch.",adj,selfish / egoistic,alleen aan je eigen belang denkend,4
+2561,contacten,,Hij heeft veel internationale contacten.,noun,contacts,meervoud van contact,4
+2562,gezworen,,Zij hebben elkaar eeuwige trouw gezworen.,verb,sworn / festered,beloofd met een eed of (van een wond) ontstoken,4
+2563,herrie,,De buren maken veel herrie.,noun,noise / racket,hard en vervelend geluid,4
+2564,wolken,,Er hangen donkere wolken boven de stad.,noun,clouds,meervoud van wolk,4
+2565,vrijgezel,,Hij is al jaren een gelukkige vrijgezel.,noun,bachelor / single person,iemand die geen partner heeft,4
+2566,ongetwijfeld,,Dat is ongetwijfeld de beste keuze.,adv,undoubtedly,zonder enige twijfel,4
+2567,sterkste,,Hij is de sterkste man van de wereld.,adj,strongest,meest sterk,4
+2568,creditcard,,Kan ik hier met een creditcard betalen?,noun,credit card,betaalpas waarmee je achteraf betaalt,4
+2569,verzekerd,,Is je bagage wel goed verzekerd?,verb/adj,insured / assured,gedekt door een verzekering of heel zeker,4
+2570,tand,,Ik moet naar de tandarts voor een gaatje in mijn tand.,noun,tooth,onderdeel van je gebit,4
+2571,bakken,,Zullen we een appeltaart bakken?,verb/noun,to bake / bins,in de oven bereiden of meervoud van bak,4
+2572,zegene,,God zegene u.,verb,bless,vorm van zegenen (vaak religieus),4
+2573,nieuwste,,Heb je de nieuwste iPhone al gezien?,adj,newest / latest,meest nieuw,4
+2574,verkrachting,,De dader werd veroordeeld voor verkrachting.,noun,rape,iemand dwingen tot seks,4
+2575,stoned,,Hij was zo stoned dat hij niet meer kon lopen.,adj,stoned,onder invloed van softdrugs,4
+2576,uiterste,,Zij deed haar uiterste best.,adj/noun,utmost / extreme,het uiterst haalbare of de grens,4
+2577,roos,,Hij gaf haar een rode roos.,noun,rose / dandruff,bloem of schilfers op de hoofdhuid,4
+2578,bijen,,De bijen vliegen van bloem naar bloem.,noun,bees,meervoud van bij,4
+2579,huilde,,Het kind huilde omdat het gevallen was.,verb,cried,verleden tijd van huilen,4
+2580,compliment,,Bedankt voor het mooie compliment.,noun,compliment,vriendelijke opmerking of prijs,4
+2581,jaagt,,De kat jaagt op een muis.,verb,hunts / chases,achtervolgen om te vangen of schrik aanjagen,4
+2582,twijfelen,,Je moet niet te lang twijfelen.,verb,to doubt / hesitate,niet zeker weten wat je moet doen,4
+2583,serveerster,,De serveerster bracht het drinken.,noun,waitress,vrouw die in de horeca bedient,4
+2584,teleurstellen,,Ik wil mijn ouders niet teleurstellen.,verb,to disappoint,niet aan de verwachtingen voldoen,4
+2585,verzamel,,Ik verzamel oude postzegels.,verb,collect,bij elkaar brengen (ik-vorm),4
+2586,tapijt,,Er ligt een zacht tapijt op de vloer.,noun,carpet / rug,vloerbedekking van stof,4
+2587,blut,,"Ik kan niets kopen, ik ben helemaal blut.",adj,broke,zonder geld,4
+2588,verkloot,,Ik heb mijn examen helemaal verkloot.,verb,screwed up / ruined,totaal verpest (vulgair/informeel),4
+2589,vermoorde,,De politie onderzoekt de vermoorde man.,adj/verb,murdered,iemand die door moord om het leven is gekomen,4
+2590,borden,,Zet de borden maar in de vaatwasser.,noun,plates / signs,meervoud van bord,4
+2591,tegemoet,,Hij kwam me op de fiets tegemoet.,adv,towards / to meet,naar iemand toe gaan,4
+2592,nader,,We moeten dit nader onderzoeken.,adj/adv,closer / further,dichterbij of meer in detail,4
+2593,ongewoon,,Het was een ongewoon koude dag.,adj,unusual / uncommon,niet normaal / apart,4
+2594,batterij,,De batterij van mijn telefoon is leeg.,noun,battery,energiebron voor apparaten,4
+2595,liepen,,Wij liepen door het bos.,verb,walked,verleden tijd van lopen (meervoud),4
+2596,voorkant,,De voorkant van het huis is geverfd.,noun,front,de zijde die je het eerst ziet,4
+2597,storing,,Er is een storing op het spoor.,noun,malfunction / failure,onderbreking of fout in een systeem,4
+2598,boksen,,Hij zit al drie jaar op boksen.,verb/noun,boxing / to box,vechtsport met de vuisten,4
+2599,klem,,Mijn vinger zat klem tussen de deur.,adj/adv,stuck / jammed,vastzitten zonder beweging,4
+2600,aflevering,,Heb je de laatste aflevering gezien?,noun,episode,deel van een serie,4
+2601,gezeik,,Ik heb geen zin in dat gezeik.,noun,whining / hassle,gezeur of gedoe (informeel),4
+2602,detail,,Dat is een onbelangrijk detail.,noun,detail,klein onderdeel van een geheel,4
+2603,haaien,,Er zwemmen gevaarlijke haaien in de zee.,noun,sharks,meervoud van haai,4
+2604,verzorgen,,Je moet die wond goed verzorgen.,verb,to take care of / nurse,zorgen voor mens,4
+2605,nichtje,,Mijn nichtje is vandaag jarig.,noun,niece / cousin (female),dochter van je broer/zus of oom/tante,4
+2606,vereist,,Voor deze baan is ervaring vereist.,verb/adj,required,nodig zijn,4
+2607,overhoop,,Alles ligt overhoop in zijn kamer.,adv,in a mess / at odds,in grote wanorde of ruzie hebben,4
+2608,raadsel,,Dat is mij nog steeds een raadsel.,noun,riddle / mystery,moeilijke vraag of iets onduidelijks,4
+2609,zweren,,De ridder moest trouw zweren aan de koning.,verb,to swear / fester,een eed afleggen of ontsteken (wond),4
+2610,weigerde,,Zij weigerde zijn hulp te accepteren.,verb,refused,verleden tijd van weigeren,4
+2611,agressief,,De hond gedraagt zich erg agressief.,adj,aggressive,aanvallend of dreigend,4
+2612,ram,,De ram liep in de wei.,noun/verb,ram / to ram,mannelijk schaap of hard ergens tegenaan botsen,4
+2613,a.u.b.,,"Stilvallen, a.u.b.",interj,please,afkorting voor 'alstublieft',4
+2614,artiest,,Zij is een bekende artiest.,noun,artist / performer,iemand die kunst maakt of optreedt,4
+2615,grootte,,Wat is de grootte van de kamer?,noun,size / magnitude,hoe groot iets is,4
+2616,vrezen,,Wij vrezen dat het gaat regenen.,verb,to fear,bang zijn voor iets,4
+2617,kwijtraken,,Ik wil mijn sleutels niet kwijtraken.,verb,to lose,iets verliezen,4
+2618,eeuwigheid,,Dat wachten duurt een eeuwigheid.,noun,eternity,tijd zonder einde,4
+2619,aas,,De visser deed aas aan zijn haak.,noun,bait / ace,lokaas of de hoogste kaart (aas),4
+2620,lerares,,De lerares legt de som uit.,noun,teacher (female),vrouw die lesgeeft,4
+2621,allergisch,,Ik ben allergisch voor katten.,adj,allergic,overgevoelig voor een bepaalde stof,4
+2622,beveel,,Ik beveel je om te stoppen.,verb,order / command,zeggen dat iemand iets moet doen (ik-vorm),4
+2623,complex,,Dit is een complex probleem.,adj/noun,complex,ingewikkeld of een groep gebouwen,4
+2624,overhalen,,Ik probeer hem te overhalen om mee te gaan.,verb,to persuade / pull over,iemand overtuigen om iets te doen,4
+2625,kappen,,Zij moeten die bomen kappen.,verb/noun,to chop / caps / hoods,omhakken of stoppen (mee kappen),4
+2626,schijnen,,De zon begint weer te schijnen.,verb,to shine / seem,licht geven of lijken,4
+2627,activiteit,,Er is vandaag een leuke activiteit op school.,noun,activity,iets wat je doet,4
+2628,honing,,Ik doe graag honing in mijn thee.,noun,honey,zoete stof gemaakt door bijen,4
+2629,weerstaan,,Ik kon de verleiding niet weerstaan.,verb,to resist,niet toegeven aan iets,4
+2630,grijze,,Hij draagt een grijze broek.,adj,grey,kleur tussen zwart en wit,4
+2631,ongedeerd,,Zij kwamen ongedeerd uit de auto.,adj,unharmed,zonder verwondingen,4
+2632,bol,,De wereld is een grote bol.,noun/adj,sphere / ball / convex,rond voorwerp of naar buiten gebogen,4
+2633,opgehaald,,De pakketjes worden morgen opgehaald.,verb,picked up,verzameld of ergens weggehaald,4
+2634,klim,,Het was een steile klim naar de top.,noun/verb,climb,omhoog gaan,4
+2635,gebeurtenis,,Het was een onvergetelijke gebeurtenis.,noun,event,iets wat plaatsvindt,4
+2636,stout,,De stoute jongen kreeg geen cadeau.,adj,naughty,niet braaf / ongehoorzaam,4
+2637,diagnose,,De arts stelde een duidelijke diagnose.,noun,diagnosis,vaststelling van een ziekte,4
+2638,beschoten,,De auto werd door de politie beschoten.,verb,shot at,met een vuurwapen onder vuur genomen,4
+2639,kudde,,Een grote kudde schapen liep over de heide.,noun,herd / flock,groep dieren,4
+2640,edgar,,Edgar is een klassieke naam.,noun,Edgar,eigennaam,4
+2641,uitstekende,,Zij leverden een uitstekende prestatie.,adj,excellent,heel erg goede,4
+2642,afwachten,,We moeten de uitslag nog even afwachten.,verb,to wait and see,geduldig wachten op wat er komt,4
+2643,bezittingen,,Hij verloor al zijn bezittingen bij de brand.,noun,possessions / belongings,dingen die je eigen zijn,4
+2644,politieman,,De politieman hield de auto aan.,noun,policeman,man die bij de politie werkt,4
+2645,warren,,Warren is een Engelse naam.,noun,Warren,eigennaam,4
+2646,uitrusting,,De bergbeklimmer controleert zijn uitrusting.,noun,equipment / gear,alle spullen die je nodig hebt voor een taak,4
+2647,affaire,,Hij had een geheime affaire met zijn collega.,noun,affair,schandaal of geheime liefdesrelatie,4
+2648,luid,,De muziek stond erg luid.,adj/adv,loud,met veel geluid,4
+2649,banen,,Er zijn veel banen beschikbaar in de techniek.,noun/verb,jobs / paths / to pave,meervoud van baan,4
+2650,aangetrokken,,Ik voel me tot haar aangetrokken.,verb,attracted / put on,naar iemand toegetrokken of kleren aangedaan,4
+2651,knoop,,Er zit een knoop in de draad.,noun,knot / button,verbinding in touw of sluiting van kleding,4
+2652,lachte,,Zij lachte om zijn grap.,verb,laughed,verleden tijd van lachen,4
+2653,besturen,,Het is moeilijk om een schip te besturen.,verb,to drive / steer / govern,richting geven of de leiding hebben,4
+2654,vernield,,De vandalen hebben het bushokje vernield.,verb/adj,destroyed / vandalized,kapotgemaakt,4
+2655,fris,,Na het douchen voel ik me weer fris.,adj,fresh / cool,schoon,4
+2656,basketbal,,Hij houdt van basketbal.,noun,basketball,sport met een bal en een basket,4
+2657,kraken,,De oude trap begon te kraken.,verb,to creak / crack / hack,geluid maken of illegaal binnendringen (huis/computer),4
+2658,afgeleid,,Ik werd afgeleid door het lawaai.,verb/adj,distracted,de aandacht ergens anders op gericht,4
+2659,beschrijven,,Kun je de dader beschrijven?,verb,to describe,vertellen hoe iets of iemand eruitziet,4
+2660,bezeten,,Hij is bezeten door die hobby.,adj/verb,possessed / obsessed,volledig in de macht van iets,4
+2661,klooster,,De monniken leven in een klooster.,noun,monastery / convent,gebouw voor religieuzen,4
+2662,geïdentificeerd,,Het slachtoffer is nog niet geïdentificeerd.,verb,identified,vastgesteld wie iemand is,4
+2663,chinezen,,Wij gaan vanavond bij de chinezen eten.,noun,Chinese people / food,mensen uit China of Chinees eten,4
+2664,terugkeer,,Iedereen wacht op de terugkeer van de held.,noun,return,het weer terugkomen,4
+2665,hamer,,Sla de spijker met een hamer in de muur.,noun,hammer,gereedschap om mee te slaan,4

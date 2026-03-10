@@ -1,7 +1,7 @@
 ﻿Rank,Dutch,Frequency,Context Sentence (Dutch),Word Type,English Translation,Defintion,Grading
-1,ik,7840843,Ik woon in Ierland.,Pronoun,I,De persoon die spreekt of schrijft.,1
-2,je,7242582,Hoe gaat het met je?,Pronoun,you,De persoon tot wie men zich richt.,1
-3,het,5233420,Het is vandaag mooi weer.,Article/Pronoun,the/it,Onzijdig bepaald lidwoord.,1
+1,ik,7840843,Ik woon in Ierland.,Noun (de),I,De persoon die spreekt of schrijft.,1
+2,je,7242582,Hoe gaat het met je?,Noun (de),you,De persoon tot wie men zich richt.,1
+3,het,5233420,Het is vandaag mooi weer.,Noun (het),the/it,Onzijdig bepaald lidwoord.,1
 4,de,5171977,De hond blaft luid.,Article,the,Mannelijk of vrouwelijk bepaald lidwoord.,1
 5,dat,4505789,Ik weet dat niet zeker.,Pronoun/Conjunction,that,Aanwijzend voornaamwoord voor iets verder weg.,1
 6,is,4439481,Zij is mijn beste vriendin.,Verb,is,Vorm van het koppelwerkwoord zijn.,1

@@ -3,419 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dutch Flashcards</title>
+    <title>Dutch Flashcards & Quiz</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: #333;
-            padding: 10px;
-            box-sizing: border-box;
-        }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --error: #c0392b; --text: #333; --border: #e0e0e0; --bg-soft: #f4f7f9; }
         
-        /* Tooltip & Linking Styles */
-        .linked-word {
-            text-decoration: underline dotted #3498db;
-            cursor: help;
-            position: relative;
-            color: inherit;
-        }
-
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #ffffff; color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        
+        /* Enlarged Tooltip */
+        .linked-word { text-decoration: underline dotted var(--accent); cursor: help; position: relative; }
         .linked-word::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #2c3e50;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            width: 240px;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s, transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            pointer-events: none;
-            line-height: 1.4;
-            font-weight: normal;
-            text-align: left;
+            content: attr(data-tooltip); position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 12px; border-radius: 8px; font-size: 0.9rem;
+            white-space: pre-wrap; width: 280px; z-index: 1000; visibility: hidden; opacity: 0; transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.4;
+        }
+        .linked-word:hover::after { visibility: visible; opacity: 1; }
+
+        #flashcard-container, #quiz-container {
+            width: 100%; max-width: 600px; min-height: 380px; 
+            background-color: var(--bg-soft); border: 1px solid var(--border);
+            border-radius: 12px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 30px; text-align: center; position: relative;
         }
 
-        .linked-word:hover::after {
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        /* Info Button & Modal */
-        #info-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-            z-index: 100;
-        }
-        #info-btn:hover { transform: scale(1.1); }
-        #info-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(3px);
-        }
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-            position: relative;
-            text-align: left;
-            line-height: 1.5;
-        }
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: #aaa;
-            font-weight: bold;
-        }
-
-        /* Flashcard Container */
-        #flashcard-container {
-            background-color: white;
-            width: 100%;
-            max-width: 600px;
-            min-height: 400px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 30px 20px;
-            cursor: pointer;
-            user-select: none;
-            box-sizing: border-box;
-            transition: transform 0.1s;
-            position: relative;
-        }
-        #flashcard-container:active { transform: scale(0.99); }
-        
-        .text-audio-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
-        }
-        
-        .audio-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: background-color 0.2s, transform 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .audio-btn:hover { background-color: #f0f4f8; transform: scale(1.1); }
-
-        .word-audio { font-size: 2rem; padding: 10px; }
-        .small-audio { font-size: 1.5rem; padding: 8px; }
-
-        #dutch-word { font-size: 3.5rem; font-weight: bold; color: #2c3e50; margin: 0; }
-        #word-type { font-size: 1.2rem; color: #7f8c8d; font-style: italic; margin: 5px 0 15px 0; }
-        .sentence-row { margin: 0 0 20px 0; }
-        #sentence { font-size: 1.5rem; line-height: 1.4; }
-        
-        .reveal-box {
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .def-box { background-color: #e8f4f8; border: 1px solid #b3e5fc; }
-        #dutch-definition { font-size: 1.3rem; color: #0277bd; text-align: left; flex-grow: 1; }
-        .english-box { background-color: #e8f5e9; border: 1px solid #c8e6c9; justify-content: center; }
-        #english-word { font-weight: bold; font-size: 1.8rem; color: #2e7d32; }
-        
-        #controls-container { display: flex; justify-content: space-between; width: 100%; max-width: 600px; margin-top: 20px; gap: 10px; }
-        button.nav-btn { background-color: #3498db; color: white; border: none; padding: 15px 20px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; flex: 1; }
-        button.nav-btn:disabled { background-color: #bdc3c7; }
-        .status-area { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin-top: 15px; gap: 15px; }
-        .difficulty-controls { display: flex; width: 100%; gap: 5px; justify-content: center; flex-wrap: wrap; }
-        .diff-btn { background-color: #e0e6ed; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; border: 2px solid transparent; }
-        .diff-btn.active { background-color: #9b59b6; color: white; border-color: #8e44ad; }
         .hidden { display: none !important; }
+        .text-audio-row { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        .audio-btn { background: #fff; border: 1px solid var(--border); cursor: pointer; font-size: 1.2rem; padding: 8px; border-radius: 50%; transition: 0.2s; }
+        .audio-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        #dutch-word { font-size: 3.5rem; font-weight: 700; margin: 0; letter-spacing: -1px; }
+        #word-type { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        #sentence { font-size: 1.4rem; line-height: 1.5; margin: 15px 0; color: #444; }
+        
+        .reveal-box { width: 100%; padding: 15px; margin-top: 10px; box-sizing: border-box; }
+        #definition { text-align: center; font-size: 1.05rem; color: #555; font-style: italic; }
+        #english { font-size: 1.8rem; font-weight: 600; color: var(--success); padding-top: 15px; }
 
-        @media (max-width: 600px) {
-            #dutch-word { font-size: 2.5rem; }
-            #sentence { font-size: 1.2rem; }
-        }
+        .nav-btn { background: #fff; color: var(--primary); border: 1px solid var(--border); padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+        .nav-btn:hover { border-color: var(--primary); }
+        #quiz-toggle { position: fixed; top: 20px; right: 20px; background: var(--primary); color: #fff; border: none; z-index: 100; border-radius: 8px; }
+        
+        input[type="text"] { width: 100%; max-width: 350px; padding: 12px; font-size: 1.2rem; border: none; border-bottom: 2px solid var(--border); background: transparent; margin: 20px 0; outline: none; text-align: center; }
+        input[type="text"]:focus { border-bottom-color: var(--accent); }
+        
+        #summary-list { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .summary-item { text-align: left; padding: 10px; border: 1px solid #e0e6ed; font-size: 0.85rem; border-radius: 6px; background: white; }
+        .correct-answer { color: var(--success); font-weight: bold; }
+        .wrong-answer { color: var(--error); text-decoration: line-through; display: block; margin-bottom: 2px; }
+
+        .diff-btn { padding: 8px 16px; border: 1px solid var(--border); background: white; cursor: pointer; border-radius: 4px; font-size: 0.8rem; }
+        .diff-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        #instructions { width: 100%; max-width: 600px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); line-height: 1.6; color: #666; font-size: 0.9rem; }
+        #instructions h3 { font-size: 1rem; color: var(--primary); margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <button id="info-btn" title="About this tool">ℹ️</button>
+    <button id="quiz-toggle" class="nav-btn">Quiz Mode</button>
 
-    <div id="info-modal" class="hidden">
-        <div class="modal-content">
-            <span class="close-btn" id="close-modal">&times;</span>
-            <h2>About This Tool</h2>
-            <p>Master Dutch vocabulary. Hover over dotted-underlined words to see their linked cards!</p>
-        </div>
-    </div>
-
-    <div id="loading">Loading words from GitHub...</div>
+    <div id="loading">Initialising...</div>
 
     <div id="flashcard-container" class="hidden">
+        <div id="word-type">type</div>
         <div class="text-audio-row">
-            <div id="dutch-word">Word</div>
-            <button id="word-audio-btn" class="audio-btn word-audio">🔊</button>
+            <h1 id="dutch-word">Word</h1>
+            <button class="audio-btn" id="audio-word">🔊</button>
         </div>
-        <div id="word-type">(Type)</div>
-        <div class="text-audio-row sentence-row">
-            <div id="sentence">Sentence goes here.</div>
-            <button id="sentence-audio-btn" class="audio-btn small-audio">🔊</button>
+        <div class="text-audio-row">
+            <p id="sentence">Sentence</p>
+            <button class="audio-btn" id="audio-sentence">🔊</button>
         </div>
-        <div id="def-container" class="hidden reveal-box def-box">
-            <div id="dutch-definition">Definition</div>
-            <button id="def-audio-btn" class="audio-btn small-audio">🔊</button>
+        <div id="def-reveal" class="reveal-box hidden"><div id="definition">Definition</div></div>
+        <div id="eng-reveal" class="reveal-box hidden"><div id="english">English</div></div>
+    </div>
+
+    <div id="quiz-container" class="hidden">
+        <div id="quiz-content">
+            <p id="quiz-progress-title" style="font-size: 0.8rem; color: #999;">Question 1 of 10</p>
+            <h1 id="quiz-dutch">Word</h1>
+            <div class="text-audio-row">
+                <p id="quiz-sentence" style="font-style: italic;">Sentence</p>
+                <button class="audio-btn" id="audio-quiz">🔊</button>
+            </div>
+            <input type="text" id="quiz-input" placeholder="Type English translation" autocomplete="off">
         </div>
-        <div id="english-container" class="hidden reveal-box english-box">
-            <div id="english-word">English</div>
+        <div id="quiz-results" class="hidden">
+            <h2 id="final-score"></h2>
+            <div id="summary-list"></div>
+            <div style="margin-top: 30px; text-align: center;">
+                <p style="font-size: 0.8rem; margin-bottom: 10px; font-weight: bold;">Restart Quiz:</p>
+                <div id="quiz-restart-levels" style="display: flex; gap: 8px; justify-content: center;">
+                    <button class="diff-btn" onclick="startQuiz('all')">All</button>
+                    <button class="diff-btn" onclick="startQuiz('1')">Lvl 1</button>
+                    <button class="diff-btn" onclick="startQuiz('2')">Lvl 2</button>
+                    <button class="diff-btn" onclick="startQuiz('3')">Lvl 3</button>
+                    <button class="diff-btn" onclick="startQuiz('4')">Lvl 4</button>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div id="controls-container" class="hidden">
-        <button id="prev-btn" class="nav-btn">&larr; Prev</button>
-        <button id="next-btn" class="nav-btn">Next &rarr;</button>
-    </div>
-    
-    <div class="status-area hidden" id="status-container">
-        <div id="progress"></div>
-        <div class="difficulty-controls">
-            <button class="diff-btn active" data-level="all">All</button>
-            <button class="diff-btn" data-level="1">Lvl 1</button>
-            <button class="diff-btn" data-level="2">Lvl 2</button>
-            <button class="diff-btn" data-level="3">Lvl 3</button>
-            <button class="diff-btn" data-level="4">Lvl 4</button>
+
+    <div id="footer" class="hidden" style="width: 100%; max-width: 600px; margin-top: 20px;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+            <button id="prev-btn" class="nav-btn">Previous</button>
+            <button id="next-btn" class="nav-btn">Next</button>
         </div>
+        <div id="progress" style="text-align: center; margin-bottom: 15px; font-size: 0.85rem;"></div>
+        <div id="level-filters" style="display: flex; justify-content: center; gap: 8px;">
+            <button class="diff-btn active" data-lvl="all">All Words</button>
+            <button class="diff-btn" data-lvl="1">Level 1</button>
+            <button class="diff-btn" data-lvl="2">Level 2</button>
+            <button class="diff-btn" data-lvl="3">Level 3</button>
+            <button class="diff-btn" data-lvl="4">Level 4</button>
+        </div>
+    </div>
+
+    <div id="instructions" class="hidden">
+        <h3>Instructions</h3>
+        <p><strong>Flashcards:</strong> Click anywhere on the card or press Space to reveal the Dutch definition followed by the English translation. Use Arrow keys to navigate.</p>
+        <p><strong>Quiz:</strong> Translate the Dutch word. Results are shown after 10 questions. If a word has multiple meanings or bracketed options, matching any single correct part will count.</p>
+        <p><strong>Background:</strong> Vocabulary is sourced from the OpenSubtitles NL 4000 frequency list. Level 1 contains the 500 most frequent words, progressing through to Level 4 for advanced terms.</p>
     </div>
 
     <script>
         const csvUrl = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/dutchwords.csv';
-        let allFlashcards = [];   
-        let currentDeck = [];     
-        let currentIndex = 0;
-        let currentState = 0;     
+        let allWords = [], currentDeck = [], quizDeck = [], quizAnswers = [];
+        let index = 0, state = 0, quizIndex = 0, isQuiz = false, filter = 'all';
 
-        const elements = {
-            container: document.getElementById('flashcard-container'),
-            word: document.getElementById('dutch-word'),
-            type: document.getElementById('word-type'),
-            sentence: document.getElementById('sentence'),
-            definition: document.getElementById('dutch-definition'),
-            english: document.getElementById('english-word'),
-            defContainer: document.getElementById('def-container'),
-            engContainer: document.getElementById('english-container'),
-            prevBtn: document.getElementById('prev-btn'),
-            nextBtn: document.getElementById('next-btn'),
-            wordAudioBtn: document.getElementById('word-audio-btn'),
-            sentenceAudioBtn: document.getElementById('sentence-audio-btn'),
-            defAudioBtn: document.getElementById('def-audio-btn'),
-            diffBtns: document.querySelectorAll('.diff-btn'),
-            loading: document.getElementById('loading'),
-            controls: document.getElementById('controls-container'),
-            status: document.getElementById('status-container'),
-            progress: document.getElementById('progress'),
-            infoBtn: document.getElementById('info-btn'),
-            infoModal: document.getElementById('info-modal'),
-            closeModalBtn: document.getElementById('close-modal')
-        };
+        async function init() {
+            const res = await fetch(csvUrl);
+            const data = await res.text();
+            const lines = data.trim().split('\n').slice(1);
+            allWords = lines.map((l, i) => {
+                const c = parseCSV(l);
+                return { dutch: c[1], sentence: c[3], type: c[4], english: c[5], definition: c[6] || "", level: (i < 500 ? 1 : i < 1500 ? 2 : i < 2500 ? 3 : 4) };
+            });
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('footer').classList.remove('hidden');
+            document.getElementById('instructions').classList.remove('hidden');
+            applyFilter('all');
+        }
 
-        elements.infoBtn.onclick = (e) => { e.stopPropagation(); elements.infoModal.classList.remove('hidden'); };
-        elements.closeModalBtn.onclick = () => elements.infoModal.classList.add('hidden');
-
-        function shuffleArray(array) {
-            let shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        function parseCSV(t) {
+            let r = [], v = '', q = false;
+            for (let i=0; i<t.length; i++) {
+                if (t[i] === '"' && t[i+1] === '"') { v += '"'; i++; }
+                else if (t[i] === '"') q = !q;
+                else if (t[i] === ',' && !q) { r.push(v.trim()); v = ''; }
+                else v += t[i];
             }
-            return shuffled;
+            r.push(v.trim()); return r;
         }
 
-        function calculateDifficulty(index, wordText) {
-            let base = 4;
-            if (index < 500) base = 1;
-            else if (index < 1500) base = 2;
-            else if (index < 2500) base = 3;
-            let len = wordText.length;
-            if (len <= 4) base -= 1;
-            else if (len >= 10) base += 1;
-            return Math.max(1, Math.min(4, base));
-        }
-
-        function playDutchAudio(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'nl-NL';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function parseCSVLine(text) {
-            let ret = [], inQuote = false, value = '';
-            for (let i = 0; i < text.length; i++) {
-                let ch = text[i];
-                if (inQuote) {
-                    if (ch === '"') {
-                        if (i + 1 < text.length && text[i + 1] === '"') { value += '"'; i++; } 
-                        else inQuote = false;
-                    } else value += ch;
-                } else {
-                    if (ch === '"') inQuote = true;
-                    else if (ch === ',') { ret.push(value.trim()); value = ''; }
-                    else value += ch;
+        function enrich(t) {
+            if (!t) return "";
+            return t.split(/(\s+|[.,!?;:()"])/).map(p => {
+                const c = p.toLowerCase().replace(/[^a-zà-ü]/g, '');
+                // Don't link the word to itself
+                if (c.length < 2 || (currentDeck[index] && c === currentDeck[index].dutch.toLowerCase())) return p;
+                
+                const m = allWords.find(w => w.dutch.toLowerCase() === c);
+                if (m) {
+                    // Larger tooltip content including the Dutch example sentence
+                    const tooltipContent = `Word: ${m.dutch}\nType: ${m.type}\nDef: ${m.definition}\n\nExample: ${m.sentence}`;
+                    return `<span class="linked-word" data-tooltip="${tooltipContent}">${p}</span>`;
                 }
-            }
-            ret.push(value.trim());
-            return ret;
-        }
-
-        function enrichText(text) {
-            if (!text) return "";
-            const parts = text.split(/(\s+|[.,!?;:()"])/);
-            
-            return parts.map(part => {
-                const clean = part.toLowerCase().replace(/[^a-zà-ü]/g, '');
-                if (clean.length < 2) return part;
-                if (clean === currentDeck[currentIndex].dutch.toLowerCase()) return part;
-
-                const match = allFlashcards.find(c => c.dutch.toLowerCase() === clean);
-                if (match) {
-                    const tooltip = `Word: ${match.dutch}\nType: ${match.type}\nSentence: ${match.sentence}\nDef: ${match.definition}`;
-                    return `<span class="linked-word" data-tooltip="${tooltip}">${part}</span>`;
-                }
-                return part;
+                return p;
             }).join('');
         }
 
-        async function fetchCSV() {
-            try {
-                const response = await fetch(csvUrl);
-                const textData = await response.text();
-                const lines = textData.trim().split('\n');
-                let wordCount = 0;
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const columns = parseCSVLine(lines[i]);
-                    // Restoring your exact requested indices from original code
-                    if (columns.length >= 6) {
-                        const dutchWord = columns[1];
-                        allFlashcards.push({
-                            dutch: dutchWord,
-                            sentence: columns[3],
-                            type: columns[4],
-                            english: columns[5],
-                            definition: columns[6] || '',
-                            difficulty: calculateDifficulty(wordCount, dutchWord)
-                        });
-                        wordCount++;
-                    }
-                }
-                
-                elements.loading.classList.add('hidden');
-                elements.container.classList.remove('hidden');
-                elements.controls.classList.remove('hidden');
-                elements.status.classList.remove('hidden');
-                loadDifficultySet('all');
-            } catch (error) { console.error('Error:', error); }
+        function showCard() {
+            const w = currentDeck[index];
+            document.getElementById('flashcard-container').classList.remove('hidden');
+            document.getElementById('dutch-word').textContent = w.dutch;
+            document.getElementById('word-type').textContent = w.type;
+            document.getElementById('sentence').innerHTML = enrich(w.sentence);
+            document.getElementById('definition').innerHTML = enrich(w.definition);
+            document.getElementById('english').textContent = w.english;
+            document.getElementById('def-reveal').classList.add('hidden');
+            document.getElementById('eng-reveal').classList.add('hidden');
+            document.getElementById('progress').textContent = `Word ${index+1} of ${currentDeck.length} • Level ${w.level}`;
+            state = 0;
         }
 
-        function loadDifficultySet(level) {
-            elements.diffBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.level == level));
-            let filtered = (level === 'all') ? [...allFlashcards] : allFlashcards.filter(card => card.difficulty === parseInt(level));
-            currentDeck = shuffleArray(filtered);
-            currentIndex = 0;
-            updateCard();
+        function applyFilter(lvl) {
+            filter = lvl;
+            currentDeck = (lvl === 'all' ? [...allWords] : allWords.filter(w => w.level == lvl)).sort(() => Math.random() - 0.5);
+            index = 0; if(!isQuiz) showCard();
         }
 
-        function updateCard() {
-            if (!currentDeck[currentIndex]) return;
-            const card = currentDeck[currentIndex];
-            
-            elements.word.textContent = card.dutch;
-            elements.type.textContent = `(${card.type})`;
-            
-            elements.sentence.innerHTML = enrichText(card.sentence);
-            elements.definition.innerHTML = card.definition ? enrichText(card.definition) : "(No Dutch definition provided)";
-            
-            elements.english.textContent = card.english;
-            elements.defContainer.classList.add('hidden');
-            elements.engContainer.classList.add('hidden');
-            currentState = 0;
-            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length} (Lvl ${card.difficulty})`;
-            elements.prevBtn.disabled = currentIndex === 0;
-            elements.nextBtn.disabled = currentIndex === currentDeck.length - 1;
+        function startQuiz(lvl = filter) {
+            filter = lvl;
+            quizDeck = (lvl === 'all' ? [...allWords] : allWords.filter(w => w.level == lvl)).sort(() => Math.random() - 0.5).slice(0, 10);
+            quizIndex = 0; quizAnswers = [];
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-content').classList.remove('hidden');
+            showQuizQ();
         }
 
-        function advanceState() {
-            if (currentState === 0) { elements.defContainer.classList.remove('hidden'); currentState = 1; } 
-            else if (currentState === 1) { elements.engContainer.classList.remove('hidden'); currentState = 2; } 
-            else if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); }
+        function showQuizQ() {
+            const w = quizDeck[quizIndex];
+            document.getElementById('quiz-progress-title').textContent = `Question ${quizIndex + 1} of 10 • Level ${w.level}`;
+            document.getElementById('quiz-dutch').textContent = w.dutch;
+            document.getElementById('quiz-sentence').textContent = w.sentence;
+            document.getElementById('quiz-input').value = '';
+            document.getElementById('quiz-input').focus();
         }
 
-        elements.container.onclick = advanceState;
-        elements.nextBtn.onclick = (e) => { e.stopPropagation(); if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); } };
-        elements.prevBtn.onclick = (e) => { e.stopPropagation(); if (currentIndex > 0) { currentIndex--; updateCard(); } };
-        elements.diffBtns.forEach(btn => btn.onclick = () => loadDifficultySet(btn.dataset.level));
+        function processQuizStep() {
+            quizAnswers.push(document.getElementById('quiz-input').value.trim());
+            quizIndex++;
+            if (quizIndex < 10) showQuizQ(); else showQuizFinalSummary();
+        }
 
-        elements.wordAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].dutch); };
-        elements.sentenceAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].sentence); };
-        elements.defAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].definition); };
+        function showQuizFinalSummary() {
+            document.getElementById('quiz-content').classList.add('hidden');
+            const summaryList = document.getElementById('summary-list');
+            summaryList.innerHTML = '';
+            let score = 0;
 
-        document.onkeydown = (e) => {
-            if (e.code === 'Space') { e.preventDefault(); advanceState(); }
-            else if (e.code === 'ArrowRight') { if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); } }
-            else if (e.code === 'ArrowLeft') { if (currentIndex > 0) { currentIndex--; updateCard(); } }
+            quizDeck.forEach((word, i) => {
+                const user = quizAnswers[i].toLowerCase().trim();
+                const cleanCorrect = word.english.toLowerCase().replace(/[()]/g, '');
+                const validOptions = cleanCorrect.split(/[\/\[\],]/).map(s => s.trim().replace(/^to\s+/, '')).filter(s => s !== "");
+                const isCorrect = validOptions.some(opt => user === opt || user === `to ${opt}`);
+                if (isCorrect) score++;
+
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `
+                    <div style="font-weight:bold; margin-bottom:4px;">${word.dutch}</div>
+                    ${isCorrect ? `<span class="correct-answer">${quizAnswers[i] || '--'}</span>` : 
+                    `<span class="wrong-answer">${quizAnswers[i] || '--'}</span><span class="correct-answer">${word.english}</span>`}
+                `;
+                summaryList.appendChild(div);
+            });
+            document.getElementById('final-score').textContent = `Final Score: ${score} / 10`;
+            document.getElementById('quiz-results').classList.remove('hidden');
+        }
+
+        function play(t) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t); u.lang = 'nl-NL';
+            window.speechSynthesis.speak(u);
+        }
+
+        document.getElementById('flashcard-container').onclick = (e) => {
+            if (e.target.closest('.audio-btn') || e.target.closest('.linked-word')) return;
+            if (state === 0) { document.getElementById('def-reveal').classList.remove('hidden'); state = 1; }
+            else if (state === 1) { document.getElementById('eng-reveal').classList.remove('hidden'); state = 2; }
+            else { index = (index + 1) % currentDeck.length; showCard(); }
         };
 
-        fetchCSV();
+        document.getElementById('quiz-toggle').onclick = () => {
+            isQuiz = !isQuiz;
+            document.getElementById('flashcard-container').classList.toggle('hidden', isQuiz);
+            document.getElementById('quiz-container').classList.toggle('hidden', !isQuiz);
+            document.getElementById('footer').classList.toggle('hidden', isQuiz);
+            document.getElementById('quiz-toggle').textContent = isQuiz ? "Exit Quiz" : "Quiz Mode";
+            if(isQuiz) startQuiz(); else showCard();
+        };
+
+        document.getElementById('next-btn').onclick = (e) => { e.stopPropagation(); index = (index + 1) % currentDeck.length; showCard(); };
+        document.getElementById('prev-btn').onclick = (e) => { e.stopPropagation(); index = (index - 1 + currentDeck.length) % currentDeck.length; showCard(); };
+        document.getElementById('audio-word').onclick = (e) => { e.stopPropagation(); play(currentDeck[index].dutch); };
+        document.getElementById('audio-sentence').onclick = (e) => { e.stopPropagation(); play(currentDeck[index].sentence); };
+        document.getElementById('audio-quiz').onclick = (e) => { e.stopPropagation(); play(quizDeck[quizIndex].sentence); };
+        document.getElementById('quiz-input').onkeydown = (e) => { if(e.key === 'Enter') processQuizStep(); };
+
+        document.querySelectorAll('#level-filters .diff-btn').forEach(b => b.onclick = () => {
+            document.querySelectorAll('#level-filters .diff-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active'); applyFilter(b.dataset.lvl);
+        });
+
+        document.onkeydown = (e) => {
+            if (isQuiz) return;
+            if (e.key === 'ArrowRight') { index = (index + 1) % currentDeck.length; showCard(); }
+            if (e.key === 'ArrowLeft') { index = (index - 1 + currentDeck.length) % currentDeck.length; showCard(); }
+            if (e.key === ' ') { e.preventDefault(); document.getElementById('flashcard-container').click(); }
+        };
+
+        init();
     </script>
 </body>
 </html>

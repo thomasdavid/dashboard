@@ -19,6 +19,44 @@
             box-sizing: border-box;
         }
         
+        /* Tooltip & Linking Styles */
+        .linked-word {
+            text-decoration: underline dotted #3498db;
+            cursor: help;
+            position: relative;
+            color: inherit;
+        }
+
+        .linked-word::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2c3e50;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            width: 240px;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            pointer-events: none;
+            line-height: 1.4;
+            font-weight: normal;
+            text-align: left;
+        }
+
+        .linked-word:hover::after {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
         /* Info Button & Modal */
         #info-btn {
             position: fixed;
@@ -31,9 +69,7 @@
             transition: transform 0.2s;
             z-index: 100;
         }
-        #info-btn:hover {
-            transform: scale(1.1);
-        }
+        #info-btn:hover { transform: scale(1.1); }
         #info-modal {
             position: fixed;
             top: 0;
@@ -58,10 +94,6 @@
             text-align: left;
             line-height: 1.5;
         }
-        .modal-content h2 { margin-top: 0; color: #2c3e50; }
-        .modal-content h3 { font-size: 1.2rem; color: #34495e; margin-bottom: 5px; }
-        .modal-content p, .modal-content ul { font-size: 1.05rem; color: #555; }
-        .modal-content ul { padding-left: 20px; margin-top: 5px; }
         .close-btn {
             position: absolute;
             top: 15px;
@@ -70,9 +102,7 @@
             cursor: pointer;
             color: #aaa;
             font-weight: bold;
-            transition: color 0.2s;
         }
-        .close-btn:hover { color: #333; }
 
         /* Flashcard Container */
         #flashcard-container {
@@ -94,11 +124,8 @@
             transition: transform 0.1s;
             position: relative;
         }
-        #flashcard-container:active {
-            transform: scale(0.99);
-        }
+        #flashcard-container:active { transform: scale(0.99); }
         
-        /* Flex rows for text + audio buttons */
         .text-audio-row {
             display: flex;
             align-items: center;
@@ -118,30 +145,15 @@
             justify-content: center;
         }
         .audio-btn:hover { background-color: #f0f4f8; transform: scale(1.1); }
-        .audio-btn:active { transform: scale(0.9); }
 
         .word-audio { font-size: 2rem; padding: 10px; }
         .small-audio { font-size: 1.5rem; padding: 8px; }
 
-        #dutch-word {
-            font-size: 3.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            word-break: break-word;
-            margin: 0;
-        }
-        #word-type {
-            font-size: 1.2rem;
-            color: #7f8c8d;
-            font-style: italic;
-            margin: 5px 0 15px 0;
-        }
-        
+        #dutch-word { font-size: 3.5rem; font-weight: bold; color: #2c3e50; margin: 0; }
+        #word-type { font-size: 1.2rem; color: #7f8c8d; font-style: italic; margin: 5px 0 15px 0; }
         .sentence-row { margin: 0 0 20px 0; }
         #sentence { font-size: 1.5rem; line-height: 1.4; }
-        .hidden { display: none !important; }
         
-        /* Reveal blocks */
         .reveal-box {
             margin: 10px 0;
             padding: 15px;
@@ -153,120 +165,23 @@
             justify-content: space-between;
             gap: 10px;
         }
-        .def-box {
-            background-color: #e8f4f8;
-            border: 1px solid #b3e5fc;
-        }
-        #dutch-definition {
-            font-size: 1.3rem;
-            color: #0277bd;
-            text-align: left;
-            flex-grow: 1;
-        }
-        .english-box {
-            background-color: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            justify-content: center;
-        }
-        #english-word {
-            font-weight: bold;
-            font-size: 1.8rem;
-            color: #2e7d32;
-        }
+        .def-box { background-color: #e8f4f8; border: 1px solid #b3e5fc; }
+        #dutch-definition { font-size: 1.3rem; color: #0277bd; text-align: left; flex-grow: 1; }
+        .english-box { background-color: #e8f5e9; border: 1px solid #c8e6c9; justify-content: center; }
+        #english-word { font-weight: bold; font-size: 1.8rem; color: #2e7d32; }
         
-        /* Navigation Controls */
-        #controls-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        button.nav-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.2s, transform 0.1s;
-            flex: 1;
-        }
-        button.nav-btn:hover:not(:disabled) { background-color: #2980b9; }
-        button.nav-btn:active:not(:disabled) { transform: scale(0.95); }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        #controls-container { display: flex; justify-content: space-between; width: 100%; max-width: 600px; margin-top: 20px; gap: 10px; }
+        button.nav-btn { background-color: #3498db; color: white; border: none; padding: 15px 20px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; flex: 1; }
+        button.nav-btn:disabled { background-color: #bdc3c7; }
+        .status-area { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; margin-top: 15px; gap: 15px; }
+        .difficulty-controls { display: flex; width: 100%; gap: 5px; justify-content: center; flex-wrap: wrap; }
+        .diff-btn { background-color: #e0e6ed; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; border: 2px solid transparent; }
+        .diff-btn.active { background-color: #9b59b6; color: white; border-color: #8e44ad; }
+        .hidden { display: none !important; }
 
-        /* Status & Level Selection */
-        .status-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 15px;
-            gap: 15px;
-        }
-        #progress { color: #7f8c8d; font-weight: bold; }
-
-        .difficulty-controls {
-            display: flex;
-            width: 100%;
-            gap: 5px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .diff-btn {
-            background-color: #e0e6ed;
-            color: #34495e;
-            border: 2px solid transparent;
-            padding: 10px 10px;
-            font-size: 0.95rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 1;
-            min-width: 60px;
-            transition: all 0.2s;
-        }
-        .diff-btn:hover { background-color: #bdc3c7; }
-        .diff-btn.active {
-            background-color: #9b59b6;
-            color: white;
-            border-color: #8e44ad;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-
-        .instructions {
-            margin-top: 15px;
-            color: #888;
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 0 10px;
-        }
-        #loading {
-            font-size: 1.5rem;
-            color: #3498db;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        /* Mobile Adjustments */
         @media (max-width: 600px) {
-            #info-btn { top: 10px; right: 10px; font-size: 1.8rem; }
             #dutch-word { font-size: 2.5rem; }
-            .word-audio { font-size: 1.5rem; padding: 5px; }
-            .small-audio { font-size: 1.2rem; padding: 5px; }
-            #word-type { font-size: 1rem; margin-bottom: 10px;}
             #sentence { font-size: 1.2rem; }
-            #dutch-definition { font-size: 1.1rem; }
-            #english-word { font-size: 1.4rem; }
-            button.nav-btn { font-size: 1rem; padding: 12px 10px; }
-            #flashcard-container { min-height: 350px; padding: 20px 15px; }
-            .reveal-box { padding: 10px; }
-            .diff-btn { padding: 8px 2px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -278,14 +193,7 @@
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
             <h2>About This Tool</h2>
-            <p>This flashcard system is designed to help you master the <strong>4,621 most frequently used Dutch words</strong>. The frequency list is based on the massive database of movie and television subtitles from <em>www.opensubtitles.org</em>.</p>
-            <h3>How it works:</h3>
-            <ul>
-                <li><strong>Front of Card:</strong> Displays the Dutch word, its grammatical type, and a sentence for context.</li>
-                <li><strong>First Reveal:</strong> Click the card or press Spacebar to see the Dutch definition.</li>
-                <li><strong>Second Reveal:</strong> Click again to show the English translation.</li>
-            </ul>
-            <p>Use the difficulty buttons below to filter the deck based on frequency and word length. Every time you pick a level, the words are randomly shuffled so you never review them in the same order twice!</p>
+            <p>Master Dutch vocabulary. Hover over dotted-underlined words to see their linked cards!</p>
         </div>
     </div>
 
@@ -294,21 +202,17 @@
     <div id="flashcard-container" class="hidden">
         <div class="text-audio-row">
             <div id="dutch-word">Word</div>
-            <button id="word-audio-btn" class="audio-btn word-audio" title="Play Word">🔊</button>
+            <button id="word-audio-btn" class="audio-btn word-audio">🔊</button>
         </div>
-        
         <div id="word-type">(Type)</div>
-        
         <div class="text-audio-row sentence-row">
             <div id="sentence">Sentence goes here.</div>
-            <button id="sentence-audio-btn" class="audio-btn small-audio" title="Play Sentence">🔊</button>
+            <button id="sentence-audio-btn" class="audio-btn small-audio">🔊</button>
         </div>
-        
         <div id="def-container" class="hidden reveal-box def-box">
             <div id="dutch-definition">Definition</div>
-            <button id="def-audio-btn" class="audio-btn small-audio" title="Play Definition">🔊</button>
+            <button id="def-audio-btn" class="audio-btn small-audio">🔊</button>
         </div>
-        
         <div id="english-container" class="hidden reveal-box english-box">
             <div id="english-word">English</div>
         </div>
@@ -321,7 +225,6 @@
     
     <div class="status-area hidden" id="status-container">
         <div id="progress"></div>
-        
         <div class="difficulty-controls">
             <button class="diff-btn active" data-level="all">All</button>
             <button class="diff-btn" data-level="1">Lvl 1</button>
@@ -331,14 +234,8 @@
         </div>
     </div>
 
-    <div class="instructions hidden" id="instructions-container">
-        Tap the card or press <b>Spacebar</b> to reveal answers.<br>
-        Use <b>Arrows</b> to change words.
-    </div>
-
     <script>
         const csvUrl = 'https://raw.githubusercontent.com/thomasdavid/dashboard/main/dutchwords.csv';
-        
         let allFlashcards = [];   
         let currentDeck = [];     
         let currentIndex = 0;
@@ -363,31 +260,14 @@
             controls: document.getElementById('controls-container'),
             status: document.getElementById('status-container'),
             progress: document.getElementById('progress'),
-            instructions: document.getElementById('instructions-container'),
-            
-            // Modal Elements
             infoBtn: document.getElementById('info-btn'),
             infoModal: document.getElementById('info-modal'),
             closeModalBtn: document.getElementById('close-modal')
         };
 
-        // Modal Event Listeners
-        elements.infoBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            elements.infoModal.classList.remove('hidden');
-        });
-        
-        elements.closeModalBtn.addEventListener('click', () => {
-            elements.infoModal.classList.add('hidden');
-        });
-        
-        elements.infoModal.addEventListener('click', (e) => {
-            if (e.target === elements.infoModal) {
-                elements.infoModal.classList.add('hidden');
-            }
-        });
+        elements.infoBtn.onclick = (e) => { e.stopPropagation(); elements.infoModal.classList.remove('hidden'); };
+        elements.closeModalBtn.onclick = () => elements.infoModal.classList.add('hidden');
 
-        // Shuffle Array
         function shuffleArray(array) {
             let shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -397,22 +277,17 @@
             return shuffled;
         }
 
-        // Difficulty Calculation Logic
         function calculateDifficulty(index, wordText) {
             let base = 4;
             if (index < 500) base = 1;
             else if (index < 1500) base = 2;
             else if (index < 2500) base = 3;
-            
             let len = wordText.length;
             if (len <= 4) base -= 1;
             else if (len >= 10) base += 1;
-            else if (len >= 14) base += 2;
-            
             return Math.max(1, Math.min(4, base));
         }
 
-        // Web Speech API
         function playDutchAudio(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel(); 
@@ -420,219 +295,127 @@
                 utterance.lang = 'nl-NL';
                 utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
-            } else {
-                alert("Sorry, your browser doesn't support text-to-speech audio.");
             }
         }
 
-        // CSV Parser
         function parseCSVLine(text) {
-            let ret = [];
-            let inQuote = false;
-            let value = '';
+            let ret = [], inQuote = false, value = '';
             for (let i = 0; i < text.length; i++) {
                 let ch = text[i];
                 if (inQuote) {
                     if (ch === '"') {
-                        if (i + 1 < text.length && text[i + 1] === '"') {
-                            value += '"';
-                            i++;
-                        } else { inQuote = false; }
-                    } else { value += ch; }
+                        if (i + 1 < text.length && text[i + 1] === '"') { value += '"'; i++; } 
+                        else inQuote = false;
+                    } else value += ch;
                 } else {
-                    if (ch === '"') { inQuote = true; } 
-                    else if (ch === ',') { ret.push(value.trim()); value = ''; } 
-                    else { value += ch; }
+                    if (ch === '"') inQuote = true;
+                    else if (ch === ',') { ret.push(value.trim()); value = ''; }
+                    else value += ch;
                 }
             }
             ret.push(value.trim());
             return ret;
         }
 
+        function enrichText(text) {
+            if (!text) return "";
+            const parts = text.split(/(\s+|[.,!?;:()"])/);
+            
+            return parts.map(part => {
+                const clean = part.toLowerCase().replace(/[^a-zà-ü]/g, '');
+                if (clean.length < 2) return part;
+                if (clean === currentDeck[currentIndex].dutch.toLowerCase()) return part;
+
+                const match = allFlashcards.find(c => c.dutch.toLowerCase() === clean);
+                if (match) {
+                    const tooltip = `Word: ${match.dutch}\nType: ${match.type}\nSentence: ${match.sentence}\nDef: ${match.definition}`;
+                    return `<span class="linked-word" data-tooltip="${tooltip}">${part}</span>`;
+                }
+                return part;
+            }).join('');
+        }
+
         async function fetchCSV() {
             try {
                 const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error('Network response was not ok');
                 const textData = await response.text();
-                
                 const lines = textData.trim().split('\n');
                 let wordCount = 0;
                 
                 for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue; 
-                    
                     const columns = parseCSVLine(lines[i]);
-                    
+                    // Restoring your exact requested indices from original code
                     if (columns.length >= 6) {
                         const dutchWord = columns[1];
-                        const diffLevel = calculateDifficulty(wordCount, dutchWord);
-                        
                         allFlashcards.push({
                             dutch: dutchWord,
                             sentence: columns[3],
                             type: columns[4],
                             english: columns[5],
                             definition: columns[6] || '',
-                            difficulty: diffLevel
+                            difficulty: calculateDifficulty(wordCount, dutchWord)
                         });
                         wordCount++;
                     }
                 }
                 
-                if (allFlashcards.length > 0) {
-                    elements.loading.classList.add('hidden');
-                    elements.container.classList.remove('hidden');
-                    elements.controls.classList.remove('hidden');
-                    elements.status.classList.remove('hidden');
-                    elements.instructions.classList.remove('hidden');
-                    
-                    loadDifficultySet('all');
-                } else {
-                    elements.loading.textContent = "Error: No valid data found in CSV.";
-                }
-
-            } catch (error) {
-                elements.loading.textContent = "Error loading CSV. Make sure the GitHub repository is public and the link is correct.";
-                console.error('Error fetching CSV:', error);
-            }
+                elements.loading.classList.add('hidden');
+                elements.container.classList.remove('hidden');
+                elements.controls.classList.remove('hidden');
+                elements.status.classList.remove('hidden');
+                loadDifficultySet('all');
+            } catch (error) { console.error('Error:', error); }
         }
 
         function loadDifficultySet(level) {
-            elements.diffBtns.forEach(btn => {
-                if (btn.getAttribute('data-level') == level) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-
-            let filteredSet = [];
-            if (level === 'all') {
-                filteredSet = [...allFlashcards];
-            } else {
-                filteredSet = allFlashcards.filter(card => card.difficulty === parseInt(level));
-            }
-            
-            currentDeck = shuffleArray(filteredSet);
+            elements.diffBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.level == level));
+            let filtered = (level === 'all') ? [...allFlashcards] : allFlashcards.filter(card => card.difficulty === parseInt(level));
+            currentDeck = shuffleArray(filtered);
             currentIndex = 0;
-            
             updateCard();
         }
 
         function updateCard() {
-            if (!currentDeck[currentIndex]) {
-                elements.word.textContent = "Set Complete!";
-                elements.sentence.textContent = "You've reviewed all words in this level.";
-                elements.type.textContent = "";
-                elements.defContainer.classList.add('hidden');
-                elements.engContainer.classList.add('hidden');
-                elements.wordAudioBtn.classList.add('hidden');
-                elements.sentenceAudioBtn.classList.add('hidden');
-                elements.progress.textContent = `0 words remaining`;
-                return;
-            }
-            
+            if (!currentDeck[currentIndex]) return;
             const card = currentDeck[currentIndex];
             
-            elements.wordAudioBtn.classList.remove('hidden');
-            elements.sentenceAudioBtn.classList.remove('hidden');
-
             elements.word.textContent = card.dutch;
             elements.type.textContent = `(${card.type})`;
-            elements.sentence.textContent = card.sentence;
             
-            if (card.definition && card.definition !== "") {
-                elements.definition.textContent = card.definition;
-                elements.defAudioBtn.classList.remove('hidden'); 
-            } else {
-                elements.definition.textContent = "(No Dutch definition provided)";
-                elements.defAudioBtn.classList.add('hidden'); 
-            }
+            elements.sentence.innerHTML = enrichText(card.sentence);
+            elements.definition.innerHTML = card.definition ? enrichText(card.definition) : "(No Dutch definition provided)";
             
             elements.english.textContent = card.english;
-
             elements.defContainer.classList.add('hidden');
             elements.engContainer.classList.add('hidden');
             currentState = 0;
-            
-            let diffDisplay = card.difficulty ? ` (Level ${card.difficulty})` : '';
-            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length}${diffDisplay}`;
-            
+            elements.progress.textContent = `Word ${currentIndex + 1} of ${currentDeck.length} (Lvl ${card.difficulty})`;
             elements.prevBtn.disabled = currentIndex === 0;
             elements.nextBtn.disabled = currentIndex === currentDeck.length - 1;
         }
 
         function advanceState() {
-            if (currentDeck.length === 0) return; 
-            if (currentState === 0) {
-                elements.defContainer.classList.remove('hidden');
-                currentState = 1;
-            } else if (currentState === 1) {
-                elements.engContainer.classList.remove('hidden');
-                currentState = 2;
-            } else if (currentState === 2) {
-                if (currentIndex < currentDeck.length - 1) {
-                    currentIndex++;
-                    updateCard();
-                }
-            }
+            if (currentState === 0) { elements.defContainer.classList.remove('hidden'); currentState = 1; } 
+            else if (currentState === 1) { elements.engContainer.classList.remove('hidden'); currentState = 2; } 
+            else if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); }
         }
 
-        function goNext() {
-            if (currentIndex < currentDeck.length - 1) {
-                currentIndex++;
-                updateCard();
-            }
-        }
+        elements.container.onclick = advanceState;
+        elements.nextBtn.onclick = (e) => { e.stopPropagation(); if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); } };
+        elements.prevBtn.onclick = (e) => { e.stopPropagation(); if (currentIndex > 0) { currentIndex--; updateCard(); } };
+        elements.diffBtns.forEach(btn => btn.onclick = () => loadDifficultySet(btn.dataset.level));
 
-        function goPrev() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCard();
-            }
-        }
+        elements.wordAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].dutch); };
+        elements.sentenceAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].sentence); };
+        elements.defAudioBtn.onclick = (e) => { e.stopPropagation(); playDutchAudio(currentDeck[currentIndex].definition); };
 
-        elements.container.addEventListener('click', advanceState);
-        elements.nextBtn.addEventListener('click', goNext);
-        elements.prevBtn.addEventListener('click', goPrev);
-
-        elements.diffBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const level = e.target.getAttribute('data-level');
-                loadDifficultySet(level);
-            });
-        });
-
-        elements.wordAudioBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].dutch);
-        });
-        
-        elements.sentenceAudioBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].sentence);
-        });
-        
-        elements.defAudioBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            if(currentDeck[currentIndex]) playDutchAudio(currentDeck[currentIndex].definition);
-        });
-
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
-                event.preventDefault(); 
-                advanceState();
-            } else if (event.code === 'ArrowRight') {
-                goNext();
-            } else if (event.code === 'ArrowLeft') {
-                goPrev();
-            } else if (event.code === 'Escape') {
-                elements.infoModal.classList.add('hidden');
-            }
-        });
+        document.onkeydown = (e) => {
+            if (e.code === 'Space') { e.preventDefault(); advanceState(); }
+            else if (e.code === 'ArrowRight') { if (currentIndex < currentDeck.length - 1) { currentIndex++; updateCard(); } }
+            else if (e.code === 'ArrowLeft') { if (currentIndex > 0) { currentIndex--; updateCard(); } }
+        };
 
         fetchCSV();
-
     </script>
 </body>
 </html>

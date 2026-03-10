@@ -132,19 +132,48 @@
         let index = 0, state = 0, quizIndex = 0, isQuiz = false, filter = 'all';
 
         async function init() {
-            const res = await fetch(csvUrl);
-            const data = await res.text();
-            const lines = data.trim().split('\n').slice(1);
-            allWords = lines.map((l, i) => {
-                const c = parseCSV(l);
-                return { dutch: c[1], sentence: c[3], type: c[4], english: c[5], definition: c[6] || "", level: (i < 500 ? 1 : i < 1500 ? 2 : i < 2500 ? 3 : 4) };
-            });
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('footer').classList.remove('hidden');
-            document.getElementById('instructions').classList.remove('hidden');
-            applyFilter('all');
+    const res = await fetch(csvUrl);
+    const data = await res.text();
+    const lines = data.trim().split('\n').slice(1); // Remove header
+    
+   // Dynamic distribution based on the total words in your file
+    const total = lines.length;
+    
+    // These percentages mirror your current distribution (approx 500, 700, 1000, 1500)
+    // but will scale as the spreadsheet grows.
+    const l1Boundary = Math.floor(total * 0.13); // Top ~13%
+    const l2Boundary = Math.floor(total * 0.32); // Next ~19%
+    const l3Boundary = Math.floor(total * 0.58); // Next ~26%
+
+    allWords = lines.map((l, i) => {
+        const c = parseCSV(l);
+        
+        let wordLevel;
+        if (i < l1Boundary) {
+            wordLevel = 1;
+        } else if (i < l2Boundary) {
+            wordLevel = 2;
+        } else if (i < l3Boundary) {
+            wordLevel = 3;
+        } else {
+            wordLevel = 4; // The remaining ~42%
         }
 
+        return { 
+            dutch: c[1], 
+            sentence: c[3], 
+            type: c[4], 
+            english: c[5], 
+            definition: c[6] || "", 
+            level: wordLevel 
+        };
+    });
+
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('footer').classList.remove('hidden');
+    document.getElementById('instructions').classList.remove('hidden');
+    applyFilter('all');
+}
         function parseCSV(t) {
             let r = [], v = '', q = false;
             for (let i=0; i<t.length; i++) {

@@ -102,7 +102,7 @@
 <div id="tooltip" class="tooltip" style="display:none"></div>
 
 <script>
-const CSV_URL = "https://cdn.jsdelivr.net/gh/thomasdavid/dashboard@main/Trust.csv";
+const CSV_URL = "https://cdn.jsdelivr.net/gh/thomasdavid/dashboard@main/trust.csv";
 const FLAG_CODE = {"European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"};
 
 /* chart setup */
@@ -245,262 +245,179 @@ function init(rows){
 /* NEW: remove the most recently added country */
 function deselectLast(){
   if (selectedCountries.length === 0) return;
-  selectedCountries.pop();                 // drop last
+  selectedCountries.pop();
   updateCountryDisplay();
-  if (selectedCountries.length){
-    applyFade(new Set(selectedCountries));
-    renderSelectedLayers(false);           // redraw remaining (no animation)
-  } else {
-    applyFade(new Set());
-    clearLayers();
-  }
+  const set = new Set(selectedCountries);
+  applyFade(set);
+  drawSelected(false);
 }
 
-/* add country (from dropdown or dot click) */
-function addCountry(choice, animateNew){
-  if (selectedCountries.includes(choice)) return;
-  if (selectedCountries.length >= 2){
-    // drop oldest, shift second to first
-    selectedCountries = [ selectedCountries[1] ];
-  }
-  selectedCountries.push(choice);
-  updateCountryDisplay();
-  renderSelectedLayers(animateNew);
-}
-
-/* select label */
 function updateCountryDisplay(){
-  clearBtn.hidden = selectedCountries.length === 0;
-  countryDisplay.textContent = selectedCountries.length ? selectedCountries.join(", ") : "Select a country";
-  countryDisplay.disabled = true; countryDisplay.selected = true; countryDisplay.hidden = !selectedCountries.length;
-}
-
-/* build/layout */
-function buildPoints(rows){
-  const pts=[];
-  categories.forEach((cat,i)=>{
-    rows.filter(d=>d.Metric===cat).forEach(d=>{
-      pts.push({ id:`${d.Country}-${cat}`, Country:d.Country, Metric:cat, value:d.Score, x:x(d.Score), y:rowY(i) });
-    });
-  });
-  return pts;
-}
-function beeswarm(pts, prevMap){
-  categories.forEach((cat,i)=>{
-    const rowPts = pts.filter(p=>p.Metric===cat);
-    if (prevMap){
-      rowPts.forEach(p=>{ const pr=prevMap.get(p.id); if(pr){ p.x=pr.x; p.y=pr.y; }});
-    }
-    const sim = d3.forceSimulation(rowPts)
-      .alpha(0.9)
-      .force("x", d3.forceX(p=>x(p.value)).strength(0.8))
-      .force("y", d3.forceY(rowY(i)).strength(0.15))
-      .force("collide", d3.forceCollide(r+1.4))
-      .stop();
-    for (let k=0;k<250;k++) sim.tick();
-  });
-}
-
-/* dots + hover (instant), and CLICK to select */
-function drawDots(){
-  const selDots = dotsG.selectAll("circle").data(points, d=>d.id);
-  selDots.join(
-    enter => enter.append("circle")
-      .attr("r", r).attr("cx", d=>d.x).attr("cy", d=>d.y)
-      .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
-      .attr("fill", d => color(d.value)).attr("opacity", 1),
-    update => update, exit => exit.remove()
-  )
-  .on("mouseenter", (e,d)=>{
-      showTip(e,d);
-      if(!selectedCountries.length){
-        applyFade(new Set([d.Country]));
-        drawLayer(layers.A, getCountryRowPoints(points, d.Country), false, /*animate*/false);
-        drawLabel(layers.A.labelG, d.Country, -28);
-      }
-    })
-  .on("mousemove",  (e,d)=>{ showTip(e,d); })
-  .on("mouseleave", ()=>{
-      hideTip();
-      if(!selectedCountries.length){
-        applyFade(new Set());
-        clearLayer(layers.A);
-      }
-    })
-  .on("click", (e,d)=>{           /* click-to-select */
-      e.stopPropagation();         /* NEW: prevent svg background handler */
-      addCountry(d.Country, /*animateNew*/true);
-    });
-}
-
-/* helpers */
-function getCountryRowPoints(mapOrPoints, country){
-  if (mapOrPoints instanceof Map){
-    return categories.map(cat=>{
-      const id = `${country}-${cat}`; const p = mapOrPoints.get(id);
-      return p ? {x:p.x, y:rowY(categories.indexOf(cat))} : null;
-    }).filter(Boolean);
+  if (selectedCountries.length===0){
+    countryDisplay.textContent = "Select a country";
+    clearBtn.hidden = true;
   } else {
-    return categories.map(cat => mapOrPoints.find(p=>p.Country===country && p.Metric===cat)).filter(Boolean);
+    countryDisplay.textContent = selectedCountries.join("  ·  ");
+    clearBtn.hidden = false;
   }
 }
 
-/* band helpers */
-function clearBand(){ bandG.selectAll("*").remove(); }
-function bandPath(pointsA, pointsB){
-  const dA = lineGen(pointsA);
-  const dB = lineGen(pointsB.slice().reverse());
-  return dA + dB.replace(/^M/,'L') + 'Z';
-}
-function drawBetweenBand(countryA, countryB, animate=false){
-  if(!countryA || !countryB){ clearBand(); return; }
-  const a = getCountryRowPoints(points, countryA);
-  const b = getCountryRowPoints(points, countryB);
-  if(!a.length || !b.length){ clearBand(); return; }
-
-  const dPath = bandPath(a,b);
-  const p = bandG.selectAll("path.between-band").data([dPath]);
-
-  p.enter().append("path")
-    .attr("class","between-band")
-    .attr("d", dPath)
-    .attr("opacity", 0)
-    .transition().duration(animate? 600 : 0)
-    .attr("opacity", 1);
-
-  p.transition().duration(600).attr("d", dPath);
-  p.exit().remove();
-}
-
-/* year update */
-function updateYear(rowsForYear, prevMap, prevByCountry){
-  const newPts = buildPoints(rowsForYear);
-  beeswarm(newPts, prevMap);
-  points = newPts;
-
-  const t = d3.transition().duration(600).ease(d3.easeCubicInOut);
-
-  dotsG.selectAll("circle").data(points, d=>d.id)
-    .join(
-      enter => enter.append("circle")
-        .attr("r", r).attr("cx", d=>d.x).attr("cy", d=>d.y)
-        .attr("class", d => d.Country==="European Union" ? "dot eu-dot" : "dot")
-        .attr("fill", d => color(d.value))
-        .attr("opacity", selectedCountries.length ? (d => selectedCountries.includes(d.Country) ? 1 : 0.2) : 1),
-      update => update, exit => exit.remove()
-    )
-    .transition(t)
-    .attr("cx", d=>d.x).attr("cy", d=>d.y).attr("fill", d => color(d.value))
-    .attr("opacity", selectedCountries.length ? (d => selectedCountries.includes(d.Country) ? 1 : 0.2) : 1);
-
-  drawDots();
-
-  if (selectedCountries.length){
-    applyFade(new Set(selectedCountries));
-    ["A","B"].forEach((slot,i)=>{
-      const country = selectedCountries[i];
-      if (!country) { clearLayer(layers[slot]); return; }
-      const prevPts = prevByCountry && prevByCountry[country];
-      const nextPts = getCountryRowPoints(points, country);
-      if (prevPts && prevPts.length){
-        morphLayer(layers[slot], prevPts, nextPts, slot==="B");
-      }else{
-        drawLayer(layers[slot], nextPts, slot==="B", false);
-      }
-      drawLabel(layers[slot].labelG, country, slot==="B" ? -48 : -28);
-    });
-
-    if (selectedCountries.length === 2){
-      drawBetweenBand(selectedCountries[0], selectedCountries[1], false);
-    } else {
-      clearBand();
-    }
-  }else{
-    applyFade(new Set());
-    clearLayers();
+function addCountry(c, animateNew){
+  const idx = selectedCountries.indexOf(c);
+  if (idx>=0){
+    selectedCountries.splice(idx,1);
+  } else {
+    if (selectedCountries.length===2) selectedCountries.shift();
+    selectedCountries.push(c);
   }
-}
-
-/* selection: render */
-function renderSelectedLayers(animate){
+  updateCountryDisplay();
   applyFade(new Set(selectedCountries));
-  const slots = { A: selectedCountries[0] || null, B: selectedCountries[1] || null };
+  drawSelected(animateNew);
+}
 
-  ["A","B"].forEach((slot,i)=>{
-    const country = slots[slot];
-    if(!country){ clearLayer(layers[slot]); return; }
-    const pts = getCountryRowPoints(points, country);
-    drawLayer(layers[slot], pts, slot==="B", animate && slot==="B");
-    drawLabel(layers[slot].labelG, country, slot==="B" ? -48 : -28);
+function clearLayers(){
+  Object.values(layers).forEach(L => { L.g.selectAll("*").remove(); L.labelG.selectAll("*").remove(); });
+  bandG.selectAll("*").remove();
+}
+
+function updateYear(rows, prevMap, prevByCountry){
+  const metrics = Array.from(new Set(rows.map(d=>d.Metric)));
+  const euVal = Object.fromEntries(metrics.map(m => {
+    const r = rows.find(d=>d.Metric===m && d.Country==="European Union");
+    return [m, r? r.Score : NaN];
+  }));
+  categories = metrics.slice().sort((a,b)=> d3.descending(euVal[a], euVal[b]));
+
+  points = buildPoints(rows);
+  beeswarm(points);
+  drawDots(prevMap);
+  drawSelected(false, prevByCountry);
+}
+
+function buildPoints(rows){
+  return rows.map(d => ({
+    ...d,
+    value:+d.Score,
+    row:categories.indexOf(d.Metric),
+    id:`${d.Year}|${d.Metric}|${d.Country}`,
+    x:x(+d.Score),
+    y:rowY(categories.indexOf(d.Metric))
+  })).filter(d => d.row >= 0 && Number.isFinite(d.value));
+}
+
+function beeswarm(pts){
+  const byRow = d3.group(pts, d=>d.row);
+  byRow.forEach(rowPts => {
+    rowPts.sort((a,b)=>a.x-b.x);
+    for (let i=0;i<rowPts.length;i++){
+      let y = rowY(rowPts[i].row), step = 1, tries = 0;
+      while (tries++ < 200){
+        let ok = true;
+        for (let j=0;j<i;j++){
+          const dx = rowPts[i].x - rowPts[j].x;
+          const dy = y - rowPts[j].y;
+          if (dx*dx + dy*dy < (2*r+1)*(2*r+1)){ ok = false; break; }
+        }
+        if (ok) break;
+        y = rowY(rowPts[i].row) + ((tries%2?1:-1) * Math.ceil(tries/2) * step);
+      }
+      rowPts[i].y = y;
+    }
   });
+}
 
-  if (selectedCountries.length === 2){
-    drawBetweenBand(selectedCountries[0], selectedCountries[1], true);
-  } else {
-    clearBand();
+function drawDots(prevMap){
+  const sel = dotsG.selectAll("circle").data(points, d=>d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("circle")
+    .attr("class", d=>`dot ${d.Country==="European Union"?"eu-dot":""}`)
+    .attr("r", r)
+    .attr("cx", d=>prevMap?.get(d.id)?.x ?? d.x)
+    .attr("cy", d=>prevMap?.get(d.id)?.y ?? d.y)
+    .attr("fill", d=>color(d.value))
+    .on("mousemove", showTip)
+    .on("mouseleave", hideTip)
+    .on("click", (event,d)=>{ event.stopPropagation(); addCountry(d.Country, true); });
+
+  enter.merge(sel)
+    .attr("fill", d=>color(d.value))
+    .transition().duration(prevMap?550:0)
+    .attr("cx", d=>d.x)
+    .attr("cy", d=>d.y);
+
+  applyFade(new Set(selectedCountries));
+}
+
+function getCountryPoints(country){
+  return categories.map((m,i)=> points.find(p=>p.Country===country && p.Metric===m)).filter(Boolean);
+}
+function getCountryRowPoints(prevMap, country){
+  return categories.map(m=>{
+    const p = points.find(q=>q.Country===country && q.Metric===m);
+    if (!p) return null;
+    const prev = prevMap.get(p.id);
+    return prev ? {...p, x:prev.x, y:prev.y} : p;
+  }).filter(Boolean);
+}
+
+function drawSelected(animateNew, prevByCountry={}){
+  clearLayers();
+  if (!selectedCountries.length) return;
+
+  const A = selectedCountries[0], B = selectedCountries[1];
+  if (A) drawCountryLayer("A", A, animateNew, prevByCountry[A]);
+  if (B) drawCountryLayer("B", B, animateNew, prevByCountry[B]);
+  if (A && B) drawBetweenBand(A,B);
+}
+
+function drawCountryLayer(slot, country, animateNew, prevPts){
+  const L = layers[slot];
+  const pts = getCountryPoints(country);
+  if (!pts.length) return;
+
+  const path = L.g.append("path")
+    .attr("class", `highlight ${slot==="B"?"second":""}`)
+    .attr("d", lineGen(prevPts || pts));
+  if (animateNew){
+    const len = path.node().getTotalLength();
+    path.attr("stroke-dasharray",`${len} ${len}`).attr("stroke-dashoffset",len)
+      .transition().duration(700).ease(d3.easeCubicOut).attr("stroke-dashoffset",0);
+  } else if (prevPts){
+    path.transition().duration(550).attr("d",lineGen(pts));
   }
+
+  L.g.selectAll("circle").data(pts, d=>d.id).enter().append("circle")
+    .attr("class", `highlight-pin ${slot==="B"?"second":""}`)
+    .attr("r", r+4)
+    .attr("cx", d=>d.x)
+    .attr("cy", d=>d.y);
+
+  const lp = pts[0];
+  const fo = L.labelG.append("foreignObject")
+    .attr("class","name-fo")
+    .attr("x", Math.min(innerW-160, lp.x+12))
+    .attr("y", lp.y-18)
+    .attr("width",160)
+    .attr("height",34);
+  const div = fo.append("xhtml:div").attr("class","flag-row");
+  const code = FLAG_CODE[country];
+  if (code) div.append("span").attr("class",`fi fi-${code}`);
+  div.append("span").text(country);
 }
 
-/* layer helpers */
-function drawLayer(layer, pts, isSecond=false, animate=false){
-  const cls = isSecond ? "second" : "";
-  layer.g.selectAll("*").remove();
+function drawBetweenBand(a,b){
+  const A = getCountryPoints(a), B = getCountryPoints(b);
+  const pairs = categories.map((m,i)=>{
+    const pa=A.find(p=>p.Metric===m), pb=B.find(p=>p.Metric===m);
+    return pa&&pb ? {i, pa, pb} : null;
+  }).filter(Boolean);
+  if (!pairs.length) return;
 
-  const path = layer.g.append("path").attr("class",`highlight ${cls}`).attr("d", lineGen(pts));
-  if (animate){
-    const L = path.node().getTotalLength();
-    path.attr("stroke-dasharray", `${L} ${L}`).attr("stroke-dashoffset", L)
-        .transition().duration(1000).ease(d3.easeCubicInOut).attr("stroke-dashoffset", 0);
-  }
-  layer.g.selectAll(null).data(pts).enter().append("circle")
-    .attr("class",`highlight-pin ${cls}`).attr("r", r+2).attr("cx", d=>d.x).attr("cy", d=>d.y).attr("fill","none");
+  const top = pairs.map(d=>({x:d.pa.x,y:d.pa.y}));
+  const bottom = pairs.slice().reverse().map(d=>({x:d.pb.x,y:d.pb.y}));
+  bandG.append("path").attr("class","between-band")
+    .attr("d", d3.line().x(d=>d.x).y(d=>d.y).curve(curve)([...top,...bottom]) + "Z");
 }
-
-function morphLayer(layer, prevPts, nextPts, isSecond=false){
-  const cls = isSecond ? "second" : "";
-  layer.g.selectAll("*").remove();
-
-  const path = layer.g.append("path").attr("class",`highlight ${cls}`).attr("d", lineGen(prevPts));
-  path.transition().duration(600).ease(d3.easeCubicInOut)
-    .attrTween("d", function(){
-      const n = Math.min(prevPts.length, nextPts.length);
-      const I = [];
-      for (let i=0;i<n;i++){ I.push({x:d3.interpolateNumber(prevPts[i].x,nextPts[i].x), y:d3.interpolateNumber(prevPts[i].y,nextPts[i].y)}); }
-      return t => lineGen(I.map(f=>({x:f.x(t), y:f.y(t)})));
-    });
-
-  layer.g.selectAll(null).data(nextPts,(d,i)=>i).enter().append("circle")
-    .attr("class",`highlight-pin ${cls}`).attr("r", r+2)
-    .attr("cx",(d,i)=>prevPts[i]?prevPts[i].x:d.x).attr("cy",(d,i)=>prevPts[i]?prevPts[i].y:d.y)
-    .attr("fill","none").transition().duration(600).ease(d3.easeCubicInOut)
-    .attr("cx",d=>d.x).attr("cy",d=>d.y);
-}
-
-function drawLabel(labelG, country, yOffset){
-  labelG.selectAll("*").remove();
-  const firstCat = categories[0];
-  const pt = points.find(p=>p.Country===country && p.Metric===firstCat);
-  if (!pt) return;
-
-  const label = country==="European Union" ? "European Union" : country;
-  const meas = labelG.append("text").attr("font-weight",800).attr("font-size",18).text(label);
-  const wText = meas.node().getBBox().width; meas.remove();
-  const iso = (FLAG_CODE[country] || "").toLowerCase();
-  const wFlag = iso ? 18 : 0, pad = iso ? 6 : 0;
-  const total = wFlag + pad + wText;
-  const baseX = pt.x - total/2;
-  const baseY = rowY(0) + yOffset;
-
-  labelG.append("foreignObject")
-    .attr("class","name-fo").attr("x", baseX).attr("y", baseY-12).attr("width", total).attr("height", 26)
-    .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="flag-row">
-             ${iso ? `<span class="fi fi-${iso}"></span>` : ``}
-             <span>${label}</span>
-           </div>`);
-}
-
-function clearLayer(layer){ layer.g.selectAll("*").remove(); layer.labelG.selectAll("*").remove(); }
-function clearLayers(){ clearLayer(layers.A); clearLayer(layers.B); clearBand(); }
 </script>
 </body>
 </html>

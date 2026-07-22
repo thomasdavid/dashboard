@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forward Pass Calculator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f4f7f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 3rem;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .container {
+            display: flex;
+            gap: 2.5rem;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        /* Clean, Flat UI */
+        .controls {
+            flex: 1;
+            min-width: 320px;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        h1 { font-size: 1.75rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 0.25rem;}
+        
+        .control-group { display: flex; flex-direction: column; gap: 0.75rem; }
+        .control-header { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 600; color: #1e293b;}
+        .value-display { color: var(--primary); font-weight: 600; font-size: 0.9rem;}
+        
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+            height: 6px;
+        }
+
+        .status-box {
+            padding: 1.25rem;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-left: 6px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .status-box.illegal { border-left-color: #ef4444; }
+        .status-box.legal { border-left-color: #10b981; }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Canvas Panel */
+        .visualization {
+            flex: 2;
+            min-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .playback-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        button.play-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.1s;
+        }
+        button.play-btn:active { transform: scale(0.95); }
+
+        .timeline { flex: 1; display: flex; align-items: center; }
+        .timeline input { width: 100%; }
+
+        .canvas-container {
+            width: 100%;
+            background: #328b4d;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.15);
+            position: relative;
+        }
+
+        canvas { 
+            display: block; 
+            width: 100%; 
+            height: 650px; 
+            touch-action: none;
+        }
+
+        .drag-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: rgba(0,0,0,0.4);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.2s;
+        }
+
+        .speed-max { color: #ef4444 !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="controls">
+        <h1>Forward Pass<br>Calculator</h1>
+
+        <div class="control-group">
+            <div class="control-header">
+                <label for="speedSlider">Player Speed Forward</label>
+                <span class="value-display" id="speedVal">Passer: 24 | Rec: 24.0 kph</span>
+            </div>
+            <input type="range" id="speedSlider" min="0" max="35" value="24" step="1">
+        </div>
+
+        <div class="control-group">
+            <div class="control-header">
+                <label for="distanceSlider">Pass Distance</label>
+                <span class="value-display" id="distanceVal">20.0 m</span>
+            </div>
+            <input type="range" id="distanceSlider" min="5" max="35" value="20" step="0.1">
+        </div>
+
+        <div class="control-group">
+            <div class="control-header">
+                <label for="angleSlider">Pass Angle (from hands)</label>
+                <span class="value-display" id="angleVal">3.0°</span>
+            </div>
+            <input type="range" id="angleSlider" min="-15" max="15" value="3" step="0.1">
+        </div>
+
+        <div class="control-group">
+            <div class="control-header">
+                <label for="spinSlider">Pass Spin Factor</label>
+                <span class="value-display" id="spinVal">0.50</span>
+            </div>
+            <input type="range" id="spinSlider" min="0" max="1" value="0.5" step="0.01">
+        </div>
+
+        <div class="control-group">
+            <div class="control-header">
+                <label for="windSlider">Air Drag / Wind</label>
+                <span class="value-display" id="windVal">0 kph (Default)</span>
+            </div>
+            <input type="range" id="windSlider" min="-30" max="30" value="0" step="1">
+            <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: -4px;">Positive = Tailwind, Negative = Headwind</small>
+        </div>
+
+        <div class="status-box legal" id="statusBox">
+            <strong style="font-size: 0.95rem;">Pass Status: <span id="legalityText">Legal Pass</span></strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;" id="explanationText">
+                The ball leaves the hands legally backwards/flat.
+            </p>
+            
+            <div class="metric-row">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">Net Ground Travel</span>
+                <span id="travelVal" style="font-weight: 700; color: var(--primary);">0.00 m</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="visualization">
+        <div class="playback-bar">
+            <button class="play-btn" id="playBtn">▶</button>
+            <div class="timeline">
+                <input type="range" id="timeScrubber" min="0" max="100" value="0">
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <div class="drag-badge" id="dragBadge">🖱️ Drag players to adjust play</div>
+            <canvas id="pitch"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('pitch');
+    const ctx = canvas.getContext('2d');
+    
+    const speedSlider = document.getElementById('speedSlider');
+    const distanceSlider = document.getElementById('distanceSlider');
+    const angleSlider = document.getElementById('angleSlider');
+    const spinSlider = document.getElementById('spinSlider');
+    const windSlider = document.getElementById('windSlider');
+    const timeScrubber = document.getElementById('timeScrubber');
+    const playBtn = document.getElementById('playBtn');
+    const dragBadge = document.getElementById('dragBadge');
+    
+    const speedVal = document.getElementById('speedVal');
+    const distanceVal = document.getElementById('distanceVal');
+    const angleVal = document.getElementById('angleVal');
+    const spinVal = document.getElementById('spinVal');
+    const windVal = document.getElementById('windVal');
+    const statusBox = document.getElementById('statusBox');
+    const legalityText = document.getElementById('legalityText');
+    const explanationText = document.getElementById('explanationText');
+    const travelVal = document.getElementById('travelVal');
+
+    // Canvas Configuration
+    canvas.width = 800;
+    canvas.height = 650;
+    const pixelsPerMeter = 20; 
+
+    // Static Pitch Markers
+    const pitchStartX = 40; 
+    const pitchStartY = (canvas.height / 2) + (10 * pixelsPerMeter); 
+
+    // Interactive Player Positions
+    let passerX = pitchStartX;
+    let passerY = pitchStartY;
+    let receiverX = 0;
+    let receiverY = 0;
+    let receiverSpeed_kph = 24;
+    let receiverDragged = false; 
+
+    // Drag State
+    let isDraggingPasser = false;
+    let isDraggingReceiver = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    // Load Images
+    const ballImg = new Image();
+    ballImg.crossOrigin = "Anonymous"; 
+    ballImg.src = "https://cdn-icons-png.flaticon.com/128/11338/11338778.png";
+    
+    const playerImg = new Image();
+    playerImg.crossOrigin = "Anonymous";
+    playerImg.src = "https://cdn-icons-png.flaticon.com/128/20/20730.png";
+
+    let assetsLoaded = 0;
+    function checkAssets() {
+        assetsLoaded++;
+        if (assetsLoaded === 2) updatePhysics(); 
+    }
+    ballImg.onload = checkAssets;
+    playerImg.onload = checkAssets;
+
+    // Physics constants (Standard Air Drag)
+    const rho = 1.225; 
+    const Cd = 0.3;    
+    const area = 0.015; 
+    const mass = 0.43;  
+    const k_drag = (0.5 * rho * Cd * area) / mass; 
+
+    // Playback state
+    let isPlaying = false;
+    let t = 0; 
+    let lastFrameTime = 0;
+    let flightTime = 1.0; 
+
+    // Calculate distance decayed by natural air resistance
+    function applyDragDistance(v0, time) {
+        if (v0 === 0) return 0;
+        const sign = Math.sign(v0);
+        const absV0 = Math.abs(v0);
+        const distance = (1 / k_drag) * Math.log(1 + absV0 * k_drag * time);
+        return sign * distance;
+    }
+
+    // Master function for ball coordinates
+    function getBallPosition(currentTime, speed, distance, angle, curve, wind_kph) {
+        const vp_ms = speed / 3.6; 
+        
+        // Momentum pulls the ball FORWARD (Negative Y)
+        const momentumY = -applyDragDistance(vp_ms, currentTime) * pixelsPerMeter;
+        
+        // Lateral pass calculation (X axis)
+        const v0x = (Math.exp(distance * k_drag) - 1) / (k_drag * flightTime);
+        const x = passerX + (applyDragDistance(v0x, currentTime) * pixelsPerMeter);
+        
+        // Angle drift out of hands
+        const v0y_angle = v0x * Math.tan(angle * Math.PI / 180);
+        const angleDriftY = applyDragDistance(v0y_angle, currentTime) * pixelsPerMeter;
+        
+        // Aerodynamic Spin/Curve
+        const curveDriftY = curve * Math.pow(currentTime / flightTime, 2) * pixelsPerMeter;
+        
+        // TRUE WIND FORCE (Quadratic drift): 
+        // Tailwind (+kph) pushes ball forward (-Y). Headwind (-kph) pushes ball backward (+Y).
+        const windDriftY = - (wind_kph * 0.05) * Math.pow(currentTime, 2) * pixelsPerMeter;
+        
+        const y = passerY + momentumY + angleDriftY + curveDriftY + windDriftY;
+        return { x, y };
+    }
+
+    function updatePhysics() {
+        const vp_kph = parseFloat(speedSlider.value);
+        const passDistance = parseFloat(distanceSlider.value);
+        const passAngleDeg = parseFloat(angleSlider.value);
+        const curveFactor = parseFloat(spinSlider.value);
+        const wind_kph = parseFloat(windSlider.value);
+        
+        const vp_ms = vp_kph / 3.6;
+
+        flightTime = passDistance / 14; 
+        const endStats = getBallPosition(flightTime, vp_kph, passDistance, passAngleDeg, curveFactor, wind_kph);
+
+        receiverX = endStats.x;
+        
+        if (!receiverDragged) {
+            receiverY = endStats.y + (vp_ms * flightTime * pixelsPerMeter);
+            receiverSpeed_kph = vp_kph;
+        } else {
+            const distanceToRunPx = receiverY - endStats.y;
+            const distanceToRunMeters = distanceToRunPx / pixelsPerMeter;
+            let requiredSpeed = (distanceToRunMeters / flightTime) * 3.6;
+            
+            if (requiredSpeed < 0) requiredSpeed = 0; 
+            
+            if (requiredSpeed > 35) {
+                receiverSpeed_kph = 35;
+            } else {
+                receiverSpeed_kph = requiredSpeed;
+            }
+        }
+
+        // UI Updates
+        let speedDisplay = `Passer: ${vp_kph} | Rec: <span class="${receiverSpeed_kph >= 35 ? 'speed-max' : ''}">${receiverSpeed_kph.toFixed(1)} kph ${receiverSpeed_kph >= 35 ? '(Falls Short)' : ''}</span>`;
+        speedVal.innerHTML = speedDisplay;
+        
+        distanceVal.innerText = `${passDistance.toFixed(1)} m`;
+        angleVal.innerText = passAngleDeg === 0 ? `0.0° (Flat)` : `${passAngleDeg.toFixed(1)}°`;
+        spinVal.innerText = curveFactor.toFixed(2); 
+
+        // Update Wind Text
+        if (wind_kph === 0) {
+            windVal.innerText = "0 kph (Default)";
+            windVal.style.color = "var(--primary)";
+        } else if (wind_kph > 0) {
+            windVal.innerText = `+${wind_kph} kph (Tailwind)`;
+            windVal.style.color = '#10b981'; // Green
+        } else {
+            windVal.innerText = `${wind_kph} kph (Headwind)`;
+            windVal.style.color = '#ef4444'; // Red
+        }
+
+        if (passAngleDeg < 0) {
+            statusBox.className = "status-box illegal";
+            legalityText.innerText = "Illegal Pass";
+            explanationText.innerText = "The ball is thrown forward out of the hands.";
+        } else {
+            statusBox.className = "status-box legal";
+            legalityText.innerText = "Legal Pass";
+            explanationText.innerText = "The ball leaves the hands legally backwards/flat.";
+        }
+
+        const deltaYMeters = (passerY - endStats.y) / pixelsPerMeter;
+        if (deltaYMeters > 0.01) {
+            travelVal.innerText = `${deltaYMeters.toFixed(2)} m Forward`;
+            travelVal.style.color = passAngleDeg < 0 ? '#ef4444' : '#2563eb';
+        } else if (deltaYMeters < -0.01) {
+            travelVal.innerText = `${Math.abs(deltaYMeters).toFixed(2)} m Backward`;
+            travelVal.style.color = '#10b981'; 
+        } else {
+            travelVal.innerText = `0.00 m (Flat)`;
+            travelVal.style.color = '#64748b';
+        }
+
+        if (assetsLoaded === 2) draw();
+    }
+
+    function draw() {
+        ctx.fillStyle = '#328b4d';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#2d8045';
+        for(let i = 0; i < canvas.height; i += 40) {
+            if((i / 40) % 2 === 0) ctx.fillRect(0, i, canvas.width, 40);
+        }
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        const touchlineX = pitchStartX + (35 * pixelsPerMeter);
+        ctx.moveTo(touchlineX, 0); ctx.lineTo(touchlineX, canvas.height);
+        ctx.stroke();
+
+        ctx.setLineDash([15, 15]);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(touchlineX - (5 * pixelsPerMeter), 0); ctx.lineTo(touchlineX - (5 * pixelsPerMeter), canvas.height); 
+        ctx.moveTo(touchlineX - (15 * pixelsPerMeter), 0); ctx.lineTo(touchlineX - (15 * pixelsPerMeter), canvas.height); 
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, pitchStartY); ctx.lineTo(canvas.width, pitchStartY);
+        ctx.stroke();
+
+        ctx.lineWidth = 2;
+        ctx.setLineDash([15, 15]);
+        ctx.beginPath();
+        const line10mY = pitchStartY - (10 * pixelsPerMeter);
+        ctx.moveTo(0, line10mY); ctx.lineTo(canvas.width, line10mY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        const line22mY = pitchStartY - (22 * pixelsPerMeter);
+        ctx.moveTo(0, line22mY); ctx.lineTo(canvas.width, line22mY);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.font = '14px Inter';
+        ctx.fillText("Pass Line", 10, pitchStartY - 10);
+        ctx.fillText("10m Line", 10, line10mY - 10);
+        ctx.fillText("22m Line", 10, line22mY - 10);
+
+        const vp_kph = parseFloat(speedSlider.value);
+        const passDistance = parseFloat(distanceSlider.value);
+        const passAngleDeg = parseFloat(angleSlider.value);
+        const curveFactor = parseFloat(spinSlider.value);
+        const wind_kph = parseFloat(windSlider.value);
+        const vp_ms = vp_kph / 3.6; 
+
+        const ballPos = getBallPosition(t, vp_kph, passDistance, passAngleDeg, curveFactor, wind_kph);
+        const endStats = getBallPosition(flightTime, vp_kph, passDistance, passAngleDeg, curveFactor, wind_kph);
+        
+        const currentReceiverY = receiverY - ((receiverSpeed_kph / 3.6) * t * pixelsPerMeter);
+        const currentPlayerY = passerY - (vp_ms * t * pixelsPerMeter);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(passerX, passerY);
+        ctx.lineTo(passerX, passerY - (vp_ms * flightTime * pixelsPerMeter));
+        ctx.stroke();
+
+        const receiverFinalY = receiverY - ((receiverSpeed_kph / 3.6) * flightTime * pixelsPerMeter);
+        ctx.beginPath();
+        ctx.moveTo(receiverX, receiverY);
+        ctx.lineTo(receiverX, receiverFinalY); 
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.strokeStyle = '#fbbf24'; 
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(passerX, passerY);
+        for (let step = 0; step <= flightTime; step += 0.05) {
+            const pos = getBallPosition(step, vp_kph, passDistance, passAngleDeg, curveFactor, wind_kph);
+            ctx.lineTo(pos.x, pos.y);
+        }
+        ctx.lineTo(endStats.x, endStats.y); 
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(passerX, passerY);
+        ctx.lineTo(endStats.x, passerY);
+        ctx.stroke();
+
+        if (t === 0) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.arc(passerX, passerY, 22, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(receiverX, receiverY, 22, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        if (playerImg.complete) {
+            ctx.save();
+            ctx.translate(passerX, currentPlayerY);
+            ctx.filter = 'hue-rotate(200deg) saturate(300%) brightness(0.8)';
+            ctx.drawImage(playerImg, -15, -15, 30, 30);
+            ctx.restore();
+        }
+
+        if (playerImg.complete) {
+            ctx.save();
+            ctx.translate(receiverX, currentReceiverY);
+            ctx.scale(-1, 1);
+            if (receiverSpeed_kph >= 35) {
+                ctx.filter = 'hue-rotate(-50deg) saturate(300%) brightness(1.1)'; 
+            } else {
+                ctx.filter = 'hue-rotate(0deg) saturate(300%) brightness(0.9)'; 
+            }
+            ctx.drawImage(playerImg, -15, -15, 30, 30);
+            ctx.restore();
+        }
+
+        if (ballImg.complete) {
+            ctx.save();
+            ctx.translate(ballPos.x, ballPos.y);
+            ctx.rotate((t * 15) * (Math.PI / 180));
+            ctx.drawImage(ballImg, -14, -14, 28, 28);
+            ctx.restore();
+        }
+    }
+
+    function loop(now) {
+        if (!isPlaying) return;
+        let dt = (now - lastFrameTime) / 1000;
+        lastFrameTime = now;
+        t += dt;
+
+        dragBadge.style.opacity = '0'; 
+
+        if (t >= flightTime) {
+            t = flightTime;
+            isPlaying = false;
+            playBtn.innerText = "▶";
+            dragBadge.style.opacity = '1';
+        }
+
+        timeScrubber.value = (t / flightTime) * 100;
+        draw();
+        if (isPlaying) requestAnimationFrame(loop);
+    }
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            playBtn.innerText = "⏸";
+            if (t >= flightTime) t = 0;
+            lastFrameTime = performance.now();
+            requestAnimationFrame(loop);
+        } else {
+            playBtn.innerText = "▶";
+        }
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        const vp_ms = parseFloat(speedSlider.value) / 3.6;
+        const currentPasserY = passerY - (vp_ms * t * pixelsPerMeter);
+        const currentReceiverY = receiverY - ((receiverSpeed_kph/3.6) * t * pixelsPerMeter);
+
+        let grabbed = false;
+
+        if (Math.hypot(mouseX - receiverX, mouseY - currentReceiverY) <= 30) {
+            isDraggingReceiver = true; grabbed = true;
+            dragOffsetX = mouseX - receiverX;
+            dragOffsetY = mouseY - receiverY; 
+        } 
+        else if (Math.hypot(mouseX - passerX, mouseY - currentPasserY) <= 30) {
+            isDraggingPasser = true; grabbed = true;
+            dragOffsetX = mouseX - passerX;
+            dragOffsetY = mouseY - passerY;
+        }
+
+        if (grabbed || t > 0 || isPlaying) {
+            isPlaying = false;
+            playBtn.innerText = "▶";
+            t = 0;
+            timeScrubber.value = 0;
+            draw();
+        }
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        const vp_ms = parseFloat(speedSlider.value) / 3.6;
+        const currentPasserY = passerY - (vp_ms * t * pixelsPerMeter);
+        const currentReceiverY = receiverY - ((receiverSpeed_kph/3.6) * t * pixelsPerMeter);
+
+        if (isDraggingPasser || isDraggingReceiver) {
+            canvas.style.cursor = 'grabbing';
+        } else if (Math.hypot(mouseX - receiverX, mouseY - currentReceiverY) <= 30 || 
+                   Math.hypot(mouseX - passerX, mouseY - currentPasserY) <= 30) {
+            canvas.style.cursor = 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+
+        if (isDraggingReceiver) {
+            receiverDragged = true; 
+            
+            let newX = mouseX - dragOffsetX;
+            let newY = mouseY - dragOffsetY;
+            
+            if (newY < passerY) newY = passerY; 
+            const touchlineX = pitchStartX + 35 * pixelsPerMeter;
+            if (newX > touchlineX) newX = touchlineX; 
+            if (newX < passerX + 5 * pixelsPerMeter) newX = passerX + 5 * pixelsPerMeter; 
+            
+            distanceSlider.value = (newX - passerX) / pixelsPerMeter;
+            receiverY = newY; 
+            
+            updatePhysics(); 
+            
+        } else if (isDraggingPasser) {
+            let newX = mouseX - dragOffsetX;
+            let newY = mouseY - dragOffsetY;
+            
+            const distPx = parseFloat(distanceSlider.value) * pixelsPerMeter;
+            const touchlineX = pitchStartX + 35 * pixelsPerMeter;
+            
+            if (newX < 10) newX = 10;
+            if (newX + distPx > touchlineX) newX = touchlineX - distPx;
+            
+            const deltaY = newY - passerY;
+            receiverY += deltaY; 
+
+            passerX = newX;
+            passerY = newY;
+            updatePhysics(); 
+        }
+    });
+
+    const endDrag = () => { isDraggingPasser = false; isDraggingReceiver = false; canvas.style.cursor = 'default'; };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointerleave', endDrag);
+
+    speedSlider.addEventListener('input', updatePhysics);
+    distanceSlider.addEventListener('input', updatePhysics);
+    angleSlider.addEventListener('input', updatePhysics);
+    spinSlider.addEventListener('input', updatePhysics);
+    windSlider.addEventListener('input', updatePhysics);
+    
+    timeScrubber.addEventListener('input', (e) => {
+        isPlaying = false;
+        playBtn.innerText = "▶";
+        t = (e.target.value / 100) * flightTime;
+        dragBadge.style.opacity = t === 0 ? '1' : '0';
+        draw();
+    });
+
+    playBtn.addEventListener('click', togglePlay);
+    
+</script>
+
+</body>
+</html>

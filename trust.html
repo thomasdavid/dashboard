@@ -3,19 +3,68 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="description" content="Compare trust indicators across European countries and years — a Tommy Tools dataviz project." />
-<title>Trust Explorer | Tommy Tools</title>
+<meta name="description" content="Compare trust indicators across European countries and years." />
+<title>Trust Explorer — Tommy Tools</title>
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.7.0/css/flag-icons.min.css"/>
 <style>
-:root{--low:#C35A08;--mid:#C8CED3;--high:#0B3D56;--second:#1B2110;--ink:#17202a;--muted:#647180;--axis:#bfbfbf;--grid:#e9e9e9;--line:#dbe3e7;--soft:#f4f7f8;--accent:#0e5b76;--dataviz:#b08a57;--dataviz-soft:#eadfce}
-*{box-sizing:border-box}body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--soft);color:var(--ink)}.shell{width:min(1450px,calc(100% - 48px));margin:auto}.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center}.topbar .shell{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none;font-weight:850}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px}.back-link{color:var(--accent);font-size:14px;font-weight:800;text-decoration:none}.project-head{padding:30px 0 18px}.project-meta{display:flex;align-items:center;gap:12px;margin-bottom:10px}.category{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:var(--dataviz-soft);color:var(--dataviz);font-size:12px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.project-head h1{margin:0;font-size:clamp(32px,4vw,48px);letter-spacing:-.04em}.project-head p{max-width:780px;margin:10px 0 0;color:var(--muted);line-height:1.6}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 16px 42px rgba(24,43,54,.06);padding:20px 20px 10px;margin-bottom:38px;overflow:hidden}.wrap{max-width:1200px;margin:0 auto;padding:0}h2{margin:4px 0 6px;text-align:center;font-size:28px;letter-spacing:-.025em}.controls-stack{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 6px}.controls-row{display:flex;align-items:center;justify-content:center;gap:12px}.legend-row{margin-top:2px;transform:scale(.9);transform-origin:center}.select-wrap{position:relative;display:inline-block}.select-wrap select{min-width:240px;padding:10px 40px 10px 14px;border:1px solid #d5dbe3;border-radius:12px;background:#fff;font-size:14px;line-height:1;color:#111;appearance:none;background-image:none}.select-wrap select:focus{outline:none;border-color:#b8c2cf;box-shadow:0 0 0 3px rgba(14,91,118,.1)}.select-wrap.year select{min-width:150px;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px}.select-wrap.year select.soft{color:#7c8796}.clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;background:transparent;color:#111;font-size:22px;line-height:1;padding:0;cursor:pointer}.clear-btn:hover{color:#000;transform:translateY(-50%) scale(1.05)}.clear-btn:active{transform:translateY(-50%) scale(.98)}.clear-btn[hidden]{display:none}.legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}.legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}svg{display:block;width:100%;height:auto}.label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}.row-rule{stroke:var(--grid);stroke-width:1}.dot{stroke:#fff;stroke-width:1}.dot.emph{stroke:#222c4c;stroke-width:2}.eu-dot{stroke:#000;stroke-width:3}.highlight{fill:none;stroke:#6b7280;stroke-opacity:.55;stroke-width:1.8;stroke-linecap:round;pointer-events:none}.highlight-pin{fill:none;stroke:#0f1d3a;stroke-width:.6;pointer-events:none}.highlight.second{stroke:var(--high);stroke-opacity:.55}.highlight-pin.second{stroke:var(--high);stroke-opacity:.6}.band-layer{pointer-events:none}.between-band{fill:#0B3D56;fill-opacity:.02;stroke:#0B3D56;stroke-opacity:.12;stroke-width:0;mix-blend-mode:multiply}.axis-cues text{font-size:22px;font-weight:800}.axis-cues .low{fill:var(--low)}.axis-cues .high{fill:#0B3D56}.name-fo{pointer-events:none}.flag-row{display:flex;align-items:center;gap:6px;font-weight:800;font-size:18px;color:#111;line-height:1;text-shadow:0 1px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 3px rgba(255,255,255,.95);white-space:nowrap}.tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}.footer{border-top:1px solid var(--line);background:#fff}.footer .shell{min-height:72px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:13px}@media(max-width:680px){.shell{width:min(100% - 24px,1450px)}.topbar{height:64px}.back-link{font-size:13px}.project-head{padding-top:22px}.panel{padding:14px 6px 4px;border-radius:14px}.controls-row{flex-direction:column;gap:8px}.select-wrap,.select-wrap select{width:100%}.select-wrap.year select{min-width:0}.footer .shell{align-items:flex-start;justify-content:center;flex-direction:column;gap:4px}}
+:root{--low:#C35A08;--mid:#C8CED3;--high:#0B3D56;--second:#1B2110;--ink:#17202a;--muted:#647180;--grid:#e9e9e9;--line:#dfe5e8}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#fff;color:var(--ink)}
+.bar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+.bar a{text-decoration:none;color:var(--ink);font-weight:750}
+.bar strong{font-size:14px}
+.wrap{max-width:1200px;margin:18px auto 30px;padding:0 12px}
+h2{margin:6px 0;text-align:center;font-size:28px;letter-spacing:-.025em}
+.controls-stack{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 6px}
+.controls-row{display:flex;align-items:center;justify-content:center;gap:12px}
+.legend-row{margin-top:2px;transform:scale(.9);transform-origin:center}
+.select-wrap{position:relative;display:inline-block}
+.select-wrap select{min-width:240px;padding:10px 40px 10px 14px;border:1px solid #d5dbe3;border-radius:12px;background:#fff;font-size:14px;line-height:1;color:#111;appearance:none;background-image:none}
+.select-wrap select:focus{outline:none;border-color:#b8c2cf;box-shadow:0 0 0 3px rgba(14,91,118,.1)}
+.select-wrap.year select{min-width:150px;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%23222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');background-repeat:no-repeat;background-position:right 12px center;background-size:12px 8px}
+.select-wrap.year select.soft{color:#7c8796}
+.clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;background:transparent;color:#111;font-size:22px;line-height:1;padding:0;cursor:pointer}
+.clear-btn:hover{color:#000;transform:translateY(-50%) scale(1.05)}
+.clear-btn:active{transform:translateY(-50%) scale(.98)}
+.clear-btn[hidden]{display:none}
+.legend-eu{display:flex;align-items:center;gap:8px;color:#333;font-size:14px}
+.legend-eu .chip{width:14px;height:14px;border-radius:50%;background:var(--mid);outline:2px solid #000;outline-offset:-1px}
+svg{display:block;width:100%;height:auto}
+.label{fill:#111;font-size:18px;font-weight:600;dominant-baseline:middle}
+.row-rule{stroke:var(--grid);stroke-width:1}
+.dot{stroke:#fff;stroke-width:1}
+.dot.emph{stroke:#222c4c;stroke-width:2}
+.eu-dot{stroke:#000;stroke-width:3}
+.highlight{fill:none;stroke:#6b7280;stroke-opacity:.55;stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.highlight-pin{fill:none;stroke:#0f1d3a;stroke-width:.6;pointer-events:none}
+.highlight.second{stroke:var(--high);stroke-opacity:.55}
+.highlight-pin.second{stroke:var(--high);stroke-opacity:.6}
+.band-layer{pointer-events:none}
+.between-band{fill:#0B3D56;fill-opacity:.02;stroke:#0B3D56;stroke-opacity:.12;stroke-width:0;mix-blend-mode:multiply}
+.axis-cues text{font-size:22px;font-weight:800}
+.axis-cues .low{fill:var(--low)}
+.axis-cues .high{fill:#0B3D56}
+.name-fo{pointer-events:none}
+.flag-row{display:flex;align-items:center;gap:6px;font-weight:800;font-size:18px;color:#111;line-height:1;text-shadow:0 1px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 3px rgba(255,255,255,.95);white-space:nowrap}
+.tooltip{position:fixed;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:13px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+@media(max-width:680px){.bar{height:58px;padding:0 14px}.bar strong{font-size:12px}.wrap{margin-top:12px}.controls-row{flex-direction:column;gap:8px}.select-wrap,.select-wrap select{width:100%}.select-wrap.year select{min-width:0}}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="shell"><a class="brand" href="https://tommytools.dev/" aria-label="Tommy Tools home"><span class="mark">TT</span><span>Tommy Tools</span></a><a class="back-link" href="https://tommytools.dev/">← All projects</a></div></header>
-<main class="shell"><section class="project-head"><div class="project-meta"><span class="category">Dataviz</span></div><h1>Trust Explorer</h1><p>Compare trust in institutions across European countries and years. Select up to two countries to trace and compare their profiles.</p></section><section class="panel"><div class="wrap"><h2>Trust indicators dashboard</h2><header class="controls-stack"><div class="controls-row"><div class="select-wrap"><select id="countrySel" required><option id="countryDisplay" value="" disabled selected hidden>Select a country</option></select><button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button></div><div class="select-wrap year"><select id="yearSel" required class="soft"></select></div></div><div class="legend-row"><div class="legend-eu" title="EU27 average"><div class="chip"></div><span>EU27 average</span></div></div></header><svg id="chart" width="1100" height="640" viewBox="0 0 1100 640" aria-label="Trust indicators beeswarm chart"></svg></div></section></main>
-<div id="tooltip" class="tooltip" style="display:none"></div><footer class="footer"><div class="shell"><span>© 2026 Tommy Tools</span><span>Developed by Thomas David</span></div></footer>
+<header class="bar"><a href="https://tommytools.dev/">← Tommy Tools</a><strong>Trust Explorer</strong></header>
+<main class="wrap">
+<h2>Trust indicators dashboard</h2>
+<header class="controls-stack">
+<div class="controls-row">
+<div class="select-wrap"><select id="countrySel" required><option id="countryDisplay" value="" disabled selected hidden>Select a country</option></select><button id="clearSel" class="clear-btn" hidden aria-label="Clear selection">×</button></div>
+<div class="select-wrap year"><select id="yearSel" required class="soft"></select></div>
+</div>
+<div class="legend-row"><div class="legend-eu" title="EU27 average"><div class="chip"></div><span>EU27 average</span></div></div>
+</header>
+<svg id="chart" width="1100" height="640" viewBox="0 0 1100 640" aria-label="Trust indicators beeswarm chart"></svg>
+</main>
+<div id="tooltip" class="tooltip" style="display:none"></div>
 <script>
 const CSV_URL="https://raw.githubusercontent.com/thomasdavid/dashboard/main/Trust.csv";
 const FLAG_CODE={"European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"};

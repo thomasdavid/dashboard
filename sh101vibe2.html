@@ -213,6 +213,13 @@
             align-items: center;
             padding: 10px 4px;
         }
+        .mini-knob .knob-container {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 0;
+        }
+        .mini-knob .ctl-label { margin-bottom: 4px; }
+        .mini-knob .ctl-value { margin-top: 4px; }
         .power-block {
             display: flex;
             flex-direction: column;
@@ -388,7 +395,7 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Rate</label>
-                            <div class="fader" id="lfoRate-knob" data-min="0.1" data-max="20" data-step="0.1" data-value="4.2">
+                            <div class="fader" id="lfoRate-knob" data-min="0.1" data-max="20" data-step="0.1" data-value="2.9">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="lfoRate-knob"></div>
@@ -409,7 +416,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Pulse W</label>
-                            <div class="fader" id="pw-knob" data-min="0" data-max="100" data-step="1" data-value="88">
+                            <div class="fader" id="pw-knob" data-min="0" data-max="100" data-step="1" data-value="79">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="pw-knob"></div>
@@ -423,28 +430,28 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Saw</label>
-                            <div class="fader" id="mixSaw-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.58">
+                            <div class="fader" id="mixSaw-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.31">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSaw-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Pulse</label>
-                            <div class="fader" id="mixSquare-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.79">
+                            <div class="fader" id="mixSquare-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.78">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSquare-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Sub Osc</label>
-                            <div class="fader" id="mixSub-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.06">
+                            <div class="fader" id="mixSub-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.11">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSub-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Noise</label>
-                            <div class="fader" id="mixNoise-knob" data-min="0" data-max="0.5" data-step="0.01" data-value="0.165">
+                            <div class="fader" id="mixNoise-knob" data-min="0" data-max="0.5" data-step="0.01" data-value="0.10">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixNoise-knob"></div>
@@ -458,14 +465,14 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Freq</label>
-                            <div class="fader" id="cutoff-knob" data-min="30" data-max="12000" data-step="1" data-value="727" data-curve="cubic">
+                            <div class="fader" id="cutoff-knob" data-min="30" data-max="12000" data-step="1" data-value="616" data-curve="cubic">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="cutoff-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Res</label>
-                            <div class="fader" id="res-knob" data-min="0" data-max="25" data-step="0.1" data-value="4.4">
+                            <div class="fader" id="res-knob" data-min="0" data-max="25" data-step="0.1" data-value="7.4">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="res-knob"></div>
@@ -479,7 +486,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Dec</label>
-                            <div class="fader" id="vcfDec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.149">
+                            <div class="fader" id="vcfDec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.45">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="vcfDec-knob"></div>
@@ -514,7 +521,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">R</label>
-                            <div class="fader" id="rel-knob" data-min="0.001" data-max="3" data-step="0.01" data-value="0.232">
+                            <div class="fader" id="rel-knob" data-min="0.001" data-max="3" data-step="0.01" data-value="0.974">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="rel-knob"></div>
@@ -554,11 +561,25 @@
 
             <!-- Mid strip: power + logo -->
             <div class="mid-strip">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-5">
                     <div class="power-block">
                         <div id="power-led"></div>
                         <div class="power-switch"></div>
                         <div class="power-label">POWER</div>
+                    </div>
+                    <div class="control-cell mini-knob">
+                        <label class="ctl-label">LFO Amt</label>
+                        <div class="knob-container" id="vcfLfoAmt-knob" data-min="0" data-max="100" data-step="1" data-value="36">
+                            <div class="knob"><div class="knob-indicator"></div></div>
+                        </div>
+                        <div class="ctl-value" data-readout="vcfLfoAmt-knob"></div>
+                    </div>
+                    <div class="control-cell mini-knob">
+                        <label class="ctl-label">LFO Spd</label>
+                        <div class="knob-container" id="vcfLfoRate-knob" data-min="0.1" data-max="20" data-step="0.01" data-value="0.2" data-curve="cubic">
+                            <div class="knob"><div class="knob-indicator"></div></div>
+                        </div>
+                        <div class="ctl-value" data-readout="vcfLfoRate-knob"></div>
                     </div>
                 </div>
                 <div class="hint-label">MONOPHONIC SYNTHESIZER &middot; 32-STEP SEQUENCER</div>
@@ -627,6 +648,8 @@
         'glide-knob':   v => Math.round(v * 1000) + ' ms',
         'dist-knob':    v => Math.round(v) + '%',
         'verb-knob':    v => Math.round(v * 100) + '%',
+        'vcfLfoAmt-knob': v => Math.round(v) + '%',
+        'vcfLfoRate-knob': v => v.toFixed(1) + ' Hz',
     };
 
     function updateReadout(id, value) {
@@ -730,17 +753,19 @@
     let vcoSaw, vcoSquare, vcoSub, vcoNoise, mixSaw, mixSquare, mixSub, mixNoise, filter, filter2, vca, masterGain;
     let distortion, reverb, dryGain, wetGain, reverbGain;
     let driveIn, driveShaper, limiter, lfo, lfoPitch, lfoFilter, drift, driftGain;
+    let vcfLfo, vcfLfoGain;
 
     // STATE
     let settings = {
-        lfoRate: 4.2, pw: 88,
+        lfoRate: 2.9, pw: 79,
         range: 1,
-        mix: { saw: 0.58, square: 0.79, sub: 0.06, noise: 0.165 },
-        filter: { freq: 727, res: 4.4, envMod: 490, dec: 0.149 },
-        env: { a: 0.001, d: 0.6, s: 1, r: 0.232 },
+        mix: { saw: 0.31, square: 0.78, sub: 0.11, noise: 0.10 },
+        filter: { freq: 616, res: 7.4, envMod: 490, dec: 0.45 },
+        env: { a: 0.001, d: 0.6, s: 1, r: 0.974 },
         glide: 0.005,
         dist: 0,
-        verb: 0.64
+        verb: 0.64,
+        vcfLfo: { amount: 36, rate: 0.2 }
     };
 
     // Function to unlock iOS audio context
@@ -927,6 +952,18 @@
         lfoFilter.connect(filter.detune);
         lfo.start(t);
 
+        // Dedicated VCF LFO: triangle sweep on the filter cutoff.
+        // Amount 0-100% maps to 0-2400 cents (two octaves) of travel.
+        vcfLfo = audioCtx.createOscillator();
+        vcfLfo.type = 'triangle';
+        vcfLfo.frequency.value = settings.vcfLfo.rate;
+        vcfLfoGain = audioCtx.createGain();
+        vcfLfoGain.gain.value = (settings.vcfLfo.amount / 100) * 2400;
+        vcfLfo.connect(vcfLfoGain);
+        vcfLfoGain.connect(filter.detune);
+        vcfLfoGain.connect(filter2.detune);
+        vcfLfo.start(t);
+
         // Slow analog drift — the not-quite-stable pitch of a real VCO
         drift = audioCtx.createOscillator();
         drift.type = 'sine';
@@ -1030,6 +1067,14 @@
     initControl('sus-knob', (val) => settings.env.s = val);
     initControl('rel-knob', (val) => settings.env.r = val);
 
+    initControl('vcfLfoAmt-knob', (val) => {
+        settings.vcfLfo.amount = val;
+        if(vcfLfoGain) vcfLfoGain.gain.setTargetAtTime((val / 100) * 2400, audioCtx.currentTime, 0.05);
+    });
+    initControl('vcfLfoRate-knob', (val) => {
+        settings.vcfLfo.rate = val;
+        if(vcfLfo) vcfLfo.frequency.setTargetAtTime(val, audioCtx.currentTime, 0.05);
+    });
     initControl('glide-knob', (val) => settings.glide = val);
     initControl('dist-knob', (val) => { settings.dist = val; updateMixer(); });
     initControl('verb-knob', (val) => { settings.verb = val; updateMixer(); });

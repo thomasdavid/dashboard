@@ -102,7 +102,7 @@
 <div id="tooltip" class="tooltip" style="display:none"></div>
 
 <script>
-const CSV_URL = "https://cdn.jsdelivr.net/gh/thomasdavid/dashboard@main/trust.csv";
+const CSV_URL = "trust.csv";
 const FLAG_CODE = {"European Union":"eu","Austria":"at","Belgium":"be","Bulgaria":"bg","Croatia":"hr","Cyprus":"cy","Czechia":"cz","Denmark":"dk","Estonia":"ee","Finland":"fi","France":"fr","Germany":"de","Greece":"gr","Hungary":"hu","Ireland":"ie","Italy":"it","Latvia":"lv","Lithuania":"lt","Luxembourg":"lu","Malta":"mt","Netherlands":"nl","Poland":"pl","Portugal":"pt","Romania":"ro","Slovakia":"sk","Slovenia":"si","Spain":"es","Sweden":"se"};
 
 /* chart setup */
@@ -167,7 +167,6 @@ function init(rows){
   years = Array.from(new Set(allRows.map(d=>d.Year))).sort(d3.ascending);
   curYear = d3.max(years);
 
-  // populate year
   [...years].sort((a,b)=>b-a).forEach(y => yearSel.add(new Option(y, y, false, y===curYear)));
   yearSel.classList.add('soft');
   yearSel.addEventListener('change', ()=> yearSel.classList.remove('soft'));
@@ -180,7 +179,6 @@ function init(rows){
   }));
   categories = metrics.slice().sort((a,b)=> d3.descending(euVal[a], euVal[b]));
 
-  // static scaffolding
   const rowsHeight = (categories.length-1)*rowGap;
   const totalH = margin.top + margin.bottom + (rowsHeight + 78 + 24) + 40;
   svg.attr("height", totalH);
@@ -200,17 +198,14 @@ function init(rows){
   cues.append("text").attr("class","avg").attr("x", x(4.5)).attr("text-anchor","middle").text("");
   cues.append("text").attr("class","high").attr("x", x(7.5)).attr("text-anchor","end").text("Higher trust →");
 
-  // dots
   points = buildPoints(byYear);
   beeswarm(points);
   drawDots();
 
-  // country list
   const allCountries = Array.from(new Set(byYear.map(d=>d.Country))).filter(Boolean);
   const ordered = ["European Union", ...allCountries.filter(c => c !== "European Union").sort((a,b)=>a.localeCompare(b))];
   ordered.forEach(c => countrySel.add(new Option(c, c)));
 
-  // handlers
   yearSel.addEventListener("change", ()=>{
     const y = +yearSel.value;
     if (y === curYear) return;
@@ -226,7 +221,7 @@ function init(rows){
   countrySel.addEventListener("change", ()=>{
     const choice = countrySel.value;
     if (!choice) return;
-    addCountry(choice, /*animateNew*/true);
+    addCountry(choice, true);
     countrySel.value = "";
   });
 
@@ -234,7 +229,6 @@ function init(rows){
     selectedCountries=[]; updateCountryDisplay(); applyFade(new Set()); clearLayers();
   });
 
-  // NEW: click anywhere in the SVG that's NOT a circle → pop last selection
   svg.on("click", (event)=>{
     if (event.target.tagName.toLowerCase() !== "circle") {
       deselectLast();
@@ -242,7 +236,6 @@ function init(rows){
   });
 }
 
-/* NEW: remove the most recently added country */
 function deselectLast(){
   if (selectedCountries.length === 0) return;
   selectedCountries.pop();

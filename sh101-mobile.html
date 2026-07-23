@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=4, user-scalable=yes, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,10 +17,11 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      overflow: auto;
       background: #191a17;
-      overscroll-behavior: none;
-      touch-action: manipulation;
+      overscroll-behavior: auto;
+      touch-action: pan-x pan-y pinch-zoom;
+      -webkit-overflow-scrolling: touch;
     }
 
     #synth-frame {
@@ -31,6 +32,7 @@
       border: 0;
       display: block;
       background: #191a17;
+      touch-action: pan-x pan-y pinch-zoom;
     }
 
     #dedication {
@@ -103,6 +105,32 @@
 
   <script>
     const enterButton = document.getElementById('enter-button');
+    const synthFrame = document.getElementById('synth-frame');
+
+    function enableTouchNavigationInsideSynth() {
+      try {
+        const doc = synthFrame.contentDocument;
+        if (!doc) return;
+
+        let viewport = doc.querySelector('meta[name="viewport"]');
+        if (!viewport) {
+          viewport = doc.createElement('meta');
+          viewport.name = 'viewport';
+          doc.head.appendChild(viewport);
+        }
+        viewport.content = 'width=1000, initial-scale=1, minimum-scale=0.5, maximum-scale=4, user-scalable=yes, viewport-fit=cover';
+
+        doc.documentElement.style.overflow = 'auto';
+        doc.documentElement.style.touchAction = 'pan-x pan-y pinch-zoom';
+        doc.body.style.overflow = 'auto';
+        doc.body.style.touchAction = 'pan-x pan-y pinch-zoom';
+        doc.body.style.webkitOverflowScrolling = 'touch';
+      } catch (_) {
+        // Same-origin access should work; the synth remains usable if unavailable.
+      }
+    }
+
+    synthFrame.addEventListener('load', enableTouchNavigationInsideSynth);
 
     async function enterImmersiveMode() {
       try {

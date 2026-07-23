@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1000, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
     <title>SH-101 Vibe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -369,6 +368,58 @@
         .btn-control.red { background: linear-gradient(180deg, #7f1d1d, #5f1414); border-color: #991b1b; color: #fecaca; }
 
         input[type="range"]#seqTempo { accent-color: #e8862a; }
+
+        #appWrap { }
+
+        .panel-btn {
+            font-size: 0.55rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            background: linear-gradient(180deg, #2a2a2a, #0f0f0f);
+            color: #cfd1cd;
+            border: 1px solid #000;
+            border-radius: 3px;
+            padding: 7px 12px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+        .panel-btn:active { transform: translateY(1px); }
+
+        .part-picker { position: relative; display: inline-block; }
+        .part-menu {
+            position: absolute; top: calc(100% + 4px); left: 0; z-index: 60;
+            background: #1b1d21; border: 1px solid #46494f; border-radius: 3px;
+            padding: 7px 9px; min-width: 160px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .part-row {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;
+            color: #d5d7db; cursor: pointer; white-space: nowrap;
+        }
+        .part-row input[type="checkbox"] { accent-color: #e8862a; margin: 0; }
+
+        .song-select {
+            font-size: 0.65rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(180deg, #35383e, #24262b);
+            color: #d5d7db;
+            border: 1px solid #46494f;
+            border-radius: 3px;
+            padding: 7px 8px;
+            box-shadow: 0 2px 0 #101114;
+            cursor: pointer;
+            /* stable size: long song/part titles get ellipsized instead of
+               stretching the bar past the synth's edge */
+            width: 110px;
+            max-width: 110px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -383,6 +434,7 @@
     </div>
 
     <!-- Main Synth Case -->
+    <div id="appWrap">
     <div class="synth-case">
         <div class="panel">
 
@@ -395,7 +447,7 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Rate</label>
-                            <div class="fader" id="lfoRate-knob" data-min="0.1" data-max="20" data-step="0.1" data-value="2.9">
+                            <div class="fader" id="lfoRate-knob" data-min="0.1" data-max="20" data-step="0.1" data-value="17.9">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="lfoRate-knob"></div>
@@ -416,7 +468,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Pulse W</label>
-                            <div class="fader" id="pw-knob" data-min="0" data-max="100" data-step="1" data-value="79">
+                            <div class="fader" id="pw-knob" data-min="0" data-max="100" data-step="1" data-value="27">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="pw-knob"></div>
@@ -430,21 +482,21 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Saw</label>
-                            <div class="fader" id="mixSaw-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.31">
+                            <div class="fader" id="mixSaw-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.7">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSaw-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Pulse</label>
-                            <div class="fader" id="mixSquare-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.78">
+                            <div class="fader" id="mixSquare-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.26">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSquare-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Sub Osc</label>
-                            <div class="fader" id="mixSub-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.11">
+                            <div class="fader" id="mixSub-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.23">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="mixSub-knob"></div>
@@ -465,28 +517,28 @@
                     <div class="control-cells">
                         <div class="control-cell">
                             <label class="ctl-label">Freq</label>
-                            <div class="fader" id="cutoff-knob" data-min="30" data-max="12000" data-step="1" data-value="616" data-curve="cubic">
+                            <div class="fader" id="cutoff-knob" data-min="30" data-max="12000" data-step="1" data-value="1300" data-curve="cubic">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="cutoff-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Res</label>
-                            <div class="fader" id="res-knob" data-min="0" data-max="25" data-step="0.1" data-value="7.4">
+                            <div class="fader" id="res-knob" data-min="0" data-max="25" data-step="0.1" data-value="9.6">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="res-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Env</label>
-                            <div class="fader" id="envMod-knob" data-min="0" data-max="5000" data-step="10" data-value="490" data-curve="cubic">
+                            <div class="fader" id="envMod-knob" data-min="0" data-max="5000" data-step="10" data-value="960" data-curve="cubic">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="envMod-knob"></div>
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Dec</label>
-                            <div class="fader" id="vcfDec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.45">
+                            <div class="fader" id="vcfDec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.065">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="vcfDec-knob"></div>
@@ -507,7 +559,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">D</label>
-                            <div class="fader" id="dec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.6">
+                            <div class="fader" id="dec-knob" data-min="0.001" data-max="2" data-step="0.01" data-value="0.001">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="dec-knob"></div>
@@ -521,7 +573,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">R</label>
-                            <div class="fader" id="rel-knob" data-min="0.001" data-max="3" data-step="0.01" data-value="0.974">
+                            <div class="fader" id="rel-knob" data-min="0.001" data-max="3" data-step="0.01" data-value="0.619">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="rel-knob"></div>
@@ -549,7 +601,7 @@
                         </div>
                         <div class="control-cell">
                             <label class="ctl-label">Verb</label>
-                            <div class="fader fader-white" id="verb-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.64">
+                            <div class="fader fader-white" id="verb-knob" data-min="0" data-max="1" data-step="0.01" data-value="0.40">
                                 <div class="fader-slot"></div><div class="fader-handle"></div>
                             </div>
                             <div class="ctl-value" data-readout="verb-knob"></div>
@@ -569,23 +621,26 @@
                     </div>
                     <div class="control-cell mini-knob">
                         <label class="ctl-label">LFO Amt</label>
-                        <div class="knob-container" id="vcfLfoAmt-knob" data-min="0" data-max="100" data-step="1" data-value="36">
+                        <div class="knob-container" id="vcfLfoAmt-knob" data-min="0" data-max="100" data-step="1" data-value="47">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <div class="ctl-value" data-readout="vcfLfoAmt-knob"></div>
                     </div>
                     <div class="control-cell mini-knob">
                         <label class="ctl-label">LFO Spd</label>
-                        <div class="knob-container" id="vcfLfoRate-knob" data-min="0.1" data-max="20" data-step="0.01" data-value="0.2" data-curve="cubic">
+                        <div class="knob-container" id="vcfLfoRate-knob" data-min="0.1" data-max="20" data-step="0.01" data-value="0.3" data-curve="cubic">
                             <div class="knob"><div class="knob-indicator"></div></div>
                         </div>
                         <div class="ctl-value" data-readout="vcfLfoRate-knob"></div>
                     </div>
                 </div>
-                <div class="hint-label">MONOPHONIC SYNTHESIZER &middot; 32-STEP SEQUENCER</div>
-                <div class="logo-block">
-                    <span class="logo-vibe">VIBE</span>
-                    <span class="logo-sh101">SH-101</span>
+                <div class="hint-label">DUOPHONIC SYNTHESIZER &middot; 32-STEP SEQUENCER</div>
+                <div class="flex items-center gap-5">
+                    <button id="fullscreenBtn" class="panel-btn" title="Toggle fullscreen (locks landscape on mobile)">FULLSCREEN</button>
+                    <div class="logo-block">
+                        <span class="logo-vibe">VIBE</span>
+                        <span class="logo-sh101">SH-101</span>
+                    </div>
                 </div>
             </div>
 
@@ -598,11 +653,22 @@
         <!-- Sequencer -->
         <div class="sequencer-container">
             <div class="seq-bar">
-                <div class="flex gap-3 items-center">
+                <div class="flex gap-3 items-center flex-wrap">
                     <span class="seq-title">SEQUENCER</span>
                     <button id="seqPlayBtn" class="btn-control">PLAY</button>
                     <button id="seqStopBtn" class="btn-control">STOP</button>
                     <button id="seqClearBtn" class="btn-control red">CLEAR</button>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-2">Song</span>
+                    <select id="songSelect" class="song-select">
+                        <option value="arpstyle" selected>ArpStyle</option>
+                    </select>
+                    <button id="songSaveBtn" class="btn-control" title="Save the current grid as a named sequence">SAVE</button>
+                    <button id="midiLoadBtn" class="btn-control" title="Load a .mid file (up to 64 beats)">MIDI</button>
+                    <input type="file" id="midiFileInput" accept=".mid,.midi,audio/midi,audio/x-midi" style="display:none">
+                    <div id="partPicker" class="part-picker" style="display:none" title="Choose which parts of the loaded MIDI file play">
+                        <button id="partPickerBtn" class="song-select" style="text-align:left">All parts</button>
+                        <div id="partPickerMenu" class="part-menu" style="display:none"></div>
+                    </div>
                 </div>
                 <div class="flex gap-3 items-center">
                     <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Step</span>
@@ -610,8 +676,8 @@
                 </div>
                 <div class="flex gap-3 items-center">
                      <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Tempo</label>
-                     <input type="range" id="seqTempo" min="40" max="200" value="126" class="w-28 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                     <span id="tempoDisplay" class="text-sm font-mono text-orange-400 w-10 text-right">126</span>
+                     <input type="range" id="seqTempo" min="40" max="200" value="144" class="w-28 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                     <span id="tempoDisplay" class="text-sm font-mono text-orange-400 w-10 text-right">144</span>
                      <span class="text-[10px] text-gray-500 font-bold">BPM</span>
                 </div>
             </div>
@@ -624,6 +690,7 @@
             </div>
         </div>
 
+    </div>
     </div>
 
 <script>
@@ -750,22 +817,24 @@
     // --- AUDIO ENGINE ---
     let audioCtx;
     let hasStarted = false;
-    let vcoSaw, vcoSquare, vcoSub, vcoNoise, mixSaw, mixSquare, mixSub, mixNoise, filter, filter2, vca, masterGain;
-    let distortion, reverb, dryGain, wetGain, reverbGain;
-    let driveIn, driveShaper, limiter, lfo, lfoPitch, lfoFilter, drift, driftGain;
+    let voices = [];   // duophonic: two complete, independent synth voices
+    let voiceRR = 0;   // round-robin voice allocator
+    let noiseBuffer, masterGain;
+    let distortion, distPre, distPost, reverb, reverbGain;
+    let limiter, lfo, lfoPitch, lfoFilter, drift, driftGain;
     let vcfLfo, vcfLfoGain;
 
     // STATE
     let settings = {
-        lfoRate: 2.9, pw: 79,
+        lfoRate: 17.9, pw: 27,
         range: 1,
-        mix: { saw: 0.31, square: 0.78, sub: 0.11, noise: 0.10 },
-        filter: { freq: 616, res: 7.4, envMod: 490, dec: 0.45 },
-        env: { a: 0.001, d: 0.6, s: 1, r: 0.974 },
+        mix: { saw: 0.7, square: 0.26, sub: 0.23, noise: 0.10 },
+        filter: { freq: 1300, res: 9.6, envMod: 960, dec: 0.065 },
+        env: { a: 0.001, d: 0.001, s: 1, r: 0.619 },
         glide: 0.005,
         dist: 0,
-        verb: 0.64,
-        vcfLfo: { amount: 36, rate: 0.2 }
+        verb: 0.40,
+        vcfLfo: { amount: 47, rate: 0.3 }
     };
 
     // Function to unlock iOS audio context
@@ -797,15 +866,19 @@
         hasStarted = true;
         document.getElementById('power-led').classList.add('on');
 
-        // Master + output limiter (tames resonance peaks without hard clipping)
+        // Master + output limiter (tames resonance peaks without hard clipping).
+        // Gentle ratio + higher makeup headroom: the old 12:1 ratio with a fast
+        // release made the compressor ratchet the level down as note tails and
+        // reverb accumulated — the "volume creep". 4:1 with a slower release
+        // acts as a safety net instead of a pump.
         masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.3;
+        masterGain.gain.value = 0.25;
         limiter = audioCtx.createDynamicsCompressor();
         limiter.threshold.value = -6;
-        limiter.knee.value = 4;
-        limiter.ratio.value = 12;
-        limiter.attack.value = 0.002;
-        limiter.release.value = 0.12;
+        limiter.knee.value = 6;
+        limiter.ratio.value = 4;
+        limiter.attack.value = 0.003;
+        limiter.release.value = 0.25;
         masterGain.connect(limiter);
         limiter.connect(audioCtx.destination);
 
@@ -820,47 +893,37 @@
         distortion.curve = makeDistortionCurve(0);
         distortion.oversample = '4x';
 
-        // Chain
-        vca = audioCtx.createGain();
-        vca.gain.value = 0;
+        // Headroom pad around the waveshaper: its curve is only defined
+        // over an input of ±1 and hard-clamps anything beyond. The resonant
+        // filter sits upstream and boosts peaks near the cutoff well past
+        // ±1 (Q 6.6 ≈ +16 dB) — which was clipping right here, most audibly
+        // with the cutoff mid-band on strong harmonics. Pad 5x down before,
+        // 5x up after: small-signal gain is identical, the clamp moves out
+        // of reach.
+        distPre = audioCtx.createGain();
+        distPre.gain.value = 0.2;
+        distPost = audioCtx.createGain();
+        distPost.gain.value = 5;
+        distPre.connect(distortion);
+        distortion.connect(distPost);
 
-        // Gentle tanh saturation before the filter — analog-style warmth,
-        // rounds off harsh oscillator edges the way a driven VCF input does
-        driveIn = audioCtx.createGain();
-        driveIn.gain.value = 1.15;
-        driveShaper = audioCtx.createWaveShaper();
-        driveShaper.curve = makeSoftClipCurve();
-        driveShaper.oversample = '4x';
-
-        // 4-pole (24 dB/oct) lowpass like the SH-101's IR3109:
-        // two cascaded biquads, resonance on the first stage only
-        filter = audioCtx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.value = settings.filter.freq;
-        filter.Q.value = settings.filter.res;
-        filter2 = audioCtx.createBiquadFilter();
-        filter2.type = "lowpass";
-        filter2.frequency.value = settings.filter.freq;
-        filter2.Q.value = 0.707;
-
-        driveIn.connect(driveShaper);
-        driveShaper.connect(filter);
-        filter.connect(filter2);
-        filter2.connect(vca);
-        vca.connect(distortion);
-
-        distortion.connect(masterGain);
-        distortion.connect(reverb);
+        distPost.connect(masterGain);
+        distPost.connect(reverb);
         reverb.connect(reverbGain);
         reverbGain.connect(masterGain);
 
-        mixSaw = audioCtx.createGain();
-        mixSquare = audioCtx.createGain();
-        mixSub = audioCtx.createGain();
-        mixNoise = audioCtx.createGain();
-        [mixSaw, mixSquare, mixSub, mixNoise].forEach(node => node.connect(driveIn));
+        // Shared white-noise buffer (each voice gets its own looping player)
+        const bufferSize = audioCtx.sampleRate * 2;
+        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const nd = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) nd[i] = Math.random() * 2 - 1;
 
-        startOscillators();
+        // Shared modulation (LFOs + drift) feeds every voice
+        createSharedModulation();
+
+        // DUOPHONIC: two full voices, each with its own oscillators,
+        // mixer, drive stage, 4-pole VCF, and VCA
+        voices = [createVoice(), createVoice()];
         updateMixer();
     }
 
@@ -933,13 +996,8 @@
         }
     });
 
-    function startOscillators() {
+    function createSharedModulation() {
         const t = audioCtx.currentTime;
-        vcoSaw = audioCtx.createOscillator(); vcoSaw.type = 'sawtooth'; vcoSaw.start(t); vcoSaw.connect(mixSaw);
-        vcoSquare = audioCtx.createOscillator();
-        vcoSquare.setPeriodicWave(buildPulseWave(settings.pw / 100));
-        vcoSquare.start(t); vcoSquare.connect(mixSquare);
-        vcoSub = audioCtx.createOscillator(); vcoSub.type = 'square'; vcoSub.start(t); vcoSub.connect(mixSub);
 
         // Modulator LFO (triangle, like the original): subtle vibrato + filter animation
         lfo = audioCtx.createOscillator();
@@ -948,8 +1006,6 @@
         lfoPitch = audioCtx.createGain(); lfoPitch.gain.value = 4;    // cents of vibrato
         lfoFilter = audioCtx.createGain(); lfoFilter.gain.value = 30; // cents on the filter
         lfo.connect(lfoPitch); lfo.connect(lfoFilter);
-        [vcoSaw, vcoSquare, vcoSub].forEach(o => lfoPitch.connect(o.detune));
-        lfoFilter.connect(filter.detune);
         lfo.start(t);
 
         // Dedicated VCF LFO: triangle sweep on the filter cutoff.
@@ -960,8 +1016,6 @@
         vcfLfoGain = audioCtx.createGain();
         vcfLfoGain.gain.value = (settings.vcfLfo.amount / 100) * 2400;
         vcfLfo.connect(vcfLfoGain);
-        vcfLfoGain.connect(filter.detune);
-        vcfLfoGain.connect(filter2.detune);
         vcfLfo.start(t);
 
         // Slow analog drift — the not-quite-stable pitch of a real VCO
@@ -970,20 +1024,98 @@
         drift.frequency.value = 0.13;
         driftGain = audioCtx.createGain(); driftGain.gain.value = 1.7; // cents
         drift.connect(driftGain);
-        [vcoSaw, vcoSquare, vcoSub].forEach(o => driftGain.connect(o.detune));
         drift.start(t);
-        const bufferSize = audioCtx.sampleRate * 2;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-        vcoNoise = audioCtx.createBufferSource(); vcoNoise.buffer = buffer; vcoNoise.loop = true; vcoNoise.start(t); vcoNoise.connect(mixNoise);
+    }
+
+    // One complete synth voice: oscs -> mixer -> tanh drive -> 4-pole VCF -> VCA
+    function createVoice() {
+        const t = audioCtx.currentTime;
+        const v = {};
+
+        v.saw = audioCtx.createOscillator(); v.saw.type = 'sawtooth';
+        v.pulse = audioCtx.createOscillator();
+        v.pulse.setPeriodicWave(buildPulseWave(settings.pw / 100));
+        v.sub = audioCtx.createOscillator(); v.sub.type = 'square';
+        v.noise = audioCtx.createBufferSource();
+        v.noise.buffer = noiseBuffer; v.noise.loop = true;
+
+        v.mixSaw = audioCtx.createGain();
+        v.mixSquare = audioCtx.createGain();
+        v.mixSub = audioCtx.createGain();
+        v.mixNoise = audioCtx.createGain();
+        v.saw.connect(v.mixSaw);
+        v.pulse.connect(v.mixSquare);
+        v.sub.connect(v.mixSub);
+        v.noise.connect(v.mixNoise);
+
+        // Gentle tanh saturation before the filter — analog-style warmth,
+        // rounds off harsh oscillator edges the way a driven VCF input does
+        v.driveIn = audioCtx.createGain();
+        v.driveIn.gain.value = 1.15;
+        v.driveShaper = audioCtx.createWaveShaper();
+        v.driveShaper.curve = makeSoftClipCurve();
+        v.driveShaper.oversample = '4x';
+
+        // 4-pole (24 dB/oct) lowpass like the SH-101's IR3109:
+        // two cascaded biquads, resonance on the first stage only
+        v.filter = audioCtx.createBiquadFilter();
+        v.filter.type = "lowpass";
+        v.filter.frequency.value = settings.filter.freq;
+        v.filter.Q.value = settings.filter.res;
+        v.filter2 = audioCtx.createBiquadFilter();
+        v.filter2.type = "lowpass";
+        v.filter2.frequency.value = settings.filter.freq;
+        v.filter2.Q.value = 0.707;
+
+        v.vca = audioCtx.createGain();
+        v.vca.gain.value = 0;
+        // Per-voice trim: two voices sum, so back each one off to keep the
+        // combined level near what the single mono voice used to produce
+        v.out = audioCtx.createGain();
+        v.out.gain.value = 0.65;
+
+        [v.mixSaw, v.mixSquare, v.mixSub, v.mixNoise].forEach(n => n.connect(v.driveIn));
+        v.driveIn.connect(v.driveShaper);
+        v.driveShaper.connect(v.filter);
+        v.filter.connect(v.filter2);
+        v.filter2.connect(v.vca);
+        v.vca.connect(v.out);
+        v.out.connect(distPre);
+
+        // Hook the shared modulation into this voice
+        [v.saw, v.pulse, v.sub].forEach(o => {
+            lfoPitch.connect(o.detune);
+            driftGain.connect(o.detune);
+        });
+        lfoFilter.connect(v.filter.detune);
+        vcfLfoGain.connect(v.filter.detune);
+        vcfLfoGain.connect(v.filter2.detune);
+
+        v.saw.start(t); v.pulse.start(t); v.sub.start(t); v.noise.start(t);
+        return v;
+    }
+
+    // Round-robin: consecutive notes alternate voices, so two notes landing
+    // on the same step always get their own voice
+    function allocVoice() {
+        const v = voices[voiceRR];
+        voiceRR = (voiceRR + 1) % voices.length;
+        return v;
     }
 
     function mtof(note) { return 440 * Math.pow(2, (note - 69) / 12); }
 
-    function triggerAttack(noteValue) {
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
+    // Trigger a note. Pass a voice to target it, or omit to let the
+    // round-robin allocator pick one. Returns the voice used, so the
+    // caller can release that exact voice later.
+    function triggerAttack(noteValue, voice, when) {
+        if (!audioCtx || !voices.length) return null;
+        const v = voice || allocVoice();
+        // Timing fix ONLY (value handling untouched): play the note at the
+        // sequencer's scheduled step time instead of "whenever the 25ms
+        // scheduler loop happened to run", which quantized all notes to
+        // ~25ms timer ticks and caused mis-timed attacks/voice-steals.
+        const now = (when !== undefined) ? when : audioCtx.currentTime;
         const rangeInt = Math.round(settings.range);
         const octaveOffset = (rangeInt - 1) * 12;
 
@@ -991,15 +1123,15 @@
         const freq = mtof(baseNote);
         const subFreq = mtof(baseNote - 12);
 
-        vcoSaw.frequency.setTargetAtTime(freq, now, settings.glide);
-        vcoSquare.frequency.setTargetAtTime(freq, now, settings.glide);
-        vcoSub.frequency.setTargetAtTime(subFreq, now, settings.glide);
+        v.saw.frequency.setTargetAtTime(freq, now, settings.glide);
+        v.pulse.frequency.setTargetAtTime(freq, now, settings.glide);
+        v.sub.frequency.setTargetAtTime(subFreq, now, settings.glide);
 
         const { a, d, s } = settings.env;
-        vca.gain.cancelScheduledValues(now);
-        vca.gain.setValueAtTime(vca.gain.value, now);
-        vca.gain.linearRampToValueAtTime(1, now + a);
-        vca.gain.exponentialRampToValueAtTime(s || 0.001, now + a + d);
+        v.vca.gain.cancelScheduledValues(now);
+        v.vca.gain.setValueAtTime(v.vca.gain.value, now);
+        v.vca.gain.linearRampToValueAtTime(1, now + a);
+        v.vca.gain.exponentialRampToValueAtTime(s || 0.001, now + a + d);
 
         const fd = settings.filter.dec;
         // 30% keyboard tracking: higher notes open the filter slightly, like KYBD on the original
@@ -1007,29 +1139,36 @@
         const baseFreq = Math.max(30, settings.filter.freq * keyFollow);
         const modAmt = settings.filter.envMod;
         const peak = Math.min(18000, baseFreq + modAmt);
-        [filter, filter2].forEach(f => {
+        [v.filter, v.filter2].forEach(f => {
             f.frequency.cancelScheduledValues(now);
             f.frequency.setValueAtTime(Math.max(30, f.frequency.value), now);
             f.frequency.linearRampToValueAtTime(peak, now + 0.005);
             f.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.005 + fd);
         });
+        return v;
     }
 
-    function triggerRelease(delay = 0) {
-         if (!audioCtx) return;
+    // Release one voice, or every voice when called with no argument
+    function triggerRelease(voice, delay = 0) {
+         if (!audioCtx || !voices.length) return;
          const now = audioCtx.currentTime + delay;
          const { r } = settings.env;
-         vca.gain.cancelScheduledValues(now);
-         vca.gain.setTargetAtTime(0, now, r);
+         const targets = voice ? [voice] : voices;
+         targets.forEach(v => {
+             v.vca.gain.cancelScheduledValues(now);
+             v.vca.gain.setTargetAtTime(0, now, r);
+         });
     }
 
     function updateMixer() {
-        if(!mixSaw) return;
+        if(!voices.length) return;
         const now = audioCtx.currentTime;
-        mixSaw.gain.setTargetAtTime(settings.mix.saw, now, 0.05);
-        mixSquare.gain.setTargetAtTime(settings.mix.square, now, 0.05);
-        mixSub.gain.setTargetAtTime(settings.mix.sub, now, 0.05);
-        mixNoise.gain.setTargetAtTime(settings.mix.noise, now, 0.05);
+        voices.forEach(v => {
+            v.mixSaw.gain.setTargetAtTime(settings.mix.saw, now, 0.05);
+            v.mixSquare.gain.setTargetAtTime(settings.mix.square, now, 0.05);
+            v.mixSub.gain.setTargetAtTime(settings.mix.sub, now, 0.05);
+            v.mixNoise.gain.setTargetAtTime(settings.mix.noise, now, 0.05);
+        });
         if(distortion) distortion.curve = makeDistortionCurve(settings.dist);
         if(reverbGain) reverbGain.gain.setTargetAtTime(settings.verb, now, 0.05);
     }
@@ -1041,7 +1180,7 @@
     });
     initControl('pw-knob', (val) => {
         settings.pw = val;
-        if(vcoSquare) vcoSquare.setPeriodicWave(buildPulseWave(val / 100));
+        voices.forEach(v => v.pulse.setPeriodicWave(buildPulseWave(val / 100)));
     });
     initControl('range-knob', (val) => settings.range = val);
     initControl('mixSaw-knob', (val) => { settings.mix.saw = val; updateMixer(); });
@@ -1050,15 +1189,17 @@
     initControl('mixNoise-knob', (val) => { settings.mix.noise = val; updateMixer(); });
     initControl('cutoff-knob', (val) => {
         settings.filter.freq = val;
-        if(filter) {
+        if(voices.length) {
             const now = audioCtx.currentTime;
-            filter.frequency.setTargetAtTime(val, now, 0.02);
-            filter2.frequency.setTargetAtTime(val, now, 0.02);
+            voices.forEach(v => {
+                v.filter.frequency.setTargetAtTime(val, now, 0.02);
+                v.filter2.frequency.setTargetAtTime(val, now, 0.02);
+            });
         }
     });
     initControl('res-knob', (val) => {
         settings.filter.res = val;
-        if(filter) filter.Q.setTargetAtTime(settings.filter.res, audioCtx.currentTime, 0.05);
+        if(voices.length) voices.forEach(v => v.filter.Q.setTargetAtTime(settings.filter.res, audioCtx.currentTime, 0.05));
     });
     initControl('envMod-knob', (val) => settings.filter.envMod = val);
     initControl('vcfDec-knob', (val) => settings.filter.dec = val);
@@ -1080,46 +1221,59 @@
     initControl('verb-knob', (val) => { settings.verb = val; updateMixer(); });
 
     // --- SEQUENCER (32 Steps) ---
-    // The song: rolling 16th-note arpeggio in A minor.
-    // Rows: C=0 D=2 E=4 F=5 G=7 A=9 B=11
-    const DEFAULT_SONG = [
-        {step: 0,  note: 9,  length: 0.9},
-        {step: 1,  note: 0,  length: 0.9},
-        {step: 2,  note: 4,  length: 0.9},
-        {step: 3,  note: 0,  length: 0.9},
-        {step: 4,  note: 9,  length: 0.9},
-        {step: 5,  note: 0,  length: 0.9},
-        {step: 6,  note: 4,  length: 0.9},
-        {step: 7,  note: 7,  length: 0.9},
-        {step: 8,  note: 9,  length: 0.9},
-        {step: 9,  note: 4,  length: 0.9},
-        {step: 10, note: 0,  length: 0.9},
-        {step: 11, note: 4,  length: 0.9},
-        {step: 12, note: 11, length: 0.9},
-        {step: 13, note: 7,  length: 0.9},
-        {step: 14, note: 4,  length: 0.9},
-        {step: 15, note: 7,  length: 0.9},
-        {step: 16, note: 7,  length: 0.9},
-        {step: 17, note: 11, length: 0.9},
-        {step: 18, note: 2,  length: 0.9},
-        {step: 19, note: 11, length: 0.9},
-        {step: 20, note: 7,  length: 0.9},
-        {step: 21, note: 2,  length: 0.9},
-        {step: 22, note: 11, length: 0.9},
-        {step: 23, note: 7,  length: 0.9},
-        {step: 24, note: 5,  length: 0.9},
-        {step: 25, note: 9,  length: 0.9},
-        {step: 26, note: 0,  length: 0.9},
-        {step: 27, note: 9,  length: 0.9},
-        {step: 28, note: 4,  length: 0.9},
-        {step: 29, note: 2,  length: 0.9},
-        {step: 30, note: 0,  length: 0.9},
-        {step: 31, note: 11, length: 0.9},
-    ];
-    let sequencerNotes = DEFAULT_SONG.map(n => ({...n}));
+    // Stored sequences. Rows: C=0 C#=1 D=2 E=4 F=5 G=7 G#=8 A=9 B=11
+    const SONGS = {
+        // ArpStyle: 2 bars / 8 beats (32 sixteenth steps).
+        // C# stabs in a 3-3-2 rhythm on top, answered by A (bar 1) then
+        // G# (bar 2), with an E layer doubling underneath throughout.
+        arpstyle: [
+            // C# — 3-3-2 pattern, single-step hits
+            {step: 0,  note: 1, length: 0.9},
+            {step: 3,  note: 1, length: 0.9},
+            {step: 6,  note: 1, length: 0.9},
+            {step: 8,  note: 1, length: 0.9},
+            {step: 11, note: 1, length: 0.9},
+            {step: 14, note: 1, length: 0.9},
+            {step: 16, note: 1, length: 0.9},
+            {step: 19, note: 1, length: 0.9},
+            {step: 22, note: 1, length: 0.9},
+            {step: 24, note: 1, length: 0.9},
+            {step: 27, note: 1, length: 0.9},
+            {step: 30, note: 1, length: 0.9},
+            // E — doubling layer, both bars (now audible: the second
+            // voice picks it up alongside the A/G# harmony)
+            {step: 1,  note: 4, length: 1.9},
+            {step: 4,  note: 4, length: 1.9},
+            {step: 7,  note: 4, length: 0.9},
+            {step: 9,  note: 4, length: 1.9},
+            {step: 12, note: 4, length: 1.9},
+            {step: 15, note: 4, length: 0.9},
+            {step: 17, note: 4, length: 1.9},
+            {step: 20, note: 4, length: 1.9},
+            {step: 23, note: 4, length: 0.9},
+            {step: 25, note: 4, length: 1.9},
+            {step: 28, note: 4, length: 1.9},
+            {step: 31, note: 4, length: 0.9},
+            // A — bar 1
+            {step: 1,  note: 9, length: 1.9},
+            {step: 4,  note: 9, length: 1.9},
+            {step: 7,  note: 9, length: 0.9},
+            {step: 9,  note: 9, length: 1.9},
+            {step: 12, note: 9, length: 1.9},
+            {step: 15, note: 9, length: 0.9},
+            // G# — bar 2
+            {step: 17, note: 8, length: 1.9},
+            {step: 20, note: 8, length: 1.9},
+            {step: 23, note: 8, length: 0.9},
+            {step: 25, note: 8, length: 1.9},
+            {step: 28, note: 8, length: 1.9},
+            {step: 31, note: 8, length: 0.9},
+        ],
+    };
+    let sequencerNotes = SONGS.arpstyle.map(n => ({...n}));
 
     let seqIsPlaying = false;
-    let seqTempo = 126;
+    let seqTempo = 144;
     let currentSeqStep = 0;
     let nextStepTime = 0;
     let scheduleAhead = 0.1;
@@ -1128,7 +1282,9 @@
     const canvas = document.getElementById('pianoRoll');
     const ctx = canvas.getContext('2d');
     const NUM_ROWS = 12;
-    const NUM_COLS = 32;
+    let NUM_COLS = 32;              // grows up to 256 (64 beats) for MIDI files
+    const MAX_STEPS = 256;          // 64 beats at 1/16 per column
+    const SONG_COLS = {};           // per-song grid length (default 32)
     const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
     const SHARP_ROWS = [1,3,6,8,10];
 
@@ -1162,7 +1318,7 @@
         }
         for(let i=0; i<=NUM_COLS; i++) {
             const x = i * cellW;
-            ctx.strokeStyle = (i % 4 === 0) ? '#585c64' : '#2c2f34';
+            ctx.strokeStyle = (i % 16 === 0) ? '#7a808a' : (i % 4 === 0) ? '#585c64' : '#2c2f34';
             ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
         }
 
@@ -1280,9 +1436,11 @@
         notes.forEach(n => {
             const secPerBeat = 60.0 / seqTempo;
             const dur = (n.length / 4) * secPerBeat * timeScale;
-            triggerAttack(n.note);
-            if(dur > 0.05) setTimeout(() => triggerRelease(), dur * 1000);
-            else setTimeout(() => triggerRelease(), 50);
+            const v = triggerAttack(n.note, null, time);
+            if(!v) return;
+            // release timeout measured from the note's actual start time
+            const lag = Math.max(0, time - audioCtx.currentTime);
+            setTimeout(() => triggerRelease(v), (lag + Math.max(0.05, dur)) * 1000);
         });
     }
 
@@ -1342,6 +1500,292 @@
         document.getElementById('tempoDisplay').innerText = seqTempo;
     });
 
+    document.getElementById('songSelect').addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'midifile' && midiSong) {
+            showPartSelect(true);
+            applyMidiSelection();
+            return;
+        }
+        showPartSelect(false);
+        const song = SONGS[val];
+        if (song) {
+            NUM_COLS = SONG_COLS[val] || 32;
+            sequencerNotes = song.map(n => ({...n}));
+            if (currentSeqStep >= NUM_COLS) currentSeqStep = 0;
+            drawSequencer();
+        }
+    });
+
+    // --- USER-SAVED SEQUENCES ---
+    // Draw anything on the grid, hit SAVE, name it — it joins the dropdown.
+    // Persists between visits when the file is opened in a normal browser.
+    function persistUserSongs(store) {
+        try { localStorage.setItem('sh101-user-songs', JSON.stringify(store)); } catch(e) {}
+    }
+    function loadUserSongs() {
+        try { return JSON.parse(localStorage.getItem('sh101-user-songs')) || {}; } catch(e) { return {}; }
+    }
+    function addSongOption(key, name, select) {
+        const sel = document.getElementById('songSelect');
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = name;
+        sel.appendChild(opt);
+        if (select) sel.value = key;
+    }
+    const userSongs = loadUserSongs();
+    Object.entries(userSongs).forEach(([key, s]) => {
+        SONGS[key] = s.notes;
+        SONG_COLS[key] = s.numCols || 32;
+        addSongOption(key, s.name, false);
+    });
+    document.getElementById('songSaveBtn').addEventListener('click', () => {
+        if (!sequencerNotes.length) return;
+        const name = (window.prompt('Name this sequence:', 'My Song') || '').trim();
+        if (!name) return;
+        const key = 'user_' + Date.now();
+        const notes = sequencerNotes.map(n => ({...n}));
+        SONGS[key] = notes;
+        SONG_COLS[key] = NUM_COLS;
+        userSongs[key] = { name: name, notes: notes, numCols: NUM_COLS };
+        persistUserSongs(userSongs);
+        addSongOption(key, name, true);
+    });
+
+    // --- MIDI FILE LOADING ---
+    // Parses standard MIDI files (format 0/1) in-page, no libraries.
+    // Notes land on the 1/16 grid, up to 64 beats (256 columns); pitches
+    // collapse to the sequencer's single octave (note mod 12).
+    let midiSong = null; // { label, numCols, parts: [{label, notes}] }
+
+    const midiInput = document.getElementById('midiFileInput');
+    document.getElementById('midiLoadBtn').addEventListener('click', () => midiInput.click());
+    midiInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const buf = await file.arrayBuffer();
+            loadMidiSong(parseMidiFile(buf), file.name.replace(/\.(mid|midi)$/i, ''));
+        } catch(err) {
+            alert('Could not read MIDI file: ' + err.message);
+        }
+        midiInput.value = '';
+    });
+
+    function parseMidiFile(buffer) {
+        const data = new DataView(buffer);
+        let pos = 0;
+        const u8  = () => data.getUint8(pos++);
+        const u16 = () => { const v = data.getUint16(pos); pos += 2; return v; };
+        const u32 = () => { const v = data.getUint32(pos); pos += 4; return v; };
+        const str = (n) => { let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(u8()); return s; };
+        const vlq = () => { let v = 0, b; do { b = u8(); v = (v << 7) | (b & 0x7f); } while (b & 0x80); return v; };
+
+        if (str(4) !== 'MThd') throw new Error('not a standard MIDI file');
+        const hdrLen = u32();
+        u16();                       // format (0/1 both handled)
+        const ntrks = u16();
+        const division = u16();
+        pos += hdrLen - 6;
+        if (division & 0x8000) throw new Error('SMPTE time division not supported');
+        const stepsPerTick = 4 / division;   // sixteenth-steps per MIDI tick
+
+        const parts = [];
+        let tempo = null;
+
+        for (let t = 0; t < ntrks && pos < data.byteLength - 8; t++) {
+            if (str(4) !== 'MTrk') { const skip = u32(); pos += skip; t--; continue; }
+            const trkLen = u32();
+            const end = pos + trkLen;
+            let tick = 0, running = 0, name = null;
+            const active = {};        // (channel<<8)|note -> start tick
+            const chNotes = {};       // channel -> [{step, note, length}]
+            while (pos < end) {
+                tick += vlq();
+                let status = u8();
+                if (status < 0x80) { pos--; status = running; }
+                if (status >= 0x80 && status < 0xF0) running = status;
+                const type = status & 0xF0, ch = status & 0x0F;
+                if (type === 0x90 || type === 0x80) {
+                    const note = u8(), vel = u8();
+                    const key = (ch << 8) | note;
+                    if (type === 0x90 && vel > 0) {
+                        if (active[key] === undefined) active[key] = tick;
+                    } else if (active[key] !== undefined) {
+                        const step = active[key] * stepsPerTick;
+                        let len = Math.max(0.25, (tick - active[key]) * stepsPerTick);
+                        delete active[key];
+                        if (step < MAX_STEPS) {
+                            len = Math.min(len, MAX_STEPS - step);
+                            (chNotes[ch] = chNotes[ch] || []).push({ step: step, note: note % 12, length: len });
+                        }
+                    }
+                }
+                else if (type === 0xA0 || type === 0xB0 || type === 0xE0) pos += 2;
+                else if (type === 0xC0 || type === 0xD0) pos += 1;
+                else if (status === 0xFF) {
+                    const meta = u8(), mlen = vlq();
+                    if (meta === 0x03 && !name) name = str(mlen);
+                    else if (meta === 0x51 && tempo === null) tempo = Math.round(60000000 / ((u8() << 16) | (u8() << 8) | u8()));
+                    else pos += mlen;
+                }
+                else if (status === 0xF0 || status === 0xF7) pos += vlq();
+            }
+            pos = end;  // stay chunk-aligned no matter what
+            const channels = Object.keys(chNotes);
+            channels.forEach(ch => {
+                const label = (name || ('Track ' + (t + 1))) + (channels.length > 1 ? ' (ch ' + (parseInt(ch) + 1) + ')' : '');
+                parts.push({ label: label, notes: chNotes[ch] });
+            });
+        }
+        return { parts: parts, tempo: tempo };
+    }
+
+    function loadMidiSong(parsed, label) {
+        if (!parsed.parts.length) { alert('No notes found in that MIDI file.'); return; }
+
+        // Longest part defines the grid: whole bars, 32-256 columns (8-64 beats)
+        let maxStep = 0;
+        parsed.parts.forEach(p => p.notes.forEach(n => { maxStep = Math.max(maxStep, n.step + n.length); }));
+        const cols = Math.max(32, Math.min(MAX_STEPS, Math.ceil(maxStep / 16) * 16));
+        midiSong = { label: label, numCols: cols, parts: parsed.parts };
+
+        // Adopt the file's tempo, clamped to the slider's range
+        if (parsed.tempo) {
+            seqTempo = Math.min(200, Math.max(40, parsed.tempo));
+            document.getElementById('seqTempo').value = seqTempo;
+            document.getElementById('tempoDisplay').innerText = seqTempo;
+        }
+
+        // Song dropdown entry (one slot, replaced on each load)
+        const sel = document.getElementById('songSelect');
+        let opt = sel.querySelector('option[value="midifile"]');
+        if (!opt) { opt = document.createElement('option'); opt.value = 'midifile'; sel.appendChild(opt); }
+        opt.textContent = 'MIDI: ' + label;
+        sel.value = 'midifile';
+
+        // Part picker: multi-select via checkboxes, all parts on by default
+        midiPartSel = midiSong.parts.map(() => true);
+        buildPartMenu();
+        showPartSelect(true);
+        applyMidiSelection();
+    }
+
+    let midiPartSel = [];   // one boolean per part of the loaded MIDI
+
+    function buildPartMenu() {
+        const menu = document.getElementById('partPickerMenu');
+        menu.innerHTML = '';
+        midiSong.parts.forEach((p, i) => {
+            const row = document.createElement('label');
+            row.className = 'part-row';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = midiPartSel[i];
+            cb.addEventListener('change', () => {
+                midiPartSel[i] = cb.checked;
+                applyMidiSelection();
+            });
+            row.appendChild(cb);
+            row.appendChild(document.createTextNode(p.label));
+            menu.appendChild(row);
+        });
+    }
+
+    function partBtnLabel() {
+        if (!midiSong) return 'Parts';
+        const n = midiPartSel.filter(Boolean).length;
+        if (n === 0) return 'No parts';
+        if (n === midiSong.parts.length) return 'All parts';
+        if (n === 1) return midiSong.parts[midiPartSel.indexOf(true)].label;
+        return n + ' parts';
+    }
+
+    function showPartSelect(show) {
+        document.getElementById('partPicker').style.display = show ? '' : 'none';
+        if (!show) document.getElementById('partPickerMenu').style.display = 'none';
+    }
+
+    function applyMidiSelection() {
+        if (!midiSong) return;
+        const notes = midiSong.parts.reduce(
+            (acc, p, i) => midiPartSel[i] ? acc.concat(p.notes) : acc, []);
+        NUM_COLS = midiSong.numCols;
+        sequencerNotes = notes.map(n => ({...n}));
+        if (currentSeqStep >= NUM_COLS) currentSeqStep = 0;
+        document.getElementById('partPickerBtn').textContent = partBtnLabel();
+        drawSequencer();
+    }
+
+    // Open/close the part menu; clicking anywhere else closes it
+    document.getElementById('partPickerBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const m = document.getElementById('partPickerMenu');
+        m.style.display = m.style.display === 'none' ? '' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('partPicker').contains(e.target)) {
+            document.getElementById('partPickerMenu').style.display = 'none';
+        }
+    });
+
+    // --- DEFAULT SONG: bundled "ATPC" MIDI file ---
+    // Embedded as base64 so the page stays a single self-contained file;
+    // loaded through the exact same path as a user-picked .mid file.
+    const DEFAULT_MIDI_B64 = "TVRoZAAAAAYAAQAEAYBNVHJrAAAQZQD/WAQEAhgIAP9RAwZbmgD/AwtTeW50aCBQbHVjawDAVACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkCZEYIAmAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkB1EYIAdAACQIkRggCIAAJAdRGCAHQAAkCJEYIAiAACQJkRggCYAYJAdRGCAHQAAkCJEYIAiAACQJURggCUAYJAdRGCAHQAAkCJEYIAiAACQHURggB0AAJAiRGCAIgAAkCVEYIAlAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAmRGCAJgBgkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCZEYIAmAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQJkRggCYAYJAdRGCAHQAAkCJEYIAiAACQHURggB0AAJAiRGCAIgAAkCVEYIAlAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAmRGCAJgBgkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkB1EYIAdAACQIkRggCIAAJAdRGCAHQAAkCJEYIAiAACQJURggCUAYJAdRGCAHQAAkCJEYIAiAACQHURggB0AAJAiRGCAIgAAkCZEYIAmAGCQHURggB0AAJAiRGCAIgAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJkRggCYAYJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAmRGCAJgBgkB1EYIAdAACQIkRggCIAAJAdRGCAHQAAkCJEYIAiAACQJURggCUAYJAdRGCAHQAAkCJEYIAiAACQHURggB0AAJAiRGCAIgAAkCZEYIAmAGCQHURggB0AAJAiRGCAIgAAkCVEYIAlAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkB1EYIAdAACQIkRggCIAAJAdRGCAHQAAkCJEYIAiAACQJkRggCYAYJAdRGCAHQAAkCJEYIAiAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAmRGCAJgBgkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCZEYIAmAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkB1EYIAdAACQIkRggCIAAJAdRGCAHQAAkCJEYIAiAACQJkRggCYAYJAdRGCAHQAAkCJEYIAiAACQJURggCUAYJAdRGCAHQAAkCJEYIAiAACQHURggB0AAJAiRGCAIgAAkCVEYIAlAGCQHURggB0AAJAiRGCAIgAAkB1EYIAdAACQIkRggCIAAJAmRGCAJgBgkB1EYIAdAACQIkRggCIAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCZEYIAmAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAlRGCAJQBgkBxEYIAcAACQIURggCEAAJAcRGCAHAAAkCFEYIAhAACQJURggCUAYJAcRGCAHAAAkCFEYIAhAACQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAhRGCAIQAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQJURggCUAYJAcRGCAHAAAkCBEYIAgAACQHERggBwAAJAgRGCAIAAAkCVEYIAlAGCQHERggBwAAJAgRGCAIAAAkBxEYIAcAACQIERggCAAAJAlRGCAJQBgkBxEYIAcAACQIERggCAAAP8vAE1UcmsAAAZRAP8DDFNtb290aCBTeW50aADBWrMAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AIFAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIFAkTgyAJEzMoFAgTMAAIE4AIFAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AIFAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIFAkTgyAJEzMoFAgTMAAIE4AIFAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AIFAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIFAkTgyAJEzMoFAgTMAAIE4AIFAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIRAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AIFAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIRAkTgyAJEzMoFAgTMAAIE4AIFAkTgyAJEzMoFAgTMAAIE4AACROjIAkTUygUCBNQAAgToAikCROjIAkTUygUCBNQAAgToAgwCROjIAkTUygUCBNQAAgToAgUCROjIAkTUygUCBNQAAgToAgUCROjIAkTUygUCBNQAAgToAAJE5MgCRNDKBQIE0AACBOQCKQJE5MgCRNDKBQIE0AACBOQCDAJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQAAkToyAJE1MoFAgTUAAIE6AIpAkToyAJE1MoFAgTUAAIE6AIMAkToyAJE1MoFAgTUAAIE6AIFAkToyAJE1MoFAgTUAAIE6AIFAkToyAJE1MoFAgTUAAIE6AACROTIAkTQygUCBNAAAgTkAikCROTIAkTQygUCBNAAAgTkAgwCROTIAkTQygUCBNAAAgTkAgUCROTIAkTQygUCBNAAAgTkAgUCROTIAkTQygUCBNAAAgTkAAJE6MgCRNTKBQIE1AACBOgCKQJE6MgCRNTKBQIE1AACBOgCDAJE6MgCRNTKBQIE1AACBOgCBQJE6MgCRNTKBQIE1AACBOgCBQJE6MgCRNTKBQIE1AACBOgAAkTkyAJE0MoFAgTQAAIE5AIpAkTkyAJE0MoFAgTQAAIE5AIMAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AIFAkTkyAJE0MoFAgTQAAIE5AACROjIAkTUygUCBNQAAgToAikCROjIAkTUygUCBNQAAgToAgwCROjIAkTUygUCBNQAAgToAgUCROjIAkTUygUCBNQAAgToAgUCROjIAkTUygUCBNQAAgToAAJE5MgCRNDKBQIE0AACBOQCKQJE5MgCRNDKBQIE0AACBOQCDAJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQCEQJE5MgCRNDKBQIE0AACBOQCEQJE5MgCRNDKBQIE0AACBOQCEQJE5MgCRNDKBQIE0AACBOQCBQJE5MgCRNDKBQIE0AACBOQCBQJE4MgCRMzKBQIEzAACBOACEQJE4MgCRMzKBQIEzAACBOACEQJE4MgCRMzKBQIEzAACBOACEQJE4MgCRMzKBQIEzAACBOAAA/y8ATVRyawAABDoA/wMNMjAyMyBEcnVtIEtpdADJAIOxQJkqMgCZHDJgiRwAAIkqAACZKjJgiSoAAJkqMgCZHDJgiRwAAIkqAACZKjJgiSoAAJkqMgCZIDJgiSAAAIkqAACZKjJgiSoAAJkqMgCZHzJgiR8AAIkqAACZKjIAmSMyAJkcMiCZIzIgmSMyIIkcAACJIwAAiSoAAJkqMiCJIwAgiSMAIIkqAACZKjJgiSoAAJkfMgCZKjIAmRwyYIkcAACJKgAAiR8AAJkqMmCJKgAAmSoyAJkgMmCJIAAAiSoAAJkqMgCZIzIgmSMyIJkjMiCJIwAAiSoAAJkqMiCJIwAgiSMAIIkqAACZKjIAmSMyIJkjMiCZIzIgiSMAAIkqAACZKjIAmRwyIIkjACCJIwAgiRwAAIkqAACZKjIAmSAyYIkgAACJKgAAmSoyAJkcMmCJHAAAiSoAAJkqMmCJKgAAmSoyAJkgMmCJIAAAiSoAAJkqMmCJKgAAmSoyAJkfMmCJHwAAiSoAAJkqMgCZIzIAmRwyIJkjMiCZIzIgiRwAAIkjAACJKgAAmSoyIIkjACCJIwAgiSoAAJkqMmCJKgAAmR8yAJkqMgCZHDJgiRwAAIkqAACJHwAAmSoyYIkqAACZKjIAmSAyYIkgAACJKgAAmSoyAJkjMiCZIzIgmSMyIIkjAACJKgAAmSoyIIkjACCJIwAgiSoAAJkqMgCZIzIgmSMyQIkjAACJKgAAmSoyAJkcMiCJIwBAiRwAAIkqAACZKjJgiSoAAJkqMgCZHDJgiRwAAIkqAACZKjJgiSoAAJkqMgCZIDJgiSAAAIkqAACZKjJgiSoAAJkqMgCZHzJgiR8AAIkqAACZKjIAmSMyAJkcMiCZIzIgmSMyIIkcAACJIwAAiSoAAJkqMiCJIwAgiSMAIIkqAACZKjJgiSoAAJkfMgCZKjIAmRwyYIkcAACJKgAAiR8AAJkqMmCJKgAAmSoyAJkgMmCJIAAAiSoAAJkqMgCZIzIgmSMyIJkjMiCJIwAAiSoAAJkqMiCJIwAgiSMAIIkqAACZKjIAmSMyIJkjMiCZIzIgiSMAAIkqAACZKjIAmRwyIIkjACCJIwAgiRwAAIkqAACZKjIAmSAyYIkgAACJKgAAmSoyAJkcMmCJHAAAiSoAAJkqMmCJKgAAmSoyAJkgMmCJIAAAiSoAAJkqMmCJKgAAmSoyAJkfMmCJHwAAiSoAAJkqMgCZIzIAmRwyIJkjMiCZIzIgiRwAAIkjAACJKgAAmSoyIIkjACCJIwAgiSoAAJkqMmCJKgAAmR8yAJkqMgCZHDJgiRwAAIkqAACJHwAAmSoyYIkqAACZKjIAmSAyYIkgAACJKgAAmSoyAJkjMiCZIzIgmSMyIIkjAACJKgAAmSoyIIkjACCJIwAgiSoAAJkqMgCZIzIgmSMyQIkjAACJKgAgiSMAAP8vAE1UcmsAAACnAP8DDzIwMjMgRHJ1bSBLaXQgMgDJAIOxQJkbMmCJGwBgmRsyYIkbAIMAmRsyYIkbAIFAmRsyYIkbAINgmRsyYIkbAGCZGzJgiRsAgwCZGzJgiRsAgUCZGzJgiRsAg2CZGzJgiRsAYJkbMmCJGwCDAJkbMmCJGwCBQJkbMmCJGwCDYJkbMmCJGwBgmRsyYIkbAIMAmRsyYIkbAIFAmRsyYIkbAAD/LwA=";
+    try {
+        const bytes = Uint8Array.from(atob(DEFAULT_MIDI_B64), c => c.charCodeAt(0));
+        loadMidiSong(parseMidiFile(bytes.buffer), 'ATPC');
+    } catch(e) {
+        console.warn('Bundled MIDI failed to load, falling back to ArpStyle:', e);
+    }
+
+    // --- FULLSCREEN & MOBILE FIT ---
+    async function toggleFullscreen() {
+        const el = document.documentElement;
+        const inFs = document.fullscreenElement || document.webkitFullscreenElement;
+        if (!inFs) {
+            try {
+                if (el.requestFullscreen) await el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            } catch(e) {}
+            // Lock to landscape on mobile where supported (Android Chrome)
+            try {
+                if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+            } catch(e) {}
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+        setTimeout(fitToScreen, 250);
+    }
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+
+    // Scale the whole synth to fill narrow screens (e.g. phone landscape)
+    function fitToScreen() {
+        const wrap = document.getElementById('appWrap');
+        const inner = wrap.firstElementChild;
+        const vw = document.documentElement.clientWidth;
+        const scale = Math.min(1, (vw - 4) / 1000);
+        if (scale < 1) {
+            document.body.style.minWidth = '0';
+            wrap.style.transform = `scale(${scale})`;
+            wrap.style.transformOrigin = 'top center';
+            wrap.style.height = (inner.offsetHeight * scale) + 'px';
+            wrap.style.width = '100%';
+        } else {
+            document.body.style.minWidth = '1000px';
+            wrap.style.transform = '';
+            wrap.style.height = '';
+            wrap.style.width = '';
+        }
+    }
+    window.addEventListener('resize', fitToScreen);
+    window.addEventListener('orientationchange', () => setTimeout(fitToScreen, 150));
+    document.addEventListener('fullscreenchange', () => setTimeout(fitToScreen, 150));
+    setTimeout(fitToScreen, 60);
+
     // --- KEYBOARD (37 keys / 22 white, 3 octaves) ---
     // White keys live in an un-padded flex row; black keys are positioned
     // absolutely against the SAME container, so percentages line up exactly.
@@ -1355,9 +1799,10 @@
         if(n.includes('#')) continue;
 
         const key = document.createElement('div'); key.className = 'key';
-        key.onmousedown = () => { initAudio(); key.classList.add('active'); triggerAttack(i); };
-        key.onmouseup = () => { key.classList.remove('active'); triggerRelease(); };
-        key.onmouseleave = () => { if(key.classList.contains('active')) { key.classList.remove('active'); triggerRelease(); } };
+        let keyVoice = null;
+        key.onmousedown = () => { initAudio(); key.classList.add('active'); keyVoice = triggerAttack(i); };
+        key.onmouseup = () => { key.classList.remove('active'); if(keyVoice) { triggerRelease(keyVoice); keyVoice = null; } };
+        key.onmouseleave = () => { if(key.classList.contains('active')) { key.classList.remove('active'); if(keyVoice) { triggerRelease(keyVoice); keyVoice = null; } } };
         kbWhite.appendChild(key);
 
         // Black key centered on the boundary between this white key and the next
@@ -1366,9 +1811,10 @@
             const boundaryPct = ((whiteIndex + 1) / NUM_WHITE) * 100;
             bk.style.left = `calc(${boundaryPct}% - 1.45%)`; // half of the 2.9% key width
             const noteIdx = i + 1;
-            bk.onmousedown = (e) => { e.stopPropagation(); initAudio(); bk.classList.add('active'); triggerAttack(noteIdx); };
-            bk.onmouseup = (e) => { e.stopPropagation(); bk.classList.remove('active'); triggerRelease(); };
-            bk.onmouseleave = () => { if(bk.classList.contains('active')) { bk.classList.remove('active'); triggerRelease(); } };
+            let bkVoice = null;
+            bk.onmousedown = (e) => { e.stopPropagation(); initAudio(); bk.classList.add('active'); bkVoice = triggerAttack(noteIdx); };
+            bk.onmouseup = (e) => { e.stopPropagation(); bk.classList.remove('active'); if(bkVoice) { triggerRelease(bkVoice); bkVoice = null; } };
+            bk.onmouseleave = () => { if(bk.classList.contains('active')) { bk.classList.remove('active'); if(bkVoice) { triggerRelease(bkVoice); bkVoice = null; } } };
             kbOuter.appendChild(bk);
         }
         whiteIndex++;

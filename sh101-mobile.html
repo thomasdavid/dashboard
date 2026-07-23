@@ -33,6 +33,20 @@
       background: #191a17;
     }
 
+    #dedication {
+      position: fixed;
+      right: max(14px, env(safe-area-inset-right));
+      bottom: max(8px, env(safe-area-inset-bottom));
+      z-index: 5;
+      pointer-events: none;
+      color: #c8c9c5;
+      font: italic 600 11px/1.2 Arial, Helvetica, sans-serif;
+      letter-spacing: .04em;
+      text-shadow: 0 1px 0 rgba(255,255,255,.18), 0 -1px 0 rgba(0,0,0,.65);
+      opacity: .86;
+      white-space: nowrap;
+    }
+
     #rotate-screen {
       position: fixed;
       inset: 0;
@@ -61,12 +75,14 @@
 
     @media (orientation: portrait) and (max-width: 900px) {
       #rotate-screen { display: flex; }
-      #synth-frame { visibility: hidden; }
+      #synth-frame,
+      #dedication { visibility: hidden; }
     }
 
     @media (orientation: landscape) {
       #rotate-screen { display: none !important; }
-      #synth-frame { visibility: visible; }
+      #synth-frame,
+      #dedication { visibility: visible; }
     }
   </style>
 </head>
@@ -78,6 +94,8 @@
     allow="autoplay; fullscreen"
     allowfullscreen
   ></iframe>
+
+  <div id="dedication" aria-hidden="true">For Serena x</div>
 
   <div id="rotate-screen" aria-live="polite">
     <button id="enter-button" type="button">Rotate to landscape</button>

@@ -51,7 +51,6 @@
       transform-origin: center center;
     }
 
-    /* If the phone is upright, rotate the entire instrument into a landscape canvas. */
     @media (orientation: portrait) and (max-width: 900px) {
       #synth-frame {
         inset: auto;
@@ -91,10 +90,14 @@
   <script>
     const synthFrame = document.getElementById('synth-frame');
 
-    function enableTouchNavigationInsideSynth() {
+    function configureSynth() {
       try {
+        const win = synthFrame.contentWindow;
         const doc = synthFrame.contentDocument;
-        if (!doc) return;
+        if (!doc || !win) return;
+
+        const overlay = doc.getElementById('start-overlay');
+        if (overlay) overlay.style.display = 'none';
 
         let viewport = doc.querySelector('meta[name="viewport"]');
         if (!viewport) {
@@ -109,12 +112,19 @@
         doc.body.style.overflow = 'auto';
         doc.body.style.touchAction = 'pan-x pan-y pinch-zoom';
         doc.body.style.webkitOverflowScrolling = 'touch';
+
+        const activateAudio = () => {
+          try { win.initAudio?.(); } catch (_) {}
+        };
+        doc.addEventListener('pointerdown', activateAudio, { once: true, capture: true, passive: true });
+        doc.addEventListener('touchstart', activateAudio, { once: true, capture: true, passive: true });
+        doc.addEventListener('keydown', activateAudio, { once: true, capture: true });
       } catch (_) {
-        // Same-origin access should work; the synth remains usable if unavailable.
+        // Same-origin access should work; the synth remains visible if unavailable.
       }
     }
 
-    synthFrame.addEventListener('load', enableTouchNavigationInsideSynth);
+    synthFrame.addEventListener('load', configureSynth);
 
     async function requestLandscapeLock() {
       try {
@@ -122,7 +132,7 @@
           await screen.orientation.lock('landscape');
         }
       } catch (_) {
-        // The CSS rotation above is the fallback for browsers that block locking.
+        // CSS rotation is the fallback where browsers block orientation locking.
       }
     }
 

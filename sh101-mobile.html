@@ -17,9 +17,9 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      overflow: auto;
+      overflow: hidden;
       background: #191a17;
-      overscroll-behavior: auto;
+      overscroll-behavior: none;
       touch-action: pan-x pan-y pinch-zoom;
       -webkit-overflow-scrolling: touch;
     }
@@ -33,6 +33,7 @@
       display: block;
       background: #191a17;
       touch-action: pan-x pan-y pinch-zoom;
+      transform-origin: center center;
     }
 
     #dedication {
@@ -47,44 +48,32 @@
       text-shadow: 0 1px 0 rgba(255,255,255,.18), 0 -1px 0 rgba(0,0,0,.65);
       opacity: .86;
       white-space: nowrap;
+      transform-origin: center center;
     }
 
-    #rotate-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
-      background: #191a17;
-      color: #f2f2ee;
-      font-family: Arial, Helvetica, sans-serif;
-      text-align: center;
-    }
-
-    #rotate-screen button {
-      appearance: none;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 10px;
-      padding: 18px 24px;
-      background: #e8862a;
-      color: #111;
-      font: 700 16px/1 Arial, Helvetica, sans-serif;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
+    /* If the phone is upright, rotate the entire instrument into a landscape canvas. */
     @media (orientation: portrait) and (max-width: 900px) {
-      #rotate-screen { display: flex; }
-      #synth-frame,
-      #dedication { visibility: hidden; }
+      #synth-frame {
+        inset: auto;
+        top: 50%;
+        left: 50%;
+        width: 100dvh;
+        height: 100vw;
+        transform: translate(-50%, -50%) rotate(90deg);
+      }
+
+      #dedication {
+        right: auto;
+        bottom: auto;
+        left: max(10px, env(safe-area-inset-left));
+        top: 14px;
+        transform: rotate(90deg) translateY(-100%);
+      }
     }
 
     @media (orientation: landscape) {
-      #rotate-screen { display: none !important; }
-      #synth-frame,
-      #dedication { visibility: visible; }
+      #synth-frame { transform: none; }
+      #dedication { transform: none; }
     }
   </style>
 </head>
@@ -99,12 +88,7 @@
 
   <div id="dedication" aria-hidden="true">For Serena x</div>
 
-  <div id="rotate-screen" aria-live="polite">
-    <button id="enter-button" type="button">Rotate to landscape</button>
-  </div>
-
   <script>
-    const enterButton = document.getElementById('enter-button');
     const synthFrame = document.getElementById('synth-frame');
 
     function enableTouchNavigationInsideSynth() {
@@ -132,30 +116,18 @@
 
     synthFrame.addEventListener('load', enableTouchNavigationInsideSynth);
 
-    async function enterImmersiveMode() {
-      try {
-        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch (_) {
-        // iOS Safari may not expose the standard Fullscreen API.
-      }
-
+    async function requestLandscapeLock() {
       try {
         if (screen.orientation && screen.orientation.lock) {
           await screen.orientation.lock('landscape');
         }
       } catch (_) {
-        // Orientation locking is not available in all mobile browsers.
+        // The CSS rotation above is the fallback for browsers that block locking.
       }
     }
 
-    enterButton.addEventListener('click', enterImmersiveMode);
-    enterButton.addEventListener('touchend', enterImmersiveMode, { passive: true });
-
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => window.scrollTo(0, 0), 100);
-    });
+    document.addEventListener('pointerdown', requestLandscapeLock, { once: true, passive: true });
+    document.addEventListener('touchend', requestLandscapeLock, { once: true, passive: true });
   </script>
 </body>
 </html>
